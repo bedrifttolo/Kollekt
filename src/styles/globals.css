@@ -1,0 +1,227 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap');
+
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ── Color tokens ─────────────────────────────────────── */
+:root {
+  --background:           hsl(228 40% 6%);
+  --foreground:           hsl(210 20% 92%);
+
+  --card:                 hsl(225 30% 10%);
+  --card-foreground:      hsl(210 20% 92%);
+
+  --popover:              hsl(225 30% 10%);
+  --popover-foreground:   hsl(210 20% 92%);
+
+  --primary:              hsl(185 100% 50%);
+  --primary-foreground:   hsl(228 40% 6%);
+
+  --secondary:            hsl(33 100% 64%);
+  --secondary-foreground: hsl(228 40% 6%);
+
+  --muted:                hsl(225 20% 16%);
+  --muted-foreground:     hsl(215 15% 55%);
+
+  --accent:               hsl(265 80% 65%);
+  --accent-foreground:    hsl(210 20% 95%);
+
+  --destructive:          hsl(0 72% 55%);
+  --destructive-foreground: hsl(210 40% 98%);
+
+  --border:               hsl(225 15% 18%);
+  --input:                hsl(225 15% 18%);
+  --ring:                 hsl(185 100% 50%);
+
+  --radius:               1rem;
+
+  --glass-border:         hsl(225 20% 22%);
+
+  --sidebar:              hsl(228 35% 8%);
+  --sidebar-foreground:   hsl(210 20% 92%);
+  --sidebar-primary:      hsl(185 100% 50%);
+  --sidebar-primary-foreground: hsl(228 40% 6%);
+  --sidebar-accent:       hsl(225 20% 16%);
+  --sidebar-accent-foreground: hsl(210 20% 92%);
+  --sidebar-border:       hsl(225 15% 18%);
+  --sidebar-ring:         hsl(185 100% 50%);
+}
+
+/* ── Tailwind v4 theme mapping ────────────────────────── */
+@theme inline {
+  --color-background:           var(--background);
+  --color-foreground:           var(--foreground);
+  --color-card:                 var(--card);
+  --color-card-foreground:      var(--card-foreground);
+  --color-popover:              var(--popover);
+  --color-popover-foreground:   var(--popover-foreground);
+  --color-primary:              var(--primary);
+  --color-primary-foreground:   var(--primary-foreground);
+  --color-secondary:            var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted:                var(--muted);
+  --color-muted-foreground:     var(--muted-foreground);
+  --color-accent:               var(--accent);
+  --color-accent-foreground:    var(--accent-foreground);
+  --color-destructive:          var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border:               var(--border);
+  --color-input:                var(--input);
+  --color-ring:                 var(--ring);
+  --color-glass-border:         var(--glass-border);
+  --color-sidebar:              var(--sidebar);
+  --color-sidebar-foreground:   var(--sidebar-foreground);
+  --color-sidebar-primary:      var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent:       var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border:       var(--sidebar-border);
+  --color-sidebar-ring:         var(--sidebar-ring);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --font-sans:    'Inter', system-ui, -apple-system, sans-serif;
+  --font-display: 'Space Grotesk', 'Inter', sans-serif;
+}
+
+/* ── Base styles ──────────────────────────────────────── */
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html,
+  body,
+  #root {
+    min-height: 100%;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "cv11", "ss01";
+    line-height: 1.5;
+  }
+
+  button, input, textarea, select {
+    font: inherit;
+  }
+}
+
+/* ── Custom utility classes ───────────────────────────── */
+@layer utilities {
+  .glass {
+    background-color: color-mix(in srgb, var(--card) 60%, transparent);
+    -webkit-backdrop-filter: blur(24px);
+    backdrop-filter: blur(24px);
+    border: 1px solid var(--glass-border);
+  }
+
+  .glass-strong {
+    background-color: color-mix(in srgb, var(--card) 80%, transparent);
+    -webkit-backdrop-filter: blur(32px);
+    backdrop-filter: blur(32px);
+    border: 1px solid var(--glass-border);
+  }
+
+  .gradient-primary {
+    background: linear-gradient(135deg, hsl(185 100% 50%), hsl(265 80% 65%));
+  }
+
+  .gradient-warm {
+    background: linear-gradient(135deg, hsl(33 100% 64%), hsl(0 80% 60%));
+  }
+
+  .text-gradient {
+    background-image: linear-gradient(135deg, hsl(185 100% 50%), hsl(265 80% 65%));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .glow-primary {
+    box-shadow:
+      0 0 20px rgba(0, 212, 240, 0.15),
+      0 0 60px rgba(0, 212, 240, 0.05);
+  }
+
+  .glow-accent {
+    box-shadow:
+      0 0 20px rgba(128, 80, 220, 0.15),
+      0 0 60px rgba(128, 80, 220, 0.05);
+  }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .safe-top {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  .safe-content-bottom {
+    padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .app-viewport {
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+}
+
+/* ── Animations ──────────────────────────────────────── */
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes accordion-down {
+  from { height: 0; }
+  to   { height: var(--radix-accordion-content-height); }
+}
+
+@keyframes accordion-up {
+  from { height: var(--radix-accordion-content-height); }
+  to   { height: 0; }
+}
+
+@layer components {
+  .page-enter {
+    animation: page-enter 260ms ease-out;
+  }
+}
+
+/* ── Select styling ───────────────────────────────────── */
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7a99' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 2.25rem;
+}
+
+/* ── Button interactive glow ──────────────────────────── */
+button:not(:disabled) {
+  cursor: pointer;
+  transition: filter 150ms ease, transform 150ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  button:not(:disabled):hover {
+    filter: brightness(1.1) drop-shadow(0 0 8px rgba(0, 212, 240, 0.35));
+    transform: translateY(-1px);
+  }
+}
+
+button:not(:disabled):active {
+  filter: brightness(0.95);
+  transform: scale(0.96);
+}
