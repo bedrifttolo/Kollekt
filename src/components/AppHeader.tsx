@@ -8,6 +8,7 @@ import { api } from "../lib/api";
 import LanguageSwitcher from "./LanguageSwitcher";
 import { formatTime } from "../i18n/helpers";
 import type { MemberStatus } from "../lib/types";
+import { BrandMark } from "./ui-kit";
 
 const pageTitleKeys: Record<string, string> = {
   "/": "app.name",
@@ -98,24 +99,18 @@ export default function AppHeader() {
   };
 
   return (
-    <header className="sticky top-0 z-40 glass-strong safe-top">
-      <div className="flex items-center justify-between h-14 px-4 max-w-lg mx-auto">
-        <h1 className="min-w-0 flex-1 truncate pr-3 font-display font-bold text-lg tracking-tight">
+    <header className="sticky top-0 z-40 bg-background/92 backdrop-blur-xl safe-top">
+      <div className="flex items-center justify-between h-16 px-4 sm:px-6 max-w-xl mx-auto">
+        <h1 className="min-w-0 flex-1 truncate pr-3 font-display font-extrabold text-xl tracking-tight">
           {isHomePage ? (
             <span className="inline-flex items-center gap-2">
-              <span className="h-7 w-7 overflow-hidden rounded-md shrink-0">
-                <img
-                  src="/favicon.png"
-                  alt={t("app.logoAlt")}
-                  className="h-full w-full object-cover scale-125"
-                />
-              </span>
-              <span className="text-gradient">Kollekt</span>
+              <BrandMark className="h-6 w-6 text-primary" />
+              <span className="text-primary">Kollekt</span>
             </span>
           ) : (
             <span className="inline-flex items-center gap-2">
               {PageIcon && (
-                <PageIcon className="h-5 w-5 text-primary shrink-0 drop-shadow-[0_0_6px_hsl(var(--primary)/0.7)]" />
+                <PageIcon className="h-5 w-5 text-primary shrink-0" />
               )}
               {title}
             </span>
@@ -133,7 +128,7 @@ export default function AppHeader() {
                   setShowNotifs((v) => !v);
                   setShowMenu(false);
                 }}
-                className="h-9 w-9 rounded-full glass flex items-center justify-center hover:bg-muted/50 transition-colors relative"
+                className="h-10 w-10 rounded-full bg-card border border-border flex items-center justify-center relative"
                 aria-label={t("header.openNotifications")}
               >
                 <Bell className="h-4 w-4 text-muted-foreground" />
@@ -217,11 +212,11 @@ export default function AppHeader() {
                 setShowMenu((v) => !v);
                 setShowNotifs(false);
               }}
-              className="h-9 w-9 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 transition-colors border border-border"
+              className="h-10 w-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center border border-primary"
               aria-label={t("header.openAccountMenu")}
             >
               {currentUser ? (
-                <span className="text-sm font-bold text-foreground">
+                <span className="text-sm font-bold text-primary-foreground">
                   {currentUser.name[0].toUpperCase()}
                 </span>
               ) : (

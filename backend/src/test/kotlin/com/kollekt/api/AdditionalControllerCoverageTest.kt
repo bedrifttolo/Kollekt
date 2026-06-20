@@ -34,6 +34,7 @@ import com.kollekt.service.GoogleOAuthState
 import com.kollekt.service.GoogleOAuthStateService
 import com.kollekt.service.NotificationService
 import com.kollekt.service.ShoppingOperations
+import com.kollekt.service.SocialAuthService
 import com.kollekt.service.StatsService
 import com.kollekt.service.TaskOperations
 import com.kollekt.service.TokenStoreService
@@ -87,6 +88,8 @@ class AdditionalControllerCoverageTest {
     @Autowired lateinit var mockMvc: MockMvc
 
     @MockitoBean lateinit var accountOperations: AccountOperations
+
+    @MockitoBean lateinit var socialAuthService: SocialAuthService
 
     @MockitoBean lateinit var chatOperations: ChatOperations
 
@@ -267,6 +270,7 @@ class AdditionalControllerCoverageTest {
                     upcomingEvents = emptyList(),
                     recentExpenses = emptyList(),
                     pendingShoppingItems = emptyList(),
+                    vibeScore = 84,
                 ),
             )
 

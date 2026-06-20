@@ -7,6 +7,8 @@ import LanguageSwitcher from '../components/LanguageSwitcher';
 import { api, getUserMessage, setAccessToken, setRefreshToken } from '../lib/api';
 import { useUser } from '../context/UserContext';
 import type { AuthResponse, AppUser, Invitation } from '../lib/types';
+import { BrandMark } from '../components/ui-kit';
+import { getSocialIdentity, getSocialProviders, type SocialProvider } from '../lib/socialAuth';
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -21,6 +23,8 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [socialLoading, setSocialLoading] = useState<SocialProvider | null>(null);
+  const socialProviders = getSocialProviders();
 
   const tryJoinFromInvitation = async (user: AppUser) => {
     if (user.collectiveCode) return user;
@@ -70,30 +74,54 @@ export default function LoginPage() {
     }
   };
 
+  const handleSocialLogin = async (provider: SocialProvider) => {
+    setError('');
+    setSocialLoading(provider);
+    try {
+      const identity = await getSocialIdentity(provider);
+      const res = await api.post<AuthResponse>(`/onboarding/oauth/${provider}`, identity);
+      await Promise.all([setAccessToken(res.accessToken), setRefreshToken(res.refreshToken)]);
+      const userWithInvite = await tryJoinFromInvitation(res.user);
+      setCurrentUser(userWithInvite);
+      navigate(userWithInvite.collectiveCode ? '/' : '/create-household', { replace: true });
+    } catch (err: unknown) {
+      setError(getUserMessage(err, t('errors.generic')));
+    } finally {
+      setSocialLoading(null);
+    }
+  };
+
   return (
-    <div className="relative min-h-screen bg-background flex flex-col items-center justify-center px-6">
-      <div className="absolute top-4 right-4">
+    <div className="relative app-viewport bg-background flex flex-col items-center justify-center px-6 safe-top safe-bottom overflow-hidden">
+      <div className="absolute -top-24 -right-20 h-72 w-72 rounded-full bg-secondary/30 blur-3xl" />
+      <div className="absolute -bottom-32 -left-24 h-80 w-80 rounded-full bg-accent/25 blur-3xl" />
+      <div className="absolute top-4 right-4 z-10">
         <LanguageSwitcher />
       </div>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-sm space-y-8"
+        className="relative w-full max-w-sm space-y-6"
       >
-        {/* Logo */}
-        <div className="text-center">
-          <h1 className="font-display text-4xl font-bold text-gradient">Kollekt</h1>
-          <p className="text-sm text-muted-foreground mt-2">{t('app.tagline')}</p>
+        <div className="flex items-center gap-3 text-primary">
+          <BrandMark className="h-7 w-7" />
+          <span className="font-display text-2xl font-extrabold">Kollekt</span>
         </div>
 
-        {/* Mode tabs */}
-        <div className="flex gap-1 glass rounded-xl p-1">
+        <div>
+          <h1 className="font-display text-[2.75rem] leading-[.96] font-extrabold tracking-[-.05em]">
+            {mode === 'login' ? <>Welcome <span className="mark">home.</span></> : <>Find your <span className="mark">people.</span></>}
+          </h1>
+          <p className="text-base text-muted-foreground mt-3">{t('app.tagline')}</p>
+        </div>
+
+        <div className="seg">
           {(['login', 'register'] as const).map((m) => (
             <button
               key={m}
               onClick={() => { setMode(m); setError(''); }}
-              className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all ${
-                mode === m ? 'gradient-primary text-primary-foreground' : 'text-muted-foreground'
+              className={`flex-1 py-2.5 rounded-[.85rem] text-sm font-bold transition-all ${
+                mode === m ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'
               }`}
             >
               {m === 'login' ? t('auth.loginTab') : t('auth.signUpTab')}
@@ -112,7 +140,7 @@ export default function LoginPage() {
             >
               {mode === 'register' && (
                 <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}>
-                  <div className="glass rounded-xl flex items-center gap-3 px-4">
+                  <div className="field flex items-center gap-3">
                     <User className="h-4 w-4 text-muted-foreground shrink-0" />
                     <input
                       value={name}
@@ -126,19 +154,19 @@ export default function LoginPage() {
               )}
 
               {mode === 'login' ? (
-                <div className="glass rounded-xl flex items-center gap-3 px-4">
+                <div className="field flex items-center gap-3">
                   <User className="h-4 w-4 text-muted-foreground shrink-0" />
                   <input
                     type="text"
                     value={loginName}
                     onChange={(e) => setLoginName(e.target.value)}
-                    placeholder={t('auth.username')}
+                    placeholder={t('auth.identifier')}
                     className="w-full bg-transparent py-3 text-sm placeholder:text-muted-foreground focus:outline-none"
                     required
                   />
                 </div>
               ) : (
-                <div className="glass rounded-xl flex items-center gap-3 px-4">
+                <div className="field flex items-center gap-3">
                   <Mail className="h-4 w-4 text-muted-foreground shrink-0" />
                   <input
                     type="email"
@@ -151,7 +179,7 @@ export default function LoginPage() {
                 </div>
               )}
 
-              <div className="glass rounded-xl flex items-center gap-3 px-4">
+              <div className="field flex items-center gap-3">
                 <Lock className="h-4 w-4 text-muted-foreground shrink-0" />
                 <input
                   type={showPassword ? 'text' : 'password'}
@@ -182,7 +210,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full gradient-primary rounded-xl py-3 text-sm font-semibold text-primary-foreground flex items-center justify-center gap-2 disabled:opacity-60"
+            className="btn-pine w-full disabled:opacity-60"
           >
             {loading ? t('auth.pleaseWait') : (
               <>
@@ -192,6 +220,30 @@ export default function LoginPage() {
             )}
           </button>
         </form>
+
+        {mode === 'login' && socialProviders.length > 0 && (
+          <div className="space-y-3">
+            <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
+              <span className="h-px flex-1 bg-border" />
+              {t('auth.continueWith')}
+              <span className="h-px flex-1 bg-border" />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              {socialProviders.map((provider) => (
+                <button
+                  key={provider}
+                  type="button"
+                  disabled={socialLoading !== null}
+                  onClick={() => void handleSocialLogin(provider)}
+                  className="btn-ghost disabled:opacity-60"
+                >
+                  <span className="font-display text-lg font-extrabold">{provider === 'google' ? 'G' : '●'}</span>
+                  {socialLoading === provider ? t('auth.pleaseWait') : t(`auth.${provider}`)}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         <p className="text-center text-xs text-muted-foreground">
           {t('auth.inviteHint')}

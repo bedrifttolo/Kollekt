@@ -27,6 +27,7 @@ import {
   openNativeGoogleCalendarOAuth,
 } from "../lib/googleCalendarOAuth";
 import type { CalendarEvent, EventType } from "../lib/types";
+import { Eyebrow, Fab } from "../components/ui-kit";
 
 const EVENT_TYPES: EventType[] = ["PARTY", "MOVIE", "DINNER", "OTHER"];
 
@@ -244,11 +245,13 @@ export default function CalendarPage() {
       className="space-y-4 pt-4"
     >
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <h2 className="font-display text-xl font-bold">
-          {formatMonthYear(year, month)}
-        </h2>
-        <div className="flex gap-1">
+      <div>
+        <Eyebrow>{t("calendar.eyebrow")}</Eyebrow>
+        <div className="mt-2 flex items-center justify-between">
+          <h2 className="font-display text-[2.25rem] leading-none font-extrabold tracking-[-.04em]">
+            {formatMonthYear(year, month)}
+          </h2>
+          <div className="flex gap-1">
           <button
             onClick={prevMonth}
             className="h-8 w-8 rounded-lg glass flex items-center justify-center"
@@ -261,6 +264,7 @@ export default function CalendarPage() {
           >
             <ChevronRight className="h-4 w-4" />
           </button>
+          </div>
         </div>
       </div>
 
@@ -334,9 +338,9 @@ export default function CalendarPage() {
           </h3>
           <button
             onClick={() => setShowAdd(true)}
-            className="h-8 w-8 rounded-xl gradient-primary flex items-center justify-center"
+            className="h-8 w-8 rounded-xl bg-secondary flex items-center justify-center"
           >
-            <Plus className="h-4 w-4 text-primary-foreground" />
+            <Plus className="h-4 w-4 text-secondary-foreground" />
           </button>
         </div>
 
@@ -373,7 +377,7 @@ export default function CalendarPage() {
                       type="time"
                       value={newTime}
                       onChange={(e) => setNewTime(e.target.value)}
-                      className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary [color-scheme:dark]"
+                      className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                     />
                   </div>
                   <div className="flex-1 space-y-1">
@@ -384,7 +388,7 @@ export default function CalendarPage() {
                       type="time"
                       value={newEndTime}
                       onChange={(e) => setNewEndTime(e.target.value)}
-                      className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary [color-scheme:dark]"
+                      className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                     />
                   </div>
                 </div>
@@ -493,7 +497,7 @@ export default function CalendarPage() {
                       type="time"
                       value={editTime}
                       onChange={(ev) => setEditTime(ev.target.value)}
-                      className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary [color-scheme:dark]"
+                      className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                     />
                   </div>
                   <div className="flex-1 space-y-1">
@@ -504,7 +508,7 @@ export default function CalendarPage() {
                       type="time"
                       value={editEndTime}
                       onChange={(ev) => setEditEndTime(ev.target.value)}
-                      className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary [color-scheme:dark]"
+                      className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                     />
                   </div>
                 </div>
@@ -531,6 +535,7 @@ export default function CalendarPage() {
           )}
         </AnimatePresence>
       </div>
+      {!showAdd && <Fab onClick={() => setShowAdd(true)} label={t("calendar.newEvent")} />}
     </motion.div>
   );
 }

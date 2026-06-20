@@ -193,7 +193,7 @@ export default function GamesPage() {
   };
 
   const renderGameSelector = () => (
-    <div className="grid grid-cols-2 gap-3">
+    <div className="gamegrid">
       {localizedGames.map((game, index) => {
         const isSelected = game.id === selectedGame?.id;
         const Icon = game.mode === 'ordered-deck' ? ListChecks : Hash;
@@ -202,7 +202,7 @@ export default function GamesPage() {
           <button
             key={game.id}
             onClick={() => chooseGame(game.id)}
-            className={`glass rounded-2xl p-4 text-left min-h-[132px] ${isSelected ? 'glow-primary border-primary/40' : ''}`}
+            className={`gcard ${isSelected ? 'border-primary ring-1 ring-primary/20' : ''}`}
           >
             <div className="flex items-start justify-between gap-2">
               <div className={`h-10 w-10 rounded-xl flex items-center justify-center ${isSelected ? 'gradient-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
@@ -220,7 +220,7 @@ export default function GamesPage() {
 
       <button
         onClick={() => chooseGame('kollekt')}
-        className={`glass rounded-2xl p-4 text-left min-h-[132px] border border-primary/20 ${
+        className={`gcard ${
           isKollektSelected ? 'glow-primary border-primary/40' : ''
         }`}
       >
@@ -543,8 +543,14 @@ export default function GamesPage() {
   return (
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-5 pt-4">
       <div>
-        <h2 className="font-display text-xl font-bold">{t('games.title')}</h2>
+        <p className="eyebrow">{t('games.subtitle')}</p>
+        <h2 className="font-display text-[2.4rem] leading-none font-extrabold tracking-[-.04em] mt-2">{t('games.title')}</h2>
         <p className="text-sm text-muted-foreground mt-1">{t('games.subtitle')}</p>
+      </div>
+
+      <div className="seg">
+        <button onClick={() => navigate('/leaderboard')} className="flex-1 rounded-[.85rem] py-2.5 text-sm font-bold text-muted-foreground">{t('bottomNav.board')}</button>
+        <button className="flex-1 rounded-[.85rem] bg-primary py-2.5 text-sm font-bold text-primary-foreground">{t('bottomNav.games')}</button>
       </div>
 
       {renderGameSelector()}

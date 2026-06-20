@@ -99,6 +99,21 @@ class AccountOperationsTest {
     }
 
     @Test
+    fun `login accepts a normalized email identifier`() {
+        val existing = member(name = "Kasper", email = "kasper@example.com").copy(passwordHash = "stored-hash")
+        whenever(memberRepository.findByName("KASPER@example.com")).thenReturn(null)
+        whenever(memberRepository.findByEmail("kasper@example.com")).thenReturn(existing)
+        whenever(passwordEncoder.matches("supersecret", "stored-hash")).thenReturn(true)
+        whenever(tokenService.issueTokenPair(existing)).thenReturn(
+            TokenResult("access-token", "refresh-token", "Bearer", 3600),
+        )
+
+        val result = operations.login(LoginRequest(" KASPER@example.com ", "supersecret"))
+
+        assertEquals("Kasper", result.user.name)
+    }
+
+    @Test
     fun `get user by name uses user profile mapping with defaults`() {
         whenever(memberRepository.findByName("Kasper")).thenReturn(member("Kasper", "kasper@example.com"))
 

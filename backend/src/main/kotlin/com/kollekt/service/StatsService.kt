@@ -277,9 +277,34 @@ class StatsService(
             leaderboard.players.firstOrNull { it.name == user.name }?.rank
                 ?: leaderboard.players.size
 
-        val userBalance =
-            economyOperations.getBalances(memberName)
-                .firstOrNull { it.name == user.name }?.amount ?: 0
+        val balances = economyOperations.getBalances(memberName)
+        val userBalance = balances.firstOrNull { it.name == user.name }?.amount ?: 0
+        val allTasks = taskRepository.findAllByCollectiveCode(collectiveCode)
+        val today = LocalDate.now()
+        val weekStart = today.minusDays(6)
+        val weekTasks = allTasks.filter { it.dueDate in weekStart..today }
+        val completedRate =
+            if (weekTasks.isEmpty()) 1.0 else weekTasks.count { it.completed }.toDouble() / weekTasks.size
+        val overdueRate =
+            if (weekTasks.isEmpty()) {
+                0.0
+            } else {
+                weekTasks.count { !it.completed && it.dueDate < today }.toDouble() / weekTasks.size
+            }
+        val balanceSpread =
+            (balances.maxOfOrNull { it.amount } ?: 0) - (balances.minOfOrNull { it.amount } ?: 0)
+        val balancePenalty = (balanceSpread / 100).coerceAtMost(15)
+        val recentActivityBonus =
+            allTasks.count {
+                it.completedAt?.toLocalDate()?.let {
+                        date ->
+                    date in weekStart..today
+                } == true
+            }.coerceAtMost(5)
+        val vibeScore =
+            (55 + completedRate * 35 - overdueRate * 25 - balancePenalty + recentActivityBonus)
+                .toInt()
+                .coerceIn(0, 100)
 
         val response =
             DashboardResponse(
@@ -289,12 +314,10 @@ class StatsService(
                 currentUserRank = rank,
                 currentUserBalance = userBalance,
                 completedTasksCount =
-                    taskRepository
-                        .findAllByCollectiveCode(collectiveCode)
+                    allTasks
                         .count { it.completed && it.assignee == user.name },
                 upcomingTasks =
-                    taskRepository
-                        .findAllByCollectiveCode(collectiveCode)
+                    allTasks
                         .filter { !it.completed }
                         .sortedBy { it.dueDate }
                         .take(3)
@@ -318,6 +341,7 @@ class StatsService(
                         .filter { !it.completed }
                         .take(3)
                         .map { ShoppingItemDto(it.id, it.item, it.addedBy, it.completed) },
+                vibeScore = vibeScore,
             )
 
         return response

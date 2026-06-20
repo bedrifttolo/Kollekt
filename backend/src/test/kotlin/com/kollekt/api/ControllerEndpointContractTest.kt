@@ -33,6 +33,7 @@ import com.kollekt.service.EconomyOperations
 import com.kollekt.service.EventOperations
 import com.kollekt.service.MemberOperations
 import com.kollekt.service.ShoppingOperations
+import com.kollekt.service.SocialAuthService
 import com.kollekt.service.StatsService
 import com.kollekt.service.TaskOperations
 import com.kollekt.service.TokenStoreService
@@ -83,6 +84,8 @@ class ControllerEndpointContractTest {
     @Autowired lateinit var mockMvc: MockMvc
 
     @MockitoBean lateinit var accountOperations: AccountOperations
+
+    @MockitoBean lateinit var socialAuthService: SocialAuthService
 
     @MockitoBean lateinit var collectiveOperations: CollectiveOperations
 

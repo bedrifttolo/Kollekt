@@ -171,6 +171,12 @@ data class LoginRequest(
     val password: String,
 )
 
+data class SocialLoginRequest(
+    val idToken: String,
+    val nonce: String? = null,
+    val displayName: String? = null,
+)
+
 data class AuthResponse(
     val accessToken: String,
     val refreshToken: String,
@@ -304,6 +310,7 @@ data class DashboardResponse(
     val upcomingEvents: List<EventDto>,
     val recentExpenses: List<ExpenseDto>,
     val pendingShoppingItems: List<ShoppingItemDto>,
+    val vibeScore: Int,
 )
 
 data class PeriodStatsDto(

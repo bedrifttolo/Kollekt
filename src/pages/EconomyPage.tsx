@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowUpRight, ArrowDownLeft, Plus, Check, Recycle, ChevronRight, X, Users, Pencil, Trash2 } from 'lucide-react';
+import { ArrowUpRight, ArrowDownLeft, Check, Recycle, ChevronRight, X, Users, Pencil, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { api } from '../lib/api';
 import { useUser } from '../context/UserContext';
 import { formatCurrency, formatDate, translateKey } from '../i18n/helpers';
 import { connectCollectiveRealtime } from '../lib/realtime';
 import type { EconomySummary, Expense, PayOption } from '../lib/types';
+import { Eyebrow, Fab } from '../components/ui-kit';
 
 const EXPENSE_CATEGORIES = ['Groceries', 'Bills', 'Cleaning', 'Entertainment', 'Food', 'Other'];
 
@@ -152,19 +153,18 @@ export default function EconomyPage() {
 
   return (
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-5 pt-4">
-      <div className="flex items-center justify-end">
-        <button onClick={() => setShowAdd(true)} className="h-9 w-9 rounded-xl gradient-primary flex items-center justify-center">
-          <Plus className="h-5 w-5 text-primary-foreground" />
-        </button>
+      <div>
+        <Eyebrow>{t('economy.eyebrow')}</Eyebrow>
+        <h2 className="mt-2 font-display text-[2.4rem] font-extrabold leading-none tracking-[-.04em]">{t('economy.titleLineOne')} <span className="mark">{t('economy.titleLineTwo')}</span></h2>
       </div>
 
       {/* Balance card */}
-      <div className="glass rounded-2xl p-4 glow-primary">
-        <p className="text-xs text-muted-foreground mb-1">{t('economy.yourBalance')}</p>
+      <div className="wallet">
+        <p className="text-xs font-bold uppercase tracking-[.16em] text-white/65 mb-1">{t('economy.yourBalance')}</p>
         <p className={`font-display text-3xl font-bold ${oweAmount > 0 ? 'text-destructive' : getAmount > 0 ? 'text-primary' : 'text-foreground'}`}>
           {oweAmount > 0 ? `- ${formatCurrency(oweAmount)}` : getAmount > 0 ? `+ ${formatCurrency(getAmount)}` : formatCurrency(0)}
         </p>
-        <p className="text-xs text-muted-foreground mt-1">
+        <p className="text-xs text-white/70 mt-1">
           {hasPayOptions && selectedPayOption ? t('economy.owe', { name: selectedPayOption.name, amount: formatCurrency(selectedPayOption.amount) })
           : oweAmount > 0 && fallbackCreditor ? t('economy.owe', { name: fallbackCreditor.name, amount: formatCurrency(oweAmount) })
           : getAmount > 0 ? t('economy.othersOweYou')
@@ -176,7 +176,7 @@ export default function EconomyPage() {
               <select
                 value={selectedPayOption.name}
                 onChange={(e) => setSelectedCreditorName(e.target.value)}
-                className="w-full glass rounded-xl px-3 py-2.5 text-sm font-medium focus:outline-none focus:ring-1 focus:ring-primary [color-scheme:dark]"
+                className="w-full rounded-xl border border-white/20 bg-white/10 px-3 py-2.5 text-sm font-medium focus:outline-none focus:ring-1 focus:ring-secondary"
                 aria-label={t('economy.payPersonLabel')}
               >
                 {payOptions.map((option) => (
@@ -188,17 +188,19 @@ export default function EconomyPage() {
             )}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <button onClick={handlePayCreditor} disabled={settling || !selectedPayOption}
-                className="w-full gradient-primary rounded-xl py-2.5 px-3 text-sm font-semibold text-primary-foreground flex items-center justify-center gap-2 disabled:opacity-60">
+                className="btn-lemon w-full disabled:opacity-60">
                 <Check className="h-4 w-4" /> {t('economy.payAmountTo', { name: selectedPayOption.name, amount: formatCurrency(selectedPayOption.amount) })}
               </button>
               <button onClick={handleSettleAll} disabled={settling || payOptions.length === 0}
-                className="w-full glass rounded-xl py-2.5 px-3 text-sm font-medium flex items-center justify-center gap-2 disabled:opacity-60">
+                className="w-full rounded-xl border border-white/25 bg-white/10 py-2.5 px-3 text-sm font-medium text-white disabled:opacity-60">
                 {t('economy.settleAll')}
               </button>
             </div>
           </div>
         )}
       </div>
+
+      {!showAdd && <Fab onClick={() => setShowAdd(true)} label={t('economy.newExpense')} />}
 
       {/* Add expense form */}
       <AnimatePresence>
@@ -214,9 +216,9 @@ export default function EconomyPage() {
                 className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" />
               <input type="number" value={newAmount} onChange={(e) => setNewAmount(e.target.value)}
                 placeholder={t('economy.expenseAmountPlaceholder')}
-                className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary [color-scheme:dark]" />
+                className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" />
               <select value={newCategory} onChange={(e) => setNewCategory(e.target.value)}
-                className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary [color-scheme:dark]">
+                className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary">
                 {EXPENSE_CATEGORIES.map((c) => <option key={c} value={c}>{translateKey('common.expenseCategories', c)}</option>)}
               </select>
               {members.length > 0 && (
@@ -238,7 +240,7 @@ export default function EconomyPage() {
                 type="date"
                 value={newDeadline}
                 onChange={(e) => setNewDeadline(e.target.value)}
-                className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary [color-scheme:dark]"
+                className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
                 aria-label={t('economy.deadlineDateLabel')}
                 placeholder={t('economy.deadlineDateLabel')}
               />
@@ -359,9 +361,9 @@ export default function EconomyPage() {
                         className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" />
                       <input type="number" value={editAmount} onChange={(ev) => setEditAmount(ev.target.value)}
                         placeholder={t('economy.expenseAmountPlaceholder')}
-                        className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary [color-scheme:dark]" />
+                        className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" />
                       <select value={editCategory} onChange={(ev) => setEditCategory(ev.target.value)}
-                        className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary [color-scheme:dark]">
+                        className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary">
                         {EXPENSE_CATEGORIES.map((c) => <option key={c} value={c}>{translateKey('common.expenseCategories', c)}</option>)}
                       </select>
                       <div className="flex gap-2">

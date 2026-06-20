@@ -15,6 +15,9 @@ import {
   UserMinus,
   Settings,
   X,
+  Sun,
+  Moon,
+  Globe2,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
@@ -32,6 +35,9 @@ import type {
   LeaderboardPlayer,
   Achievement,
 } from "../lib/types";
+import { useTheme } from "../context/ThemeContext";
+import { Eyebrow } from "../components/ui-kit";
+import LanguageSwitcher from "../components/LanguageSwitcher";
 
 const STATUS_OPTIONS: { value: MemberStatus; emoji: string }[] = [
   { value: "ACTIVE", emoji: "🟢" },
@@ -53,6 +59,7 @@ const NOTIFICATION_TYPES = [
 export default function ProfilePage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { theme, toggleTheme } = useTheme();
   const {
     currentUser,
     setCurrentUser,
@@ -81,6 +88,7 @@ export default function ProfilePage() {
   const [myStats, setMyStats] = useState<LeaderboardPlayer | null>(null);
   const [achievementsUnlocked, setAchievementsUnlocked] = useState(0);
   const [achievementsTotal, setAchievementsTotal] = useState(0);
+  const [householdMembers, setHouseholdMembers] = useState<string[]>([]);
 
   const name = currentUser?.name ?? "";
 
@@ -90,10 +98,12 @@ export default function ProfilePage() {
     Promise.all([
       api.get<{ players: LeaderboardPlayer[] }>(`/leaderboard?memberName=${encodeURIComponent(name)}&period=OVERALL`),
       api.get<Achievement[]>(`/achievements?memberName=${encodeURIComponent(name)}`),
-    ]).then(([lb, ach]) => {
+      api.get<{ name: string }[]>(`/members/collective?memberName=${encodeURIComponent(name)}`),
+    ]).then(([lb, ach, members]) => {
       setMyStats(lb.players.find((p) => p.name === name) ?? null);
       setAchievementsUnlocked(ach.filter((a) => a.unlocked).length);
       setAchievementsTotal(ach.length);
+      setHouseholdMembers(members.map((member) => member.name));
     }).catch(() => {});
   }, [name]);
 
@@ -220,6 +230,10 @@ export default function ProfilePage() {
       animate={{ opacity: 1, y: 0 }}
       className="space-y-4 pt-4 pb-8"
     >
+      <div>
+        <Eyebrow>{t("profile.eyebrow")}</Eyebrow>
+        <h2 className="mt-2 font-display text-[2.35rem] font-extrabold leading-none tracking-[-.04em]">{t("profile.title")}</h2>
+      </div>
       <div className="glass rounded-2xl p-5 glow-primary">
         <div className="flex items-center gap-4">
           <div className="h-16 w-16 rounded-2xl gradient-primary flex items-center justify-center text-2xl font-display font-bold text-primary-foreground shrink-0">
@@ -306,6 +320,44 @@ export default function ProfilePage() {
           </div>
         </div>
       )}
+
+      {householdMembers.length > 0 && (
+        <div className="card">
+          <p className="text-xs font-bold uppercase tracking-[.14em] text-muted-foreground">{t("profile.householdMembers")}</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {householdMembers.map((member) => (
+              <span key={member} className="pill pill-pine flex items-center gap-1.5">
+                <span className="grid h-5 w-5 place-items-center rounded-full bg-primary text-[9px] text-primary-foreground">{member[0]?.toUpperCase()}</span>
+                {member}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="glass rounded-2xl p-4 flex items-center gap-3">
+        <div className="h-9 w-9 rounded-xl bg-accent/20 flex items-center justify-center shrink-0">
+          <Globe2 className="h-4 w-4 text-accent-foreground" />
+        </div>
+        <div className="flex-1">
+          <p className="text-sm font-semibold">{t("profile.language")}</p>
+        </div>
+        <LanguageSwitcher />
+      </div>
+
+      <div className="glass rounded-2xl p-4 flex items-center gap-3">
+        <div className="h-9 w-9 rounded-xl bg-secondary/25 flex items-center justify-center shrink-0">
+          {theme === "light" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4 text-secondary" />}
+        </div>
+        <div className="flex-1">
+          <p className="text-sm font-semibold">{t("profile.appearance.title")}</p>
+          <p className="text-[10px] text-muted-foreground">{t(`profile.appearance.${theme}`)}</p>
+        </div>
+        <button onClick={toggleTheme} className="seg !p-1" aria-label={t("profile.appearance.toggle")}>
+          <span className={`px-2 py-1.5 rounded-lg text-[9px] font-bold ${theme === "light" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>LIGHT</span>
+          <span className={`px-2 py-1.5 rounded-lg text-[9px] font-bold ${theme === "dark" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>DARK</span>
+        </button>
+      </div>
 
       <div className="glass rounded-2xl overflow-hidden">
         <button

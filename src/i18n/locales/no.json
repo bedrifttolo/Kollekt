@@ -136,6 +136,7 @@
     "signUpTab": "Registrer deg",
     "fullName": "Fullt navn",
     "username": "Brukernavn",
+    "identifier": "E-post eller brukernavn",
     "emailAddress": "E-postadresse",
     "password": "Passord",
     "logIn": "Logg inn",
@@ -143,7 +144,10 @@
     "pleaseWait": "Vent litt...",
     "inviteHint": "Har du fått en invitasjon på e-post? Sjekk innboksen for en lenke som lar deg bli med automatisk.",
     "showPassword": "Vis passord",
-    "hidePassword": "Skjul passord"
+    "hidePassword": "Skjul passord",
+    "continueWith": "eller fortsett med",
+    "google": "Google",
+    "apple": "Apple"
   },
   "createHousehold": {
     "titleCreate": "Opprett ditt kollektiv",
@@ -181,6 +185,12 @@
   },
   "dashboard": {
     "welcomeBack": "Velkommen tilbake",
+    "today": "Hjemme i dag",
+    "greeting": "God morgen, {{name}}",
+    "vibeTitle": "God stemning i kollektivet",
+    "vibeGreat": "Oppgavene går unna og huset er i balanse. Fortsett sånn.",
+    "vibeSteady": "Litt ekstra fart vil løfte hele kollektivet.",
+    "vibeNeedsLove": "En rask felles seier kan snu hele uka.",
     "householdTitle": "Kollektivet ditt",
     "level": "Nivå {{level}}",
     "rank": "Rang #{{rank}}",
@@ -205,6 +215,12 @@
   },
   "tasks": {
     "title": "Oppgaver",
+    "eyebrow": "Denne uka",
+    "heading": "Hvem sin tur er det?",
+    "progressLabel": "Dette går strålende",
+    "done": "ferdig",
+    "remaining_one": "{{count}} oppgave igjen denne uka",
+    "remaining_other": "{{count}} oppgaver igjen denne uka",
     "tabs": {
       "tasks": "Oppgaver",
       "shopping": "Handleliste"
@@ -256,6 +272,7 @@
     }
   },
   "calendar": {
+    "eyebrow": "Sammen",
     "syncGoogleCalendar": "Synkroniser Google Kalender",
     "syncConnected": "Tilkoblet, trykk for å koble fra",
     "syncDisconnected": "Koble til for å importere og eksportere hendelser",
@@ -269,6 +286,7 @@
     "saveChanges": "Lagre endringer"
   },
   "chat": {
+    "threadTitle": "Kollektivet",
     "onlineCount": "{{count}} pålogget",
     "createPoll": "Opprett avstemning",
     "pollQuestionPlaceholder": "Spørsmål...",
@@ -287,6 +305,9 @@
   },
   "economy": {
     "title": "Økonomi",
+    "eyebrow": "Felleskassen",
+    "titleLineOne": "Økonomi,",
+    "titleLineTwo": "helt i balanse",
     "yourBalance": "Saldoen din",
     "owe": "Du skylder {{name}} {{amount}}",
     "othersOweYou": "Andre skylder deg penger",
@@ -313,6 +334,7 @@
     "saveChanges": "Lagre endringer"
   },
   "pant": {
+    "eyebrow": "Pantemål",
     "title": "Pantoversikt",
     "subtitle": "Følg flasker og spar mot {{goal}}",
     "bottlesCollected": "flasker samlet",
@@ -498,6 +520,16 @@
     }
   },
   "profile": {
+    "eyebrow": "Livet i kollektivet",
+    "title": "Profil og innstillinger",
+    "householdMembers": "Medlemmer i kollektivet",
+    "language": "Språk",
+    "appearance": {
+      "title": "Utseende",
+      "light": "Varmt papirtema",
+      "dark": "Mørkt furutema",
+      "toggle": "Bytt mellom lyst og mørkt utseende"
+    },
     "householdCode": "Kollektivkode",
     "copyHouseholdCode": "Kopier kollektivkode",
     "notifications": {

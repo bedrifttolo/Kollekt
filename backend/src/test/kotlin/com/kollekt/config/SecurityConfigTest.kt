@@ -4,10 +4,12 @@ import com.kollekt.api.OnboardingController
 import com.kollekt.api.TaskController
 import com.kollekt.api.dto.AuthResponse
 import com.kollekt.api.dto.LoginRequest
+import com.kollekt.api.dto.SocialLoginRequest
 import com.kollekt.api.dto.UserDto
 import com.kollekt.service.AccountOperations
 import com.kollekt.service.CollectiveOperations
 import com.kollekt.service.ShoppingOperations
+import com.kollekt.service.SocialAuthService
 import com.kollekt.service.TaskOperations
 import com.kollekt.service.TokenStoreService
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -61,6 +63,8 @@ class SecurityConfigTest {
 
     @MockitoBean lateinit var collectiveOperations: CollectiveOperations
 
+    @MockitoBean lateinit var socialAuthService: SocialAuthService
+
     @MockitoBean lateinit var taskOperations: TaskOperations
 
     @MockitoBean lateinit var shoppingOperations: ShoppingOperations
@@ -90,6 +94,23 @@ class SecurityConfigTest {
             ).andExpect(status().isOk)
 
         verify(accountOperations).login(request)
+    }
+
+    @Test
+    fun `security config allows verified provider exchange without authentication`() {
+        val request = SocialLoginRequest(idToken = "provider-id-token")
+        whenever(socialAuthService.login("google", request)).thenReturn(
+            AuthResponse("access-token", "refresh-token", "Bearer", 3600, UserDto(1, "Kasper", "kasper@example.com", null)),
+        )
+
+        mockMvc.perform(
+            post("/api/onboarding/oauth/google")
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(csrf())
+                .content("""{"idToken":"provider-id-token"}"""),
+        ).andExpect(status().isOk)
+
+        verify(socialAuthService).login("google", request)
     }
 
     @Test
