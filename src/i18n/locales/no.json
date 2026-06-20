@@ -1,0 +1,579 @@
+{
+  "app": {
+    "name": "Kollekt",
+    "tagline": "Kollektivliv, forenklet",
+    "logoAlt": "Kollekt-logo"
+  },
+  "languages": {
+    "en": "Engelsk",
+    "no": "Norsk"
+  },
+  "languageSwitcher": {
+    "label": "Språk",
+    "ariaLabel": "Velg språk"
+  },
+  "common": {
+    "seeAll": "Se alle",
+    "showLess": "Vis færre",
+    "cancel": "Avbryt",
+    "back": "Tilbake",
+    "next": "Neste",
+    "today": "I dag",
+    "loading": "Laster...",
+    "connecting": "kobler til...",
+    "live": "Live",
+    "or": "eller",
+    "active": "Aktiv",
+    "connected": "Tilkoblet",
+    "create": "Opprett",
+    "send": "Send",
+    "add": "Legg til",
+    "all": "Alle",
+    "mine": "Mine",
+    "done": "Ferdig",
+    "incomplete": "Ikke ferdig",
+    "undo": "Angre",
+    "bought": "Kjøpt",
+    "taskCategories": {
+      "CLEANING": "Rengjøring",
+      "VACUUMING": "Støvsuging",
+      "MOPPING": "Gulvvask",
+      "BATHROOM": "Baderom",
+      "KITCHEN": "Kjøkken",
+      "LAUNDRY": "Klesvask",
+      "DISHES": "Oppvask",
+      "TRASH": "Søppel",
+      "DUSTING": "Støv av",
+      "WINDOWS": "Vindusvask",
+      "SHOPPING": "Handling",
+      "OTHER": "Egendefinert"
+    },
+    "recurrence": {
+      "NONE": "Ingen",
+      "DAILY": "Daglig",
+      "WEEKLY": "Ukentlig",
+      "MONTHLY": "Månedlig"
+    },
+    "eventTypes": {
+      "PARTY": "Fest",
+      "MOVIE": "Film",
+      "DINNER": "Middag",
+      "OTHER": "Annet"
+    },
+    "memberStatus": {
+      "ACTIVE": "Aktiv",
+      "AWAY": "Borte",
+      "LEFT": "Forlatt"
+    },
+    "leaderboardPeriods": {
+      "OVERALL": "Totalt",
+      "YEAR": "År",
+      "MONTH": "Måned"
+    },
+    "expenseCategories": {
+      "Groceries": "Dagligvarer",
+      "Bills": "Regninger",
+      "Cleaning": "Rengjøring",
+      "Entertainment": "Underholdning",
+      "Food": "Mat",
+      "Other": "Annet"
+    },
+    "drinkingTypes": {
+      "drink": "Drikk",
+      "distribute": "Del ut",
+      "vote": "Stem",
+      "challenge": "Utfordring"
+    },
+    "taskAssignmentReasons": {
+      "LATE": "Fullført sent"
+    }
+  },
+  "errors": {
+    "network": "Kunne ikke koble til akkurat nå. Prøv igjen om litt.",
+    "sessionExpired": "Økten din har gått ut. Logg inn på nytt og prøv igjen.",
+    "forbidden": "Du har ikke tilgang til dette akkurat nå.",
+    "notFound": "Det du leter etter ble ikke funnet.",
+    "invalidCredentials": "Navnet eller passordet ditt stemmer ikke.",
+    "alreadyExists": "Dette finnes allerede.",
+    "alreadyInCollective": "Du er allerede med i et kollektiv.",
+    "invalidJoinCode": "Koden ser ikke riktig ut. Sjekk den og prøv igjen.",
+    "generic": "Noe gikk galt. Prøv igjen."
+  },
+  "header": {
+    "pageTitles": {
+      "tasks": "Oppgaver",
+      "calendar": "Kalender",
+      "chat": "Chat",
+      "economy": "Økonomi",
+      "pantTracker": "Pantoversikt",
+      "leaderboard": "Toppliste",
+      "games": "Spill",
+      "profile": "Profil"
+    },
+    "notifications": "Varsler",
+    "markAllRead": "Marker alle som lest",
+    "clearAll": "Fjern alle",
+    "allCaughtUp": "Alt er oppdatert!",
+    "openNotifications": "Åpne varsler",
+    "openAccountMenu": "Åpne kontomeny",
+    "profile": "Profil",
+    "inviteFriends": "Inviter venner",
+    "resetPassword": "Tilbakestill passord",
+    "switchCollective": "Bytt kollektiv",
+    "logOut": "Logg ut"
+  },
+  "bottomNav": {
+    "home": "Hjem",
+    "tasks": "Oppgaver",
+    "calendar": "Kalender",
+    "chat": "Chat",
+    "economy": "Økonomi",
+    "board": "Toppliste",
+    "games": "Spill"
+  },
+  "auth": {
+    "loginTab": "Logg inn",
+    "signUpTab": "Registrer deg",
+    "fullName": "Fullt navn",
+    "username": "Brukernavn",
+    "emailAddress": "E-postadresse",
+    "password": "Passord",
+    "logIn": "Logg inn",
+    "createAccount": "Opprett konto",
+    "pleaseWait": "Vent litt...",
+    "inviteHint": "Har du fått en invitasjon på e-post? Sjekk innboksen for en lenke som lar deg bli med automatisk.",
+    "showPassword": "Vis passord",
+    "hidePassword": "Skjul passord"
+  },
+  "createHousehold": {
+    "titleCreate": "Opprett ditt kollektiv",
+    "titleJoin": "Bli med i et kollektiv",
+    "stepOf": "Steg {{step}} av {{total}}",
+    "createHome": "Opprett hjem",
+    "joinHome": "Bli med",
+    "joinIntro": "Bli med i et eksisterende kollektiv med invitasjonskode",
+    "enterInviteCode": "Skriv inn invitasjonskode",
+    "joining": "Blir med...",
+    "joinButton": "Bli med",
+    "householdName": "Navn på kollektivet",
+    "defaultHouseholdName": "Mitt kollektiv",
+    "householdNamePlaceholder": "f.eks. Huset i Strandgaten",
+    "address": "Adresse",
+    "addressPlaceholder": "Gateadresse, f.eks. Strandgaten 42",
+    "roomSetupDescription": "Legg til fellesrom og hvor lang tid de vanligvis tar å vaske. Disse blir felles oppgaver for alle. Private rom, som eget soverom, er ikke inkludert.",
+    "room": "Rom {{index}}",
+    "roomName": "Romnavn",
+    "roomNamePlaceholder": "f.eks. Kjøkken",
+    "minutesToClean": "Minutter å vaske",
+    "addRoom": "Legg til rom",
+    "creating": "Oppretter...",
+    "shareCode": "Del denne koden med romkameratene",
+    "inviteByEmail": "eller inviter med e-post",
+    "roommateEmail": "E-post til romkamerat {{index}}",
+    "addAnother": "Legg til en til",
+    "skipForNow": "Hopp over foreløpig",
+    "backToAuth": "Tilbake til innlogging/registrering",
+    "errors": {
+      "addRoom": "Legg til minst ett rom",
+      "createFailure": "Kunne ikke opprette kollektiv",
+      "joinFailure": "Kunne ikke bli med i kollektivet"
+    }
+  },
+  "dashboard": {
+    "welcomeBack": "Velkommen tilbake",
+    "householdTitle": "Kollektivet ditt",
+    "level": "Nivå {{level}}",
+    "rank": "Rang #{{rank}}",
+    "stats": {
+      "tasksDone": "Oppgaver gjort",
+      "balance": "Saldo",
+      "xpEarned": "XP opptjent"
+    },
+    "onlineRoommates_one": "{{count}} romkamerat pålogget",
+    "onlineRoommates_other": "{{count}} romkamerater pålogget",
+    "upcomingTasks": "Kommende oppgaver",
+    "noUpcomingTasks": "Ingen kommende oppgaver",
+    "upcomingEvents": "Kommende hendelser",
+    "noUpcomingEvents": "Ingen kommende hendelser",
+    "recentExpenses": "Nylige utgifter",
+    "noRecentExpenses": "Ingen nylige utgifter",
+    "paidBy": "Betalt av {{name}}",
+    "xpValue": "+{{xp}} XP",
+    "shoppingList": "Handleliste",
+    "noShoppingItems": "Ingen ventende handlelistepunkter",
+    "addedBy": "Lagt til av {{name}}"
+  },
+  "tasks": {
+    "title": "Oppgaver",
+    "tabs": {
+      "tasks": "Oppgaver",
+      "shopping": "Handleliste"
+    },
+    "filters": {
+      "ALL": "Oppgaver",
+      "MINE": "Mine",
+      "TODAY": "I dag",
+      "INCOMPLETE": "Ikke ferdig",
+      "DONE": "Fullført"
+    },
+    "newTask": "Ny oppgave",
+    "editTask": "Rediger oppgave",
+    "taskTitlePlaceholder": "Oppgavetittel...",
+    "xpReward": "XP-belønning",
+    "addTask": "Legg til oppgave",
+    "saveChanges": "Lagre endringer",
+    "overdue": "Forfalt",
+    "penaltyApplied": "Straff brukt",
+    "completeLate": "Fullfør sent (50 %)",
+    "regretMissed": "Angre mistet (50 %)",
+    "feedbackPlaceholder": "Legg til tilbakemelding...",
+    "feedbackAnonymous": "Anonym",
+    "feedbackPublic": "Offentlig",
+    "feedbackImageAttached": "Bilde lagt ved",
+    "feedbackAddImage": "Legg til bilde",
+    "feedbackRemoveImage": "Fjern",
+    "feedbackAnonymousAuthor": "Anonym",
+    "feedbackImageAlt": "Bilde i oppgavetilbakemelding",
+    "restockSupplies": "Fyll opp lageret",
+    "restockHint": "Legg til varer som må kjøpes",
+    "noItemsYet": "Ingen varer ennå. Legg til varer under Fyll opp.",
+    "addedBy": "Lagt til av {{name}}",
+    "restockTitle": "Fyll opp",
+    "restockSubtitle": "Felles oversikt over forbruksvarer",
+    "addSupply": "Legg til vare",
+    "supplyNamePlaceholder": "Varenavn...",
+    "toggleComments": "Vis tilbakemelding",
+    "editTaskAria": "Rediger oppgave",
+    "deleteTaskAria": "Slett oppgave",
+    "editShoppingItemAria": "Rediger handlelistevare",
+    "deleteShoppingItemAria": "Slett handlelistevare",
+    "shopping": {
+      "amountPlaceholder": "Beløp (kr)",
+      "splitWith": "Del med",
+      "purchaseDate": "Kjøpsdato",
+      "logPurchase": "Loggfør",
+      "closePurchaseForm": "Lukk kjøpsskjema"
+    }
+  },
+  "calendar": {
+    "syncGoogleCalendar": "Synkroniser Google Kalender",
+    "syncConnected": "Tilkoblet, trykk for å koble fra",
+    "syncDisconnected": "Koble til for å importere og eksportere hendelser",
+    "newEvent": "Ny hendelse",
+    "eventTitlePlaceholder": "Tittel på hendelse...",
+    "addEvent": "Legg til hendelse",
+    "noEventsForDay": "Ingen hendelser denne dagen",
+    "startTime": "Start",
+    "endTimeOptional": "Slutt (valgfritt)",
+    "editEvent": "Rediger hendelse",
+    "saveChanges": "Lagre endringer"
+  },
+  "chat": {
+    "onlineCount": "{{count}} pålogget",
+    "createPoll": "Opprett avstemning",
+    "pollQuestionPlaceholder": "Spørsmål...",
+    "pollOption": "Alternativ {{index}}",
+    "addOption": "+ Legg til alternativ",
+    "sendPoll": "Send avstemning",
+    "messagePlaceholder": "Skriv en melding...",
+    "reactToMessage": "Reager på melding",
+    "replyToMessage": "Svar på melding",
+    "replyingTo": "Svarer til {{name}}",
+    "cancelReply": "Avbryt",
+    "sendImage": "Send bilde",
+    "togglePollForm": "Vis eller skjul avstemning",
+    "imageAlt": "Delt bilde",
+    "closeImage": "Lukk bilde"
+  },
+  "economy": {
+    "title": "Økonomi",
+    "yourBalance": "Saldoen din",
+    "owe": "Du skylder {{name}} {{amount}}",
+    "othersOweYou": "Andre skylder deg penger",
+    "allSettled": "Alt er gjort opp!",
+    "payAmount": "Betal {{amount}}",
+    "payAmountTo": "Betal {{name}} {{amount}}",
+    "payPersonLabel": "Velg hvem du vil betale",
+    "settleAll": "Gjør opp alt",
+    "newExpense": "Ny utgift",
+    "expenseTitlePlaceholder": "Hva gjaldt det?",
+    "expenseAmountPlaceholder": "Beløp (kr)",
+    "splitWith": "Del med",
+    "addExpense": "Legg til utgift",
+    "deadlineDateLabel": "Betalingsfrist (valgfri)",
+    "deadlineBadge": "Frist: {{date}}",
+    "pantTracker": "Pantoversikt",
+    "pantTrackerSummary": "{{bottles}} flasker • {{current}} / {{goal}} mål",
+    "pantTrackerEmpty": "Følg med på pant mot målet deres",
+    "balances": "Saldoer",
+    "settled": "Gjort opp",
+    "expenseHistory": "Utgiftshistorikk",
+    "splitCount": "Delt på {{count}}",
+    "editExpense": "Rediger utgift",
+    "saveChanges": "Lagre endringer"
+  },
+  "pant": {
+    "title": "Pantoversikt",
+    "subtitle": "Følg flasker og spar mot {{goal}}",
+    "bottlesCollected": "flasker samlet",
+    "earnedSoFar": "tjent så langt",
+    "customAmount": "Egendefinert beløp",
+    "addAmount": "Legg til beløp",
+    "savingGoal": "Sparemål",
+    "goalTitle": "Pantmål",
+    "saved": "{{amount}} spart",
+    "goal": "{{amount}} mål",
+    "goalReached": "Målet er nådd!",
+    "bottlesToGo": "{{count}} flasker igjen",
+    "collectionHistory": "Pant-historikk",
+    "historyEntry": "{{name}} la til {{count}} flasker",
+    "editEntry": "Rediger oppføring",
+    "bottlesPlaceholder": "Flasker"
+  },
+  "leaderboard": {
+    "title": "Toppliste",
+    "subtitle": "Hvem er den beste romkameraten?",
+    "monthlyPrize": "Månedspremie",
+    "monthlyPrizePlaceholder": "f.eks. Pizza til vinneren",
+    "savePrize": "Lagre premie",
+    "monthlyPrizeHint": "Den beste denne måneden vinner premien!",
+    "topThree": "Topp 3",
+    "podiumView": "Podiemodus",
+    "fullRankings": "Full rangering",
+    "levelShort": "Nv.{{level}}",
+    "tasksCompleted_one": "{{count}} oppgave",
+    "tasksCompleted_other": "{{count}} oppgaver",
+    "streak": "{{count}} d streak",
+    "statsTitle": "{{period}}-statistikk",
+    "stats": {
+      "totalTasks": "Totale oppgaver",
+      "totalXp": "Total XP",
+      "avgXp": "Snitt-XP",
+      "topContributor": "Topp bidragsyter"
+    },
+    "achievements": "Prestasjoner",
+    "manageAchievements": "Administrer prestasjoner",
+    "manageAchievementsSubtitle": "Slå av eller på prestasjoner for kollektivet",
+    "achievementKeys": {
+      "TASK_1":    { "title": "Første steg",       "description": "Fullfør din første oppgave" },
+      "TASK_5":    { "title": "Godt i gang",        "description": "Fullfør 5 oppgaver" },
+      "TASK_10":   { "title": "Ti fullført",        "description": "Fullfør 10 oppgaver" },
+      "TASK_25":   { "title": "Kollektivhelt",      "description": "Fullfør 25 oppgaver" },
+      "STREAK_3":  { "title": "På rekke",           "description": "Fullfør oppgaver 3 dager på rad" },
+      "STREAK_7":  { "title": "Ukekriger",          "description": "Fullfør oppgaver 7 dager på rad" },
+      "EARLY_BIRD":{ "title": "Tidligfugl",         "description": "Fullfør 3 oppgaver før fristen" },
+      "NO_PENALTY":{ "title": "Rent rulleblad",     "description": "Fullfør 5 oppgaver uten straff" },
+      "CLEANING_5":{ "title": "Rent hus",           "description": "Fullfør 5 ryddeoppgaver" },
+      "LEVEL_2":   { "title": "Nivå opp",           "description": "Nå nivå 2" },
+      "XP_100":    { "title": "Hundring",           "description": "Tjen 100 XP" },
+      "XP_500":    { "title": "XP-maskin",          "description": "Tjen 500 XP" }
+    }
+  },
+  "kollektGame": {
+    "title": "Kollekt-modus",
+    "loading": "Laster kollektivdata…",
+    "entryCard": {
+      "badge": "NY",
+      "description": "Runder generert fra dine ekte stats — streaker, oppgaver og rangeringer."
+    },
+    "entryRules": {
+      "playersValue": "2+ spillere",
+      "flowValue": "Oppsett og live-runder",
+      "rule1": "Start med å velge hvem som skal være med i sesjonen. Du kan ta med kollektivmedlemmer og legge til gjester før spillet begynner.",
+      "rule2": "Velg en modus, og spill deretter gjennom statistikkbaserte runder bygget fra gruppens ekte Kollekt-data, som streaker, oppgaver og rangeringer.",
+      "rule3": "Hvis dere bytter språk underveis i spillet, beholder den aktive runden samme prompt og bare teksten byttes."
+    },
+    "phases": {
+      "loading": "Laster data…",
+      "setup": "Velg hvem som spiller",
+      "config": "Sett reglene",
+      "playing": "Runde {{round}} — drevet av statistikken din",
+      "summary": "Teller opp skadene"
+    },
+    "setup": {
+      "selectPlayers": "Velg spillere",
+      "activePlayers": "{{count}} aktive",
+      "noMembers": "Ingen kollektivmedlemmer funnet — legg til gjester nedenfor for å spille.",
+      "addGuests": "Legg til gjester",
+      "levelShort": "Nivå",
+      "guestPlaceholder": "Gjestenavn…",
+      "addGuestAria": "Legg til gjest",
+      "removeGuestAria": "Fjern {{name}}",
+      "configureGame": "Konfigurer spill",
+      "minPlayersHint": "Velg minst 2 spillere for å fortsette.",
+      "you": "DEG",
+      "guest": "gjest"
+    },
+    "config": {
+      "gameMode": "Spillmodus",
+      "playersInSession": "Spillere i sesjonen",
+      "rounds": "Runder",
+      "players": "Spillere",
+      "statWeight": "Stat-vekt",
+      "startGame": "Start spill",
+      "backAria": "Tilbake til spillervalg",
+      "rounds_suffix": " runder",
+      "drinks_multiplier": " · ×{{m}} drikker"
+    },
+    "presets": {
+      "default":  { "label": "Standard",   "description": "15 runder, balansert blanding av kaos og stats." },
+      "quick":    { "label": "Rask",        "description": "8 runder — kom inn, bli glad, kom ut." },
+      "hardcore": { "label": "Hardcore",    "description": "20 runder, doble drikker, ingen nåde." },
+      "casual":   { "label": "Avslappet",   "description": "12 runder, lette slurker, stats betyr lite." }
+    },
+    "playing": {
+      "roundOf": "Runde {{current}} av {{total}}",
+      "done": "Ferdig — Neste runde",
+      "skipAria": "Hopp over ({{penalty}} slurk straff)",
+      "skipTitle": "Hopp over (+{{penalty}} slurk straff)",
+      "skipCost": "Å hoppe over koster {{count}} slurk(er)"
+    },
+    "roundTypes": {
+      "STAT_COMPARISON": "Stat-kamp",
+      "CHALLENGE": "Utfordring",
+      "HOT_SEAT": "Hetesedet",
+      "TRIVIA_TWIST": "Trivia",
+      "RANDOM_EVENT": "Jokerkort"
+    },
+    "drinking": {
+      "distributes": "{{name}} deler ut {{count}} slurk(er)",
+      "drinksTarget": "{{names}} drikker {{count}} slurk(er)",
+      "sips": "{{count}} slurk(er)"
+    },
+    "summary": {
+      "title": "Spillet er over",
+      "stats": "{{rounds}} runder spilt · {{skipped}} hoppet over",
+      "performance": "Prestasjonspoengsummer",
+      "performanceHint": "(basert på kollektivets stats)",
+      "tiers": {
+        "elite": "Elite",
+        "solid": "Solid",
+        "average": "Middels",
+        "struggling": "Sliter",
+        "rookie": "Nybegynner"
+      },
+      "newGame": "Nytt spill",
+      "backToGames": "Tilbake til spill"
+    },
+    "errors": {
+      "loadFailed": "Kunne ikke laste kollektivdata. Sørg for at du er med i et kollektiv.",
+      "guestNameEmpty": "Skriv inn et navn",
+      "duplicateName": "En spiller med det navnet finnes allerede"
+    }
+  },
+  "games": {
+    "title": "Drikkeleker",
+    "subtitle": "Velg en lek, les reglene og spill gjennom kortene.",
+    "players": "Spillere",
+    "you": "(deg)",
+    "selectedGame": "Lek {{current}} av {{total}}",
+    "prompts": "Kort",
+    "flow": "Flyt",
+    "orderedFlow": "I rekkefølge",
+    "flexibleFlow": "Valgfri rekkefølge",
+    "numberFlow": "Tallbrett",
+    "rules": "Regler",
+    "playOrder": "Spillrekkefølge",
+    "sequentialOrder": "Sekvensielt",
+    "randomOrder": "Tilfeldig",
+    "startGame": "Start leken",
+    "progress": "{{current}} av {{total}}",
+    "nextQuestion": "Neste spørsmål",
+    "playAgain": "Spill igjen",
+    "restart": "Nullstill",
+    "finishedTitle": "Alle kort er brukt",
+    "finishedText": "Nullstill leken eller gå tilbake til reglene.",
+    "backToRules": "Tilbake til regler",
+    "usedNumbers": "Tatte tall",
+    "numberPrompt": "Velg et tall på brettet.",
+    "pickNumber": "Velg nummer {{number}}",
+    "duplicateTitle": "Chug",
+    "duplicateText": "Nummer {{number}} er allerede tatt.",
+    "duplicateHint": "Sier noen samme tall, må de chugge.",
+    "promptKinds": {
+      "vote": "Spørsmål",
+      "challenge": "Utfordring",
+      "toast": "Skål",
+      "never": "Jeg har aldri"
+    }
+  },
+  "profile": {
+    "householdCode": "Kollektivkode",
+    "copyHouseholdCode": "Kopier kollektivkode",
+    "notifications": {
+      "title": "Varsler",
+      "loading": "Laster...",
+      "unread_one": "{{count}} ulest",
+      "unread_other": "{{count}} uleste",
+      "allCaughtUp": "Alt er lest",
+      "markAllAsRead": "Marker alle som lest",
+      "empty": "Ingen varsler",
+      "dismiss": "Fjern varsel",
+      "messages": {
+        "EXPENSE_OWED": "{{paidBy}} betalte for '{{description}}' — du skylder {{amount}} kr",
+        "EXPENSE_DEADLINE_SOON": "Betaling for '{{description}}' forfaller i morgen ({{date}})",
+        "EXPENSE_OVERDUE": "Betalingsfristen for '{{description}}' har utløpt ({{date}})",
+        "TASK_ASSIGNED": "Du har fått tildelt en ny oppgave: {{title}}",
+        "TASK_DEADLINE_SOON": "Oppgaven '{{title}}' forfaller om {{days}} dag(er).",
+        "TASK_OVERDUE": "Oppgaven '{{title}}' er forfalt! En straff har blitt ilagt.",
+        "TASK_OVERDUE_GROUP": "Oppgaven '{{title}}' tildelt {{assignee}} er forfalt og ikke fullført.",
+        "TASK_FEEDBACK": "{{author}} ga tilbakemelding på oppgaven din '{{title}}'.",
+        "TASK_COMPLETED_LATE": "Du fullførte '{{title}}' for sent. XP er redusert.",
+        "SHOPPING_ITEM_ADDED": "{{actorName}} la til '{{item}}' i handlelisten",
+        "EVENT_ADDED": "Ny hendelse: '{{title}}' den {{date}}",
+        "NEW_MESSAGE": "{{sender}}: \"{{preview}}\""
+      }
+    },
+    "notificationPreferences": {
+      "title": "Varslingsinnstillinger",
+      "subtitle": "Velg hvilke varsler du vil motta",
+      "types": {
+        "TASK_ASSIGNED": "Oppgave tildelt meg",
+        "TASK_DEADLINE_SOON": "Oppgave forfaller i morgen",
+        "TASK_OVERDUE": "Oppgavefristen er utløpt",
+        "NEW_MESSAGE": "Ny chatmelding",
+        "EXPENSE_OWED": "Utgift: du skylder penger",
+        "EXPENSE_DEADLINE_SOON": "Utgift: betaling forfaller i morgen",
+        "EXPENSE_OVERDUE": "Utgift: betalingsfristen er utløpt",
+        "SHOPPING_ITEM_ADDED": "Vare lagt til i handlelisten",
+        "EVENT_ADDED": "Ny kalenderhendelse"
+      }
+    },
+    "inviteRoommates": {
+      "title": "Inviter romkamerater",
+      "subtitle": "Send en e-postinvitasjon for å bli med i kollektivet",
+      "emailPlaceholder": "venn@epost.no",
+      "send": "Send invitasjon",
+      "sent": "Invitasjon sendt!"
+    },
+    "resetPassword": {
+      "title": "Tilbakestill passord",
+      "subtitle": "Oppdater passordet til kontoen din",
+      "newPassword": "Nytt passord",
+      "confirmPassword": "Bekreft passord",
+      "update": "Oppdater passord",
+      "updated": "Passord oppdatert!"
+    },
+    "friends": {
+      "title": "Venner",
+      "subtitle": "Administrer vennelisten din for kollektivfunksjoner",
+      "placeholder": "Brukernavn på venn",
+      "add": "Legg til",
+      "empty": "Ingen venner lagt til ennå.",
+      "remove": "Fjern venn {{name}}"
+    },
+    "account": "Konto",
+    "logOut": "Logg ut",
+    "leaveHousehold": "Forlat kollektivet",
+    "leaveHouseholdSubtitle": "Du kan bli med i eller opprette et nytt",
+    "deleteAccount": "Slett konto",
+    "deleteAccountSubtitle": "Fjern kontoen din permanent",
+    "deleteConfirm": "Slette kontoen din? Dette kan ikke angres.",
+    "errors": {
+      "passwordTooShort": "Passordet må være minst 6 tegn",
+      "passwordsMismatch": "Passordene er ikke like",
+      "passwordUpdateFailed": "Kunne ikke oppdatere passordet",
+      "addFriendFailed": "Kunne ikke legge til venn"
+    }
+  }
+}
