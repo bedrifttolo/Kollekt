@@ -7,6 +7,7 @@ import { useUser } from '../context/UserContext';
 import { formatDateTime, formatTime } from '../i18n/helpers';
 import { connectCollectiveRealtime } from '../lib/realtime';
 import type { ChatMessage } from '../lib/types';
+import { AvatarStack } from '../components/ui-kit';
 
 const REACTION_EMOJIS = ['👍', '❤️', '😂', '🎉', '😮'];
 
@@ -28,6 +29,7 @@ export default function ChatPage() {
 
   const name = currentUser?.name ?? '';
   const messageById = new Map(messages.map((message) => [message.id, message]));
+  const participants = Array.from(new Set(messages.map((message) => message.sender)));
   const formatMessageTimestamp = (value: string) => {
     const messageDate = new Date(value);
     const now = new Date();
@@ -130,12 +132,12 @@ export default function ChatPage() {
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="relative flex flex-col h-[calc(100vh-8.5rem)]">
-      {/* Online indicator */}
-      <div className="flex items-center gap-2 pt-4 pb-2">
-        <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
-        <p className="text-[10px] text-muted-foreground">
-          {t('common.live')} • {onlineCount > 0 ? t('chat.onlineCount', { count: onlineCount }) : t('common.connecting')}
-        </p>
+      <div className="flex items-center gap-3 border-b border-border py-3">
+        <AvatarStack names={participants.length > 0 ? participants : [name]} />
+        <div className="min-w-0 flex-1">
+          <h2 className="truncate font-display text-lg font-extrabold">{t('chat.threadTitle')}</h2>
+          <p className="text-[10px] text-muted-foreground"><span className="text-primary">●</span> {onlineCount > 0 ? t('chat.onlineCount', { count: onlineCount }) : t('common.connecting')}</p>
+        </div>
       </div>
 
       {/* Message list */}
@@ -170,7 +172,7 @@ export default function ChatPage() {
                 )}
                 <div
                   className={`rounded-2xl px-3.5 py-2.5 ${
-                    isSelf ? 'gradient-primary text-primary-foreground rounded-br-md' : 'glass rounded-bl-md'
+                    isSelf ? 'bg-primary text-primary-foreground rounded-br-md' : 'bg-card border border-border rounded-bl-md'
                   }`}
                   onClick={() => setReactingId(reactingId === message.id ? null : message.id)}
                 >
@@ -310,7 +312,7 @@ export default function ChatPage() {
       )}
 
       {/* Input bar */}
-      <div className="flex gap-2 pt-2 pb-1">
+      <div className="flex gap-2 border-t border-border bg-background/95 pt-3 pb-1">
         <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/heic"
           className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) sendImage(f); }} />
         <button onClick={() => fileInputRef.current?.click()} className="h-10 w-10 rounded-xl glass flex items-center justify-center shrink-0" aria-label={t('chat.sendImage')}>

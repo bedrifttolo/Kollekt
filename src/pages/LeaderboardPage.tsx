@@ -6,6 +6,8 @@ import { api } from '../lib/api';
 import { connectCollectiveRealtime } from '../lib/realtime';
 import { useUser } from '../context/UserContext';
 import { translateKey } from '../i18n/helpers';
+import { useNavigate } from 'react-router-dom';
+import { Eyebrow } from '../components/ui-kit';
 import type {
   LeaderboardResponse,
   Achievement,
@@ -25,6 +27,7 @@ const PERIODS: LeaderboardPeriod[] = ['OVERALL', 'YEAR', 'MONTH'];
 export default function LeaderboardPage() {
   const { t } = useTranslation();
   const { currentUser } = useUser();
+  const navigate = useNavigate();
   const [period, setPeriod] = useState<LeaderboardPeriod>('OVERALL');
   const [data, setData] = useState<LeaderboardResponse | null>(null);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
@@ -123,14 +126,20 @@ export default function LeaderboardPage() {
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-5 pt-4">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="font-display text-xl font-bold">{t('leaderboard.title')}</h2>
+          <Eyebrow>{t('leaderboard.subtitle')}</Eyebrow>
+          <h2 className="font-display text-[2.4rem] leading-none font-extrabold tracking-[-.04em] mt-2">{t('leaderboard.title')}</h2>
           <p className="text-sm text-muted-foreground mt-1">{t('leaderboard.subtitle')}</p>
         </div>
       </div>
 
+      <div className="seg">
+        <button className="flex-1 rounded-[.85rem] bg-primary py-2.5 text-sm font-bold text-primary-foreground">{t('bottomNav.board')}</button>
+        <button onClick={() => navigate('/games')} className="flex-1 rounded-[.85rem] py-2.5 text-sm font-bold text-muted-foreground">{t('bottomNav.games')}</button>
+      </div>
+
       {/* Podium */}
       {podiumOrder.length >= 3 && (
-        <div className="rounded-2xl glass p-4 glow-primary/30">
+        <div className="podium">
           <div className="flex items-center justify-between mb-3">
             <div>
               <h3 className="text-sm font-semibold">{t('leaderboard.topThree')}</h3>

@@ -48,6 +48,7 @@ import type {
   SessionPlayerSummary,
 } from '../lib/gamesApi';
 import type { LeaderboardResponse, MemberStats } from '../lib/types';
+import { Eyebrow } from '../components/ui-kit';
 
 // ─── Round type display meta ──────────────────────────────────────────────────
 
@@ -710,7 +711,8 @@ export default function CollektGamePage() {
           </button>
         )}
         <div>
-          <h2 className="font-display text-xl font-bold">{t('kollektGame.title')}</h2>
+          <Eyebrow>{t('games.subtitle')}</Eyebrow>
+          <h2 className="font-display text-[2.25rem] leading-none font-extrabold tracking-[-.04em]">{t('kollektGame.title')}</h2>
           <p className="text-xs text-muted-foreground">{phaseSubtitle}</p>
         </div>
       </div>

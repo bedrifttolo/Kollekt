@@ -18,9 +18,9 @@ export default function AppLayout() {
   if (!currentUser.collectiveCode) return <Navigate to="/create-household" replace />;
 
   return (
-    <div className="app-viewport bg-background max-w-lg mx-auto relative">
+    <div className="app-viewport bg-background max-w-xl mx-auto relative overflow-x-hidden">
       <AppHeader />
-      <main className="safe-content-bottom px-4 pt-2">
+      <main className="safe-content-bottom px-4 sm:px-6 pt-2">
         <Outlet />
       </main>
       <BottomNav />

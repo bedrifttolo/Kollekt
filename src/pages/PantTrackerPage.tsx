@@ -8,6 +8,7 @@ import { connectCollectiveRealtime } from "../lib/realtime";
 import { useUser } from "../context/UserContext";
 import { formatCurrency, formatDate } from "../i18n/helpers";
 import type { PantSummary } from "../lib/types";
+import { Eyebrow, ProgressBar } from "../components/ui-kit";
 
 export default function PantTrackerPage() {
   const navigate = useNavigate();
@@ -137,7 +138,8 @@ export default function PantTrackerPage() {
           <ArrowLeft className="h-4 w-4" />
         </button>
         <div>
-          <h2 className="font-display text-xl font-bold">{t("pant.title")}</h2>
+          <Eyebrow>{t("pant.eyebrow")}</Eyebrow>
+          <h2 className="font-display text-[2.25rem] leading-none font-extrabold tracking-[-.04em]">{t("pant.title")}</h2>
           <p className="text-xs text-muted-foreground">
             {t("pant.subtitle", { goal: formatCurrency(goal) })}
           </p>
@@ -145,8 +147,8 @@ export default function PantTrackerPage() {
       </div>
 
       {/* Counter */}
-      <div className="glass rounded-2xl p-5 text-center glow-primary">
-        <Recycle className="h-8 w-8 text-primary mx-auto mb-2" />
+      <div className="househero text-center">
+        <Recycle className="h-8 w-8 text-secondary mx-auto mb-2" />
         <p className="font-display text-5xl font-bold">{totalBottles}</p>
         <p className="text-sm text-muted-foreground mt-1">
           {t('pant.bottlesCollected')}
@@ -162,7 +164,7 @@ export default function PantTrackerPage() {
                 if (e.key === "Enter") void handleEditTotal();
                 if (e.key === "Escape") setEditingTotal(false);
               }}
-              className="w-28 bg-muted/50 rounded-lg px-3 py-2 text-sm text-center placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary [color-scheme:dark]"
+              className="w-28 bg-muted/50 rounded-lg px-3 py-2 text-sm text-center placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
               autoFocus
             />
             <button
@@ -180,7 +182,7 @@ export default function PantTrackerPage() {
           </div>
         ) : (
           <div className="flex items-center justify-center gap-2 mt-2">
-            <p className="font-display text-xl font-bold text-primary">
+            <p className="font-display text-xl font-bold text-secondary">
               {formatCurrency(earned)}
             </p>
             <button
@@ -201,7 +203,7 @@ export default function PantTrackerPage() {
             onChange={(e) => setAddAmount(e.target.value)}
             placeholder={t('pant.customAmount')}
             onKeyDown={(e) => e.key === "Enter" && void handleAdd()}
-            className="w-36 bg-muted/50 rounded-lg px-3 py-2 text-sm text-center placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary [color-scheme:dark]"
+            className="w-36 bg-muted/50 rounded-lg px-3 py-2 text-sm text-center placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
           />
           <button
             onClick={() => void handleAdd()}
@@ -237,7 +239,7 @@ export default function PantTrackerPage() {
                 if (e.key === "Enter") void handleEditGoal();
                 if (e.key === "Escape") setEditingGoal(false);
               }}
-              className="flex-1 bg-muted/50 rounded-lg px-3 py-1.5 text-sm text-center placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary [color-scheme:dark]"
+              className="flex-1 bg-muted/50 rounded-lg px-3 py-1.5 text-sm text-center placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
               autoFocus
             />
             <button
@@ -262,12 +264,7 @@ export default function PantTrackerPage() {
           <span>{t("pant.saved", { amount: formatCurrency(earned) })}</span>
           <span>{t("pant.goal", { amount: formatCurrency(goal) })}</span>
         </div>
-        <div className="h-2 bg-muted rounded-full overflow-hidden">
-          <div
-            className="h-full gradient-primary rounded-full transition-all"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
+        <ProgressBar value={progress} />
         <p className="text-xs text-muted-foreground mt-2">
           {progress >= 100
             ? `🎉 ${t("pant.goalReached")}`
@@ -349,7 +346,7 @@ export default function PantTrackerPage() {
                           onChange={(e) => setEditBottles(e.target.value)}
                           onKeyDown={(e) => { if (e.key === "Enter") void handleSaveEntry(); if (e.key === "Escape") setEditingEntryId(null); }}
                           placeholder={t("pant.bottlesPlaceholder")}
-                          className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary [color-scheme:dark]"
+                          className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
                           autoFocus
                         />
                         <div className="flex gap-2">

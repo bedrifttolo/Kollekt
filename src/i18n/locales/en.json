@@ -136,6 +136,7 @@
     "signUpTab": "Sign Up",
     "fullName": "Full name",
     "username": "Username",
+    "identifier": "Email or username",
     "emailAddress": "Email address",
     "password": "Password",
     "logIn": "Log In",
@@ -143,7 +144,10 @@
     "pleaseWait": "Please wait...",
     "inviteHint": "Got an email invite? Check your inbox for a link to join automatically.",
     "showPassword": "Show password",
-    "hidePassword": "Hide password"
+    "hidePassword": "Hide password",
+    "continueWith": "or continue with",
+    "google": "Google",
+    "apple": "Apple"
   },
   "createHousehold": {
     "titleCreate": "Create Your Household",
@@ -181,6 +185,12 @@
   },
   "dashboard": {
     "welcomeBack": "Welcome back",
+    "today": "At home today",
+    "greeting": "Good morning, {{name}}",
+    "vibeTitle": "House vibe is looking good",
+    "vibeGreat": "Chores are moving and the house feels balanced. Keep it up.",
+    "vibeSteady": "A little momentum will lift the whole house.",
+    "vibeNeedsLove": "A quick shared win could turn the week around.",
     "householdTitle": "Your Household",
     "level": "Level {{level}}",
     "rank": "Rank #{{rank}}",
@@ -205,6 +215,12 @@
   },
   "tasks": {
     "title": "Tasks",
+    "eyebrow": "This week",
+    "heading": "Whose turn is it?",
+    "progressLabel": "You're doing great",
+    "done": "done",
+    "remaining_one": "{{count}} task left this week",
+    "remaining_other": "{{count}} tasks left this week",
     "tabs": {
       "tasks": "Tasks",
       "shopping": "Shopping List"
@@ -256,6 +272,7 @@
     }
   },
   "calendar": {
+    "eyebrow": "Together",
     "syncGoogleCalendar": "Sync Google Calendar",
     "syncConnected": "Connected, click to disconnect",
     "syncDisconnected": "Connect to import and export events",
@@ -269,6 +286,7 @@
     "saveChanges": "Save changes"
   },
   "chat": {
+    "threadTitle": "The Kollektiv",
     "onlineCount": "{{count}} online",
     "createPoll": "Create Poll",
     "pollQuestionPlaceholder": "Question...",
@@ -287,6 +305,9 @@
   },
   "economy": {
     "title": "Economy",
+    "eyebrow": "House wallet",
+    "titleLineOne": "Economy,",
+    "titleLineTwo": "kept even",
     "yourBalance": "Your balance",
     "owe": "You owe {{name}} {{amount}}",
     "othersOweYou": "Others owe you",
@@ -313,6 +334,7 @@
     "saveChanges": "Save Changes"
   },
   "pant": {
+    "eyebrow": "Pant tracker",
     "title": "Pant Tracker",
     "subtitle": "Track bottles and save toward {{goal}}",
     "bottlesCollected": "bottles collected",
@@ -498,6 +520,16 @@
     }
   },
   "profile": {
+    "eyebrow": "Your household life",
+    "title": "Profile & settings",
+    "householdMembers": "Household members",
+    "language": "Language",
+    "appearance": {
+      "title": "Appearance",
+      "light": "Warm paper theme",
+      "dark": "Night pine theme",
+      "toggle": "Toggle light or dark appearance"
+    },
     "householdCode": "Household code",
     "copyHouseholdCode": "Copy household code",
     "notifications": {

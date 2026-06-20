@@ -9,9 +9,11 @@ import com.kollekt.api.dto.JoinCollectiveRequest
 import com.kollekt.api.dto.LoginRequest
 import com.kollekt.api.dto.LogoutRequest
 import com.kollekt.api.dto.RefreshTokenRequest
+import com.kollekt.api.dto.SocialLoginRequest
 import com.kollekt.api.dto.UserDto
 import com.kollekt.service.AccountOperations
 import com.kollekt.service.CollectiveOperations
+import com.kollekt.service.SocialAuthService
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -29,6 +31,7 @@ import org.springframework.web.bind.annotation.RestController
 class OnboardingController(
     private val accountOperations: AccountOperations,
     private val collectiveOperations: CollectiveOperations,
+    private val socialAuthService: SocialAuthService,
 ) {
     @PostMapping("/users")
     @ResponseStatus(HttpStatus.CREATED)
@@ -40,6 +43,12 @@ class OnboardingController(
     fun login(
         @RequestBody request: LoginRequest,
     ): AuthResponse = accountOperations.login(request)
+
+    @PostMapping("/oauth/{provider}")
+    fun socialLogin(
+        @PathVariable provider: String,
+        @RequestBody request: SocialLoginRequest,
+    ): AuthResponse = socialAuthService.login(provider, request)
 
     @PostMapping("/refresh")
     fun refresh(

@@ -73,6 +73,7 @@ class AccountOperations(
 
         val user =
             memberRepository.findByName(name)
+                ?: memberRepository.findByEmail(name.lowercase())
                 ?: throw IllegalArgumentException("User '$name' not found")
 
         val hash =

@@ -12,7 +12,6 @@ import { useTranslation } from 'react-i18next';
 import {
   CheckCircle2,
   Circle,
-  Plus,
   Package,
   X,
   ShoppingCart,
@@ -31,6 +30,7 @@ import { connectCollectiveRealtime } from '../lib/realtime';
 import { tapFeedback } from '../lib/haptics';
 import { formatDate, formatDateTime, translateKey } from '../i18n/helpers';
 import type { Task, ShoppingItem, TaskCategory } from '../lib/types';
+import { Eyebrow, Fab, ProgressBar } from '../components/ui-kit';
 
 const CATEGORIES: TaskCategory[] = ['CLEANING', 'VACUUMING', 'MOPPING', 'BATHROOM', 'KITCHEN', 'LAUNDRY', 'DISHES', 'TRASH', 'DUSTING', 'WINDOWS', 'OTHER'];
 const RECURRENCE_OPTIONS = ['NONE', 'DAILY', 'WEEKLY', 'MONTHLY'] as const;
@@ -98,7 +98,7 @@ function TaskEditor({
         <select
           value={newAssignee}
           onChange={(event) => setNewAssignee(event.target.value)}
-          className="bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary [color-scheme:dark]"
+          className="bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
         >
           {(members.length > 0 ? members : [name]).map((member) => (
             <option key={member} value={member}>
@@ -110,14 +110,14 @@ function TaskEditor({
           type="date"
           value={newDue}
           onChange={(event) => setNewDue(event.target.value)}
-          className="bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary [color-scheme:dark]"
+          className="bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
         />
       </div>
       <div className="grid grid-cols-2 gap-2">
         <select
           value={newCategory}
           onChange={(event) => setNewCategory(event.target.value as TaskCategory)}
-          className="bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary [color-scheme:dark]"
+          className="bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
         >
           {CATEGORIES.map((category) => (
             <option key={category} value={category}>
@@ -128,7 +128,7 @@ function TaskEditor({
         <select
           value={newRecurrence}
           onChange={(event) => setNewRecurrence(event.target.value)}
-          className="bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary [color-scheme:dark]"
+          className="bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
         >
           {RECURRENCE_OPTIONS.map((recurrence) => (
             <option key={recurrence} value={recurrence}>
@@ -143,7 +143,7 @@ function TaskEditor({
           type="number"
           value={newXp}
           onChange={(event) => setNewXp(event.target.value)}
-          className="w-20 bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary [color-scheme:dark]"
+          className="w-20 bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
         />
         <span className="text-xs text-muted-foreground">{t('tasks.xpReward')}</span>
       </div>
@@ -632,34 +632,28 @@ function TasksMain() {
     );
   }
 
+  const completedCount = tasks.filter((task) => task.completed).length;
+  const completionPercent = tasks.length === 0 ? 0 : (completedCount / tasks.length) * 100;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       className="space-y-4 pt-4"
     >
-      <div className="flex items-center justify-between">
-        <h2 className="font-display text-xl font-bold">{t('tasks.title')}</h2>
-        <button
-          onClick={() => {
-            if (tab === 'tasks') { resetForm(); setShowAdd(true); }
-            else { setShowShoppingAdd(true); }
-          }}
-          className="h-9 w-9 rounded-xl gradient-primary flex items-center justify-center"
-          aria-label={tab === 'tasks' ? t('tasks.addTask') : t('tasks.addSupply')}
-        >
-          <Plus className="h-5 w-5 text-primary-foreground" />
-        </button>
+      <div>
+        <Eyebrow>{t('tasks.eyebrow')}</Eyebrow>
+        <h2 className="mt-2 font-display text-[2.25rem] leading-none font-extrabold tracking-[-.04em]">{t('tasks.heading')}</h2>
       </div>
 
-      <div className="flex gap-1 glass rounded-xl p-1">
+      <div className="seg">
         {(['tasks', 'shopping'] as const).map((value) => (
           <button
             key={value}
             onClick={() => setTab(value)}
             className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all ${
               tab === value
-                ? 'gradient-primary text-primary-foreground'
+                ? 'bg-primary text-primary-foreground'
                 : 'text-muted-foreground'
             }`}
           >
@@ -667,6 +661,22 @@ function TasksMain() {
           </button>
         ))}
       </div>
+
+      {tab === 'tasks' && (
+        <div className="househero">
+          <p className="text-xs font-bold uppercase tracking-[.15em] text-white/65">{t('tasks.progressLabel')}</p>
+          <p className="bignum mt-3">{completedCount}<span className="text-secondary">/{tasks.length}</span> <span className="text-2xl tracking-normal">{t('tasks.done')}</span></p>
+          <p className="mt-2 text-sm text-white/70">{t('tasks.remaining', { count: Math.max(0, tasks.length - completedCount) })}</p>
+          <ProgressBar value={completionPercent} className="mt-4 bg-white/20" />
+        </div>
+      )}
+
+      {!showAdd && !showShoppingAdd && (
+        <Fab
+          onClick={() => { if (tab === 'tasks') { resetForm(); setShowAdd(true); } else { setShowShoppingAdd(true); } }}
+          label={tab === 'tasks' ? t('tasks.addTask') : t('tasks.addSupply')}
+        />
+      )}
 
       <AnimatePresence>
         {showShoppingAdd && tab === 'shopping' && (
@@ -764,7 +774,7 @@ function TasksMain() {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.04 }}
-                    className={`glass rounded-xl p-3.5 ${task.completed ? 'opacity-50' : ''}`}
+                    className={`task ${task.completed ? 'opacity-50' : ''}`}
                   >
                     <div
                       className="flex items-center gap-3 cursor-pointer"
@@ -1124,12 +1134,12 @@ function TasksMain() {
                           value={buyAmount}
                           onChange={(event) => setBuyAmount(event.target.value)}
                           placeholder={t('tasks.shopping.amountPlaceholder')}
-                          className="bg-muted/50 rounded-lg px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary [color-scheme:dark]"
+                          className="bg-muted/50 rounded-lg px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
                         />
                         <select
                           value={buyPaidBy}
                           onChange={(event) => setBuyPaidBy(event.target.value)}
-                          className="bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary [color-scheme:dark]"
+                          className="bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                         >
                           {memberOptions.map((member) => (
                             <option key={member} value={member}>
@@ -1163,14 +1173,14 @@ function TasksMain() {
                           type="date"
                           value={buyDate}
                           onChange={(event) => setBuyDate(event.target.value)}
-                          className="flex-1 bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary [color-scheme:dark]"
+                          className="flex-1 bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                           aria-label={t('tasks.shopping.purchaseDate')}
                         />
                         <input
                           type="date"
                           value={buyDeadline}
                           onChange={(event) => setBuyDeadline(event.target.value)}
-                          className="flex-1 bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary [color-scheme:dark]"
+                          className="flex-1 bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                           aria-label={t('economy.deadlineDateLabel')}
                         />
                         <button

@@ -170,6 +170,7 @@ export interface DashboardResponse {
   upcomingEvents: CalendarEvent[];
   recentExpenses: Expense[];
   pendingShoppingItems: ShoppingItem[];
+  vibeScore: number;
 }
 
 export interface DrinkingQuestion {

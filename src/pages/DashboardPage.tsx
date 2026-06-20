@@ -8,6 +8,7 @@ import { useUser } from '../context/UserContext';
 import { formatCurrency, formatDate, formatTime, translateKey } from '../i18n/helpers';
 import { connectCollectiveRealtime } from '../lib/realtime';
 import type { DashboardResponse } from '../lib/types';
+import { Eyebrow, VibeRing } from '../components/ui-kit';
 
 const container = {
   hidden: {},
@@ -81,15 +82,17 @@ export default function DashboardPage() {
   const xpLabel = `${data.currentUserXp % 200}/200 XP`;
 
   return (
-    <motion.div variants={container} initial="hidden" animate="show" className="space-y-5 pt-4">
+    <motion.div variants={container} initial="hidden" animate="show" className="space-y-5 pt-3 pb-6">
       {/* Welcome */}
       <motion.div variants={item}>
-        <p className="text-muted-foreground text-sm">{translate('dashboard.welcomeBack')} 👋</p>
-        <h2 className="font-display text-2xl font-bold mt-1">{translate('dashboard.householdTitle')}</h2>
+        <Eyebrow>{translate('dashboard.today')}</Eyebrow>
+        <h2 className="font-display text-[2.55rem] leading-[.98] font-extrabold tracking-[-.04em] mt-2">
+          {translate('dashboard.greeting', { name: currentUser?.name })} <span className="mark">🌿</span>
+        </h2>
       </motion.div>
 
-      {/* XP / Level card */}
-      <motion.div variants={item} className="glass rounded-2xl p-4 glow-primary">
+      <motion.div variants={item} className="househero">
+        <p className="eyebrow !text-white/65">{translate('dashboard.householdTitle')}</p>
         <div className="flex items-center gap-3 mb-3">
           <div className="h-12 w-12 rounded-full gradient-primary flex items-center justify-center shrink-0">
             <span className="font-display text-lg font-bold text-primary-foreground">
@@ -112,12 +115,22 @@ export default function DashboardPage() {
             { label: translate('dashboard.stats.balance'), value: formatCurrency(data.currentUserBalance), icon: Wallet },
             { label: translate('dashboard.stats.xpEarned'), value: data.currentUserXp.toString(), icon: Zap },
           ].map((s) => (
-            <div key={s.label} className="bg-background/40 rounded-xl p-2.5 text-center">
+            <div key={s.label} className="stat-tile text-center">
               <s.icon className="h-3.5 w-3.5 mx-auto mb-1 text-muted-foreground" />
               <p className="font-display font-bold text-base">{s.value}</p>
               <p className="text-muted-foreground text-[10px]">{s.label}</p>
             </div>
           ))}
+        </div>
+      </motion.div>
+
+      <motion.div variants={item} className="card flex items-center gap-4">
+        <VibeRing score={data.vibeScore} />
+        <div>
+          <h3 className="font-display text-lg font-bold">{translate('dashboard.vibeTitle')}</h3>
+          <p className="text-sm text-muted-foreground mt-1">
+            {data.vibeScore >= 75 ? translate('dashboard.vibeGreat') : data.vibeScore >= 50 ? translate('dashboard.vibeSteady') : translate('dashboard.vibeNeedsLove')}
+          </p>
         </div>
       </motion.div>
 
@@ -140,7 +153,7 @@ export default function DashboardPage() {
             <p className="text-sm text-muted-foreground text-center py-3">{translate('dashboard.noUpcomingTasks')} 🎉</p>
           )}
           {data.upcomingTasks.slice(0, 5).map((task) => (
-            <button key={task.id} onClick={() => navigate('/tasks')} className="glass rounded-xl p-3 flex items-center gap-3 w-full text-left">
+            <button key={task.id} onClick={() => navigate('/tasks')} className="card !rounded-[1.1rem] !p-3 flex items-center gap-3 w-full text-left">
               <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
                 <CheckSquare className="h-4 w-4 text-muted-foreground" />
               </div>
@@ -165,7 +178,7 @@ export default function DashboardPage() {
             <p className="text-sm text-muted-foreground text-center py-3">{translate('dashboard.noShoppingItems')}</p>
           )}
           {data.pendingShoppingItems.slice(0, 3).map((s) => (
-            <button key={s.id} onClick={() => navigate('/tasks?tab=shopping')} className="glass rounded-xl p-3 flex items-center gap-3 w-full text-left">
+            <button key={s.id} onClick={() => navigate('/tasks?tab=shopping')} className="card !rounded-[1.1rem] !p-3 flex items-center gap-3 w-full text-left">
               <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
                 <ShoppingCart className="h-4 w-4 text-muted-foreground" />
               </div>
@@ -189,7 +202,7 @@ export default function DashboardPage() {
             <p className="text-sm text-muted-foreground text-center py-3">{translate('dashboard.noUpcomingEvents')}</p>
           )}
           {data.upcomingEvents.slice(0, 3).map((e) => (
-            <button key={e.id} onClick={() => navigate('/calendar')} className="glass rounded-xl p-3 flex items-center gap-3 w-full text-left">
+            <button key={e.id} onClick={() => navigate('/calendar')} className="card !rounded-[1.1rem] !p-3 flex items-center gap-3 w-full text-left">
               <div className="h-8 w-8 rounded-lg bg-accent/20 flex items-center justify-center shrink-0">
                 <Calendar className="h-4 w-4 text-accent" />
               </div>
@@ -214,7 +227,7 @@ export default function DashboardPage() {
             <p className="text-sm text-muted-foreground text-center py-3">{translate('dashboard.noRecentExpenses')}</p>
           )}
           {data.recentExpenses.slice(0, 3).map((e) => (
-            <button key={e.id} onClick={() => navigate('/economy')} className="glass rounded-xl p-3 flex items-center gap-3 w-full text-left">
+            <button key={e.id} onClick={() => navigate('/economy')} className="card !rounded-[1.1rem] !p-3 flex items-center gap-3 w-full text-left">
               <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
                 <Wallet className="h-4 w-4 text-muted-foreground" />
               </div>

@@ -31,3 +31,6 @@ app:
     redirect-uri: ${GOOGLE_REDIRECT_URI:http://localhost:8080/api/google-calendar/callback}
     frontend-url: ${GOOGLE_FRONTEND_URL:http://localhost:5173}
     mobile-return-url: ${GOOGLE_MOBILE_RETURN_URL:no.kollekt.app://google-calendar-connected}
+  social:
+    google-client-ids: ${SOCIAL_GOOGLE_CLIENT_IDS:${GOOGLE_CLIENT_ID:}}
+    apple-client-ids: ${SOCIAL_APPLE_CLIENT_IDS:}
