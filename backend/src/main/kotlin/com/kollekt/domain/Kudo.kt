@@ -16,6 +16,7 @@ data class Kudo(
     @Column(nullable = false) val sender: String,
     @Column(nullable = false) val receiver: String,
     @Column(nullable = true) val taskId: Long? = null,
+    @Column(nullable = false, length = 32) val type: String = "THANK_YOU",
     @Column(nullable = false, length = 500) val context: String,
     @Column(nullable = false) val createdAt: LocalDateTime = LocalDateTime.now(),
 )

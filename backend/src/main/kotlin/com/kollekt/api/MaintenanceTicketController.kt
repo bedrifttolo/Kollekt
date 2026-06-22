@@ -9,6 +9,7 @@ import com.kollekt.service.MaintenanceTicketOperations
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.oauth2.jwt.Jwt
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -35,6 +36,13 @@ class MaintenanceTicketController(
         @RequestBody request: UpdateMaintenanceTicketRequest,
         @AuthenticationPrincipal jwt: Jwt,
     ): MaintenanceTicketDto = operations.update(ticketId, request, jwt.subject)
+
+    @DeleteMapping("/api/maintenance/tickets/{ticketId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun delete(
+        @PathVariable ticketId: Long,
+        @AuthenticationPrincipal jwt: Jwt,
+    ) = operations.delete(ticketId, jwt.subject)
 
     @GetMapping("/api/maintenance/tickets")
     fun getAll(

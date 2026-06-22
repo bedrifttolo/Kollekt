@@ -109,6 +109,7 @@ export interface MaintenanceTicket {
   assignee: string | null;
   dueDate: string | null;
   costEstimate: number | null;
+  splitParticipants: string[];
   createdBy: string;
   createdAt: string;
   updatedAt: string;
@@ -116,10 +117,13 @@ export interface MaintenanceTicket {
   statusHistory: MaintenanceStatusHistory[];
 }
 
+export type KudoType = 'THANK_YOU' | 'CLEANEST' | 'MOST_HELPFUL' | 'PEACEMAKER';
+
 export interface Kudo {
   id: number;
   sender: string;
   receiver: string;
+  type: KudoType;
   context: string;
   taskId: number | null;
   taskTitle: string | null;
@@ -139,7 +143,7 @@ export interface ShoppingItem {
   completed: boolean;
 }
 
-export type EventType = 'PARTY' | 'MOVIE' | 'DINNER' | 'OTHER';
+export type EventType = 'PARTY' | 'MOVIE' | 'DINNER' | 'GAME_NIGHT' | 'CLEANING' | 'SPORTS' | 'BIRTHDAY' | 'MEETING' | 'TRIP' | 'OTHER';
 
 export interface CalendarEvent {
   id: number;

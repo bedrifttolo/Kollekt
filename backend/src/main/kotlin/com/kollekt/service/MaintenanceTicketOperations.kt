@@ -1,5 +1,6 @@
 package com.kollekt.service
 
+import com.kollekt.api.dto.CreateExpenseRequest
 import com.kollekt.api.dto.CreateMaintenanceTicketRequest
 import com.kollekt.api.dto.MaintenanceStatusHistoryDto
 import com.kollekt.api.dto.MaintenanceTicketDto
@@ -23,6 +24,7 @@ class MaintenanceTicketOperations(
     private val memberRepository: MemberRepository,
     private val collectiveAccessService: CollectiveAccessService,
     private val realtimeUpdateService: RealtimeUpdateService,
+    private val economyOperations: EconomyOperations,
 ) {
     fun getAll(
         actorName: String,
@@ -30,8 +32,10 @@ class MaintenanceTicketOperations(
         priority: MaintenancePriority?,
     ): List<MaintenanceTicketDto> {
         val collectiveCode = collectiveAccessService.requireCollectiveCodeByMemberName(actorName)
+        val doneCutoff = LocalDateTime.now().minusDays(1)
         return ticketRepository.findAllByCollectiveCode(collectiveCode)
             .asSequence()
+            .filter { it.status != MaintenanceStatus.DONE || it.updatedAt.isAfter(doneCutoff) }
             .filter { status == null || it.status == status }
             .filter { priority == null || it.priority == priority }
             .sortedWith(
@@ -61,6 +65,7 @@ class MaintenanceTicketOperations(
                     assignee = request.assignee,
                     dueDate = request.dueDate,
                     costEstimate = request.costEstimate,
+                    splitParticipants = encodeParticipants(request.splitParticipants, collectiveCode),
                     createdBy = actorName,
                 ),
             )
@@ -85,6 +90,8 @@ class MaintenanceTicketOperations(
         val costEstimate = request.costEstimate ?: ticket.costEstimate
         require(costEstimate == null || costEstimate >= 0) { "Cost estimate cannot be negative" }
         val status = request.status ?: ticket.status
+        val splitParticipants =
+            if (request.splitParticipants != null) encodeParticipants(request.splitParticipants, collectiveCode) else ticket.splitParticipants
         val saved =
             ticketRepository.save(
                 ticket.copy(
@@ -95,16 +102,72 @@ class MaintenanceTicketOperations(
                     assignee = assignee,
                     dueDate = request.dueDate ?: ticket.dueDate,
                     costEstimate = costEstimate,
+                    splitParticipants = splitParticipants,
                     updatedAt = LocalDateTime.now(),
                 ),
             )
         if (status != ticket.status) {
             historyRepository.save(MaintenanceTicketStatusHistory(ticketId = ticketId, status = status, changedBy = actorName))
         }
+        // Completing a ticket with a cost turns it into a shared expense the completer paid.
+        if (status == MaintenanceStatus.DONE && ticket.status != MaintenanceStatus.DONE) {
+            settleTicketCost(saved, actorName, collectiveCode)
+        }
         val dto = saved.toDto()
         realtimeUpdateService.publish(collectiveCode, "MAINTENANCE_UPDATED", dto)
         return dto
     }
+
+    @Transactional
+    fun delete(
+        ticketId: Long,
+        actorName: String,
+    ) {
+        val collectiveCode = collectiveAccessService.requireCollectiveCodeByMemberName(actorName)
+        val ticket =
+            ticketRepository.findByIdAndCollectiveCodeForUpdate(ticketId, collectiveCode)
+                ?: throw IllegalArgumentException("Maintenance ticket $ticketId not found")
+        historyRepository.deleteAll(historyRepository.findAllByTicketIdOrderByChangedAtAsc(ticketId))
+        ticketRepository.delete(ticket)
+        realtimeUpdateService.publish(collectiveCode, "MAINTENANCE_DELETED", mapOf("id" to ticketId))
+    }
+
+    private fun settleTicketCost(
+        ticket: MaintenanceTicket,
+        completedBy: String,
+        collectiveCode: String,
+    ) {
+        val cost = ticket.costEstimate ?: return
+        if (cost <= 0) return
+        val participants =
+            decodeParticipants(ticket.splitParticipants)
+                .filter { memberRepository.findByNameAndCollectiveCode(it, collectiveCode) != null }
+        if (participants.isEmpty()) return
+        economyOperations.createExpense(
+            CreateExpenseRequest(
+                description = "🔧 ${ticket.title}",
+                amount = cost,
+                paidBy = completedBy,
+                category = "Bills",
+                date = LocalDate.now(),
+                participantNames = participants,
+            ),
+            completedBy,
+        )
+    }
+
+    private fun encodeParticipants(
+        names: List<String>,
+        collectiveCode: String,
+    ): String? {
+        val valid =
+            names.map { it.trim() }.filter { it.isNotBlank() }.distinct()
+                .filter { memberRepository.findByNameAndCollectiveCode(it, collectiveCode) != null }
+        return valid.takeIf { it.isNotEmpty() }?.joinToString(",")
+    }
+
+    private fun decodeParticipants(encoded: String?): List<String> =
+        encoded?.split(",")?.map { it.trim() }?.filter { it.isNotBlank() } ?: emptyList()
 
     private fun validateAssignee(
         assignee: String?,
@@ -125,6 +188,7 @@ class MaintenanceTicketOperations(
             assignee = assignee,
             dueDate = dueDate,
             costEstimate = costEstimate,
+            splitParticipants = decodeParticipants(splitParticipants),
             createdBy = createdBy,
             createdAt = createdAt,
             updatedAt = updatedAt,

@@ -27,6 +27,7 @@ data class MaintenanceTicket(
     @Column(nullable = true) val assignee: String? = null,
     @Column(nullable = true) val dueDate: LocalDate? = null,
     @Column(nullable = true) val costEstimate: Int? = null,
+    @Column(name = "split_participants", nullable = true, columnDefinition = "TEXT") val splitParticipants: String? = null,
     @Column(nullable = false) val createdBy: String,
     @Column(nullable = false) val createdAt: LocalDateTime = LocalDateTime.now(),
     @Column(nullable = false) val updatedAt: LocalDateTime = LocalDateTime.now(),

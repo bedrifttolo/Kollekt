@@ -1,12 +1,18 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Image as ImageIcon, BarChart3, X, Smile, Reply, HeartHandshake } from 'lucide-react';
+import { Send, Image as ImageIcon, BarChart3, X, Smile, Reply, HeartHandshake, ChevronDown, WashingMachine } from 'lucide-react';
+
+type LaundryType = 'WHITES' | 'COLORS' | 'DELICATES' | 'WOOL' | 'SPORTS' | 'TOWELS';
+const LAUNDRY_TYPES: LaundryType[] = ['WHITES', 'COLORS', 'DELICATES', 'WOOL', 'SPORTS', 'TOWELS'];
+const LAUNDRY_TEMPS = [30, 40, 60, 90];
 import { useTranslation } from 'react-i18next';
 import { api } from '../lib/api';
 import { useUser } from '../context/UserContext';
 import { formatDateTime, formatTime } from '../i18n/helpers';
 import { connectCollectiveRealtime } from '../lib/realtime';
-import type { ChatMessage, CheckinSummary, HouseCheckin, Kudo, Task } from '../lib/types';
+import type { ChatMessage, CheckinSummary, HouseCheckin, Kudo, KudoType, Task } from '../lib/types';
+
+const KUDO_TYPES: KudoType[] = ['THANK_YOU', 'CLEANEST', 'MOST_HELPFUL', 'PEACEMAKER'];
 import { AvatarStack } from '../components/ui-kit';
 import { colorForMember } from '../lib/memberColors';
 
@@ -23,8 +29,12 @@ export default function ChatPage() {
   const [members, setMembers] = useState<string[]>([]);
   const [input, setInput] = useState('');
   const [showPollForm, setShowPollForm] = useState(false);
+  const [showLaundryForm, setShowLaundryForm] = useState(false);
+  const [laundryType, setLaundryType] = useState<LaundryType>('COLORS');
+  const [laundryTemp, setLaundryTemp] = useState(40);
   const [showKudosForm, setShowKudosForm] = useState(false);
   const [kudosReceiver, setKudosReceiver] = useState('');
+  const [kudosType, setKudosType] = useState<KudoType>('THANK_YOU');
   const [kudosContext, setKudosContext] = useState('');
   const [kudosTaskId, setKudosTaskId] = useState('');
   const [householdTasks, setHouseholdTasks] = useState<Task[]>([]);
@@ -36,7 +46,12 @@ export default function ChatPage() {
   const [onlineCount, setOnlineCount] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [checkinSummary, setCheckinSummary] = useState<CheckinSummary | null>(null);
+  const [checkinExpanded, setCheckinExpanded] = useState(false);
   const [mention, setMention] = useState<{ query: string; start: number } | null>(null);
+
+  // Show whole averages as "5", fractional ones as "4.3".
+  const formatMood = (value?: number | null) =>
+    value == null ? '' : Number.isInteger(value) ? String(value) : value.toFixed(1);
   const bottomRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messageInputRef = useRef<HTMLInputElement>(null);
@@ -151,6 +166,13 @@ export default function ChatPage() {
     });
   };
 
+  const sendLaundry = async () => {
+    const text = t('laundry.message', { temp: laundryTemp, type: t(`laundry.types.${laundryType}`).toLowerCase() });
+    setShowLaundryForm(false);
+    await api.post('/chat/messages', { sender: name, text });
+    fetchMessages();
+  };
+
   const sendPoll = async () => {
     const opts = pollOptions.filter((o) => o.trim());
     if (!pollQuestion.trim() || opts.length < 2) return;
@@ -162,13 +184,15 @@ export default function ChatPage() {
   };
 
   const sendKudos = async () => {
-    if (!kudosReceiver || !kudosContext.trim()) return;
+    if (!kudosReceiver) return;
     await api.post<Kudo>('/kudos', {
       receiver: kudosReceiver,
-      context: kudosContext,
+      type: kudosType,
+      context: kudosContext.trim() || t(`kudos.types.${kudosType}`),
       taskId: kudosTaskId ? Number(kudosTaskId) : null,
     });
     setKudosReceiver('');
+    setKudosType('THANK_YOU');
     setKudosContext('');
     setKudosTaskId('');
     setShowKudosForm(false);
@@ -226,21 +250,35 @@ export default function ChatPage() {
       </div>
 
       {checkinSummary && checkinSummary.responseCount > 0 && (
-        <div className="mt-3 rounded-[1.35rem] border border-primary/25 bg-primary/5 p-4">
-          <div className="flex items-center justify-between gap-3">
-            <h3 className="font-display text-sm font-bold">💬 {t('checkin.summaryTitle')}</h3>
-            <span className="text-xs font-bold text-primary">{t('checkin.averageMood', { mood: checkinSummary.averageMood?.toFixed(1) })}</span>
-          </div>
-          <p className="mt-1 text-[10px] text-muted-foreground">{t('checkin.progress', { count: checkinSummary.responseCount, total: checkinSummary.memberCount })}</p>
-          <div className="mt-3 space-y-2">
-            {checkinSummary.responses.map((response) => (
-              <div key={response.id} className="rounded-xl bg-card p-3 text-xs">
-                <p className="font-bold">{response.author ?? t('checkin.anonymousAuthor')} · {response.mood}/5</p>
-                <p className="mt-1"><span className="text-muted-foreground">{t('checkin.issueLabel')}:</span> {response.issue}</p>
-                <p className="mt-1"><span className="text-muted-foreground">{t('checkin.improvementLabel')}:</span> {response.improvement}</p>
-              </div>
-            ))}
-          </div>
+        <div className="mt-3 rounded-[1.35rem] border border-primary/25 bg-primary/5">
+          <button
+            onClick={() => setCheckinExpanded((v) => !v)}
+            className="flex w-full items-center justify-between gap-3 p-3 text-left"
+          >
+            <div className="min-w-0">
+              <h3 className="font-display text-sm font-bold truncate">💬 {t('checkin.summaryTitle')}</h3>
+              <p className="text-[10px] text-muted-foreground">{t('checkin.progress', { count: checkinSummary.responseCount, total: checkinSummary.memberCount })}</p>
+            </div>
+            <div className="flex shrink-0 items-center gap-2">
+              <span className="text-xs font-bold text-primary">{t('checkin.averageMood', { mood: formatMood(checkinSummary.averageMood) })}</span>
+              <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${checkinExpanded ? 'rotate-180' : ''}`} />
+            </div>
+          </button>
+          <AnimatePresence>
+            {checkinExpanded && (
+              <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+                <div className="space-y-2 px-3 pb-3">
+                  {checkinSummary.responses.map((response) => (
+                    <div key={response.id} className="rounded-xl bg-card p-3 text-xs">
+                      <p className="font-bold">{response.author ?? t('checkin.anonymousAuthor')} · {response.mood}/5</p>
+                      <p className="mt-1"><span className="text-muted-foreground">{t('checkin.issueLabel')}:</span> {response.issue}</p>
+                      <p className="mt-1"><span className="text-muted-foreground">{t('checkin.improvementLabel')}:</span> {response.improvement}</p>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       )}
 
@@ -387,13 +425,59 @@ export default function ChatPage() {
                 <option value="">{t('kudos.chooseRoommate')}</option>
                 {members.filter((member) => member !== name).map((member) => <option key={member} value={member}>{member}</option>)}
               </select>
+              <div>
+                <p className="mb-1 text-[10px] font-semibold text-muted-foreground">{t('kudos.typeLabel')}</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {KUDO_TYPES.map((type) => (
+                    <button
+                      key={type}
+                      onClick={() => setKudosType(type)}
+                      className={`rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors ${kudosType === type ? 'bg-primary text-primary-foreground' : 'bg-muted/60 text-muted-foreground'}`}
+                    >
+                      {t(`kudos.types.${type}`)}
+                    </button>
+                  ))}
+                </div>
+              </div>
               <select value={kudosTaskId} onChange={(event) => setKudosTaskId(event.target.value)} className="w-full rounded-lg bg-muted/50 px-3 py-2 text-xs">
                 <option value="">{t('kudos.generalHelp')}</option>
                 {householdTasks.map((task) => <option key={task.id} value={task.id}>{task.title}</option>)}
               </select>
               <input value={kudosContext} onChange={(event) => setKudosContext(event.target.value)} maxLength={500} placeholder={t('kudos.contextPlaceholder')} className="w-full rounded-lg bg-muted/50 px-3 py-2 text-xs" />
-              <button onClick={() => void sendKudos()} disabled={!kudosReceiver || !kudosContext.trim()} className="w-full rounded-lg bg-primary py-2 text-xs font-bold text-primary-foreground disabled:opacity-50">{t('kudos.send')}</button>
-              <p className="text-[9px] text-muted-foreground">{t('kudos.dailyLimit')}</p>
+              <button onClick={() => void sendKudos()} disabled={!kudosReceiver} className="w-full rounded-lg bg-primary py-2 text-xs font-bold text-primary-foreground disabled:opacity-50">{t('kudos.send')}</button>
+              <p className="text-[9px] text-muted-foreground">{t('kudos.privateNote')}</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showLaundryForm && (
+          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
+            <div className="glass mb-2 space-y-2 rounded-xl p-3">
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-semibold">{t('laundry.title')}</p>
+                <button onClick={() => setShowLaundryForm(false)}><X className="h-3.5 w-3.5 text-muted-foreground" /></button>
+              </div>
+              <p className="text-[10px] font-semibold text-muted-foreground">{t('laundry.typeLabel')}</p>
+              <div className="flex flex-wrap gap-1.5">
+                {LAUNDRY_TYPES.map((type) => (
+                  <button key={type} onClick={() => setLaundryType(type)}
+                    className={`rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors ${laundryType === type ? 'bg-primary text-primary-foreground' : 'bg-muted/60 text-muted-foreground'}`}>
+                    {t(`laundry.types.${type}`)}
+                  </button>
+                ))}
+              </div>
+              <p className="text-[10px] font-semibold text-muted-foreground">{t('laundry.tempLabel')}</p>
+              <div className="flex flex-wrap gap-1.5">
+                {LAUNDRY_TEMPS.map((temp) => (
+                  <button key={temp} onClick={() => setLaundryTemp(temp)}
+                    className={`rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors ${laundryTemp === temp ? 'bg-primary text-primary-foreground' : 'bg-muted/60 text-muted-foreground'}`}>
+                    {temp}°C
+                  </button>
+                ))}
+              </div>
+              <button onClick={() => void sendLaundry()} className="w-full rounded-lg bg-primary py-2 text-xs font-bold text-primary-foreground">{t('laundry.send')}</button>
             </div>
           </motion.div>
         )}
@@ -460,13 +544,16 @@ export default function ChatPage() {
           </div>
         )}
         <div className="flex gap-2 rounded-[1.35rem] border border-border bg-card p-2 shadow-sm">
-          <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/heic"
+          <input ref={fileInputRef} type="file" accept="image/*"
             className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) sendImage(f); }} />
           <button onClick={() => fileInputRef.current?.click()} className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-muted" aria-label={t('chat.sendImage')}>
             <ImageIcon className="h-4 w-4 text-muted-foreground" />
           </button>
           <button onClick={() => setShowPollForm((v) => !v)} className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-muted" aria-label={t('chat.togglePollForm')}>
             <BarChart3 className="h-4 w-4 text-muted-foreground" />
+          </button>
+          <button onClick={() => setShowLaundryForm((v) => !v)} className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-muted" aria-label={t('laundry.title')}>
+            <WashingMachine className="h-4 w-4 text-accent" />
           </button>
           <button onClick={() => setShowKudosForm((value) => !value)} className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-muted" aria-label={t('kudos.sendTitle')}>
             <HeartHandshake className="h-4 w-4 text-primary" />

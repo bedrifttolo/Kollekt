@@ -23,9 +23,10 @@ class KudoOperations(
     private val memberRepository: MemberRepository,
     private val taskRepository: TaskRepository,
     private val collectiveAccessService: CollectiveAccessService,
-    private val realtimeUpdateService: RealtimeUpdateService,
+    private val notificationService: NotificationService,
 ) {
     private val dailyCap = 3L
+    private val kudoTypes = setOf("THANK_YOU", "CLEANEST", "MOST_HELPFUL", "PEACEMAKER")
 
     @Transactional
     fun create(
@@ -51,6 +52,7 @@ class KudoOperations(
         val today = LocalDate.now()
         val sentToday = kudoRepository.countSentInRange(actorName, today.atStartOfDay(), today.plusDays(1).atStartOfDay())
         require(sentToday < dailyCap) { "Daily kudos limit reached" }
+        val type = request.type.uppercase().takeIf { it in kudoTypes } ?: "THANK_YOU"
         val saved =
             kudoRepository.save(
                 Kudo(
@@ -58,12 +60,17 @@ class KudoOperations(
                     sender = actorName,
                     receiver = receiver.name,
                     taskId = task?.id,
+                    type = type,
                     context = context,
                 ),
             )
-        val dto = saved.toDto(task?.title)
-        realtimeUpdateService.publish(collectiveCode, "KUDOS_CREATED", dto)
-        return dto
+        // Kudos are private: only the recipient is notified, nothing is broadcast to the collective.
+        notificationService.createParameterizedNotification(
+            userName = receiver.name,
+            type = "KUDOS_RECEIVED",
+            params = mapOf("sender" to actorName, "context" to context),
+        )
+        return saved.toDto(task?.title)
     }
 
     fun getFeed(actorName: String): List<KudoDto> {
@@ -90,5 +97,5 @@ class KudoOperations(
         )
     }
 
-    private fun Kudo.toDto(taskTitle: String?) = KudoDto(id, sender, receiver, context, taskId, taskTitle, createdAt)
+    private fun Kudo.toDto(taskTitle: String?) = KudoDto(id, sender, receiver, type, context, taskId, taskTitle, createdAt)
 }

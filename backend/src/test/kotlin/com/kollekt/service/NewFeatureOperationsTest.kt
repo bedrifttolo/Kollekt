@@ -148,7 +148,8 @@ class NewFeatureOperationsTest {
         val members = mock<MemberRepository>()
         val access = mock<CollectiveAccessService>()
         val realtime = mock<RealtimeUpdateService>()
-        val service = MaintenanceTicketOperations(tickets, history, members, access, realtime)
+        val economy = mock<EconomyOperations>()
+        val service = MaintenanceTicketOperations(tickets, history, members, access, realtime, economy)
         val ticket =
             MaintenanceTicket(
                 9,
@@ -194,16 +195,16 @@ class NewFeatureOperationsTest {
         val members = mock<MemberRepository>()
         val tasks = mock<TaskRepository>()
         val access = mock<CollectiveAccessService>()
-        val realtime = mock<RealtimeUpdateService>()
-        val service = KudoOperations(kudos, members, tasks, access, realtime)
-        val kudo = Kudo(3, "HOME", "Alex", "Bea", 7, "Great help")
+        val notifications = mock<NotificationService>()
+        val service = KudoOperations(kudos, members, tasks, access, notifications)
+        val kudo = Kudo(3, "HOME", "Alex", "Bea", 7, "THANK_YOU", "Great help")
         whenever(access.requireCollectiveCodeByMemberName("Alex")).thenReturn("HOME")
         whenever(members.findByNameAndCollectiveCodeForUpdate("Alex", "HOME")).thenReturn(member(1, "Alex"))
         whenever(members.findByNameAndCollectiveCode("Bea", "HOME")).thenReturn(member(2, "Bea"))
         whenever(tasks.findByIdAndCollectiveCode(7, "HOME")).thenReturn(task(7, "Bea"))
         whenever(kudos.countSentInRange(eq("Alex"), any(), any())).thenReturn(0)
         whenever(kudos.save(any<Kudo>())).thenReturn(kudo)
-        assertEquals("Clean sink", service.create(CreateKudoRequest("Bea", " Great help ", 7), "Alex").taskTitle)
+        assertEquals("Clean sink", service.create(CreateKudoRequest("Bea", " Great help ", taskId = 7), "Alex").taskTitle)
 
         whenever(kudos.findAllByCollectiveCodeOrderByCreatedAtDesc("HOME")).thenReturn(listOf(kudo))
         whenever(tasks.findById(7)).thenReturn(Optional.of(task(7, "Bea")))

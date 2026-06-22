@@ -79,6 +79,12 @@
       "PARTY": "Fest",
       "MOVIE": "Film",
       "DINNER": "Middag",
+      "GAME_NIGHT": "Spillkveld",
+      "CLEANING": "Rengjøring",
+      "SPORTS": "Sport",
+      "BIRTHDAY": "Bursdag",
+      "MEETING": "Møte",
+      "TRIP": "Tur",
       "OTHER": "Annet"
     },
     "memberStatus": {
@@ -361,6 +367,14 @@
       "titlePlaceholder": "Hva må fikses?",
       "descriptionPlaceholder": "Beskriv problemet...",
       "costPlaceholder": "Kostnadsanslag (kr)",
+      "splitLabel": "Del kostnaden med",
+      "splitHint": "Når oppgaven er fullført, deles kostnaden mellom disse på økonomisiden.",
+      "completeTitle": "Fullfør oppgave",
+      "completeSubtitle": "Del kostnaden på {{amount}} for «{{title}}» — velg hvem som deler den.",
+      "completeConfirm": "Fullfør og legg til i økonomi",
+      "edit": "Rediger oppgave",
+      "delete": "Slett oppgave",
+      "saveEdit": "Lagre endringer",
       "unassigned": "Ikke tildelt",
       "all": "Alle",
       "empty": "Ingen vedlikeholdssaker her.",
@@ -389,12 +403,23 @@
     "improvementLabel": "Forbedring"
   },
   "kudos": {
+    "typeLabel": "For hva?",
+    "types": { "THANK_YOU": "Takk", "CLEANEST": "Reineste", "MOST_HELPFUL": "Mest hjelpsom", "PEACEMAKER": "Fredsmekler" },
+    "privateNote": "Bare de ser dette — det deles ikke med kollektivet.",
     "sendTitle": "Send skryt", "chooseRoommate": "Velg en romkamerat", "generalHelp": "Generell hjelp",
     "contextPlaceholder": "Hva gjorde personen som hjalp?", "send": "Send skryt",
     "dailyLimit": "Du kan sende opptil 3 skryt per dag.", "weeklyTitle": "Ukens positivitet",
     "weeklyTotal_one": "{{count}} skryt delt denne uken", "weeklyTotal_other": "{{count}} skryt delt denne uken",
     "weeklyEmpty": "Bli den første til å sette pris på noen denne uken.", "profileBadge": "Mottatt skryt",
     "receivedTotal_one": "{{count}} hyggelig tilbakemelding fra kollektivet", "receivedTotal_other": "{{count}} hyggelige tilbakemeldinger fra kollektivet"
+  },
+  "laundry": {
+    "title": "Skal vaske",
+    "typeLabel": "Vasketype",
+    "tempLabel": "Temperatur",
+    "send": "Annonser i chatten",
+    "message": "🧺 Jeg kjører en vask på {{temp}}°C ({{type}}) — bli med for å spare strøm!",
+    "types": { "WHITES": "Hvitt", "COLORS": "Farget", "DELICATES": "Finvask", "WOOL": "Ull", "SPORTS": "Sportsklær", "TOWELS": "Håndklær" }
   },
   "quietHours": { "title": "Stilletid", "window": "{{start}}–{{end}}", "disabled": "Stilletid er av", "save": "Lagre stilletid" },
   "calendar": {
@@ -905,6 +930,8 @@
       "dark": "Mørkt furutema",
       "lightLabel": "Lys",
       "darkLabel": "Mørk",
+      "pink": "Mykt rosa tema",
+      "pinkLabel": "Rosa",
       "toggle": "Bytt mellom lyst og mørkt utseende"
     },
     "status": {
@@ -953,6 +980,7 @@
         "SHOPPING_ITEM_ADDED": "{{actorName}} la til '{{item}}' i handlelisten",
         "EVENT_ADDED": "Ny hendelse: '{{title}}' den {{date}}",
         "NEW_MESSAGE": "{{sender}}: \"{{preview}}\"",
+        "KUDOS_RECEIVED": "💛 {{sender}} ga deg kudos: {{context}}",
         "HOUSE_RULES_UPDATED": "Husreglene ble oppdatert til versjon {{version}}.",
         "GUEST_NOTICE_CREATED": "{{host}} får besøk av {{guest}} den {{date}}.",
         "GUEST_QUIET_HOURS_OVERLAP": "Besøket til {{guest}} overlapper stilletiden fra {{start}}."
@@ -1040,7 +1068,8 @@
       "friendRemoved": "Venn fjernet",
       "preferencesSaved": "Varslingsinnstillinger lagret",
       "colorSaved": "Profilfarge lagret",
-      "codeCopied": "Kollektivkoden er kopiert"
+      "codeCopied": "Kollektivkoden er kopiert",
+      "quietHoursSaved": "Stilletimer lagret"
     },
     "errors": {
       "passwordTooShort": "Passordet må være minst 8 tegn",
@@ -1053,6 +1082,7 @@
       "preferencesUpdateFailed": "Kunne ikke oppdatere varslingsinnstillingene",
       "colorUpdateFailed": "Kunne ikke oppdatere profilfargen",
       "copyFailed": "Kunne ikke kopiere kollektivkoden",
+      "quietHoursFailed": "Kunne ikke lagre stilletimer",
       "leaveFailed": "Kunne ikke forlate kollektivet",
       "partialLoadFailed": "Noe profilinformasjon kunne ikke lastes inn."
     }
