@@ -4,9 +4,29 @@
     "tagline": "Shared living, simplified",
     "logoAlt": "Kollekt logo"
   },
+  "tour": {
+    "skip": "Skip",
+    "next": "Next",
+    "done": "Got it",
+    "onboarding": {
+      "mode": { "title": "Create or join", "body": "Start a new home, or join your housemates' with their code." },
+      "name": { "title": "Name your home", "body": "Give your household a name everyone will recognise." },
+      "rooms": { "title": "Rooms become XP", "body": "Add the rooms you share — cleaning time turns into XP and fair weekly rotations." },
+      "create": { "title": "You're all set", "body": "Create your home, then invite the others to join." }
+    },
+    "steps": {
+      "home": { "title": "Your home base", "body": "See your household at a glance — balances, chores and the vibe of the week." },
+      "tasks": { "title": "Chores, kept fair", "body": "Tasks rotate evenly every week. Finishing them earns you XP." },
+      "economy": { "title": "Split & settle up", "body": "Track shared expenses and pay each other back via Vipps, MobilePay, PayPal or bank." },
+      "social": { "title": "Compete & play", "body": "Climb the leaderboard and start game nights together." },
+      "profile": { "title": "You & your settings", "body": "Tap here for your profile, payment methods, invites and household options." }
+    }
+  },
   "languages": {
     "en": "English",
-    "no": "Norwegian"
+    "no": "Norwegian",
+    "sv": "Swedish",
+    "da": "Danish"
   },
   "languageSwitcher": {
     "label": "Language",
@@ -234,7 +254,9 @@
   "dashboard": {
     "welcomeBack": "Welcome back",
     "today": "At home today",
-    "greeting": "Good morning, {{name}}",
+    "greetingMorning": "Good morning, {{name}}",
+    "greetingAfternoon": "Good afternoon, {{name}}",
+    "greetingEvening": "Good evening, {{name}}",
     "vibeTitle": "House vibe is looking good",
     "vibeGreat": "Chores are moving and the house feels balanced. Keep it up.",
     "vibeSteady": "A little momentum will lift the whole house.",
@@ -393,7 +415,16 @@
     "expenseHistory": "Expense History",
     "splitCount": "Split {{count}}",
     "editExpense": "Edit Expense",
-    "saveChanges": "Save Changes"
+    "saveChanges": "Save Changes",
+    "pay": {
+      "title": "Pay {{name}}",
+      "subtitle": "You owe {{amount}}",
+      "bankTransfer": "Bank transfer",
+      "open": "Open",
+      "copy": "Copy",
+      "markSettled": "I've paid — mark settled",
+      "disclaimer": "Kollekt opens your payment app — the transfer happens there. Confirm the amount before sending."
+    }
   },
   "pant": {
     "eyebrow": "Pant tracker",
@@ -876,6 +907,18 @@
         "SHOPPING_ITEM_ADDED": "Item added to shopping list",
         "EVENT_ADDED": "New calendar event"
       }
+    },
+    "paymentMethods": {
+      "title": "Payment Methods",
+      "subtitle": "Let housemates pay you back directly",
+      "vippsPlaceholder": "Vipps number",
+      "mobilepayPlaceholder": "MobilePay number",
+      "paypalPlaceholder": "PayPal.Me username",
+      "bankPlaceholder": "Bank account / IBAN",
+      "hint": "Only your housemates can see these, and only to pay you. Leave a field blank to remove it.",
+      "save": "Save",
+      "saved": "Payment methods saved",
+      "saveFailed": "Couldn't save payment methods. Check the format and try again."
     },
     "inviteRoommates": {
       "title": "Invite Roommates",

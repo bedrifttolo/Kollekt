@@ -1,5 +1,7 @@
 package com.kollekt.service
 
+import com.kollekt.api.dto.PaymentHandlesDto
+import com.kollekt.api.dto.UpdatePaymentHandlesRequest
 import com.kollekt.domain.MemberStatus
 import com.kollekt.repository.MemberRepository
 import com.kollekt.repository.TaskRepository
@@ -52,6 +54,65 @@ class MemberOperations(
         val normalized = color.trim()
         require(normalized.matches(Regex("^#[0-9a-fA-F]{6}$"))) { "Color must be a hex value like #1f563f" }
         memberRepository.save(member.copy(color = normalized))
+    }
+
+    fun getPaymentHandles(memberName: String): PaymentHandlesDto {
+        val member =
+            memberRepository.findByName(memberName)
+                ?: throw IllegalArgumentException("User '$memberName' not found")
+        return PaymentHandlesDto(
+            vipps = member.vippsHandle,
+            mobilepay = member.mobilepayHandle,
+            paypal = member.paypalHandle,
+            bankAccount = member.bankAccount,
+        )
+    }
+
+    @Transactional
+    fun updatePaymentHandles(request: UpdatePaymentHandlesRequest): PaymentHandlesDto {
+        val member =
+            memberRepository.findByName(request.memberName)
+                ?: throw IllegalArgumentException("User '${request.memberName}' not found")
+
+        val vipps = normalizePhoneHandle(request.vipps, "Vipps")
+        val mobilepay = normalizePhoneHandle(request.mobilepay, "MobilePay")
+        val paypal = normalizePaypalHandle(request.paypal)
+        val bankAccount = normalizeBankAccount(request.bankAccount)
+
+        memberRepository.save(
+            member.copy(
+                vippsHandle = vipps,
+                mobilepayHandle = mobilepay,
+                paypalHandle = paypal,
+                bankAccount = bankAccount,
+            ),
+        )
+
+        return PaymentHandlesDto(vipps = vipps, mobilepay = mobilepay, paypal = paypal, bankAccount = bankAccount)
+    }
+
+    private fun normalizePhoneHandle(
+        raw: String?,
+        label: String,
+    ): String? {
+        val trimmed = raw?.replace(Regex("[\\s-]"), "")?.trim().orEmpty()
+        if (trimmed.isBlank()) return null
+        require(trimmed.matches(Regex("^\\+?[0-9]{8,15}$"))) { "$label number must be 8–15 digits" }
+        return trimmed
+    }
+
+    private fun normalizePaypalHandle(raw: String?): String? {
+        val trimmed = raw?.trim()?.removePrefix("https://paypal.me/")?.removePrefix("paypal.me/")?.trim('@')?.trim().orEmpty()
+        if (trimmed.isBlank()) return null
+        require(trimmed.matches(Regex("^[A-Za-z0-9]{1,20}$"))) { "PayPal.Me handle must be 1–20 letters or digits" }
+        return trimmed
+    }
+
+    private fun normalizeBankAccount(raw: String?): String? {
+        val trimmed = raw?.replace(Regex("\\s"), "")?.trim().orEmpty()
+        if (trimmed.isBlank()) return null
+        require(trimmed.matches(Regex("^[A-Za-z0-9]{6,34}$"))) { "Bank account / IBAN must be 6–34 letters or digits" }
+        return trimmed.uppercase()
     }
 
     @Transactional

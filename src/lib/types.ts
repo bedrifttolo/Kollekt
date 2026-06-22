@@ -65,9 +65,17 @@ export interface Balance {
   amount: number;
 }
 
+export interface PaymentHandles {
+  vipps?: string | null;
+  mobilepay?: string | null;
+  paypal?: string | null;
+  bankAccount?: string | null;
+}
+
 export interface PayOption {
   name: string;
   amount: number;
+  handles: PaymentHandles;
 }
 
 export interface PantEntry {

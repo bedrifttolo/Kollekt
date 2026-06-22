@@ -4,9 +4,29 @@
     "tagline": "Kollektivliv, forenklet",
     "logoAlt": "Kollekt-logo"
   },
+  "tour": {
+    "skip": "Hopp over",
+    "next": "Neste",
+    "done": "Skjønner",
+    "onboarding": {
+      "mode": { "title": "Opprett eller bli med", "body": "Start et nytt hjem, eller bli med i romkameratenes med koden deres." },
+      "name": { "title": "Gi hjemmet et navn", "body": "Velg et navn alle kjenner igjen." },
+      "rooms": { "title": "Rom blir til XP", "body": "Legg til rommene dere deler — vasketid blir til XP og rettferdig rotasjon hver uke." },
+      "create": { "title": "Klar til start", "body": "Opprett hjemmet, og inviter så de andre." }
+    },
+    "steps": {
+      "home": { "title": "Utgangspunktet ditt", "body": "Se kollektivet i et øyekast — saldoer, oppgaver og stemningen for uka." },
+      "tasks": { "title": "Rettferdig fordeling", "body": "Oppgavene roterer jevnt hver uke. Fullfører du dem, får du XP." },
+      "economy": { "title": "Del og gjør opp", "body": "Hold styr på felles utgifter og betal hverandre via Vipps, MobilePay, PayPal eller bank." },
+      "social": { "title": "Konkurrer og spill", "body": "Klatre på topplista og start spillkvelder sammen." },
+      "profile": { "title": "Deg og innstillingene", "body": "Trykk her for profil, betalingsmetoder, invitasjoner og valg for kollektivet." }
+    }
+  },
   "languages": {
     "en": "Engelsk",
-    "no": "Norsk"
+    "no": "Norsk",
+    "sv": "Svensk",
+    "da": "Dansk"
   },
   "languageSwitcher": {
     "label": "Språk",
@@ -44,10 +64,10 @@
       "LAUNDRY": "Klesvask",
       "DISHES": "Oppvask",
       "TRASH": "Søppel",
-      "DUSTING": "Støv av",
+      "DUSTING": "Støvtørking",
       "WINDOWS": "Vindusvask",
       "SHOPPING": "Handling",
-      "OTHER": "Egendefinert"
+      "OTHER": "Annet"
     },
     "recurrence": {
       "NONE": "Ingen",
@@ -234,7 +254,9 @@
   "dashboard": {
     "welcomeBack": "Velkommen tilbake",
     "today": "Hjemme i dag",
-    "greeting": "God morgen, {{name}}",
+    "greetingMorning": "God morgen, {{name}}",
+    "greetingAfternoon": "God dag, {{name}}",
+    "greetingEvening": "God kveld, {{name}}",
     "vibeTitle": "God stemning i kollektivet",
     "vibeGreat": "Oppgavene går unna og huset er i balanse. Fortsett sånn.",
     "vibeSteady": "Litt ekstra fart vil løfte hele kollektivet.",
@@ -393,7 +415,16 @@
     "expenseHistory": "Utgiftshistorikk",
     "splitCount": "Delt på {{count}}",
     "editExpense": "Rediger utgift",
-    "saveChanges": "Lagre endringer"
+    "saveChanges": "Lagre endringer",
+    "pay": {
+      "title": "Betal {{name}}",
+      "subtitle": "Du skylder {{amount}}",
+      "bankTransfer": "Bankoverføring",
+      "open": "Åpne",
+      "copy": "Kopier",
+      "markSettled": "Jeg har betalt — marker som gjort opp",
+      "disclaimer": "Kollekt åpner betalingsappen din — selve overføringen skjer der. Bekreft beløpet før du sender."
+    }
   },
   "pant": {
     "eyebrow": "Pantemål",
@@ -637,7 +668,7 @@
       "TASK_50":   { "title": "Oppgavetitan",       "description": "Fullfør 50 oppgaver" },
       "STREAK_3":  { "title": "På rekke",           "description": "Fullfør oppgaver 3 dager på rad" },
       "STREAK_7":  { "title": "Ukekriger",          "description": "Fullfør oppgaver 7 dager på rad" },
-      "STREAK_14": { "title": "Fortsettelsesstyrke", "description": "Fullfør oppgaver 14 dager på rad" },
+      "STREAK_14": { "title": "Jernvilje",           "description": "Fullfør oppgaver 14 dager på rad" },
       "EARLY_BIRD":{ "title": "Tidligfugl",         "description": "Fullfør 3 oppgaver før fristen" },
       "EARLY_10":  { "title": "I forkant",          "description": "Fullfør 10 oppgaver før fristen" },
       "ON_TIME_10":{ "title": "Presis",             "description": "Fullfør 10 oppgaver innen fristen" },
@@ -648,9 +679,9 @@
       "RECURRING_10": { "title": "Pålitelig romkamerat", "description": "Fullfør 10 gjentakende oppgaver" },
       "LEVEL_2":   { "title": "Nivå opp",           "description": "Nå nivå 2" },
       "LEVEL_5":   { "title": "Kollektivproff",     "description": "Nå nivå 5" },
-      "XP_100":    { "title": "Hundring",           "description": "Tjen 100 XP" },
+      "XP_100":    { "title": "Hundreklubben",      "description": "Tjen 100 XP" },
       "XP_500":    { "title": "XP-maskin",          "description": "Tjen 500 XP" },
-      "XP_1000":   { "title": "Fire sifre",         "description": "Tjen 1 000 XP" }
+      "XP_1000":   { "title": "XP-legende",         "description": "Tjen 1 000 XP" }
     },
     "custom": {
       "builtIn": "Innebygde prestasjoner",
@@ -876,6 +907,18 @@
         "SHOPPING_ITEM_ADDED": "Vare lagt til i handlelisten",
         "EVENT_ADDED": "Ny kalenderhendelse"
       }
+    },
+    "paymentMethods": {
+      "title": "Betalingsmetoder",
+      "subtitle": "La romkameratene betale deg tilbake direkte",
+      "vippsPlaceholder": "Vipps-nummer",
+      "mobilepayPlaceholder": "MobilePay-nummer",
+      "paypalPlaceholder": "PayPal.Me-brukernavn",
+      "bankPlaceholder": "Kontonummer / IBAN",
+      "hint": "Bare romkameratene dine ser disse, og kun for å betale deg. La et felt stå tomt for å fjerne det.",
+      "save": "Lagre",
+      "saved": "Betalingsmetoder lagret",
+      "saveFailed": "Kunne ikke lagre betalingsmetoder. Sjekk formatet og prøv igjen."
     },
     "inviteRoommates": {
       "title": "Inviter romkamerater",

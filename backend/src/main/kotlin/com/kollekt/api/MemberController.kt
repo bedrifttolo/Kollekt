@@ -81,6 +81,24 @@ class MemberController(
         memberOperations.updateMemberColor(req.memberName, req.color)
     }
 
+    @GetMapping("/payment-handles")
+    fun getPaymentHandles(
+        @RequestParam memberName: String,
+        @AuthenticationPrincipal jwt: Jwt,
+    ): com.kollekt.api.dto.PaymentHandlesDto {
+        requireTokenSubject(jwt, memberName)
+        return memberOperations.getPaymentHandles(memberName)
+    }
+
+    @PatchMapping("/payment-handles")
+    fun updatePaymentHandles(
+        @RequestBody req: com.kollekt.api.dto.UpdatePaymentHandlesRequest,
+        @AuthenticationPrincipal jwt: Jwt,
+    ): com.kollekt.api.dto.PaymentHandlesDto {
+        requireTokenSubject(jwt, req.memberName)
+        return memberOperations.updatePaymentHandles(req)
+    }
+
     @GetMapping("/collective")
     fun getCollectiveMembers(
         @RequestParam memberName: String,

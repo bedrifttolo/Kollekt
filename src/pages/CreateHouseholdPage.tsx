@@ -7,10 +7,18 @@ import { api, getUserMessage } from '../lib/api';
 import { useUser } from '../context/UserContext';
 import type { AppUser } from '../lib/types';
 import { BrandMark, Field } from '../components/ui-kit';
+import TourOverlay, { type TourStep } from '../components/TourOverlay';
 
 type RoomDraft = { id: number; emoji: string; name: string; minutes: string };
 
 const CODE_LENGTH = 6;
+
+const ONBOARDING_TOUR_STEPS: TourStep[] = [
+  { selector: '[data-tour="onb-mode"]', titleKey: 'tour.onboarding.mode.title', bodyKey: 'tour.onboarding.mode.body' },
+  { selector: '[data-tour="onb-name"]', titleKey: 'tour.onboarding.name.title', bodyKey: 'tour.onboarding.name.body' },
+  { selector: '[data-tour="onb-rooms"]', titleKey: 'tour.onboarding.rooms.title', bodyKey: 'tour.onboarding.rooms.body' },
+  { selector: '[data-tour="onb-create"]', titleKey: 'tour.onboarding.create.title', bodyKey: 'tour.onboarding.create.body' },
+];
 
 // Common shared rooms offered as one-tap suggestions, with realistic clean times (min = XP).
 const ROOM_SUGGESTIONS: Array<{ key: string; emoji: string; minutes: string }> = [
@@ -152,7 +160,7 @@ export default function CreateHouseholdPage() {
           <span className="mark">{t('createHousehold.headingMark2')}</span>
         </h1>
 
-        <div className="seg mt-6">
+        <div className="seg mt-6" data-tour="onb-mode">
           {(['create', 'join'] as const).map((m) => (
             <button
               key={m}
@@ -169,12 +177,14 @@ export default function CreateHouseholdPage() {
 
         {mode === 'create' ? (
           <div className="mt-4 space-y-4">
-            <Field
-              label={t('createHousehold.householdName')}
-              value={houseName}
-              onChange={(e) => setHouseName(e.target.value)}
-              placeholder={t('createHousehold.householdNamePlaceholder')}
-            />
+            <div data-tour="onb-name">
+              <Field
+                label={t('createHousehold.householdName')}
+                value={houseName}
+                onChange={(e) => setHouseName(e.target.value)}
+                placeholder={t('createHousehold.householdNamePlaceholder')}
+              />
+            </div>
 
             <Field
               label={t('createHousehold.address')}
@@ -183,7 +193,7 @@ export default function CreateHouseholdPage() {
               placeholder={t('createHousehold.addressPlaceholder')}
             />
 
-            <div>
+            <div data-tour="onb-rooms">
               <button
                 type="button"
                 onClick={() => setRoomsOpen((v) => !v)}
@@ -273,7 +283,7 @@ export default function CreateHouseholdPage() {
 
             {error && <p className="text-sm text-destructive text-center">{error}</p>}
 
-            <button type="button" onClick={handleCreate} disabled={loading} className="btn-lemon w-full font-bold disabled:opacity-60">
+            <button type="button" data-tour="onb-create" onClick={handleCreate} disabled={loading} className="btn-lemon w-full font-bold disabled:opacity-60">
               {loading ? t('createHousehold.creating') : t('createHousehold.createCta')}
             </button>
           </div>
@@ -324,6 +334,7 @@ export default function CreateHouseholdPage() {
           {t('createHousehold.backToAuth')}
         </button>
       </motion.div>
+      {mode === 'create' && <TourOverlay steps={ONBOARDING_TOUR_STEPS} storageKey="kollekt_onboarding_tour_v1" />}
     </div>
   );
 }

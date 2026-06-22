@@ -6,6 +6,8 @@ import { cn } from './ui/utils';
 const languageLabels: Record<SupportedLanguage, string> = {
   en: 'EN',
   no: 'NO',
+  sv: 'SV',
+  da: 'DA',
 };
 
 export default function LanguageSwitcher({ className }: { className?: string }) {
