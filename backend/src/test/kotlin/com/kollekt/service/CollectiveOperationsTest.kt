@@ -9,6 +9,7 @@ import com.kollekt.domain.Member
 import com.kollekt.domain.TaskCategory
 import com.kollekt.domain.TaskItem
 import com.kollekt.repository.CollectiveRepository
+import com.kollekt.repository.FriendshipRepository
 import com.kollekt.repository.InvitationRepository
 import com.kollekt.repository.MemberRepository
 import com.kollekt.repository.RoomRepository
@@ -53,7 +54,7 @@ class CollectiveOperationsTest {
         taskOperations = mock()
         invitationRealtimeService = mock()
         googleCalendarService = mock()
-        userProfileService = UserProfileService(memberRepository)
+        userProfileService = UserProfileService(memberRepository, mock<FriendshipRepository>())
         operations =
             CollectiveOperations(
                 memberRepository = memberRepository,
@@ -101,8 +102,11 @@ class CollectiveOperationsTest {
             check {
                 assertEquals("Vask Kitchen", it.title)
                 assertEquals(TaskCategory.CLEANING, it.category)
+                assertTrue(it.recurrenceSeriesId != null)
+                assertEquals(it.dueDate, it.recurrenceAnchorDate)
             },
         )
+        verify(taskOperations).regenerateRecurringTasksForCollective(result.joinCode)
         verify(memberRepository, times(2)).save(any<Member>())
     }
 
@@ -237,11 +241,7 @@ class CollectiveOperationsTest {
 
         operations.joinCollective(JoinCollectiveRequest(userId = 7, joinCode = "ABC123"))
 
-        verify(taskRepository).save(
-            check {
-                assertEquals("Emma", it.assignee)
-            },
-        )
+        verify(taskOperations).regenerateRecurringTasksForCollective("ABC123")
     }
 
     @Test

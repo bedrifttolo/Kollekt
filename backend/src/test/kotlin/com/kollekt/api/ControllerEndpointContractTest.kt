@@ -4,6 +4,7 @@ import com.kollekt.api.dto.AchievementDto
 import com.kollekt.api.dto.AuthResponse
 import com.kollekt.api.dto.BalanceDto
 import com.kollekt.api.dto.CollectiveCodeDto
+import com.kollekt.api.dto.CreateCustomAchievementRequest
 import com.kollekt.api.dto.CreateEventRequest
 import com.kollekt.api.dto.CreateMessageRequest
 import com.kollekt.api.dto.CreatePantEntryRequest
@@ -21,6 +22,7 @@ import com.kollekt.api.dto.TaskDto
 import com.kollekt.api.dto.UpdateExpenseRequest
 import com.kollekt.api.dto.UpdatePantEntryRequest
 import com.kollekt.api.dto.UserDto
+import com.kollekt.domain.CustomAchievementMetric
 import com.kollekt.domain.EventType
 import com.kollekt.domain.Invitation
 import com.kollekt.domain.MemberStatus
@@ -707,6 +709,64 @@ class ControllerEndpointContractTest {
     }
 
     @Test
+    fun `custom achievement create and delete use household achievement endpoints`() {
+        val request =
+            CreateCustomAchievementRequest(
+                title = "Kitchen legend",
+                description = "Complete ten kitchen tasks",
+                metric = CustomAchievementMetric.CATEGORY_COMPLETIONS,
+                target = 10,
+                taskCategory = TaskCategory.KITCHEN,
+            )
+        whenever(statsService.createCustomAchievement("Kasper", request)).thenReturn(
+            AchievementDto(
+                id = -9,
+                key = "CUSTOM_9",
+                title = request.title,
+                description = request.description,
+                icon = "sparkles",
+                unlocked = false,
+                progress = 0,
+                total = 10,
+                custom = true,
+                createdBy = "Kasper",
+            ),
+        )
+
+        mockMvc
+            .perform(
+                post("/api/achievements/custom")
+                    .param("memberName", "Kasper")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        """
+                        {
+                          "title":"Kitchen legend",
+                          "description":"Complete ten kitchen tasks",
+                          "metric":"CATEGORY_COMPLETIONS",
+                          "target":10,
+                          "taskCategory":"KITCHEN"
+                        }
+                        """.trimIndent(),
+                    )
+                    .with(csrf())
+                    .with(jwt().jwt { it.subject("Kasper") }),
+            ).andExpect(status().isCreated)
+            .andExpect(jsonPath("$.key").value("CUSTOM_9"))
+
+        mockMvc
+            .perform(
+                delete("/api/achievements/custom/9")
+                    .param("memberName", "Kasper")
+                    .with(csrf())
+                    .with(jwt().jwt { it.subject("Kasper") }),
+            ).andExpect(status().isNoContent)
+
+        verify(statsService).createCustomAchievement("Kasper", request)
+        verify(statsService).deleteCustomAchievement("Kasper", 9)
+    }
+
+    @Test
     fun `members collective uses api members collective endpoint`() {
         whenever(memberOperations.getCollectiveMembers("Kasper"))
             .thenReturn(
@@ -744,14 +804,15 @@ class ControllerEndpointContractTest {
         mockMvc
             .perform(
                 patch("/api/members/reset-password")
+                    .param("memberName", "Kasper")
                     .contentType(MediaType.APPLICATION_JSON)
                     .with(csrf())
                     .with(jwt().jwt { it.subject("Kasper") })
                     .content("""{"newPassword":""}"""),
             ).andExpect(status().isBadRequest)
-            .andExpect(jsonPath("$.error").value("Provide either memberName or email and a newPassword"))
+            .andExpect(jsonPath("$.error").value("Password must be at least 8 characters"))
 
-        verify(accountOperations, never()).resetPassword(anyOrNull(), anyOrNull(), any())
+        verify(accountOperations, never()).resetPassword(any(), any())
     }
 
     @Test

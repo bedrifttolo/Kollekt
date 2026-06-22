@@ -2,6 +2,7 @@ package com.kollekt.api
 
 import com.kollekt.api.dto.AchievementCatalogItemDto
 import com.kollekt.api.dto.AchievementDto
+import com.kollekt.api.dto.CreateCustomAchievementRequest
 import com.kollekt.api.dto.DashboardResponse
 import com.kollekt.api.dto.LeaderboardPeriod
 import com.kollekt.api.dto.LeaderboardResponse
@@ -9,14 +10,18 @@ import com.kollekt.api.dto.MemberStatsDto
 import com.kollekt.api.dto.MonthlyPrizeRequest
 import com.kollekt.api.dto.UpdateAchievementConfigRequest
 import com.kollekt.service.StatsService
+import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.oauth2.jwt.Jwt
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -88,6 +93,28 @@ class StatsController(
     ) {
         requireTokenSubject(jwt, memberName)
         statsService.updateAchievementConfig(memberName, request.enabledKeys)
+    }
+
+    @PostMapping("/achievements/custom")
+    @ResponseStatus(HttpStatus.CREATED)
+    fun createCustomAchievement(
+        @RequestParam memberName: String,
+        @RequestBody request: CreateCustomAchievementRequest,
+        @AuthenticationPrincipal jwt: Jwt,
+    ): AchievementDto {
+        requireTokenSubject(jwt, memberName)
+        return statsService.createCustomAchievement(memberName, request)
+    }
+
+    @DeleteMapping("/achievements/custom/{achievementId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun deleteCustomAchievement(
+        @PathVariable achievementId: Long,
+        @RequestParam memberName: String,
+        @AuthenticationPrincipal jwt: Jwt,
+    ) {
+        requireTokenSubject(jwt, memberName)
+        statsService.deleteCustomAchievement(memberName, achievementId)
     }
 
     @GetMapping("/members/stats")

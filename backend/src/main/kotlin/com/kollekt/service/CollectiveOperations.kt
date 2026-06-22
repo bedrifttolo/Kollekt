@@ -8,7 +8,6 @@ import com.kollekt.api.dto.UserDto
 import com.kollekt.domain.Collective
 import com.kollekt.domain.Invitation
 import com.kollekt.domain.Member
-import com.kollekt.domain.MemberStatus
 import com.kollekt.domain.Room
 import com.kollekt.domain.TaskCategory
 import com.kollekt.domain.TaskItem
@@ -21,6 +20,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.util.UUID
 
 @Service
 class CollectiveOperations(
@@ -93,6 +93,7 @@ class CollectiveOperations(
         }
 
         createOnboardingTasks(collective.joinCode, owner.name, residentNames, request)
+        taskOperations.regenerateRecurringTasksForCollective(collective.joinCode)
         return collective.toDto()
     }
 
@@ -117,7 +118,7 @@ class CollectiveOperations(
 
         val updated = memberRepository.save(user.copy(collectiveCode = joinCode))
         acceptInvitationIfPresent(updated.email, joinCode)
-        redistributeRecurringTasks(joinCode)
+        taskOperations.regenerateRecurringTasksForCollective(joinCode)
         return userProfileService.toUserDto(updated)
     }
 
@@ -226,6 +227,8 @@ class CollectiveOperations(
                     category = TaskCategory.CLEANING,
                     xp = room.minutes,
                     recurrenceRule = "WEEKLY",
+                    recurrenceSeriesId = UUID.randomUUID().toString(),
+                    recurrenceAnchorDate = onboardingDueDate,
                 ),
             )
         }
@@ -253,37 +256,6 @@ class CollectiveOperations(
                     acceptedAt = LocalDateTime.now(),
                 ),
             )
-        }
-    }
-
-    private fun redistributeRecurringTasks(joinCode: String) {
-        val today = LocalDate.now()
-        val allRecurringTasks =
-            taskRepository
-                .findAllByCollectiveCode(joinCode)
-                .filter {
-                    !it.completed &&
-                        !it.dueDate.isBefore(today) &&
-                        !it.recurrenceRule.isNullOrBlank() &&
-                        it.recurrenceRule.uppercase() != "NONE"
-                }
-
-        val members =
-            memberRepository
-                .findAllByCollectiveCode(joinCode)
-                .filter { it.status == MemberStatus.ACTIVE }
-
-        val memberNames = members.map { it.name }.sorted()
-        if (allRecurringTasks.isEmpty() || memberNames.isEmpty()) {
-            return
-        }
-
-        val sortedTasks = allRecurringTasks.sortedWith(compareBy({ it.dueDate }, { it.title }))
-        for ((index, task) in sortedTasks.withIndex()) {
-            val assignee = memberNames[index % memberNames.size]
-            if (task.assignee != assignee) {
-                taskRepository.save(task.copy(assignee = assignee))
-            }
         }
     }
 

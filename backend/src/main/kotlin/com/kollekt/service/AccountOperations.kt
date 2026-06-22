@@ -50,16 +50,11 @@ class AccountOperations(
 
     @Transactional
     fun resetPassword(
-        memberName: String?,
-        email: String?,
+        memberName: String,
         newPassword: String,
     ) {
-        val member =
-            when {
-                !email.isNullOrBlank() -> memberRepository.findByEmail(email.trim().lowercase())
-                !memberName.isNullOrBlank() -> memberRepository.findByName(memberName.trim())
-                else -> null
-            } ?: throw IllegalArgumentException("User not found")
+        if (newPassword.length < 8) throw IllegalArgumentException("Password must be at least 8 characters")
+        val member = memberRepository.findByName(memberName.trim()) ?: throw IllegalArgumentException("User not found")
 
         memberRepository.save(member.copy(passwordHash = passwordEncoder.encode(newPassword)))
     }

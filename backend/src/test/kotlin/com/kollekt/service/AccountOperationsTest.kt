@@ -4,6 +4,7 @@ import com.kollekt.api.dto.CreateUserRequest
 import com.kollekt.api.dto.LoginRequest
 import com.kollekt.api.dto.RefreshTokenRequest
 import com.kollekt.domain.Member
+import com.kollekt.repository.FriendshipRepository
 import com.kollekt.repository.MemberRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -19,6 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder
 
 class AccountOperationsTest {
     private lateinit var memberRepository: MemberRepository
+    private lateinit var friendshipRepository: FriendshipRepository
     private lateinit var passwordEncoder: PasswordEncoder
     private lateinit var tokenService: TokenService
     private lateinit var userProfileService: UserProfileService
@@ -27,9 +29,10 @@ class AccountOperationsTest {
     @BeforeEach
     fun setUp() {
         memberRepository = mock()
+        friendshipRepository = mock()
         passwordEncoder = mock()
         tokenService = mock()
-        userProfileService = UserProfileService(memberRepository)
+        userProfileService = UserProfileService(memberRepository, friendshipRepository)
         operations = AccountOperations(memberRepository, passwordEncoder, tokenService, userProfileService)
     }
 
@@ -56,17 +59,26 @@ class AccountOperationsTest {
     }
 
     @Test
-    fun `reset password uses normalized email lookup`() {
+    fun `reset password updates the named member`() {
         val existing = member(name = "Kasper", email = "kasper@example.com").copy(passwordHash = "old")
-        whenever(memberRepository.findByEmail("kasper@example.com")).thenReturn(existing)
+        whenever(memberRepository.findByName("Kasper")).thenReturn(existing)
         whenever(passwordEncoder.encode("new-secret")).thenReturn("encoded-secret")
 
-        operations.resetPassword(memberName = null, email = "  KASPER@example.com ", newPassword = "new-secret")
+        operations.resetPassword(memberName = " Kasper ", newPassword = "new-secret")
 
         val memberCaptor = argumentCaptor<Member>()
         verify(memberRepository).save(memberCaptor.capture())
         assertEquals("encoded-secret", memberCaptor.firstValue.passwordHash)
-        verify(memberRepository, never()).findByName(any<String>())
+        verify(memberRepository, never()).findByEmail(any<String>())
+    }
+
+    @Test
+    fun `reset password rejects passwords shorter than eight characters`() {
+        org.junit.jupiter.api.assertThrows<IllegalArgumentException> {
+            operations.resetPassword(memberName = "Kasper", newPassword = "short")
+        }
+
+        verify(memberRepository, never()).save(any<Member>())
     }
 
     @Test

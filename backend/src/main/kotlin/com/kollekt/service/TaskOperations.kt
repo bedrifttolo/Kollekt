@@ -12,8 +12,10 @@ import com.kollekt.repository.TaskFeedbackRepository
 import com.kollekt.repository.TaskRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.nio.charset.StandardCharsets.UTF_8
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.util.UUID
 
 @Service
 class TaskOperations(
@@ -82,7 +84,7 @@ class TaskOperations(
         }
 
         val normalizedRule = normalizeRecurrenceRule(request.recurrenceRule)
-        val saved =
+        val initiallySaved =
             taskRepository.save(
                 TaskItem(
                     title = request.title,
@@ -92,11 +94,20 @@ class TaskOperations(
                     category = request.category,
                     xp = request.xp,
                     recurrenceRule = normalizedRule,
+                    recurrenceSeriesId = if (isRecurringTask(normalizedRule)) UUID.randomUUID().toString() else null,
+                    recurrenceAnchorDate = if (isRecurringTask(normalizedRule)) request.dueDate else null,
                     recurring = isRecurringTask(normalizedRule),
                 ),
             )
 
-        notificationService.createTaskAssignedNotification(request.assignee, request.title)
+        val saved =
+            if (isRecurringTask(normalizedRule)) {
+                rebalanceFutureRecurringTasks(collectiveCode).firstOrNull { it.id == initiallySaved.id } ?: initiallySaved
+            } else {
+                initiallySaved
+            }
+
+        notificationService.createTaskAssignedNotification(saved.assignee, request.title)
         val dto = saved.toDto()
         realtimeUpdateService.publish(collectiveCode, "TASK_CREATED", dto)
         return dto
@@ -188,12 +199,25 @@ class TaskOperations(
                 else -> normalizeRecurrenceRule(task.recurrenceRule)
             }
         val newRecurring = isRecurringTask(newRecurrenceRule)
+        val newRecurrenceSeriesId =
+            when {
+                !newRecurring -> null
+                task.recurrenceSeriesId != null -> task.recurrenceSeriesId
+                else -> UUID.randomUUID().toString()
+            }
+        val newRecurrenceAnchorDate =
+            when {
+                !newRecurring -> null
+                task.recurrenceAnchorDate != null -> task.recurrenceAnchorDate
+                task.recurrenceSeriesId != null -> task.dueDate
+                else -> newDueDate
+            }
 
         if (memberRepository.findByNameAndCollectiveCode(newAssignee, collectiveCode) == null) {
             throw IllegalArgumentException("Assignee '$newAssignee' is not in your collective")
         }
 
-        val saved =
+        val initiallySaved =
             taskRepository.save(
                 task.copy(
                     title = newTitle,
@@ -202,9 +226,17 @@ class TaskOperations(
                     category = newCategory,
                     xp = newXp,
                     recurrenceRule = newRecurrenceRule,
+                    recurrenceSeriesId = newRecurrenceSeriesId,
+                    recurrenceAnchorDate = newRecurrenceAnchorDate,
                     recurring = newRecurring,
                 ),
             )
+        val saved =
+            if (newRecurring) {
+                rebalanceFutureRecurringTasks(collectiveCode).firstOrNull { it.id == initiallySaved.id } ?: initiallySaved
+            } else {
+                initiallySaved
+            }
 
         val dto = saved.toDto()
         realtimeUpdateService.publish(collectiveCode, "TASK_UPDATED", dto)
@@ -426,93 +458,74 @@ class TaskOperations(
                 .filter { it.status == MemberStatus.ACTIVE }
         if (members.isEmpty()) return
 
-        val memberNames = members.map { it.name }.sorted()
         val today = LocalDate.now()
         val allRecurringTasks =
             taskRepository
                 .findAllByCollectiveCode(collectiveCode)
                 .filter { isRecurringTask(it.recurrenceRule) }
-        val groupedTasks = allRecurringTasks.groupBy { it.title to (normalizeRecurrenceRule(it.recurrenceRule) ?: "WEEKLY") }
+        val groupedTasks = allRecurringTasks.groupBy(::recurrenceSeriesKey)
 
         data class TaskTemplate(
+            val recurrenceSeriesId: String,
             val title: String,
             val recurrenceRule: String,
             val category: TaskCategory,
             val xp: Int,
+            val anchorDate: LocalDate,
             val nextDueDate: LocalDate,
             val lastAssignee: String?,
         )
 
         val tasksToAssign = mutableListOf<TaskTemplate>()
-        for ((key, tasks) in groupedTasks) {
-            val (title, recurrenceRule) = key
+        for ((seriesId, tasks) in groupedTasks) {
             val template = tasks.maxByOrNull { it.dueDate } ?: continue
             if (!template.dueDate.isBefore(today)) continue
+            val recurrenceRule = normalizeRecurrenceRule(template.recurrenceRule) ?: continue
+            val anchorDate = tasks.mapNotNull { it.recurrenceAnchorDate }.minOrNull() ?: tasks.minOf { it.dueDate }
 
-            var nextDueDate = nextRecurringDueDate(template.dueDate, recurrenceRule)
+            var occurrence = 1L
+            var nextDueDate = recurringDueDate(anchorDate, recurrenceRule, occurrence)
+            while (!nextDueDate.isAfter(template.dueDate)) {
+                occurrence++
+                nextDueDate = recurringDueDate(anchorDate, recurrenceRule, occurrence)
+            }
             while (nextDueDate.isBefore(today)) {
-                nextDueDate = nextRecurringDueDate(nextDueDate, recurrenceRule)
+                occurrence++
+                nextDueDate = recurringDueDate(anchorDate, recurrenceRule, occurrence)
             }
 
             tasksToAssign.add(
                 TaskTemplate(
-                    title = title,
+                    recurrenceSeriesId = seriesId,
+                    title = template.title,
                     recurrenceRule = recurrenceRule,
                     category = template.category,
                     xp = template.xp,
+                    anchorDate = anchorDate,
                     nextDueDate = nextDueDate,
                     lastAssignee = template.assignee,
                 ),
             )
         }
 
-        val assignments = mutableMapOf<String, String>()
-        if (memberNames.isNotEmpty() && tasksToAssign.isNotEmpty()) {
-            if (memberNames.size == tasksToAssign.size) {
-                val sortedTasks = tasksToAssign.sortedBy { it.title + it.recurrenceRule }
-                val lastAssignees = sortedTasks.map { it.lastAssignee }
-                var rotatedMembers = memberNames.toList()
-                for (shift in memberNames.indices) {
-                    val candidate = rotatedMembers
-                    if (candidate.zip(lastAssignees).all { (member, last) -> member != last }) {
-                        break
-                    }
-                    rotatedMembers = rotatedMembers.drop(1) + rotatedMembers.first()
-                }
-                for ((task, assignee) in sortedTasks.zip(rotatedMembers)) {
-                    assignments[task.title + "::" + task.recurrenceRule] = assignee
-                }
-            } else {
-                val memberTaskCounts = mutableMapOf<String, Int>().withDefault { 0 }
-                for (task in tasksToAssign.shuffled()) {
-                    val candidates = memberNames.filter { it != task.lastAssignee }
-                    val minCount = candidates.minOfOrNull { memberTaskCounts.getValue(it) } ?: 0
-                    val leastLoaded = candidates.filter { memberTaskCounts.getValue(it) == minCount }
-                    val assignee =
-                        leastLoaded.randomOrNull()
-                            ?: memberNames.minByOrNull { memberTaskCounts.getValue(it) }
-                            ?: memberNames.first()
-                    assignments[task.title + "::" + task.recurrenceRule] = assignee
-                    memberTaskCounts[assignee] = memberTaskCounts.getValue(assignee) + 1
-                }
-            }
-        }
-
         for (task in tasksToAssign) {
-            val assignee = assignments[task.title + "::" + task.recurrenceRule] ?: memberNames.first()
             taskRepository.save(
                 TaskItem(
                     title = task.title,
-                    assignee = assignee,
+                    assignee = task.lastAssignee ?: members.first().name,
                     collectiveCode = collectiveCode,
                     dueDate = task.nextDueDate,
                     category = task.category,
                     xp = task.xp,
                     recurring = true,
                     recurrenceRule = task.recurrenceRule,
+                    recurrenceSeriesId = task.recurrenceSeriesId,
+                    recurrenceAnchorDate = task.anchorDate,
                 ),
             )
         }
+
+        rebalanceFutureRecurringTasks(collectiveCode)
     }
 
     private fun calculateCompletionAwardXp(task: TaskItem): Int =
@@ -526,15 +539,79 @@ class TaskOperations(
 
     private fun calculatePenaltyXp(task: TaskItem): Int = -kotlin.math.abs(task.xp)
 
-    private fun nextRecurringDueDate(
-        dueDate: LocalDate,
+    private fun recurringDueDate(
+        anchorDate: LocalDate,
         recurrenceRule: String,
+        occurrence: Long,
     ): LocalDate =
         when (recurrenceRule.uppercase()) {
-            "DAILY" -> dueDate.plusDays(1)
-            "MONTHLY" -> dueDate.plusMonths(1)
-            else -> dueDate.plusWeeks(1)
+            "DAILY" -> anchorDate.plusDays(occurrence)
+            "MONTHLY" -> anchorDate.plusMonths(occurrence)
+            else -> anchorDate.plusWeeks(occurrence)
         }
+
+    private data class AssignmentLoad(
+        val count: Int = 0,
+        val xp: Int = 0,
+    )
+
+    private fun rebalanceFutureRecurringTasks(collectiveCode: String): List<TaskItem> {
+        val memberNames =
+            memberRepository
+                .findAllByCollectiveCode(collectiveCode)
+                .filter { it.status == MemberStatus.ACTIVE }
+                .map { it.name }
+                .sorted()
+        if (memberNames.isEmpty()) return emptyList()
+
+        val today = LocalDate.now()
+        val recurringTasks =
+            taskRepository
+                .findAllByCollectiveCode(collectiveCode)
+                .filter { isRecurringTask(it.recurrenceRule) }
+        val futureTasks =
+            recurringTasks
+                .filter { !it.completed && !it.dueDate.isBefore(today) }
+                .sortedWith(compareBy<TaskItem> { it.dueDate }.thenByDescending { it.xp }.thenBy { recurrenceSeriesKey(it) })
+
+        val historicalLoad =
+            memberNames.associateWith { memberName ->
+                val assigned = recurringTasks.filter { it.assignee == memberName && it.dueDate.isBefore(today) }
+                AssignmentLoad(assigned.size, assigned.sumOf { it.xp })
+            }
+        val plannedLoad = memberNames.associateWith { AssignmentLoad() }.toMutableMap()
+        val savedTasks = mutableListOf<TaskItem>()
+
+        for (task in futureTasks) {
+            val previousAssignee =
+                recurringTasks
+                    .asSequence()
+                    .filter { recurrenceSeriesKey(it) == recurrenceSeriesKey(task) && it.dueDate.isBefore(task.dueDate) }
+                    .maxByOrNull { it.dueDate }
+                    ?.assignee
+            val assignee =
+                memberNames.minWithOrNull(
+                    compareBy<String> { plannedLoad.getValue(it).count }
+                        .thenBy { plannedLoad.getValue(it).xp }
+                        .thenBy { it == previousAssignee }
+                        .thenBy { historicalLoad.getValue(it).count }
+                        .thenBy { historicalLoad.getValue(it).xp }
+                        .thenBy { it },
+                ) ?: memberNames.first()
+
+            val currentLoad = plannedLoad.getValue(assignee)
+            plannedLoad[assignee] = AssignmentLoad(currentLoad.count + 1, currentLoad.xp + task.xp)
+            savedTasks += if (task.assignee == assignee) task else taskRepository.save(task.copy(assignee = assignee))
+        }
+
+        return savedTasks
+    }
+
+    private fun recurrenceSeriesKey(task: TaskItem): String =
+        task.recurrenceSeriesId
+            ?: UUID.nameUUIDFromBytes(
+                "${task.collectiveCode}::${task.title}::${normalizeRecurrenceRule(task.recurrenceRule)}".toByteArray(UTF_8),
+            ).toString()
 
     private fun normalizeRecurrenceRule(
         recurrenceRule: String?,

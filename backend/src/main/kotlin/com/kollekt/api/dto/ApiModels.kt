@@ -308,6 +308,16 @@ data class AchievementDto(
     val unlocked: Boolean,
     val progress: Int?,
     val total: Int?,
+    val custom: Boolean = false,
+    val createdBy: String? = null,
+)
+
+data class CreateCustomAchievementRequest(
+    val title: String,
+    val description: String,
+    val metric: com.kollekt.domain.CustomAchievementMetric,
+    val target: Int,
+    val taskCategory: TaskCategory? = null,
 )
 
 data class DashboardResponse(

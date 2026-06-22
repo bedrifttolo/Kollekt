@@ -2,6 +2,7 @@ package com.kollekt.service
 
 import com.kollekt.domain.Member
 import com.kollekt.domain.SocialIdentity
+import com.kollekt.repository.FriendshipRepository
 import com.kollekt.repository.MemberRepository
 import com.kollekt.repository.SocialIdentityRepository
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -25,7 +26,7 @@ class SocialAuthServiceTest {
         whenever(members.findByName("Kasper")).thenReturn(null)
         whenever(members.save(any<Member>())).thenAnswer { (it.arguments[0] as Member).copy(id = 7) }
         whenever(tokens.issueTokenPair(any())).thenReturn(TokenResult("access", "refresh", "Bearer", 3600))
-        val service = SocialAuthService(members, identities, tokens, UserProfileService(members), "", "")
+        val service = SocialAuthService(members, identities, tokens, UserProfileService(members, mock<FriendshipRepository>()), "", "")
 
         val response =
             service.completeLogin(
@@ -50,7 +51,7 @@ class SocialAuthServiceTest {
         )
         whenever(members.findById(4)).thenReturn(Optional.of(member))
         whenever(tokens.issueTokenPair(member)).thenReturn(TokenResult("access", "refresh", "Bearer", 3600))
-        val service = SocialAuthService(members, identities, tokens, UserProfileService(members), "", "")
+        val service = SocialAuthService(members, identities, tokens, UserProfileService(members, mock<FriendshipRepository>()), "", "")
 
         val response = service.completeLogin(VerifiedSocialIdentity("apple", "apple-user", "kasper@example.com", null))
 
@@ -66,7 +67,7 @@ class SocialAuthServiceTest {
         whenever(identities.findByProviderAndProviderSubject("google", "google-user")).thenReturn(null)
         whenever(members.findByEmail("kasper@example.com")).thenReturn(member)
         whenever(tokens.issueTokenPair(member)).thenReturn(TokenResult("access", "refresh", "Bearer", 3600))
-        val service = SocialAuthService(members, identities, tokens, UserProfileService(members), "", "")
+        val service = SocialAuthService(members, identities, tokens, UserProfileService(members, mock<FriendshipRepository>()), "", "")
 
         service.completeLogin(VerifiedSocialIdentity("google", "google-user", "kasper@example.com", "Kasper"))
 
@@ -81,7 +82,7 @@ class SocialAuthServiceTest {
                 members,
                 mock<SocialIdentityRepository>(),
                 mock<TokenService>(),
-                UserProfileService(members),
+                UserProfileService(members, mock<FriendshipRepository>()),
                 "",
                 "",
             )
@@ -108,7 +109,7 @@ class SocialAuthServiceTest {
         whenever(members.findByName("Kasper 2")).thenReturn(null)
         whenever(members.save(any<Member>())).thenAnswer { (it.arguments[0] as Member).copy(id = 9) }
         whenever(tokens.issueTokenPair(any())).thenReturn(TokenResult("access", "refresh", "Bearer", 3600))
-        val service = SocialAuthService(members, identities, tokens, UserProfileService(members), "", "")
+        val service = SocialAuthService(members, identities, tokens, UserProfileService(members, mock<FriendshipRepository>()), "", "")
 
         val response =
             service.completeLogin(
@@ -131,7 +132,7 @@ class SocialAuthServiceTest {
                 members,
                 identities,
                 mock<TokenService>(),
-                UserProfileService(members),
+                UserProfileService(members, mock<FriendshipRepository>()),
                 "",
                 "",
             )
@@ -149,7 +150,7 @@ class SocialAuthServiceTest {
                 members,
                 mock<SocialIdentityRepository>(),
                 mock<TokenService>(),
-                UserProfileService(members),
+                UserProfileService(members, mock<FriendshipRepository>()),
                 "google-client-id",
                 "apple-client-id",
             )
@@ -172,7 +173,7 @@ class SocialAuthServiceTest {
         whenever(members.findByName("Member")).thenReturn(null)
         whenever(members.save(any<Member>())).thenAnswer { (it.arguments[0] as Member).copy(id = 10) }
         whenever(tokens.issueTokenPair(any())).thenReturn(TokenResult("access", "refresh", "Bearer", 3600))
-        val service = SocialAuthService(members, identities, tokens, UserProfileService(members), "", "")
+        val service = SocialAuthService(members, identities, tokens, UserProfileService(members, mock<FriendshipRepository>()), "", "")
 
         val response =
             service.completeLogin(

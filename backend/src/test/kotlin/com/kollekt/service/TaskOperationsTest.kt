@@ -609,8 +609,8 @@ class TaskOperationsTest {
                 member("Kasper", "kasper@example.com", id = 1),
             ),
         )
-        whenever(taskRepository.findAllByCollectiveCode("ABC123")).thenReturn(
-            listOf(
+        val storedTasks =
+            mutableListOf(
                 TaskItem(
                     id = 1,
                     title = "Kitchen",
@@ -633,14 +633,20 @@ class TaskOperationsTest {
                     recurrenceRule = "WEEKLY",
                     recurring = true,
                 ),
-            ),
-        )
-        whenever(taskRepository.save(any<TaskItem>())).thenAnswer { it.arguments[0] as TaskItem }
+            )
+        whenever(taskRepository.findAllByCollectiveCode("ABC123")).thenAnswer { storedTasks.toList() }
+        whenever(taskRepository.save(any<TaskItem>())).thenAnswer {
+            val task = it.arguments[0] as TaskItem
+            val saved = if (task.id == 0L) task.copy(id = (storedTasks.maxOfOrNull(TaskItem::id) ?: 0L) + 1L) else task
+            storedTasks.removeAll { existing -> existing.id == saved.id }
+            storedTasks += saved
+            saved
+        }
 
         operations.regenerateRecurringTasksForCollective("ABC123")
 
         val savedTasks = argumentCaptor<TaskItem>()
-        verify(taskRepository, times(2)).save(savedTasks.capture())
+        verify(taskRepository, times(4)).save(savedTasks.capture())
         assertTrue(
             savedTasks.allValues.any {
                 it.title == "Kitchen" &&
@@ -665,8 +671,8 @@ class TaskOperationsTest {
                 member("Kasper", "kasper@example.com", id = 1),
             ),
         )
-        whenever(taskRepository.findAllByCollectiveCode("ABC123")).thenReturn(
-            listOf(
+        val storedTasks =
+            mutableListOf(
                 TaskItem(
                     id = 1,
                     title = "Kitchen",
@@ -678,19 +684,24 @@ class TaskOperationsTest {
                     recurrenceRule = "WEEKLY",
                     recurring = true,
                 ),
-            ),
-        )
-        whenever(taskRepository.save(any<TaskItem>())).thenAnswer { it.arguments[0] as TaskItem }
+            )
+        whenever(taskRepository.findAllByCollectiveCode("ABC123")).thenAnswer { storedTasks.toList() }
+        whenever(taskRepository.save(any<TaskItem>())).thenAnswer {
+            val task = it.arguments[0] as TaskItem
+            val saved = if (task.id == 0L) task.copy(id = 2L) else task
+            storedTasks.removeAll { existing -> existing.id == saved.id }
+            storedTasks += saved
+            saved
+        }
 
         operations.regenerateRecurringTasksForCollective("ABC123")
 
-        verify(taskRepository).save(
-            check {
-                assertEquals("Kitchen", it.title)
-                assertEquals("Kasper", it.assignee)
-                assertEquals(LocalDate.now().plusDays(6), it.dueDate)
-            },
-        )
+        val savedTasks = argumentCaptor<TaskItem>()
+        verify(taskRepository, times(2)).save(savedTasks.capture())
+        val balancedTask = savedTasks.lastValue
+        assertEquals("Kitchen", balancedTask.title)
+        assertEquals("Kasper", balancedTask.assignee)
+        assertEquals(LocalDate.now().plusDays(6), balancedTask.dueDate)
     }
 
     @Test
@@ -750,6 +761,142 @@ class TaskOperationsTest {
 
         verify(taskRepository, org.mockito.kotlin.never()).save(any<TaskItem>())
     }
+
+    @Test
+    fun `regenerate recurring tasks balances future count and xp across active members`() {
+        whenever(memberRepository.findAllByCollectiveCode("ABC123")).thenReturn(
+            listOf(
+                member("Emma", "emma@example.com", id = 1),
+                member("Kasper", "kasper@example.com", id = 2),
+                member("Ola", "ola@example.com", id = 3, status = MemberStatus.AWAY),
+            ),
+        )
+        val dueDate = LocalDate.now().plusDays(3)
+        val storedTasks =
+            mutableListOf(
+                recurringTask(1, "Large", "Ola", dueDate, 100, "large"),
+                recurringTask(2, "Medium", "Ola", dueDate, 90, "medium"),
+                recurringTask(3, "Small A", "Ola", dueDate, 10, "small-a"),
+                recurringTask(4, "Small B", "Ola", dueDate, 10, "small-b"),
+            )
+        whenever(taskRepository.findAllByCollectiveCode("ABC123")).thenAnswer { storedTasks.toList() }
+        whenever(taskRepository.save(any<TaskItem>())).thenAnswer {
+            val saved = it.arguments[0] as TaskItem
+            storedTasks.removeAll { existing -> existing.id == saved.id }
+            storedTasks += saved
+            saved
+        }
+
+        operations.regenerateRecurringTasksForCollective("ABC123")
+
+        val futureTasks = storedTasks.filter { it.dueDate == dueDate }
+        assertEquals(setOf("Emma", "Kasper"), futureTasks.map { it.assignee }.toSet())
+        assertEquals(listOf(2, 2), futureTasks.groupingBy { it.assignee }.eachCount().values.sorted())
+        assertEquals(listOf(100, 110), futureTasks.groupBy { it.assignee }.values.map { tasks -> tasks.sumOf { it.xp } }.sorted())
+    }
+
+    @Test
+    fun `regenerate recurring tasks keeps same-title recurrence series separate`() {
+        whenever(memberRepository.findAllByCollectiveCode("ABC123")).thenReturn(
+            listOf(member("Emma", "emma@example.com", id = 1), member("Kasper", "kasper@example.com", id = 2)),
+        )
+        val storedTasks =
+            mutableListOf(
+                recurringTask(1, "Kitchen", "Emma", LocalDate.now().minusDays(1), 20, "series-a"),
+                recurringTask(2, "Kitchen", "Kasper", LocalDate.now().minusDays(1), 20, "series-b"),
+            )
+        whenever(taskRepository.findAllByCollectiveCode("ABC123")).thenAnswer { storedTasks.toList() }
+        whenever(taskRepository.save(any<TaskItem>())).thenAnswer {
+            val task = it.arguments[0] as TaskItem
+            val saved = if (task.id == 0L) task.copy(id = (storedTasks.maxOfOrNull(TaskItem::id) ?: 0L) + 1L) else task
+            storedTasks.removeAll { existing -> existing.id == saved.id }
+            storedTasks += saved
+            saved
+        }
+
+        operations.regenerateRecurringTasksForCollective("ABC123")
+
+        val generated = storedTasks.filter { !it.dueDate.isBefore(LocalDate.now()) }
+        assertEquals(2, generated.size)
+        assertEquals(setOf("series-a", "series-b"), generated.map { it.recurrenceSeriesId }.toSet())
+    }
+
+    @Test
+    fun `weekly recurring task continues rotating across all active members`() {
+        whenever(memberRepository.findAllByCollectiveCode("ABC123")).thenReturn(
+            listOf(
+                member("Emma", "emma@example.com", id = 1),
+                member("Kasper", "kasper@example.com", id = 2),
+                member("Ola", "ola@example.com", id = 3),
+            ),
+        )
+        val today = LocalDate.now()
+        val storedTasks =
+            mutableListOf(
+                recurringTask(1, "Kitchen", "Emma", today.minusWeeks(3), 20, "kitchen"),
+                recurringTask(2, "Kitchen", "Kasper", today.minusWeeks(2), 20, "kitchen"),
+                recurringTask(3, "Kitchen", "Ola", today.minusWeeks(1), 20, "kitchen"),
+            )
+        whenever(taskRepository.findAllByCollectiveCode("ABC123")).thenAnswer { storedTasks.toList() }
+        whenever(taskRepository.save(any<TaskItem>())).thenAnswer {
+            val task = it.arguments[0] as TaskItem
+            val saved = if (task.id == 0L) task.copy(id = 4) else task
+            storedTasks.removeAll { existing -> existing.id == saved.id }
+            storedTasks += saved
+            saved
+        }
+
+        operations.regenerateRecurringTasksForCollective("ABC123")
+
+        val nextOccurrence = storedTasks.single { it.id == 4L }
+        assertEquals(today, nextOccurrence.dueDate)
+        assertEquals("Emma", nextOccurrence.assignee)
+    }
+
+    @Test
+    fun `monthly recurrence remains anchored to the original day after a short month`() {
+        whenever(memberRepository.findAllByCollectiveCode("ABC123")).thenReturn(
+            listOf(member("Emma", "emma@example.com")),
+        )
+        val storedTasks =
+            mutableListOf(
+                recurringTask(1, "Monthly", "Emma", LocalDate.of(2026, 1, 31), 20, "monthly", "MONTHLY"),
+                recurringTask(2, "Monthly", "Emma", LocalDate.of(2026, 2, 28), 20, "monthly", "MONTHLY"),
+            )
+        whenever(taskRepository.findAllByCollectiveCode("ABC123")).thenAnswer { storedTasks.toList() }
+        whenever(taskRepository.save(any<TaskItem>())).thenAnswer {
+            val task = it.arguments[0] as TaskItem
+            val saved = if (task.id == 0L) task.copy(id = 3) else task
+            storedTasks.removeAll { existing -> existing.id == saved.id }
+            storedTasks += saved
+            saved
+        }
+
+        operations.regenerateRecurringTasksForCollective("ABC123")
+
+        assertTrue(storedTasks.any { it.id == 3L && it.dueDate == LocalDate.of(2026, 6, 30) })
+    }
+
+    private fun recurringTask(
+        id: Long,
+        title: String,
+        assignee: String,
+        dueDate: LocalDate,
+        xp: Int,
+        seriesId: String,
+        recurrenceRule: String = "WEEKLY",
+    ) = TaskItem(
+        id = id,
+        title = title,
+        assignee = assignee,
+        collectiveCode = "ABC123",
+        dueDate = dueDate,
+        category = TaskCategory.CLEANING,
+        xp = xp,
+        recurrenceRule = recurrenceRule,
+        recurrenceSeriesId = seriesId,
+        recurring = true,
+    )
 
     private fun member(
         name: String,

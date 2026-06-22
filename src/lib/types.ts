@@ -157,7 +157,18 @@ export interface Achievement {
   unlocked: boolean;
   progress?: number;
   total?: number;
+  custom?: boolean;
+  createdBy?: string | null;
 }
+
+export type CustomAchievementMetric =
+  | 'TASKS_COMPLETED'
+  | 'XP_EARNED'
+  | 'STREAK_DAYS'
+  | 'EARLY_COMPLETIONS'
+  | 'ON_TIME_COMPLETIONS'
+  | 'RECURRING_COMPLETIONS'
+  | 'CATEGORY_COMPLETIONS';
 
 export interface DashboardResponse {
   collectiveName: string;

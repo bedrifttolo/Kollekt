@@ -43,6 +43,8 @@ data class TaskItem(
     @Column(nullable = false) val xp: Int = 10,
     @Column(nullable = false) val penaltyXp: Int = 0,
     @Column(nullable = true, length = 128) val recurrenceRule: String? = null,
+    @Column(nullable = true, length = 64) val recurrenceSeriesId: String? = null,
+    @Column(nullable = true) val recurrenceAnchorDate: LocalDate? = null,
     @Deprecated("Use recurrenceRule instead")
     @Column(nullable = false) val recurring: Boolean = false,
     @Column(nullable = true, length = 512) val assignmentReason: String? = null,

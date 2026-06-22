@@ -19,9 +19,12 @@ export interface GameEntry {
   playable: boolean;
   drinkingGameId?: 'hundred-questions' | 'truth-or-chug' | 'never-have-i-ever';
   roomGame?: boolean;
+  soloGame?: boolean;
 }
 
 export const GAME_CATALOG: GameEntry[] = [
+  { id: 'dice', titleKey: 'dice', emoji: '🎲', category: 'classic', difficulty: 'easy', minPlayers: 1, minutes: 2, playable: true, soloGame: true },
+  { id: 'liars-dice', titleKey: 'liarsDice', emoji: '🥤', category: 'classic', difficulty: 'medium', minPlayers: 1, minutes: 15, playable: true, soloGame: true },
   { id: 'kollekt', titleKey: 'kollekt', emoji: '🏠', category: 'classic', difficulty: 'medium', minPlayers: 2, minutes: 20, playable: true },
   { id: 'spin-the-wheel', titleKey: 'spinTheWheel', emoji: '🎡', category: 'party', difficulty: 'easy', minPlayers: 2, minutes: 5, playable: true },
   { id: 'prompt-relay', titleKey: 'promptRelay', emoji: '✍️', category: 'party', difficulty: 'party', minPlayers: 2, minutes: 20, playable: true, roomGame: true },

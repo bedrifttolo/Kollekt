@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { TrendingUp, Flame, Star, Pencil, X, SlidersHorizontal } from 'lucide-react';
+import { TrendingUp, Flame, Star, Pencil, X, SlidersHorizontal, Plus, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { api } from '../../lib/api';
 import { connectCollectiveRealtime } from '../../lib/realtime';
@@ -13,9 +13,13 @@ import type {
   AchievementCatalogItem,
   LeaderboardPeriod,
   MemberStats,
+  CustomAchievementMetric,
+  TaskCategory,
 } from '../../lib/types';
 
 const PERIODS: LeaderboardPeriod[] = ['OVERALL', 'YEAR', 'MONTH'];
+const CUSTOM_METRICS: CustomAchievementMetric[] = ['TASKS_COMPLETED', 'XP_EARNED', 'STREAK_DAYS', 'EARLY_COMPLETIONS', 'ON_TIME_COMPLETIONS', 'RECURRING_COMPLETIONS', 'CATEGORY_COMPLETIONS'];
+const TASK_CATEGORIES: TaskCategory[] = ['CLEANING', 'VACUUMING', 'MOPPING', 'BATHROOM', 'KITCHEN', 'LAUNDRY', 'DISHES', 'TRASH', 'DUSTING', 'WINDOWS', 'SHOPPING', 'OTHER'];
 
 // Podium presentation per finishing place (1st, 2nd, 3rd).
 const barHeight: Record<number, string> = { 1: 'h-48', 2: 'h-36', 3: 'h-28' };
@@ -58,6 +62,12 @@ export default function RanksPanel() {
   const [showAchievementConfig, setShowAchievementConfig] = useState(false);
   const [catalog, setCatalog] = useState<AchievementCatalogItem[]>([]);
   const [catalogLoading, setCatalogLoading] = useState(false);
+  const [customTitle, setCustomTitle] = useState('');
+  const [customDescription, setCustomDescription] = useState('');
+  const [customMetric, setCustomMetric] = useState<CustomAchievementMetric>('TASKS_COMPLETED');
+  const [customTarget, setCustomTarget] = useState('5');
+  const [customCategory, setCustomCategory] = useState<TaskCategory>('CLEANING');
+  const [savingAchievement, setSavingAchievement] = useState(false);
 
   const name = currentUser?.name ?? '';
 
@@ -123,6 +133,32 @@ export default function RanksPanel() {
     setCatalog(updated);
     const enabledKeys = updated.filter((item) => item.enabled).map((item) => item.key);
     await api.patch(`/achievements/config?memberName=${encodeURIComponent(name)}`, { enabledKeys });
+  };
+
+  const handleCreateAchievement = async () => {
+    const target = Number.parseInt(customTarget, 10);
+    if (!customTitle.trim() || !customDescription.trim() || !Number.isInteger(target) || target < 1) return;
+    setSavingAchievement(true);
+    try {
+      const created = await api.post<Achievement>(`/achievements/custom?memberName=${encodeURIComponent(name)}`, {
+        title: customTitle.trim(),
+        description: customDescription.trim(),
+        metric: customMetric,
+        target,
+        taskCategory: customMetric === 'CATEGORY_COMPLETIONS' ? customCategory : null,
+      });
+      setAchievements((current) => [...current, created]);
+      setCustomTitle('');
+      setCustomDescription('');
+      setCustomTarget('5');
+    } finally {
+      setSavingAchievement(false);
+    }
+  };
+
+  const handleDeleteAchievement = async (achievement: Achievement) => {
+    await api.delete(`/achievements/custom/${Math.abs(achievement.id)}?memberName=${encodeURIComponent(name)}`);
+    setAchievements((current) => current.filter((item) => item.id !== achievement.id));
   };
 
   if (loading || !data) {
@@ -275,11 +311,12 @@ export default function RanksPanel() {
           </div>
           <div className="space-y-2">
             {achievements.map((a) => (
-              <div key={a.id} className={`card !p-3 ${a.unlocked ? 'glow-primary' : 'opacity-60'}`}>
+              <div key={a.key} className={`card !p-3 ${a.unlocked ? 'glow-primary' : 'opacity-60'}`}>
                 <div className="flex items-center gap-3 mb-2">
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-medium">{t(`leaderboard.achievementKeys.${a.key}.title`, { defaultValue: a.title })}</p>
                     <p className="text-[10px] text-muted-foreground">{t(`leaderboard.achievementKeys.${a.key}.description`, { defaultValue: a.description })}</p>
+                    {a.custom && <p className="mt-1 text-[9px] font-bold uppercase tracking-wide text-primary">{t('leaderboard.custom.houseGoal')}</p>}
                   </div>
                   {a.progress !== undefined && a.total !== undefined && (
                     <span className="text-xs font-medium text-muted-foreground shrink-0">{a.progress}/{a.total}</span>
@@ -352,17 +389,55 @@ export default function RanksPanel() {
               </div>
               <div className="overflow-y-auto px-5 pb-5">
                 {catalogLoading && <div className="space-y-2 animate-pulse">{[...Array(5)].map((_, i) => <div key={i} className="h-12 bg-muted/30 rounded-lg" />)}</div>}
-                {!catalogLoading && catalog.map((item) => (
-                  <button key={item.key} onClick={() => handleToggleAchievement(item.key, !item.enabled)} className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-muted/30 transition-colors">
-                    <div className="text-left">
-                      <p className="text-sm font-medium">{t(`leaderboard.achievementKeys.${item.key}.title`, { defaultValue: item.title })}</p>
-                      <p className="text-[10px] text-muted-foreground">{t(`leaderboard.achievementKeys.${item.key}.description`, { defaultValue: item.description })}</p>
+                {!catalogLoading && (
+                  <div className="space-y-5">
+                    <div>
+                      <p className="eyebrow mb-2">{t('leaderboard.custom.builtIn')}</p>
+                      {catalog.map((item) => (
+                        <button key={item.key} onClick={() => handleToggleAchievement(item.key, !item.enabled)} className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-muted/30 transition-colors">
+                          <div className="text-left">
+                            <p className="text-sm font-medium">{t(`leaderboard.achievementKeys.${item.key}.title`, { defaultValue: item.title })}</p>
+                            <p className="text-[10px] text-muted-foreground">{t(`leaderboard.achievementKeys.${item.key}.description`, { defaultValue: item.description })}</p>
+                          </div>
+                          <div className={`h-5 w-9 rounded-full transition-colors flex items-center px-0.5 shrink-0 ml-3 ${item.enabled ? 'bg-primary' : 'bg-muted'}`}>
+                            <div className={`h-4 w-4 rounded-full bg-white shadow transition-transform ${item.enabled ? 'translate-x-4' : 'translate-x-0'}`} />
+                          </div>
+                        </button>
+                      ))}
                     </div>
-                    <div className={`h-5 w-9 rounded-full transition-colors flex items-center px-0.5 shrink-0 ml-3 ${item.enabled ? 'bg-primary' : 'bg-muted'}`}>
-                      <div className={`h-4 w-4 rounded-full bg-white shadow transition-transform ${item.enabled ? 'translate-x-4' : 'translate-x-0'}`} />
+
+                    <div>
+                      <p className="eyebrow mb-2">{t('leaderboard.custom.houseGoals')}</p>
+                      <div className="space-y-2">
+                        {achievements.filter((item) => item.custom).map((item) => (
+                          <div key={item.key} className="flex items-center gap-3 rounded-xl bg-background/30 px-3 py-2.5">
+                            <div className="min-w-0 flex-1"><p className="text-sm font-medium">{item.title}</p><p className="text-[10px] text-muted-foreground">{item.description}</p></div>
+                            <button onClick={() => void handleDeleteAchievement(item)} aria-label={t('leaderboard.custom.delete')} className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-destructive"><Trash2 className="h-4 w-4" /></button>
+                          </div>
+                        ))}
+                        {achievements.every((item) => !item.custom) && <p className="px-3 text-xs text-muted-foreground">{t('leaderboard.custom.none')}</p>}
+                      </div>
                     </div>
-                  </button>
-                ))}
+
+                    <div className="space-y-3 rounded-2xl bg-background/30 p-3">
+                      <div><p className="font-semibold">{t('leaderboard.custom.create')}</p><p className="text-[10px] text-muted-foreground">{t('leaderboard.custom.createHint')}</p></div>
+                      <input className="field w-full" maxLength={80} value={customTitle} onChange={(event) => setCustomTitle(event.target.value)} placeholder={t('leaderboard.custom.title')} />
+                      <textarea className="field min-h-20 w-full resize-none" maxLength={240} value={customDescription} onChange={(event) => setCustomDescription(event.target.value)} placeholder={t('leaderboard.custom.description')} />
+                      <div className="grid grid-cols-2 gap-2">
+                        <select className="field" value={customMetric} onChange={(event) => setCustomMetric(event.target.value as CustomAchievementMetric)}>
+                          {CUSTOM_METRICS.map((metric) => <option key={metric} value={metric}>{t(`leaderboard.custom.metrics.${metric}`)}</option>)}
+                        </select>
+                        <input className="field" type="number" min="1" max="10000" value={customTarget} onChange={(event) => setCustomTarget(event.target.value)} aria-label={t('leaderboard.custom.target')} />
+                      </div>
+                      {customMetric === 'CATEGORY_COMPLETIONS' && (
+                        <select className="field w-full" value={customCategory} onChange={(event) => setCustomCategory(event.target.value as TaskCategory)}>
+                          {TASK_CATEGORIES.map((category) => <option key={category} value={category}>{t(`common.taskCategories.${category}`)}</option>)}
+                        </select>
+                      )}
+                      <button disabled={savingAchievement || !customTitle.trim() || !customDescription.trim()} onClick={() => void handleCreateAchievement()} className="btn-pine w-full disabled:opacity-50"><Plus className="h-4 w-4" />{t('leaderboard.custom.add')}</button>
+                    </div>
+                  </div>
+                )}
               </div>
             </motion.div>
           </>
