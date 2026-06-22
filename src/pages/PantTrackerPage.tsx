@@ -150,7 +150,7 @@ export default function PantTrackerPage() {
       <div className="househero text-center">
         <Recycle className="h-8 w-8 text-secondary mx-auto mb-2" />
         <p className="font-display text-5xl font-bold">{totalBottles}</p>
-        <p className="text-sm text-muted-foreground mt-1">
+        <p className="text-sm text-white/70 mt-1">
           {t('pant.bottlesCollected')}
         </p>
 
@@ -164,7 +164,7 @@ export default function PantTrackerPage() {
                 if (e.key === "Enter") void handleEditTotal();
                 if (e.key === "Escape") setEditingTotal(false);
               }}
-              className="w-28 bg-muted/50 rounded-lg px-3 py-2 text-sm text-center placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+              className="w-28 rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-sm text-center text-white placeholder:text-white/60 focus:outline-none focus:ring-1 focus:ring-secondary"
               autoFocus
             />
             <button
@@ -194,7 +194,7 @@ export default function PantTrackerPage() {
           </div>
         )}
 
-        <p className="text-xs text-muted-foreground mt-0.5">{t('pant.earnedSoFar')}</p>
+        <p className="text-xs text-white/70 mt-0.5">{t('pant.earnedSoFar')}</p>
 
         <div className="flex items-center justify-center gap-2 mt-4">
           <input
@@ -203,7 +203,7 @@ export default function PantTrackerPage() {
             onChange={(e) => setAddAmount(e.target.value)}
             placeholder={t('pant.customAmount')}
             onKeyDown={(e) => e.key === "Enter" && void handleAdd()}
-            className="w-36 bg-muted/50 rounded-lg px-3 py-2 text-sm text-center placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+            className="w-36 rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-sm text-center text-white placeholder:text-white/60 focus:outline-none focus:ring-1 focus:ring-secondary"
           />
           <button
             onClick={() => void handleAdd()}

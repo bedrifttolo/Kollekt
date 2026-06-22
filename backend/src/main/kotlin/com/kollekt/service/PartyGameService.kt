@@ -33,6 +33,13 @@ class PartyGameService(
             "IMPOSSIBLE_CHOICES",
             "FRIENDLY_CHALLENGES",
             "WILDCARD",
+            "PEKELEK",
+            "JEG_HAR_ALDRI",
+            "RED_FLAG_DEALBREAKER_OK",
+            "FUCK_MARRY_KILL",
+            "LAG_EN_REGEL",
+            "DILEMMA",
+            "KATEGORILEK",
         )
 
     @Transactional

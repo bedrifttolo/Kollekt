@@ -26,6 +26,7 @@ import com.kollekt.domain.PushDeviceToken
 import com.kollekt.domain.TaskCategory
 import com.kollekt.repository.PushDeviceTokenRepository
 import com.kollekt.service.AccountOperations
+import com.kollekt.service.CalendarFeedService
 import com.kollekt.service.ChatOperations
 import com.kollekt.service.CollectiveOperations
 import com.kollekt.service.EventOperations
@@ -76,6 +77,7 @@ import java.util.Optional
     controllers =
         [
             CalendarController::class,
+            CalendarFeedController::class,
             ChatController::class,
             GoogleCalendarController::class,
             NotificationController::class,
@@ -99,6 +101,8 @@ class AdditionalControllerCoverageTest {
     @MockitoBean lateinit var collectiveOperations: CollectiveOperations
 
     @MockitoBean lateinit var eventOperations: EventOperations
+
+    @MockitoBean lateinit var calendarFeedService: CalendarFeedService
 
     @MockitoBean lateinit var googleCalendarService: GoogleCalendarService
 
@@ -541,6 +545,38 @@ class AdditionalControllerCoverageTest {
             .andExpect(jsonPath("$[0].title").value("Movie night"))
 
         verify(eventOperations).getEvents("Kasper")
+    }
+
+    @Test
+    fun `calendar feed path uses authenticated member name`() {
+        whenever(calendarFeedService.feedPathForMember("Kasper"))
+            .thenReturn("/calendar-feed/ABC123/signed.ics")
+
+        mockMvc
+            .perform(
+                get("/api/events/calendar-feed")
+                    .param("memberName", "Kasper")
+                    .with(jwt().jwt { it.subject("Kasper") }),
+            ).andExpect(status().isOk)
+            .andExpect(jsonPath("$.path").value("/calendar-feed/ABC123/signed.ics"))
+
+        verify(calendarFeedService).feedPathForMember("Kasper")
+    }
+
+    @Test
+    fun `calendar subscription endpoint returns an inline ics feed`() {
+        whenever(calendarFeedService.buildFeed("ABC123", "signed.ics"))
+            .thenReturn("BEGIN:VCALENDAR\r\nEND:VCALENDAR\r\n")
+
+        mockMvc
+            .perform(
+                get("/api/calendar-feed/ABC123/signed.ics")
+                    .with(jwt().jwt { it.subject("Kasper") }),
+            ).andExpect(status().isOk)
+            .andExpect(content().contentType("text/calendar;charset=utf-8"))
+            .andExpect(content().string("BEGIN:VCALENDAR\r\nEND:VCALENDAR\r\n"))
+
+        verify(calendarFeedService).buildFeed("ABC123", "signed.ics")
     }
 
     @Test

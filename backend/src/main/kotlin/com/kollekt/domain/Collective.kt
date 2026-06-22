@@ -17,6 +17,7 @@ import jakarta.persistence.Table
 data class Collective(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) val id: Long = 0,
     @Column(nullable = false) val name: String,
+    @Column(nullable = true) val address: String? = null,
     @Column(nullable = false, unique = true) val joinCode: String,
     @Column(nullable = false) val ownerMemberId: Long,
     @Column(nullable = true) val monthlyPrize: String? = null,

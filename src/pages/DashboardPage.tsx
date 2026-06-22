@@ -9,6 +9,7 @@ import { formatCurrency, formatDate, formatTime, translateKey } from '../i18n/he
 import { connectCollectiveRealtime } from '../lib/realtime';
 import type { DashboardResponse } from '../lib/types';
 import { AvatarStack, Eyebrow, VibeRing } from '../components/ui-kit';
+import { colorForMember } from '../lib/memberColors';
 
 const container = {
   hidden: {},
@@ -108,8 +109,11 @@ export default function DashboardPage() {
           </div>
         )}
         <div className="flex items-center gap-3 mb-3">
-          <div className="h-12 w-12 rounded-full gradient-primary flex items-center justify-center shrink-0">
-            <span className="font-display text-lg font-bold text-primary-foreground">
+          <div
+            style={currentUser ? { backgroundColor: colorForMember(currentUser.name, currentUser.color) } : undefined}
+            className="h-12 w-12 rounded-full border-2 border-white/30 flex items-center justify-center shrink-0"
+          >
+            <span className="font-display text-lg font-bold text-white">
               {currentUser?.name[0].toUpperCase()}
             </span>
           </div>

@@ -46,7 +46,7 @@ export default function PlayerSetup({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-background safe-top safe-bottom">
+    <div className="fixed inset-0 z-[60] flex flex-col bg-background safe-top safe-bottom">
       <div className="flex items-center justify-between border-b border-border px-5 py-4">
         <div>
           <p className="text-xs font-bold uppercase tracking-[.12em] text-muted-foreground">

@@ -65,6 +65,33 @@ class MemberControllerContractTest {
     }
 
     @Test
+    fun `member leave collective delegates when token subject matches`() {
+        mockMvc
+            .perform(
+                patch("/api/members/leave-collective")
+                    .param("memberName", "Kasper")
+                    .with(csrf())
+                    .with(jwt().jwt { it.subject("Kasper") }),
+            ).andExpect(status().isOk)
+
+        verify(memberOperations).leaveCollective("Kasper")
+    }
+
+    @Test
+    fun `member color update forwards member and color`() {
+        mockMvc
+            .perform(
+                patch("/api/members/color")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .with(csrf())
+                    .with(jwt().jwt { it.subject("Kasper") })
+                    .content("""{"memberName":"Kasper","color":"#1f563f"}"""),
+            ).andExpect(status().isOk)
+
+        verify(memberOperations).updateMemberColor("Kasper", "#1f563f")
+    }
+
+    @Test
     fun `member reset password forwards identifier and password`() {
         mockMvc
             .perform(

@@ -9,6 +9,7 @@ import { formatCurrency, formatDate, translateKey } from '../i18n/helpers';
 import { connectCollectiveRealtime } from '../lib/realtime';
 import type { EconomySummary, Expense, PayOption } from '../lib/types';
 import { Eyebrow, Fab } from '../components/ui-kit';
+import { colorForMember } from '../lib/memberColors';
 
 const EXPENSE_CATEGORIES = ['Groceries', 'Bills', 'Cleaning', 'Entertainment', 'Food', 'Other'];
 
@@ -279,7 +280,7 @@ export default function EconomyPage() {
         <div className="grid grid-cols-2 gap-2">
           {summary.balances.map((b) => (
             <motion.div key={b.name} className="glass rounded-xl p-3 flex items-center gap-2">
-              <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center text-xs font-bold shrink-0">
+              <div style={{ backgroundColor: colorForMember(b.name) }} className="h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0">
                 {b.name[0]}
               </div>
               <div className="flex-1 min-w-0">

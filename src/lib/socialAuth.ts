@@ -17,6 +17,12 @@ export function getSocialProviders(): SocialProvider[] {
   return providers;
 }
 
+export function prepareSocialLogin(): void {
+  void initializeSocialLogin().catch(() => {
+    initialized = null;
+  });
+}
+
 function initializeSocialLogin() {
   if (initialized) return initialized;
   const options: Parameters<typeof SocialLogin.initialize>[0] = {};

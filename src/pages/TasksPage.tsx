@@ -1099,7 +1099,7 @@ function TasksMain() {
                         className="h-8 px-3 rounded-lg glass text-xs font-medium flex items-center gap-1 text-muted-foreground"
                       >
                         <ShoppingCart className="h-3 w-3" />
-                        {t('common.bought')}
+                        {t('tasks.shopping.buy')}
                       </button>
                     )}
                     <button
@@ -1169,32 +1169,35 @@ function TasksMain() {
                         ))}
                       </div>
 
-                      <div className="flex gap-2">
+                      <div className="grid grid-cols-2 gap-2">
                         <input
                           type="date"
                           value={buyDate}
                           onChange={(event) => setBuyDate(event.target.value)}
-                          className="flex-1 bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                          className="bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                           aria-label={t('tasks.shopping.purchaseDate')}
                         />
                         <input
                           type="date"
                           value={buyDeadline}
                           onChange={(event) => setBuyDeadline(event.target.value)}
-                          className="flex-1 bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                          className="bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                           aria-label={t('economy.deadlineDateLabel')}
                         />
+                      </div>
+
+                      <div className="flex gap-2">
                         <button
                           onClick={() => {
                             void submitBought(item.id);
                           }}
-                          className="px-4 rounded-lg gradient-primary text-xs font-semibold text-primary-foreground"
+                          className="flex-1 rounded-lg gradient-primary py-2 text-sm font-semibold text-primary-foreground"
                         >
                           {t('tasks.shopping.logPurchase')}
                         </button>
                         <button
                           onClick={() => setBuyingShopId(null)}
-                          className="h-9 w-9 rounded-lg glass flex items-center justify-center"
+                          className="h-9 w-9 shrink-0 rounded-lg glass flex items-center justify-center"
                           aria-label={t('tasks.shopping.closePurchaseForm')}
                         >
                           <X className="h-3 w-3 text-muted-foreground" />

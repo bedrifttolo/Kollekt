@@ -5,6 +5,7 @@ package com.kollekt.api
 import com.kollekt.api.dto.CreateEventRequest
 import com.kollekt.api.dto.EventDto
 import com.kollekt.api.dto.UpdateEventRequest
+import com.kollekt.service.CalendarFeedService
 import com.kollekt.service.EventOperations
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/api/events")
 class CalendarController(
     private val eventOperations: EventOperations,
+    private val calendarFeedService: CalendarFeedService,
 ) {
     @GetMapping
     fun getEvents(
@@ -23,6 +25,15 @@ class CalendarController(
     ): List<EventDto> {
         requireTokenSubject(jwt, memberName)
         return eventOperations.getEvents(memberName)
+    }
+
+    @GetMapping("/calendar-feed")
+    fun calendarFeed(
+        @RequestParam memberName: String,
+        @AuthenticationPrincipal jwt: Jwt,
+    ): Map<String, String> {
+        requireTokenSubject(jwt, memberName)
+        return mapOf("path" to calendarFeedService.feedPathForMember(memberName))
     }
 
     @PostMapping

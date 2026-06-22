@@ -27,6 +27,7 @@ import com.kollekt.domain.MemberStatus
 import com.kollekt.domain.TaskCategory
 import com.kollekt.repository.InvitationRepository
 import com.kollekt.service.AccountOperations
+import com.kollekt.service.CalendarFeedService
 import com.kollekt.service.ChatOperations
 import com.kollekt.service.CollectiveOperations
 import com.kollekt.service.EconomyOperations
@@ -97,6 +98,8 @@ class ControllerEndpointContractTest {
     @MockitoBean lateinit var shoppingOperations: ShoppingOperations
 
     @MockitoBean lateinit var eventOperations: EventOperations
+
+    @MockitoBean lateinit var calendarFeedService: CalendarFeedService
 
     @MockitoBean lateinit var chatOperations: ChatOperations
 

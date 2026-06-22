@@ -38,6 +38,7 @@ import type {
 import { useTheme } from "../context/ThemeContext";
 import { Eyebrow } from "../components/ui-kit";
 import LanguageSwitcher from "../components/LanguageSwitcher";
+import { MEMBER_COLORS, colorForMember } from "../lib/memberColors";
 
 const STATUS_OPTIONS: { value: MemberStatus; emoji: string }[] = [
   { value: "ACTIVE", emoji: "🟢" },
@@ -120,6 +121,17 @@ export default function ProfilePage() {
       await api.patch("/members/status", { memberName: name, status });
       setCurrentUser({ ...currentUser, status });
     } catch {}
+  };
+
+  const handleColorChange = async (color: string) => {
+    if (!currentUser) return;
+    const previous = currentUser.color;
+    setCurrentUser({ ...currentUser, color });
+    try {
+      await api.patch("/members/color", { memberName: name, color });
+    } catch {
+      setCurrentUser({ ...currentUser, color: previous });
+    }
   };
 
   const handleInvite = async () => {
@@ -236,7 +248,10 @@ export default function ProfilePage() {
       </div>
       <div className="glass rounded-2xl p-5 glow-primary">
         <div className="flex items-center gap-4">
-          <div className="h-16 w-16 rounded-2xl gradient-primary flex items-center justify-center text-2xl font-display font-bold text-primary-foreground shrink-0">
+          <div
+            style={{ backgroundColor: colorForMember(name, currentUser?.color) }}
+            className="h-16 w-16 rounded-2xl flex items-center justify-center text-2xl font-display font-bold text-white shrink-0"
+          >
             {name[0]?.toUpperCase()}
           </div>
           <div className="flex-1 min-w-0">
@@ -262,6 +277,28 @@ export default function ProfilePage() {
                 </button>
               ))}
             </div>
+          </div>
+        </div>
+
+        <div className="mt-4">
+          <p className="text-[10px] font-bold uppercase tracking-[.12em] text-muted-foreground mb-2">
+            {t("profile.avatarColor")}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {MEMBER_COLORS.map((swatch) => {
+              const active = colorForMember(name, currentUser?.color) === swatch;
+              return (
+                <button
+                  key={swatch}
+                  onClick={() => void handleColorChange(swatch)}
+                  style={{ backgroundColor: swatch }}
+                  className={`grid h-8 w-8 place-items-center rounded-full transition-transform ${active ? "scale-110 ring-2 ring-foreground ring-offset-2 ring-offset-card" : ""}`}
+                  aria-label={swatch}
+                >
+                  {active && <Check className="h-4 w-4 text-white" />}
+                </button>
+              );
+            })}
           </div>
         </div>
 

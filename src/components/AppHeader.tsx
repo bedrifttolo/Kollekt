@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { useUser } from "../context/UserContext";
 import { api } from "../lib/api";
+import { colorForMember } from "../lib/memberColors";
 import LanguageSwitcher from "./LanguageSwitcher";
 import { formatTime } from "../i18n/helpers";
 import type { MemberStatus } from "../lib/types";
@@ -210,11 +211,12 @@ export default function AppHeader() {
                 setShowMenu((v) => !v);
                 setShowNotifs(false);
               }}
-              className="h-10 w-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center border border-primary"
+              style={currentUser ? { backgroundColor: colorForMember(currentUser.name, currentUser.color) } : undefined}
+              className="h-10 w-10 rounded-full bg-primary text-white flex items-center justify-center border border-border"
               aria-label={t("header.openAccountMenu")}
             >
               {currentUser ? (
-                <span className="text-sm font-bold text-primary-foreground">
+                <span className="text-sm font-bold text-white">
                   {currentUser.name[0].toUpperCase()}
                 </span>
               ) : (
@@ -233,7 +235,7 @@ export default function AppHeader() {
                     initial={{ opacity: 0, scale: 0.95, y: -4 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95, y: -4 }}
-                    className="absolute right-0 top-12 z-50 w-56 glass-strong rounded-xl p-1.5 shadow-xl"
+                    className="absolute right-0 top-12 z-50 w-56 rounded-xl border border-border bg-popover text-popover-foreground p-1.5 shadow-xl"
                   >
                     {/* User info */}
                     <div className="px-3 py-2 border-b border-border mb-1">

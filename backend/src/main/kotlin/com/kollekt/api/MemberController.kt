@@ -33,6 +33,11 @@ class MemberController(
         val status: String,
     )
 
+    data class ColorUpdateRequest(
+        val memberName: String,
+        val color: String,
+    )
+
     @PatchMapping("/leave-collective")
     fun leaveCollective(
         @RequestParam memberName: String,
@@ -65,6 +70,15 @@ class MemberController(
                 throw IllegalArgumentException("Invalid status")
             }
         memberOperations.updateMemberStatus(req.memberName, newStatus)
+    }
+
+    @PatchMapping("/color")
+    fun updateColor(
+        @RequestBody req: ColorUpdateRequest,
+        @AuthenticationPrincipal jwt: Jwt,
+    ) {
+        requireTokenSubject(jwt, req.memberName)
+        memberOperations.updateMemberColor(req.memberName, req.color)
     }
 
     @GetMapping("/collective")

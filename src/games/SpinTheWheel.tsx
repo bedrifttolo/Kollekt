@@ -57,7 +57,7 @@ export default function SpinTheWheel({ members, onClose }: { members: string[]; 
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-background safe-top safe-bottom">
+    <div className="fixed inset-0 z-[60] flex flex-col bg-background safe-top safe-bottom">
       <div className="flex items-center justify-between px-5 py-4">
         <h2 className="font-display text-xl font-extrabold">{t('social.games.catalog.spinTheWheel')}</h2>
         <button onClick={onClose} className="grid h-9 w-9 place-items-center rounded-full bg-card border border-border" aria-label={t('common.cancel')}>

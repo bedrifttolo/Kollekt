@@ -203,6 +203,7 @@ export interface AppUser {
   email: string;
   collectiveCode: string | null;
   status: MemberStatus;
+  color?: string | null;
   friends?: Friend[];
 }
 
