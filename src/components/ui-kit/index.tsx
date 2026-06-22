@@ -1,6 +1,18 @@
-import type { ButtonHTMLAttributes, CSSProperties, HTMLAttributes, ReactNode } from 'react';
+import type { ButtonHTMLAttributes, CSSProperties, HTMLAttributes, InputHTMLAttributes, ReactNode } from 'react';
 import { Plus } from 'lucide-react';
 import { cn } from '../ui/utils';
+
+export function Field({ label, className, ...props }: InputHTMLAttributes<HTMLInputElement> & { label: string }) {
+  return (
+    <label className="field flex flex-col justify-center gap-1">
+      <span className="text-[11px] font-bold uppercase tracking-[.08em] text-muted-foreground">{label}</span>
+      <input
+        className={cn('w-full bg-transparent text-base text-foreground placeholder:text-muted-foreground focus:outline-none', className)}
+        {...props}
+      />
+    </label>
+  );
+}
 
 export function BrandMark({ className = 'h-7 w-7' }: { className?: string }) {
   return (
@@ -65,8 +77,28 @@ export function Avatar({ name, className }: { name: string; className?: string }
   return <span className={cn('grid h-9 w-9 shrink-0 place-items-center rounded-full bg-primary font-bold text-primary-foreground', className)}>{name[0]?.toUpperCase()}</span>;
 }
 
-export function AvatarStack({ names }: { names: string[] }) {
-  return <div className="flex -space-x-2">{names.slice(0, 5).map((name) => <Avatar key={name} name={name} className="border-2 border-card" />)}</div>;
+const avatarTones = [
+  'bg-primary text-primary-foreground',
+  'bg-destructive text-destructive-foreground',
+  'bg-accent text-accent-foreground',
+  'bg-secondary text-secondary-foreground',
+];
+
+export function AvatarStack({ names, max = 4 }: { names: string[]; max?: number }) {
+  const shown = names.slice(0, max);
+  const extra = names.length - shown.length;
+  return (
+    <div className="flex -space-x-2">
+      {shown.map((name, i) => (
+        <Avatar key={name} name={name} className={cn('border-2 border-card', avatarTones[i % avatarTones.length])} />
+      ))}
+      {extra > 0 && (
+        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border-2 border-card bg-secondary text-xs font-bold text-secondary-foreground">
+          +{extra}
+        </span>
+      )}
+    </div>
+  );
 }
 
 export function ProgressBar({ value, className }: { value: number; className?: string }) {

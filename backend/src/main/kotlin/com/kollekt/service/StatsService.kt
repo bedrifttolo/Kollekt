@@ -283,28 +283,24 @@ class StatsService(
         val today = LocalDate.now()
         val weekStart = today.minusDays(6)
         val weekTasks = allTasks.filter { it.dueDate in weekStart..today }
-        val completedRate =
-            if (weekTasks.isEmpty()) 1.0 else weekTasks.count { it.completed }.toDouble() / weekTasks.size
-        val overdueRate =
-            if (weekTasks.isEmpty()) {
-                0.0
-            } else {
-                weekTasks.count { !it.completed && it.dueDate < today }.toDouble() / weekTasks.size
-            }
+        // Only judge tasks that were actually due (today or earlier). Pending future tasks never
+        // count against the household, and an overdue task lowers the score once — not twice.
+        val dueTasks = weekTasks.filter { !it.dueDate.isAfter(today) }
+        val onTrackRate =
+            if (dueTasks.isEmpty()) 1.0 else dueTasks.count { it.completed }.toDouble() / dueTasks.size
+        // Positive reinforcement: completing chores this week lifts the vibe.
+        val activityBonus =
+            allTasks.count { it.completedAt?.toLocalDate()?.let { date -> date in weekStart..today } == true }
+                .coerceAtMost(8)
+        // A gentle nudge toward settling up — capped low so money imbalance never dominates.
         val balanceSpread =
             (balances.maxOfOrNull { it.amount } ?: 0) - (balances.minOfOrNull { it.amount } ?: 0)
-        val balancePenalty = (balanceSpread / 100).coerceAtMost(15)
-        val recentActivityBonus =
-            allTasks.count {
-                it.completedAt?.toLocalDate()?.let {
-                        date ->
-                    date in weekStart..today
-                } == true
-            }.coerceAtMost(5)
+        val balancePenalty = (balanceSpread / 200).coerceIn(0, 10)
+        // Encouraging baseline with a floor, so the household never feels punished into the ground.
         val vibeScore =
-            (55 + completedRate * 35 - overdueRate * 25 - balancePenalty + recentActivityBonus)
+            (62 + onTrackRate * 30 + activityBonus - balancePenalty)
                 .toInt()
-                .coerceIn(0, 100)
+                .coerceIn(35, 100)
 
         val response =
             DashboardResponse(

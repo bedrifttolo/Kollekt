@@ -9,7 +9,7 @@ Fullstack kollektiv-app basert på eksisterende Figma-export.
 - Frontend: React + TypeScript (Vite)
 - Backend: Spring Boot (Kotlin)
 - Database: PostgreSQL
-- Games: separat Kollekt Games-tjeneste (Node + TypeScript REST API, eget repo)
+- Spill: lokal modul i `src/games/` (kjører i appen, ingen ekstern tjeneste)
 - DevOps: Docker, Docker Compose, GitHub Actions, Docker Hub
 
 ## Prosjektstruktur
@@ -34,7 +34,7 @@ Dette starter:
 
 Compose starter også en lokal PostgreSQL-instans for backend og Flyway, så containeroppsettet ikke er avhengig av Supabase for å starte.
 
-Drikkespillene leveres av den separate **Kollekt Games**-tjenesten (eget repo). Frontend kaller den via `VITE_GAMES_API_URL` med `VITE_GAMES_API_KEY` (se `.env.example`).
+Spillene ligger lokalt i `src/games/` og kjører i appen — ingen ekstern tjeneste eller API-nøkkel kreves.
 
 ### 2) Kjør frontend lokalt uten container
 
@@ -58,7 +58,7 @@ For lokal kjøring med `docker compose up --build`, brukes den lokale PostgreSQL
 
 ## Mobil (iOS og Android via Capacitor)
 
-Den samme React-kildekoden pakkes som native iOS- og Android-apper med Capacitor. App-ID-en er `no.kollekt.app`. Backend og Kollekt Games kjører fortsatt som separate tjenester; de bygges ikke inn i appen.
+Den samme React-kildekoden pakkes som native iOS- og Android-apper med Capacitor. App-ID-en er `no.kollekt.app`. Backenden kjører fortsatt som en separat tjeneste; den bygges ikke inn i appen.
 
 ### Forutsetninger
 
@@ -71,7 +71,7 @@ Den samme React-kildekoden pakkes som native iOS- og Android-apper med Capacitor
 Mobilbygg bruker Vite-modusen `mobile`, som laster `.env.mobile`. I motsetning til web-bygget (som bruker `/api` relativt til nginx) må mobilbygg peke på absolutte, offentlige HTTPS-URL-er:
 
 ```bash
-cp .env.mobile.example .env.mobile   # fyll inn VITE_API_URL, VITE_GAMES_API_URL m.m.
+cp .env.mobile.example .env.mobile   # fyll inn VITE_API_URL m.m.
 ```
 
 ### Bygg, synk og åpne

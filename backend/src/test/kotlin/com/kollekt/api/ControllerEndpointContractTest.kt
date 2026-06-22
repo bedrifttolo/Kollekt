@@ -32,6 +32,7 @@ import com.kollekt.service.CollectiveOperations
 import com.kollekt.service.EconomyOperations
 import com.kollekt.service.EventOperations
 import com.kollekt.service.MemberOperations
+import com.kollekt.service.PasswordResetService
 import com.kollekt.service.ShoppingOperations
 import com.kollekt.service.SocialAuthService
 import com.kollekt.service.StatsService
@@ -87,6 +88,8 @@ class ControllerEndpointContractTest {
 
     @MockitoBean lateinit var socialAuthService: SocialAuthService
 
+    @MockitoBean lateinit var passwordResetService: PasswordResetService
+
     @MockitoBean lateinit var collectiveOperations: CollectiveOperations
 
     @MockitoBean lateinit var taskOperations: TaskOperations
@@ -132,6 +135,34 @@ class ControllerEndpointContractTest {
             .andExpect(jsonPath("$.user.name").value("Kasper"))
 
         verify(accountOperations).createUser(request)
+    }
+
+    @Test
+    fun `password reset request uses api onboarding password-reset request endpoint`() {
+        mockMvc
+            .perform(
+                post("/api/onboarding/password-reset/request")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .with(csrf())
+                    .with(jwt().jwt { it.subject("Kasper") })
+                    .content("""{"email":"kasper@example.com"}"""),
+            ).andExpect(status().isNoContent)
+
+        verify(passwordResetService).requestReset("kasper@example.com")
+    }
+
+    @Test
+    fun `password reset confirm uses api onboarding password-reset confirm endpoint`() {
+        mockMvc
+            .perform(
+                post("/api/onboarding/password-reset/confirm")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .with(csrf())
+                    .with(jwt().jwt { it.subject("Kasper") })
+                    .content("""{"token":"raw-token","newPassword":"brand-new-pass"}"""),
+            ).andExpect(status().isNoContent)
+
+        verify(passwordResetService).confirmReset("raw-token", "brand-new-pass")
     }
 
     @Test

@@ -33,6 +33,7 @@ import com.kollekt.service.GoogleCalendarService
 import com.kollekt.service.GoogleOAuthState
 import com.kollekt.service.GoogleOAuthStateService
 import com.kollekt.service.NotificationService
+import com.kollekt.service.PasswordResetService
 import com.kollekt.service.ShoppingOperations
 import com.kollekt.service.SocialAuthService
 import com.kollekt.service.StatsService
@@ -90,6 +91,8 @@ class AdditionalControllerCoverageTest {
     @MockitoBean lateinit var accountOperations: AccountOperations
 
     @MockitoBean lateinit var socialAuthService: SocialAuthService
+
+    @MockitoBean lateinit var passwordResetService: PasswordResetService
 
     @MockitoBean lateinit var chatOperations: ChatOperations
 

@@ -2,13 +2,13 @@
 
 > Living context/plan document. Update as the system evolves.
 
-**What it is:** A student project (DAT251) — a mobile-first web app for shared households / collectives ("kollektiv"). Roommates manage chores, money, shopping, a shared calendar, group chat, and gamification (XP, levels, leaderboards, achievements), plus a party drinking-game mode. The drinking-game/party features are now provided by a **separate games service** (its own GitHub repo) that Kollekt consumes over a REST API rather than running the game logic in-app. Originally based on a Figma export.
+**What it is:** A student project (DAT251) — a mobile-first web app for shared households / collectives ("kollektiv"). Roommates manage chores, money, shopping, a shared calendar, group chat, and gamification (XP, levels, leaderboards, achievements), plus an in-app party games mode. The games (e.g. Spin the Wheel) run entirely in the app from a local `src/games/` module — no external service. Originally based on a Figma export.
 
 **Stack:** React + TypeScript (Vite) frontend · Capacitor iOS/Android shells · Spring Boot (Kotlin) backend · PostgreSQL (Supabase) · WebSockets (realtime) · Docker / Docker Compose / GitHub Actions CI-CD.
 
 > **Removed in recent cleanup:** Redis (cache + token store) and Kafka (messaging). See [Recent architecture changes](#recent-architecture-changes) for what replaced them.
 
-**Companion service:** **Kollekt Games** — a separate GitHub repository containing all the drinking-game logic and question content, exposed as a REST API. Kollekt depends on it; it does not depend on Kollekt.
+**Games:** run in-app from the local `src/games/` module (catalog + self-contained game components like Spin the Wheel). No external service or API key.
 
 ---
 
@@ -16,7 +16,7 @@
 
 These are the in-flight structural changes this doc was updated to reflect. Items marked _(decision pending)_ are reasonable defaults that can still change.
 
-1. **Games extracted to a separate repo + API.** The client-side drinking-game engine (was `src/lib/drinkingGameEngine`) and its question content (was `backend/src/main/resources/drinking-games/` + `GET /api/drinking-game/question`) now live in a standalone **Kollekt Games** service (Node + TypeScript REST API) in its own GitHub repository — there is no `kollekt-games/` directory in this repo. The Kollekt frontend keeps the `GamesPage` / `CollektGamePage` UI and calls that external API **directly** with an API key (`VITE_GAMES_API_URL` + `VITE_GAMES_API_KEY`) — no backend proxy.
+1. **Games are local, in-app (no external service).** Games now live in the `src/games/` module: a `catalog.ts` of game metadata + categories and self-contained game components (e.g. `SpinTheWheel.tsx`). They are surfaced through the unified **Social** page (`/social`, `SocialPage` with `RanksPanel` + `GamesPanel`). The earlier external "Kollekt Games" REST service and its client (`src/lib/gamesApi.ts`, `GamesPage`, `CollektGamePage`, and the `VITE_GAMES_API_*` env vars) have been **removed** — no API key, no backend proxy.
 2. **Redis removed.** The two consumers were token storage and the stats/leaderboard cache:
    - **Token store** (refresh + revoked tokens) → moved to **PostgreSQL** (`TokenEntry` entity + `TokenEntryRepository`, table `auth_tokens` via migration **V32**). Expiry is enforced at query time; expired rows are purged on write.
    - **Stats/leaderboard cache** → **computed on demand** (no cache; `StatsCacheService` and the direct `RedisTemplate` reads/writes in `StatsService` are gone).
@@ -33,7 +33,6 @@ React SPA source (Vite)
  └── Android shell (Capacitor)
  │  REST /api/*  (JWT Bearer access + refresh tokens)
  │  WS  /ws/collective?memberName=...  (live updates)
- │  REST  → Kollekt Games API  (drinking-game rounds + questions)
  ▼
 Spring Boot backend (Kotlin, :8080)
  ├── api/         REST controllers
@@ -45,11 +44,9 @@ Spring Boot backend (Kotlin, :8080)
 PostgreSQL (Supabase)   ← also holds refresh/revoked tokens now
 
    ┌──────────────────────────────────────────────────────┐
-   │  Kollekt Games (separate GitHub repo)                  │
-   │  REST API: round generation + question bank            │
-   │  (JEG_HAR_ALDRI, CHUG_OR_TRUTH, 100_SPØRSMÅL, …)       │
+   │  Games: local module in src/games/ (runs in the app)  │
+   │  catalog.ts + components (e.g. SpinTheWheel.tsx)       │
    └──────────────────────────────────────────────────────┘
-        ▲ consumed by Kollekt (frontend GamesPage)
 ```
 
 A user logs in → belongs to a **Collective** (household, identified by a `join_code`). Almost every entity carries a `collective_code` and is scoped to that collective. The `memberName` is used pervasively as the identity key in queries (note: names are globally unique — `uq_members_name`).
@@ -68,13 +65,13 @@ A user logs in → belongs to a **Collective** (household, identified by a `join
 
 **API client** — `src/lib/api.ts`: central `fetch` wrapper. Attaches `Bearer` token, auto-refreshes on 401 via `/onboarding/refresh`, sanitizes error messages through i18n. Exposes `api.get/post/patch/delete/postForm`.
 
-**Games API client** — `src/lib/gamesApi.ts`: thin client for the external **Kollekt Games** REST API (round generation, scoring, question content). Attaches the `x-api-key` header; base URL + key from `VITE_GAMES_API_URL` / `VITE_GAMES_API_KEY`. Also holds the contract TS types and the trivial player-list helpers the UI needs locally (the algorithmic engine itself lives in the games service).
+**Games module** — `src/games/`: a local `catalog.ts` (game metadata, categories, "tonight's pick") plus self-contained game components (e.g. `SpinTheWheel.tsx`). Everything runs client-side — no network calls, no API key.
 
 **Realtime** — `src/lib/realtime.ts`: `connectCollectiveRealtime(memberName, onEvent)` opens a reconnecting WebSocket to `/ws/collective`; events like `NOTIFICATION_CREATED`, `TASK_DEADLINE_SOON`, etc. trigger refetches.
 
 **Shared types** — `src/lib/types.ts`: the contract mirror of backend DTOs (Task, Expense, CalendarEvent, ChatMessage, Leaderboard, Achievement, AppUser, etc.).
 
-**Layout & nav** — `AppLayout.tsx`, `AppHeader.tsx`, `BottomNav.tsx` (7 tabs: Home, Tasks, Calendar, Chat, Economy, Leaderboard, Games), `LanguageSwitcher.tsx`.
+**Layout & nav** — `AppLayout.tsx`, `AppHeader.tsx`, `BottomNav.tsx` (6 tabs: Home, Tasks, Calendar, Chat, Economy, Social), `LanguageSwitcher.tsx`.
 
 **UI kit** — `src/components/ui/`: shadcn/Radix-based primitives (button, dialog, card, etc.) + custom flair (`Confetti`, `Sparkles`, `AnimatedButton`). Styling via Tailwind (`src/styles/globals.css`).
 
@@ -91,16 +88,12 @@ A user logs in → belongs to a **Collective** (household, identified by a `join
 | `ChatPage` | `/chat` | Group chat: reactions, polls, images, replies |
 | `EconomyPage` | `/economy` | Expenses, balances, settle-up |
 | `PantTrackerPage` | `/economy/pant` | Bottle-deposit ("pant") tracker toward a shared goal |
-| `LeaderboardPage` | `/leaderboard` | Rankings, period stats, monthly prize, achievements |
-| `GamesPage` | `/games` | Game hub — UI only; backed by the external Kollekt Games API |
-| `CollektGamePage` | `/games/kollekt` | The Kollekt drinking game — UI only; backed by the external Kollekt Games API |
+| `SocialPage` | `/social` | Ranks (leaderboard, period stats, monthly prize, achievements) + Games (local catalog, Spin the Wheel). `/leaderboard` and `/games` redirect here. |
 | `ProfilePage` | `/profile` | Profile, settings, notification prefs, logout |
 
-### Drinking-game engine — moved out
+### Games — local module (`src/games/`)
 
-The self-contained, client-side game engine that previously lived at `src/lib/drinkingGameEngine` has been **extracted into the separate Kollekt Games repository** and is now exposed as a REST API. The Kollekt frontend no longer ships this logic; the `GamesPage` / `CollektGamePage` components consume the API instead.
-
-For reference, the extracted engine covers: player management (from leaderboard or guests), weighted RNG for round/player selection, round generation/resolution/skip, event/prompt templates, game config presets (default/quick/hardcore/casual), and end-of-game stat scoring. Question content for modes like `JEG_HAR_ALDRI`, `CHUG_OR_TRUTH`, and `100_SPØRSMÅL` now lives with and is served by that service rather than from the Kollekt backend.
+Games run entirely in the app; there is no external games service and no `gamesApi.ts`. `src/games/catalog.ts` defines the game list (id, category, difficulty, players, duration, emoji), the category filters, and the daily "tonight's pick". Playable games are self-contained React components — currently `SpinTheWheel.tsx` (a client-side wheel that picks a housemate). Other catalog entries render as "coming soon" until their component is added. Add a game by appending to `GAME_CATALOG` and launching it from `GamesPanel`.
 
 ---
 
@@ -124,7 +117,7 @@ Entry: `KollektApplication.kt`. Layered: **api → service → repository → do
 | `PushNotificationController` | `/api/push` | mobile push device-token register/remove |
 | `InvitationRealtimeController`, `AuthVerification`, `ApiExceptionHandler` | — | realtime invites, auth helper, global error → JSON `{error}` |
 
-> The former `GET /api/drinking-game/question` endpoint (served by `StatsController`) has been removed from the Kollekt backend; that responsibility now belongs to the Kollekt Games service.
+> The former `GET /api/drinking-game/question` endpoint (served by `StatsController`) has been removed from the Kollekt backend; games no longer involve the backend at all (they run in-app from `src/games/`).
 
 DTOs live in `api/dto/ApiModels.kt`.
 
@@ -157,7 +150,7 @@ Flyway migrations, **V1 baseline → V33**. Baseline (`V1`) defines the core tab
 ## Notable design notes / current state
 
 - **Identity by name:** `memberName` is the de-facto key across the API; member names are globally unique.
-- **Games are an external service:** drinking-game logic and questions live in the separate Kollekt Games repo and are consumed over its REST API. Kollekt only ships the games *UI*.
+- **Games are local:** game catalog and logic live in `src/games/` and run entirely in the app — no external service, API, or key.
 - **No Redis, no Kafka:** tokens live in PostgreSQL and stats are computed on demand; the former Kafka integration events were dropped rather than replaced. WebSockets remain the realtime transport.
 - **Smart task assignment is scaffolding, not yet active.** DB columns and the `assignmentReason` field exist (V4–V9), but there's **no live assignment algorithm** consuming chemistry/preferences/fairness scores yet — tasks are created with an explicit assignee. `ideas.md` flags this ("empty feature") and lists intended fairness/preference/ML directions. **Prime area for future work.**
 - **Realtime is push-notify-then-refetch:** WS events tell the client *what changed*; the client refetches via REST.
@@ -165,14 +158,13 @@ Flyway migrations, **V1 baseline → V33**. Baseline (`V1`) defines the core tab
 
 ## Infra & ops
 - `docker-compose.yml` — backend, frontend (DB is external Supabase via `.env`). Redis, Zookeeper, and Kafka containers have been removed.
-- The **Kollekt Games** service is deployed/run independently (its own repo, image, and compose/CI); Kollekt reaches it via a configured base URL.
-- **Mobile packaging:** the existing Vite output is packaged in committed Capacitor `ios/` and `android/` projects using application ID `no.kollekt.app`. Both native apps continue calling the deployed Kotlin and games services over HTTPS/WSS; no backend code is embedded in the app.
+- **Games:** no service to deploy — they run in-app from `src/games/`.
+- **Mobile packaging:** the existing Vite output is packaged in committed Capacitor `ios/` and `android/` projects using application ID `no.kollekt.app`. Both native apps continue calling the deployed Kotlin backend over HTTPS/WSS; no backend code is embedded in the app.
 - **Mobile layout:** the shared shell accounts for iOS/Android safe-area insets, dynamic viewport height, the fixed bottom navigation, and touch devices without hover capability.
-- **Mobile environment:** `npm run mobile:sync` builds in Vite's `mobile` mode and requires `.env.mobile` to provide absolute HTTPS URLs for both deployed services. Local web development continues using `.env` and the `/api` proxy.
+- **Mobile environment:** `npm run mobile:sync` builds in Vite's `mobile` mode and requires `.env.mobile` to provide the absolute HTTPS URL for the deployed backend. Local web development continues using `.env` and the `/api` proxy.
 - **Google Calendar on mobile:** OAuth opens in the native browser and returns through `no.kollekt.app://google-calendar-connected`. The backend accepts only configured web/native return URLs and stores each OAuth state as a short-lived, single-use nonce; no Google or Kollekt tokens are placed in the app return link.
 - **Mobile native polish:** status bar and splash screen are configured in `capacitor.config.ts` and initialised in `src/lib/nativeBootstrap.ts`; app icons/splash are generated from `assets/` via `@capacitor/assets`; light haptics fire on key task/game actions through `src/lib/haptics.ts`.
 - **Push notifications:** the client foundation (permission, device-token registration after login, and notification-tap deep links) lives in `src/lib/pushNotifications.ts`; tokens are persisted via `POST /api/push/device-token` (`PushNotificationController` + `push_device_tokens` table). Actual APNs/FCM delivery is configured separately and is not yet wired.
-- **Mobile release security gate:** the current `VITE_GAMES_API_KEY` is bundled client configuration, not a protectable secret. The games-service authentication contract must be changed to a public-client-safe design before store release. Native JWTs already use platform-protected storage.
 - `Dockerfile` + `nginx/` — frontend container served by nginx.
 - `.github/workflows/ci-cd.yml` — builds frontend + backend on push/PR to `main`, publishes `kollekt-frontend`/`kollekt-backend` images to Docker Hub.
 - Tests: backend has broad coverage under `backend/src/test` — `service/*Test`, `api/*ContractTest`, and `acceptance/*` (user-story acceptance tests, mapped in `user-story-test-mapping.md`). The Redis/Kafka and drinking-endpoint tests have been removed; `TokenStoreServiceTest` now exercises the PostgreSQL-backed store.

@@ -8,11 +8,14 @@ import com.kollekt.api.dto.CreateUserRequest
 import com.kollekt.api.dto.JoinCollectiveRequest
 import com.kollekt.api.dto.LoginRequest
 import com.kollekt.api.dto.LogoutRequest
+import com.kollekt.api.dto.PasswordResetConfirmRequest
+import com.kollekt.api.dto.PasswordResetRequest
 import com.kollekt.api.dto.RefreshTokenRequest
 import com.kollekt.api.dto.SocialLoginRequest
 import com.kollekt.api.dto.UserDto
 import com.kollekt.service.AccountOperations
 import com.kollekt.service.CollectiveOperations
+import com.kollekt.service.PasswordResetService
 import com.kollekt.service.SocialAuthService
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.AccessDeniedException
@@ -32,6 +35,7 @@ class OnboardingController(
     private val accountOperations: AccountOperations,
     private val collectiveOperations: CollectiveOperations,
     private val socialAuthService: SocialAuthService,
+    private val passwordResetService: PasswordResetService,
 ) {
     @PostMapping("/users")
     @ResponseStatus(HttpStatus.CREATED)
@@ -54,6 +58,22 @@ class OnboardingController(
     fun refresh(
         @RequestBody request: RefreshTokenRequest,
     ): AuthResponse = accountOperations.refreshToken(request)
+
+    @PostMapping("/password-reset/request")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun requestPasswordReset(
+        @RequestBody request: PasswordResetRequest,
+    ) {
+        passwordResetService.requestReset(request.email)
+    }
+
+    @PostMapping("/password-reset/confirm")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun confirmPasswordReset(
+        @RequestBody request: PasswordResetConfirmRequest,
+    ) {
+        passwordResetService.confirmReset(request.token, request.newPassword)
+    }
 
     @GetMapping("/me")
     fun getCurrentUser(

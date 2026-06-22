@@ -108,6 +108,7 @@
       "pantTracker": "Pantoversikt",
       "leaderboard": "Toppliste",
       "games": "Spill",
+      "social": "Sosialt",
       "profile": "Profil"
     },
     "notifications": "Varsler",
@@ -129,11 +130,12 @@
     "chat": "Chat",
     "economy": "Økonomi",
     "board": "Toppliste",
+    "social": "Sosialt",
     "games": "Spill"
   },
   "auth": {
     "loginTab": "Logg inn",
-    "signUpTab": "Registrer deg",
+    "signUpTab": "Registrer",
     "fullName": "Fullt navn",
     "username": "Brukernavn",
     "identifier": "E-post eller brukernavn",
@@ -147,36 +149,79 @@
     "hidePassword": "Skjul passord",
     "continueWith": "eller fortsett med",
     "google": "Google",
-    "apple": "Apple"
+    "apple": "Apple",
+    "tagline": "Kollektivet ditt, uten gruppechat-kaoset.",
+    "headingLead": "Velkommen",
+    "headingMark": "hjem.",
+    "forgotPassword": "Glemt passord?",
+    "buildLabel": "Ny build · v0.1",
+    "labels": {
+      "name": "Navn",
+      "email": "E-post",
+      "password": "Passord"
+    },
+    "placeholders": {
+      "name": "Navnet ditt",
+      "email": "deg@epost.no",
+      "password": "Passordet ditt",
+      "newPassword": "Gjør det godt"
+    },
+    "terms": {
+      "prefix": "Ved å bli med godtar du husreglene og",
+      "link": "vilkårene"
+    },
+    "forgot": {
+      "headingLead": "Tilbakestill",
+      "headingMark": "tilgang.",
+      "subtitle": "Skriv inn e-posten din, så sender vi deg en lenke for tilbakestilling.",
+      "submit": "Send lenke",
+      "sent": "Hvis det finnes en konto for den e-posten, er en lenke på vei.",
+      "backToLogin": "Tilbake til innlogging"
+    },
+    "reset": {
+      "headingLead": "Nytt",
+      "headingMark": "passord.",
+      "subtitle": "Velg et nytt passord for kontoen din.",
+      "submit": "Oppdater passord",
+      "success": "Passordet er oppdatert. Du kan logge inn nå.",
+      "invalidToken": "Denne lenken er ugyldig eller utløpt.",
+      "backToLogin": "Tilbake til innlogging"
+    }
   },
   "createHousehold": {
-    "titleCreate": "Opprett ditt kollektiv",
-    "titleJoin": "Bli med i et kollektiv",
-    "stepOf": "Steg {{step}} av {{total}}",
-    "createHome": "Opprett hjem",
-    "joinHome": "Bli med",
-    "joinIntro": "Bli med i et eksisterende kollektiv med invitasjonskode",
-    "enterInviteCode": "Skriv inn invitasjonskode",
-    "joining": "Blir med...",
-    "joinButton": "Bli med",
+    "headingPre": "Sett opp",
+    "headingMark1": "ditt",
+    "headingMark2": "hjem.",
+    "tabCreate": "Opprett hjem",
+    "tabJoin": "Bli med via kode",
     "householdName": "Navn på kollektivet",
     "defaultHouseholdName": "Mitt kollektiv",
-    "householdNamePlaceholder": "f.eks. Huset i Strandgaten",
-    "address": "Adresse",
-    "addressPlaceholder": "Gateadresse, f.eks. Strandgaten 42",
-    "roomSetupDescription": "Legg til fellesrom og hvor lang tid de vanligvis tar å vaske. Disse blir felles oppgaver for alle. Private rom, som eget soverom, er ikke inkludert.",
-    "room": "Rom {{index}}",
-    "roomName": "Romnavn",
-    "roomNamePlaceholder": "f.eks. Kjøkken",
-    "minutesToClean": "Minutter å vaske",
+    "householdNamePlaceholder": "f.eks. Birkegata 14",
+    "roomsHeader": "Rom & innsats → XP",
+    "minLabel": "min å vaske",
     "addRoom": "Legg til rom",
+    "removeRoom": "Fjern rom",
+    "rotationNotePrefix": "Rom ",
+    "rotationNoteBold": "roterer automatisk hver mandag",
+    "rotationNoteSuffix": ", fordelt rettferdig etter når hver person ble med. Mer innsats gir mer XP.",
+    "createCta": "Opprett kollektiv",
     "creating": "Oppretter...",
-    "shareCode": "Del denne koden med romkameratene",
-    "inviteByEmail": "eller inviter med e-post",
-    "roommateEmail": "E-post til romkamerat {{index}}",
-    "addAnother": "Legg til en til",
-    "skipForNow": "Hopp over foreløpig",
-    "backToAuth": "Tilbake til innlogging/registrering",
+    "joinIntro": "Spør en romkamerat om den 6-tegns kollektivkoden.",
+    "joinNote": "👋 Du blir med i rotasjonen neste mandag — nykommere får en enklere første uke.",
+    "joinCta": "Bli med i kollektivet",
+    "joining": "Blir med...",
+    "backToAuth": "Tilbake til innlogging",
+    "defaultRooms": {
+      "kitchen": "Kjøkken",
+      "bathroom": "Bad",
+      "livingRoom": "Stue",
+      "toilet": "Toalett",
+      "hallway": "Gang",
+      "laundry": "Vaskerom",
+      "diningRoom": "Spisestue",
+      "balcony": "Balkong",
+      "stairs": "Trapp"
+    },
     "errors": {
       "addRoom": "Legg til minst ett rom",
       "createFailure": "Kunne ikke opprette kollektiv",
@@ -351,6 +396,52 @@
     "historyEntry": "{{name}} la til {{count}} flasker",
     "editEntry": "Rediger oppføring",
     "bottlesPlaceholder": "Flasker"
+  },
+  "social": {
+    "eyebrow": "Spillkveld & ære",
+    "title": "Hvem er den beste romkameraten?",
+    "ranksTab": "Rangering",
+    "gamesTab": "Spill",
+    "prize": {
+      "resets": "Nullstilles om {{days}} dager"
+    },
+    "games": {
+      "tonightsPick": "Kveldens valg",
+      "startGame": "Start spill",
+      "minutes": "{{min}} min",
+      "playersShort": "{{count}}+",
+      "playersLong": "{{count}}+ spillere",
+      "comingSoon": "Det spillet kommer snart",
+      "soon": "Snart",
+      "categories": {
+        "all": "Alle",
+        "classic": "Klassisk",
+        "party": "Fest",
+        "cards": "Kort"
+      },
+      "difficulty": {
+        "easy": "Lett",
+        "medium": "Middels",
+        "hard": "Vanskelig",
+        "party": "Fest"
+      },
+      "catalog": {
+        "spinTheWheel": "Lykkehjulet",
+        "neverHaveIEver": "Jeg har aldri",
+        "mexican": "Meksikaner",
+        "kingsCup": "Kings Cup",
+        "categories": "Kategorier",
+        "charades": "Charades"
+      },
+      "spin": {
+        "spinButton": "Snurr",
+        "spinAgain": "Snurr igjen",
+        "winner": "{{name}} er på tur!",
+        "needPlayers": "Legg til minst to navn for å snurre.",
+        "optionPlaceholder": "Legg til et navn",
+        "addOption": "Legg til"
+      }
+    }
   },
   "leaderboard": {
     "title": "Toppliste",

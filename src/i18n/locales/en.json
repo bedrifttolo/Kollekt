@@ -108,6 +108,7 @@
       "pantTracker": "Pant Tracker",
       "leaderboard": "Leaderboard",
       "games": "Games",
+      "social": "Social",
       "profile": "Profile"
     },
     "notifications": "Notifications",
@@ -129,54 +130,98 @@
     "chat": "Chat",
     "economy": "Economy",
     "board": "Board",
+    "social": "Social",
     "games": "Games"
   },
   "auth": {
-    "loginTab": "Log In",
-    "signUpTab": "Sign Up",
+    "loginTab": "Log in",
+    "signUpTab": "Register",
     "fullName": "Full name",
     "username": "Username",
     "identifier": "Email or username",
     "emailAddress": "Email address",
     "password": "Password",
-    "logIn": "Log In",
-    "createAccount": "Create Account",
+    "logIn": "Log in",
+    "createAccount": "Create account",
     "pleaseWait": "Please wait...",
     "inviteHint": "Got an email invite? Check your inbox for a link to join automatically.",
     "showPassword": "Show password",
     "hidePassword": "Hide password",
     "continueWith": "or continue with",
     "google": "Google",
-    "apple": "Apple"
+    "apple": "Apple",
+    "tagline": "Your kollektiv, minus the group-chat chaos.",
+    "headingLead": "Welcome",
+    "headingMark": "home.",
+    "forgotPassword": "Forgot password?",
+    "buildLabel": "New build · v0.1",
+    "labels": {
+      "name": "Name",
+      "email": "Email",
+      "password": "Password"
+    },
+    "placeholders": {
+      "name": "Your name",
+      "email": "you@email.com",
+      "password": "Your password",
+      "newPassword": "Make it good"
+    },
+    "terms": {
+      "prefix": "By joining you agree to the house rules &",
+      "link": "terms"
+    },
+    "forgot": {
+      "headingLead": "Reset",
+      "headingMark": "access.",
+      "subtitle": "Enter your email and we'll send you a reset link.",
+      "submit": "Send reset link",
+      "sent": "If an account exists for that email, a reset link is on its way.",
+      "backToLogin": "Back to log in"
+    },
+    "reset": {
+      "headingLead": "New",
+      "headingMark": "password.",
+      "subtitle": "Choose a new password for your account.",
+      "submit": "Update password",
+      "success": "Password updated. You can log in now.",
+      "invalidToken": "This reset link is invalid or has expired.",
+      "backToLogin": "Back to log in"
+    }
   },
   "createHousehold": {
-    "titleCreate": "Create Your Household",
-    "titleJoin": "Join a Household",
-    "stepOf": "Step {{step}} of {{total}}",
-    "createHome": "Create home",
-    "joinHome": "Join home",
-    "joinIntro": "Join an existing household with an invite code",
-    "enterInviteCode": "Enter invite code",
-    "joining": "Joining...",
-    "joinButton": "Join home",
+    "headingPre": "Set up",
+    "headingMark1": "your",
+    "headingMark2": "home.",
+    "tabCreate": "Create a home",
+    "tabJoin": "Join with code",
     "householdName": "Household name",
     "defaultHouseholdName": "My Household",
-    "householdNamePlaceholder": "e.g. The House on Strandgaten",
-    "address": "Address",
-    "addressPlaceholder": "Street address, e.g. Strandgaten 42",
-    "roomSetupDescription": "Add shared rooms and how long they usually take to clean. These become household tasks for everyone. Private spaces like your own bedroom are not included.",
-    "room": "Room {{index}}",
-    "roomName": "Room name",
-    "roomNamePlaceholder": "e.g. Kitchen",
-    "minutesToClean": "Minutes to clean",
-    "addRoom": "Add room",
+    "householdNamePlaceholder": "e.g. Birkegata 14",
+    "roomsHeader": "Rooms & effort → XP",
+    "minLabel": "min to clean",
+    "addRoom": "Add a room",
+    "removeRoom": "Remove room",
+    "rotationNotePrefix": "Rooms ",
+    "rotationNoteBold": "auto-rotate every Monday",
+    "rotationNoteSuffix": ", split fairly by when each person joined. More effort earns more XP.",
+    "createCta": "Create household",
     "creating": "Creating...",
-    "shareCode": "Share this code with roommates",
-    "inviteByEmail": "or invite by email",
-    "roommateEmail": "Roommate {{index}} email",
-    "addAnother": "Add another",
-    "skipForNow": "Skip for now",
-    "backToAuth": "Back to login/sign up",
+    "joinIntro": "Ask a roommate for the 6-letter household code.",
+    "joinNote": "👋 You'll join the rotation next Monday — newcomers get an easier first week.",
+    "joinCta": "Join household",
+    "joining": "Joining...",
+    "backToAuth": "Back to login",
+    "defaultRooms": {
+      "kitchen": "Kitchen",
+      "bathroom": "Bathroom",
+      "livingRoom": "Living room",
+      "toilet": "Toilet",
+      "hallway": "Hallway",
+      "laundry": "Laundry room",
+      "diningRoom": "Dining room",
+      "balcony": "Balcony",
+      "stairs": "Stairs"
+    },
     "errors": {
       "addRoom": "Add at least one room",
       "createFailure": "Couldn't create household",
@@ -351,6 +396,52 @@
     "historyEntry": "{{name}} added {{count}} bottles",
     "editEntry": "Edit Entry",
     "bottlesPlaceholder": "Bottles"
+  },
+  "social": {
+    "eyebrow": "Game night & glory",
+    "title": "Who's the best roomie?",
+    "ranksTab": "Ranks",
+    "gamesTab": "Games",
+    "prize": {
+      "resets": "Resets in {{days}} days"
+    },
+    "games": {
+      "tonightsPick": "Tonight's pick",
+      "startGame": "Start game",
+      "minutes": "{{min}} min",
+      "playersShort": "{{count}}+",
+      "playersLong": "{{count}}+ players",
+      "comingSoon": "That game is coming soon",
+      "soon": "Soon",
+      "categories": {
+        "all": "All",
+        "classic": "Classic",
+        "party": "Party",
+        "cards": "Cards"
+      },
+      "difficulty": {
+        "easy": "Easy",
+        "medium": "Medium",
+        "hard": "Hard",
+        "party": "Party"
+      },
+      "catalog": {
+        "spinTheWheel": "Spin the Wheel",
+        "neverHaveIEver": "Never have I ever",
+        "mexican": "Mexican",
+        "kingsCup": "Kings Cup",
+        "categories": "Categories",
+        "charades": "Charades"
+      },
+      "spin": {
+        "spinButton": "Spin",
+        "spinAgain": "Spin again",
+        "winner": "{{name}} is up!",
+        "needPlayers": "Add at least two names to spin.",
+        "optionPlaceholder": "Add a name",
+        "addOption": "Add"
+      }
+    }
   },
   "leaderboard": {
     "title": "Leaderboard",

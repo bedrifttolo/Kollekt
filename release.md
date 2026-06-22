@@ -7,24 +7,21 @@ happens on the hosting platform, the app stores, or the Apple/Google/Firebase co
 
 ## Decisions already made
 - **Push notifications:** deferred for v1 (step 7 skipped — apps build/run fine without it).
-- **Games API key:** the public `VITE_GAMES_API_KEY` is consciously accepted as a known
-  limitation for the course demo. The real fix (public-client-safe auth or a backend proxy)
-  lives in the **games repo**, not here.
+- **Games:** run fully in-app from the local `src/games/` module — no external service,
+  API key, or backend proxy to deploy.
 - **Release branch:** confirm whether `mobile/capacitor-conversion` or `main` is the branch
   to release from before tagging/uploading.
 
 ---
 
-## 1. Deploy backend + Kollekt Games on public HTTPS  ← unblocks everything else
-A phone cannot reach `localhost`. Both services must be live on `https://` before the
-mobile build can point at them.
+## 1. Deploy backend on public HTTPS  ← unblocks everything else
+A phone cannot reach `localhost`. The backend must be live on `https://` before the
+mobile build can point at it.
 
-After they're deployed, the remaining mobile-host wiring **is** done back in VS Code:
-1. Edit `.env.mobile` with the real hosts (replace the `example.com` placeholders):
+After it's deployed, the remaining mobile-host wiring **is** done back in VS Code:
+1. Edit `.env.mobile` with the real host (replace the `example.com` placeholder):
    ```
    VITE_API_URL=https://<backend-host>/api
-   VITE_GAMES_API_URL=https://<games-host>/api
-   VITE_GAMES_API_KEY=<real-games-key>
    ```
 2. `npm run mobile:sync`
 3. Verify no localhost remains in the synced assets:

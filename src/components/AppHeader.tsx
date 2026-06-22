@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { User, LogOut, Bell, Mail, ArrowRightLeft, Key, X, CheckSquare, Calendar, MessageCircle, Wallet, Trophy, Gamepad2, Recycle, UserCircle, type LucideIcon } from "lucide-react";
+import { User, LogOut, Bell, Mail, ArrowRightLeft, Key, X, CheckSquare, Calendar, MessageCircle, Wallet, Trophy, Recycle, UserCircle, type LucideIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { useUser } from "../context/UserContext";
@@ -17,8 +17,7 @@ const pageTitleKeys: Record<string, string> = {
   "/chat": "header.pageTitles.chat",
   "/economy": "header.pageTitles.economy",
   "/economy/pant": "header.pageTitles.pantTracker",
-  "/leaderboard": "header.pageTitles.leaderboard",
-  "/games": "header.pageTitles.games",
+  "/social": "header.pageTitles.social",
   "/profile": "header.pageTitles.profile",
 };
 
@@ -28,8 +27,7 @@ const pageIcons: Record<string, LucideIcon> = {
   "/chat": MessageCircle,
   "/economy": Wallet,
   "/economy/pant": Recycle,
-  "/leaderboard": Trophy,
-  "/games": Gamepad2,
+  "/social": Trophy,
   "/profile": UserCircle,
 };
 

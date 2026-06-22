@@ -1,79 +1,108 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Home, Users, MapPin, ArrowRight, ArrowLeft, Plus, X, DoorOpen, Copy, Check, KeyRound } from 'lucide-react';
+import { ChevronUp, Plus, RefreshCw, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import LanguageSwitcher from '../components/LanguageSwitcher';
 import { api, getUserMessage } from '../lib/api';
 import { useUser } from '../context/UserContext';
 import type { AppUser } from '../lib/types';
-import { BrandMark, ProgressBar } from '../components/ui-kit';
+import { BrandMark, Field } from '../components/ui-kit';
+
+type RoomDraft = { id: number; emoji: string; name: string; minutes: string };
+
+const CODE_LENGTH = 6;
+
+// Common shared rooms offered as one-tap suggestions, with realistic clean times (min = XP).
+const ROOM_SUGGESTIONS: Array<{ key: string; emoji: string; minutes: string }> = [
+  { key: 'kitchen', emoji: '🍳', minutes: '20' },
+  { key: 'bathroom', emoji: '🚿', minutes: '15' },
+  { key: 'livingRoom', emoji: '🛋️', minutes: '10' },
+  { key: 'toilet', emoji: '🚽', minutes: '10' },
+  { key: 'hallway', emoji: '🚪', minutes: '10' },
+  { key: 'laundry', emoji: '🧺', minutes: '10' },
+  { key: 'diningRoom', emoji: '🍽️', minutes: '10' },
+  { key: 'balcony', emoji: '🪴', minutes: '10' },
+  { key: 'stairs', emoji: '🧹', minutes: '10' },
+];
 
 export default function CreateHouseholdPage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { currentUser, setCurrentUser, handleLogout } = useUser();
 
-  const [setupMode, setSetupMode] = useState<'create' | 'join'>('create');
-  const [step, setStep] = useState(1);
+  const roomId = useRef(3);
+  const [mode, setMode] = useState<'create' | 'join'>('create');
   const [houseName, setHouseName] = useState('');
-  const [address, setAddress] = useState('');
-  const [rooms, setRooms] = useState([{ name: '', minutes: '30' }]);
-  const [invites, setInvites] = useState<string[]>(['']);
-  const [createdCode, setCreatedCode] = useState('');
-  const [copied, setCopied] = useState(false);
+  const [roomsOpen, setRoomsOpen] = useState(true);
+  const [rooms, setRooms] = useState<RoomDraft[]>(() => [
+    { id: 0, emoji: '🍳', name: t('createHousehold.defaultRooms.kitchen'), minutes: '20' },
+    { id: 1, emoji: '🚿', name: t('createHousehold.defaultRooms.bathroom'), minutes: '15' },
+    { id: 2, emoji: '🛋️', name: t('createHousehold.defaultRooms.livingRoom'), minutes: '10' },
+  ]);
+  const [code, setCode] = useState<string[]>(() => Array(CODE_LENGTH).fill(''));
+  const codeRefs = useRef<Array<HTMLInputElement | null>>([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [joinCode, setJoinCode] = useState('');
-  const [joining, setJoining] = useState(false);
 
-  const addInvite = () => setInvites((p) => [...p, '']);
-  const removeInvite = (i: number) => setInvites((p) => p.filter((_, idx) => idx !== i));
-  const updateInvite = (i: number, val: string) =>
-    setInvites((p) => p.map((v, idx) => (idx === i ? val : v)));
-  const addRoom = () => setRooms((p) => [...p, { name: '', minutes: '30' }]);
-  const removeRoom = (i: number) => setRooms((p) => p.length === 1 ? p : p.filter((_, idx) => idx !== i));
-  const updateRoomName = (i: number, val: string) =>
-    setRooms((p) => p.map((room, idx) => (idx === i ? { ...room, name: val } : room)));
-  const updateRoomMinutes = (i: number, val: string) =>
-    setRooms((p) => p.map((room, idx) => (idx === i ? { ...room, minutes: val } : room)));
+  const xpFor = (minutes: string) => Math.max(1, parseInt(minutes, 10) || 0);
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(createdCode).catch(() => {});
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const addRoom = () =>
+    setRooms((p) => [...p, { id: roomId.current++, emoji: '🧹', name: '', minutes: '15' }]);
+  const addSuggested = (s: { key: string; emoji: string; minutes: string }) =>
+    setRooms((p) => [
+      ...p,
+      { id: roomId.current++, emoji: s.emoji, name: t(`createHousehold.defaultRooms.${s.key}`), minutes: s.minutes },
+    ]);
+  const suggestions = ROOM_SUGGESTIONS.filter(
+    (s) => !rooms.some((r) => r.name.trim().toLowerCase() === t(`createHousehold.defaultRooms.${s.key}`).toLowerCase()),
+  );
+  const removeRoom = (id: number) => setRooms((p) => p.filter((r) => r.id !== id));
+  const updateRoom = (id: number, patch: Partial<RoomDraft>) =>
+    setRooms((p) => p.map((r) => (r.id === id ? { ...r, ...patch } : r)));
+
+  const setCodeChar = (index: number, raw: string) => {
+    const char = raw.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(-1);
+    setCode((prev) => prev.map((c, i) => (i === index ? char : c)));
+    if (char && index < CODE_LENGTH - 1) codeRefs.current[index + 1]?.focus();
   };
 
-  const handleCreateCollective = async () => {
+  const handleCodeKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Backspace' && !code[index] && index > 0) codeRefs.current[index - 1]?.focus();
+  };
+
+  const handleCodePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const chars = e.clipboardData.getData('text').replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, CODE_LENGTH).split('');
+    if (!chars.length) return;
+    setCode(Array.from({ length: CODE_LENGTH }, (_, i) => chars[i] ?? ''));
+    codeRefs.current[Math.min(chars.length, CODE_LENGTH - 1)]?.focus();
+  };
+
+  const joinCode = code.join('');
+
+  const handleCreate = async () => {
     if (!currentUser) return;
     setError('');
+    const roomConfigs = rooms
+      .map((r) => ({ name: r.name.trim(), minutes: xpFor(r.minutes) }))
+      .filter((r) => r.name);
+
+    if (roomConfigs.length === 0) {
+      setError(t('createHousehold.errors.addRoom'));
+      return;
+    }
+
     setLoading(true);
     try {
-      const roomConfigs = rooms
-        .map((room) => ({
-          name: room.name.trim(),
-          minutes: Math.max(1, parseInt(room.minutes) || 30),
-        }))
-        .filter((room) => room.name);
-
-      if (roomConfigs.length === 0) {
-        setError(t('createHousehold.errors.addRoom'));
-        setLoading(false);
-        return;
-      }
-
       const res = await api.post<{ joinCode: string }>('/onboarding/collectives', {
-        name: houseName || address || t('createHousehold.defaultHouseholdName'),
+        name: houseName.trim() || t('createHousehold.defaultHouseholdName'),
         ownerUserId: currentUser.id,
         numRooms: roomConfigs.length,
         residents: [currentUser.name],
         rooms: roomConfigs,
       });
-      setCreatedCode(res.joinCode);
-      // Update user with new collective code
-      const updated: AppUser = { ...currentUser, collectiveCode: res.joinCode };
-      setCurrentUser(updated);
-      setStep(3);
+      setCurrentUser({ ...currentUser, collectiveCode: res.joinCode } as AppUser);
+      navigate('/', { replace: true });
     } catch (err: unknown) {
       setError(getUserMessage(err, t('createHousehold.errors.createFailure')));
     } finally {
@@ -81,32 +110,21 @@ export default function CreateHouseholdPage() {
     }
   };
 
-  const handleSendInvites = async () => {
-    if (!currentUser) return;
-    const validEmails = invites.filter((e) => e.trim());
-    await Promise.allSettled(
-      validEmails.map((email) =>
-        api.post('/members/invite', { email, collectiveCode: createdCode })
-      )
-    );
-    navigate('/', { replace: true });
-  };
-
-  const handleJoinCollective = async () => {
-    if (!currentUser || !joinCode.trim()) return;
+  const handleJoin = async () => {
+    if (!currentUser || joinCode.length < CODE_LENGTH) return;
     setError('');
-    setJoining(true);
+    setLoading(true);
     try {
       const joined = await api.post<AppUser>('/onboarding/collectives/join', {
         userId: currentUser.id,
-        joinCode: joinCode.trim().toUpperCase(),
+        joinCode,
       });
       setCurrentUser(joined);
       navigate('/', { replace: true });
     } catch (err: unknown) {
       setError(getUserMessage(err, t('createHousehold.errors.joinFailure')));
     } finally {
-      setJoining(false);
+      setLoading(false);
     }
   };
 
@@ -116,257 +134,184 @@ export default function CreateHouseholdPage() {
   };
 
   return (
-    <div className="relative app-viewport bg-background flex flex-col items-center justify-center overflow-hidden px-6 safe-top safe-bottom">
-      <div className="absolute -right-24 -top-20 h-72 w-72 rounded-full bg-secondary/25 blur-3xl" />
-      <div className="absolute -bottom-28 -left-20 h-80 w-80 rounded-full bg-accent/20 blur-3xl" />
-      <div className="absolute top-4 right-4 z-10">
-        <LanguageSwitcher />
-      </div>
+    <div className="app-viewport bg-background flex flex-col px-6 safe-top safe-bottom">
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative w-full max-w-md space-y-6"
+        className="w-full max-w-sm mx-auto flex flex-1 flex-col pt-8"
       >
-        <div className="flex items-center gap-2 text-primary">
-          <BrandMark className="h-6 w-6" />
-          <span className="font-display text-xl font-extrabold">Kollekt</span>
-        </div>
-        <div>
-          <h1 className="font-display text-[2.5rem] leading-[.98] font-extrabold tracking-[-.04em]">
-            {setupMode === 'create' ? t('createHousehold.titleCreate') : t('createHousehold.titleJoin')}
-          </h1>
-          {setupMode === 'create' && (
-            <p className="text-sm text-muted-foreground mt-1">
-              {t('createHousehold.stepOf', { step, total: 3 })}
-            </p>
-          )}
+        <div className="flex items-center gap-2.5">
+          <BrandMark className="h-7 w-7 text-primary dark:text-foreground" />
+          <span className="font-display text-2xl font-extrabold text-primary dark:text-secondary">Kollekt</span>
         </div>
 
-        <div className="seg">
-          <button
-            onClick={() => setSetupMode('create')}
-            className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all ${
-              setupMode === 'create' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'
-            }`}
-          >
-            {t('createHousehold.createHome')}
-          </button>
-          <button
-            onClick={() => setSetupMode('join')}
-            className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all ${
-              setupMode === 'join' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'
-            }`}
-          >
-            {t('createHousehold.joinHome')}
-          </button>
-        </div>
+        <h1 className="mt-7 font-display text-[2.75rem] leading-[.96] font-extrabold tracking-[-.05em]">
+          {t('createHousehold.headingPre')} <span className="mark">{t('createHousehold.headingMark1')}</span>{' '}
+          <span className="mark">{t('createHousehold.headingMark2')}</span>
+        </h1>
 
-        {setupMode === 'create' && (
-          <ProgressBar value={(step / 3) * 100} />
-        )}
-
-        {setupMode === 'join' && (
-          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
-            <div className="card space-y-4">
-              <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-accent/30 to-accent/5 flex items-center justify-center mx-auto">
-                <KeyRound className="h-7 w-7 text-foreground" />
-              </div>
-              <p className="text-sm text-center text-muted-foreground">{t('createHousehold.joinIntro')}</p>
-              <input
-                value={joinCode}
-                onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
-                placeholder={t('createHousehold.enterInviteCode')}
-                className="w-full bg-muted/50 rounded-lg px-3 py-2.5 text-sm font-mono tracking-wider placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-              />
-            </div>
-            {error && <p className="text-xs text-destructive text-center">{error}</p>}
+        <div className="seg mt-6">
+          {(['create', 'join'] as const).map((m) => (
             <button
-              onClick={handleJoinCollective}
-              disabled={joining || !joinCode.trim()}
-              className="btn-pine w-full disabled:opacity-60"
+              key={m}
+              type="button"
+              onClick={() => { setMode(m); setError(''); }}
+              className={`flex-1 py-2.5 rounded-[.85rem] text-sm font-bold transition-all ${
+                mode === m ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'
+              }`}
             >
-              {joining ? t('createHousehold.joining') : <>{t('createHousehold.joinButton')} <ArrowRight className="h-4 w-4" /></>}
+              {m === 'create' ? t('createHousehold.tabCreate') : t('createHousehold.tabJoin')}
             </button>
-          </motion.div>
-        )}
+          ))}
+        </div>
 
-        {/* Step 1: Name & Address */}
-        {setupMode === 'create' && step === 1 && (
-          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
-            <div className="card space-y-4">
-              <div className="h-14 w-14 rounded-2xl gradient-primary flex items-center justify-center mx-auto">
-                <Home className="h-7 w-7 text-primary-foreground" />
-              </div>
-              <div>
-                <label className="text-xs text-muted-foreground mb-1 block">{t('createHousehold.householdName')}</label>
-                <input
-                  value={houseName}
-                  onChange={(e) => setHouseName(e.target.value)}
-                  placeholder={t('createHousehold.householdNamePlaceholder')}
-                  className="w-full bg-muted/50 rounded-lg px-3 py-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                />
-              </div>
-              <div>
-                <label className="text-xs text-muted-foreground mb-1 block">{t('createHousehold.address')}</label>
-                <div className="glass rounded-lg flex items-center gap-3 px-3">
-                  <MapPin className="h-4 w-4 text-muted-foreground shrink-0" />
-                  <input
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    placeholder={t('createHousehold.addressPlaceholder')}
-                    className="w-full bg-transparent py-2.5 text-sm placeholder:text-muted-foreground focus:outline-none"
-                  />
-                </div>
-              </div>
-            </div>
-            <button
-              onClick={() => setStep(2)}
-              disabled={!houseName.trim() && !address.trim()}
-              className="btn-pine w-full disabled:opacity-60"
-            >
-              {t('common.next')} <ArrowRight className="h-4 w-4" />
-            </button>
-          </motion.div>
-        )}
+        {mode === 'create' ? (
+          <div className="mt-4 space-y-4">
+            <Field
+              label={t('createHousehold.householdName')}
+              value={houseName}
+              onChange={(e) => setHouseName(e.target.value)}
+              placeholder={t('createHousehold.householdNamePlaceholder')}
+            />
 
-        {/* Step 2: Rooms & Residents */}
-        {setupMode === 'create' && step === 2 && (
-          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
-            <div className="card space-y-4">
-              <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-secondary/30 to-secondary/5 flex items-center justify-center mx-auto">
-                <DoorOpen className="h-7 w-7 text-foreground" />
-              </div>
-              <p className="text-sm text-center text-muted-foreground">{t('createHousehold.roomSetupDescription')}</p>
-              <div className="space-y-3">
-                {rooms.map((room, i) => (
-                  <div key={i} className="rounded-xl border border-border bg-background/45 p-3 space-y-3">
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="text-xs font-medium text-muted-foreground">{t('createHousehold.room', { index: i + 1 })}</span>
+            <div>
+              <button
+                type="button"
+                onClick={() => setRoomsOpen((v) => !v)}
+                className="flex w-full items-center gap-2 text-[11px] font-bold uppercase tracking-[.08em] text-muted-foreground"
+              >
+                <ChevronUp className={`h-4 w-4 transition-transform ${roomsOpen ? '' : 'rotate-180'}`} />
+                {t('createHousehold.roomsHeader')}
+              </button>
+
+              {roomsOpen && (
+                <div className="mt-3 space-y-3">
+                  {rooms.map((room) => (
+                    <div key={room.id} className="field flex items-center gap-3">
+                      <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-muted text-xl">{room.emoji}</span>
+                      <div className="min-w-0 flex-1">
+                        <input
+                          value={room.name}
+                          onChange={(e) => updateRoom(room.id, { name: e.target.value })}
+                          placeholder={t('createHousehold.defaultRooms.kitchen')}
+                          className="w-full bg-transparent font-bold text-base placeholder:text-muted-foreground/60 focus:outline-none"
+                        />
+                        <div className="mt-0.5 flex items-center gap-1 text-sm text-muted-foreground">
+                          <span>≈</span>
+                          <input
+                            type="number"
+                            min={1}
+                            max={240}
+                            value={room.minutes}
+                            onChange={(e) => updateRoom(room.id, { minutes: e.target.value })}
+                            className="w-9 bg-transparent text-sm tabular-nums focus:outline-none"
+                            aria-label={t('createHousehold.minLabel')}
+                          />
+                          <span>{t('createHousehold.minLabel')}</span>
+                        </div>
+                      </div>
+                      <span className="shrink-0 font-display font-extrabold text-primary dark:text-secondary">
+                        {xpFor(room.minutes)} XP
+                      </span>
                       {rooms.length > 1 && (
-                        <button onClick={() => removeRoom(i)} className="h-8 w-8 rounded-lg bg-muted/40 flex items-center justify-center">
-                          <X className="h-4 w-4 text-muted-foreground" />
+                        <button
+                          type="button"
+                          onClick={() => removeRoom(room.id)}
+                          className="grid h-7 w-7 shrink-0 place-items-center rounded-lg text-muted-foreground hover:bg-muted"
+                          aria-label={t('createHousehold.removeRoom')}
+                        >
+                          <X className="h-4 w-4" />
                         </button>
                       )}
                     </div>
-                    <div className="space-y-3">
-                      <div>
-                        <label className="text-xs text-muted-foreground mb-1 block">{t('createHousehold.roomName')}</label>
-                        <input
-                          value={room.name}
-                          onChange={(e) => updateRoomName(i, e.target.value)}
-                          placeholder={t('createHousehold.roomNamePlaceholder')}
-                          className="w-full bg-muted/50 rounded-lg px-3 py-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-xs text-muted-foreground mb-1 block">{t('createHousehold.minutesToClean')}</label>
-                        <input
-                          type="number"
-                          min="1"
-                          max="240"
-                          value={room.minutes}
-                          onChange={(e) => updateRoomMinutes(i, e.target.value)}
-                          className="w-full bg-muted/50 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
-                        />
-                      </div>
+                  ))}
+
+                  {suggestions.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {suggestions.map((s) => (
+                        <button
+                          key={s.key}
+                          type="button"
+                          onClick={() => addSuggested(s)}
+                          className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-sm font-bold text-muted-foreground"
+                        >
+                          <span>{s.emoji}</span>
+                          {t(`createHousehold.defaultRooms.${s.key}`)}
+                        </button>
+                      ))}
                     </div>
-                  </div>
-                ))}
-              </div>
-              <button
-                onClick={addRoom}
-                className="w-full glass rounded-xl py-3 text-sm font-medium text-muted-foreground flex items-center justify-center gap-2"
-              >
-                <Plus className="h-4 w-4" /> {t('createHousehold.addRoom')}
-              </button>
-            </div>
-            {error && <p className="text-xs text-destructive text-center">{error}</p>}
-            <div className="flex gap-3">
-              <button onClick={() => setStep(1)} className="flex-1 glass rounded-xl py-3 text-sm font-medium flex items-center justify-center gap-2">
-                <ArrowLeft className="h-4 w-4" /> {t('common.back')}
-              </button>
-              <button
-                onClick={handleCreateCollective}
-                disabled={loading}
-                className="btn-pine flex-1 disabled:opacity-60"
-              >
-                {loading ? t('createHousehold.creating') : <>{t('common.next')} <ArrowRight className="h-4 w-4" /></>}
-              </button>
-            </div>
-          </motion.div>
-        )}
+                  )}
 
-        {/* Step 3: Invite */}
-        {setupMode === 'create' && step === 3 && (
-          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
-            <div className="card space-y-4">
-              <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-accent/30 to-accent/5 flex items-center justify-center mx-auto">
-                <Users className="h-7 w-7 text-foreground" />
-              </div>
-
-              <div className="bg-muted/30 rounded-xl p-3 text-center">
-                <p className="text-xs text-muted-foreground mb-1">{t('createHousehold.shareCode')}</p>
-                <div className="flex items-center justify-center gap-2">
-                  <span className="font-mono text-lg font-bold tracking-widest text-primary">{createdCode}</span>
-                  <button onClick={handleCopy} className="h-8 w-8 rounded-lg glass flex items-center justify-center">
-                    {copied
-                      ? <Check className="h-3.5 w-3.5 text-primary" />
-                      : <Copy className="h-3.5 w-3.5 text-muted-foreground" />}
+                  <button
+                    type="button"
+                    onClick={addRoom}
+                    className="flex w-full items-center justify-center gap-2 rounded-[1.15rem] border border-dashed border-border py-3.5 text-sm font-bold text-muted-foreground"
+                  >
+                    <Plus className="h-4 w-4" /> {t('createHousehold.addRoom')}
                   </button>
                 </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <div className="flex-1 h-px bg-border" />
-                <span className="text-xs text-muted-foreground">{t('createHousehold.inviteByEmail')}</span>
-                <div className="flex-1 h-px bg-border" />
-              </div>
-
-              {invites.map((email, i) => (
-                <div key={i} className="flex gap-2">
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => updateInvite(i, e.target.value)}
-                    placeholder={t('createHousehold.roommateEmail', { index: i + 1 })}
-                    className="flex-1 bg-muted/50 rounded-lg px-3 py-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                  />
-                  {invites.length > 1 && (
-                    <button onClick={() => removeInvite(i)} className="h-10 w-10 rounded-lg glass flex items-center justify-center">
-                      <X className="h-4 w-4 text-muted-foreground" />
-                    </button>
-                  )}
-                </div>
-              ))}
-
-              <button
-                onClick={addInvite}
-                className="w-full glass rounded-lg py-2 text-xs font-medium text-muted-foreground flex items-center justify-center gap-1"
-              >
-                <Plus className="h-3 w-3" /> {t('createHousehold.addAnother')}
-              </button>
+              )}
             </div>
 
-            <button
-              onClick={handleSendInvites}
-              className="btn-pine w-full"
-            >
-              {t('common.create')} <ArrowRight className="h-4 w-4" />
+            <div className="flex items-start gap-3 rounded-[1.15rem] bg-primary/10 p-3.5 text-sm text-muted-foreground">
+              <RefreshCw className="mt-0.5 h-4 w-4 shrink-0 text-primary dark:text-secondary" />
+              <p>
+                {t('createHousehold.rotationNotePrefix')}
+                <strong className="text-foreground">{t('createHousehold.rotationNoteBold')}</strong>
+                {t('createHousehold.rotationNoteSuffix')}
+              </p>
+            </div>
+
+            {error && <p className="text-sm text-destructive text-center">{error}</p>}
+
+            <button type="button" onClick={handleCreate} disabled={loading} className="btn-lemon w-full font-bold disabled:opacity-60">
+              {loading ? t('createHousehold.creating') : t('createHousehold.createCta')}
             </button>
+          </div>
+        ) : (
+          <div className="mt-4 space-y-4">
+            <p className="text-center text-base text-muted-foreground">{t('createHousehold.joinIntro')}</p>
+
+            <div className="flex justify-center gap-2" onPaste={handleCodePaste}>
+              {code.map((char, i) => (
+                <input
+                  key={i}
+                  ref={(el) => { codeRefs.current[i] = el; }}
+                  value={char}
+                  onChange={(e) => setCodeChar(i, e.target.value)}
+                  onKeyDown={(e) => handleCodeKeyDown(i, e)}
+                  inputMode="text"
+                  autoCapitalize="characters"
+                  maxLength={1}
+                  aria-label={`${i + 1}`}
+                  placeholder="·"
+                  className={`h-14 w-12 rounded-2xl border-2 bg-card text-center font-display text-2xl font-extrabold focus:outline-none ${
+                    char
+                      ? 'border-primary text-primary dark:border-secondary dark:text-secondary'
+                      : 'border-border text-muted-foreground placeholder:text-muted-foreground/50'
+                  }`}
+                />
+              ))}
+            </div>
+
+            <div className="rounded-[1.15rem] bg-primary/10 p-3.5 text-center text-sm text-muted-foreground">
+              {t('createHousehold.joinNote')}
+            </div>
+
+            {error && <p className="text-sm text-destructive text-center">{error}</p>}
 
             <button
-              onClick={() => navigate('/', { replace: true })}
-              className="w-full text-center text-xs text-muted-foreground"
+              type="button"
+              onClick={handleJoin}
+              disabled={loading || joinCode.length < CODE_LENGTH}
+              className="btn-lemon w-full font-bold disabled:opacity-60"
             >
-              {t('createHousehold.skipForNow')}
+              {loading ? t('createHousehold.joining') : t('createHousehold.joinCta')}
             </button>
-          </motion.div>
+          </div>
         )}
 
-        <button
-          onClick={goBackToAuth}
-          className="w-full text-center text-xs text-muted-foreground"
-        >
+        <button type="button" onClick={goBackToAuth} className="mt-auto pt-8 pb-2 text-center text-sm font-bold text-muted-foreground">
           {t('createHousehold.backToAuth')}
         </button>
       </motion.div>
