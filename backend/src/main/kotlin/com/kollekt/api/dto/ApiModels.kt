@@ -3,6 +3,7 @@ package com.kollekt.api.dto
 import com.kollekt.domain.EventType
 import com.kollekt.domain.MemberStatus
 import com.kollekt.domain.TaskCategory
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -50,6 +51,170 @@ data class CreateTaskRequest(
     val category: TaskCategory = TaskCategory.OTHER,
     val xp: Int = 10,
     val recurrenceRule: String? = null,
+)
+
+data class CreateTaskSwapRequest(
+    val toUser: String,
+)
+
+data class UpdateTaskSwapRequest(
+    val status: String,
+)
+
+data class TaskSwapRequestDto(
+    val id: Long,
+    val fromUser: String,
+    val toUser: String,
+    val taskId: Long,
+    val taskTitle: String,
+    val status: String,
+    val expiresAt: Instant,
+)
+
+data class CreateCheckinResponseRequest(
+    val mood: Int,
+    val issue: String,
+    val improvement: String,
+    val anonymous: Boolean = false,
+)
+
+data class HouseCheckinDto(
+    val id: Long,
+    val weekStart: LocalDate,
+    val hasResponded: Boolean,
+    val responseCount: Int,
+    val memberCount: Int,
+)
+
+data class CheckinResponseDto(
+    val id: Long,
+    val author: String?,
+    val mood: Int,
+    val issue: String,
+    val improvement: String,
+)
+
+data class CheckinSummaryDto(
+    val checkinId: Long,
+    val weekStart: LocalDate,
+    val averageMood: Double?,
+    val responseCount: Int,
+    val memberCount: Int,
+    val responses: List<CheckinResponseDto>,
+)
+
+data class UpdateHouseRulesRequest(
+    val content: String,
+)
+
+data class HouseRulesDto(
+    val version: Int,
+    val content: String,
+    val updatedBy: String?,
+    val createdAt: LocalDateTime?,
+    val acknowledged: Boolean,
+    val canEdit: Boolean,
+)
+
+data class CreateGuestNoticeRequest(
+    val guestName: String,
+    val date: LocalDate,
+    val startTime: LocalTime,
+    val endTime: LocalTime,
+    val overnight: Boolean = false,
+)
+
+data class GuestNoticeDto(
+    val id: Long,
+    val guestName: String,
+    val date: LocalDate,
+    val startTime: LocalTime,
+    val endTime: LocalTime,
+    val overnight: Boolean,
+    val createdBy: String,
+    val overlapsQuietHours: Boolean,
+)
+
+data class UpdateQuietHoursRequest(
+    val enabled: Boolean,
+    val startTime: LocalTime,
+    val endTime: LocalTime,
+)
+
+data class QuietHoursDto(
+    val enabled: Boolean,
+    val startTime: LocalTime,
+    val endTime: LocalTime,
+    val canEdit: Boolean,
+)
+
+data class CreateMaintenanceTicketRequest(
+    val title: String,
+    val description: String = "",
+    val priority: com.kollekt.domain.MaintenancePriority = com.kollekt.domain.MaintenancePriority.MEDIUM,
+    val assignee: String? = null,
+    val dueDate: LocalDate? = null,
+    val costEstimate: Int? = null,
+)
+
+data class UpdateMaintenanceTicketRequest(
+    val title: String? = null,
+    val description: String? = null,
+    val priority: com.kollekt.domain.MaintenancePriority? = null,
+    val status: com.kollekt.domain.MaintenanceStatus? = null,
+    val assignee: String? = null,
+    val dueDate: LocalDate? = null,
+    val costEstimate: Int? = null,
+)
+
+data class MaintenanceStatusHistoryDto(
+    val id: Long,
+    val status: com.kollekt.domain.MaintenanceStatus,
+    val changedBy: String,
+    val changedAt: LocalDateTime,
+)
+
+data class MaintenanceTicketDto(
+    val id: Long,
+    val title: String,
+    val description: String,
+    val priority: com.kollekt.domain.MaintenancePriority,
+    val status: com.kollekt.domain.MaintenanceStatus,
+    val assignee: String?,
+    val dueDate: LocalDate?,
+    val costEstimate: Int?,
+    val createdBy: String,
+    val createdAt: LocalDateTime,
+    val updatedAt: LocalDateTime,
+    val overdue: Boolean,
+    val statusHistory: List<MaintenanceStatusHistoryDto>,
+)
+
+data class CreateKudoRequest(
+    val receiver: String,
+    val context: String,
+    val taskId: Long? = null,
+)
+
+data class KudoDto(
+    val id: Long,
+    val sender: String,
+    val receiver: String,
+    val context: String,
+    val taskId: Long?,
+    val taskTitle: String?,
+    val createdAt: LocalDateTime,
+)
+
+data class KudosRecipientSummaryDto(
+    val receiver: String,
+    val count: Int,
+)
+
+data class KudosWeeklySummaryDto(
+    val weekStart: LocalDate,
+    val total: Int,
+    val recipients: List<KudosRecipientSummaryDto>,
 )
 
 data class ShoppingItemDto(
@@ -230,6 +395,7 @@ data class JoinCollectiveRequest(
 
 data class CollectiveCodeDto(
     val joinCode: String,
+    val collectiveId: Long = 0,
 )
 
 data class ExpenseDto(

@@ -22,13 +22,16 @@ import {
   Zap,
   Image,
   EyeOff,
+  Repeat2,
+  Wrench,
+  AlertTriangle,
 } from 'lucide-react';
 import { api } from '../lib/api';
 import { useUser } from '../context/UserContext';
 import { connectCollectiveRealtime } from '../lib/realtime';
 import { tapFeedback } from '../lib/haptics';
 import { formatDate, formatDateTime, translateKey } from '../i18n/helpers';
-import type { Task, ShoppingItem, TaskCategory } from '../lib/types';
+import type { Task, ShoppingItem, TaskCategory, TaskSwapRequest, MaintenanceTicket, MaintenancePriority, MaintenanceStatus } from '../lib/types';
 import { Eyebrow, Fab, ProgressBar } from '../components/ui-kit';
 
 const CATEGORIES: TaskCategory[] = ['CLEANING', 'VACUUMING', 'MOPPING', 'BATHROOM', 'KITCHEN', 'LAUNDRY', 'DISHES', 'TRASH', 'DUSTING', 'WINDOWS', 'OTHER'];
@@ -161,15 +164,27 @@ function TasksMain() {
   const { currentUser } = useUser();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [shopping, setShopping] = useState<ShoppingItem[]>([]);
+  const [swapRequests, setSwapRequests] = useState<TaskSwapRequest[]>([]);
+  const [maintenanceTickets, setMaintenanceTickets] = useState<MaintenanceTicket[]>([]);
   const [members, setMembers] = useState<string[]>([]);
   const [filter, setFilter] = useState<TaskFilter>('ALL');
   const [searchParams] = useSearchParams();
-  const [tab, setTab] = useState<'tasks' | 'shopping'>(
-    searchParams.get('tab') === 'shopping' ? 'shopping' : 'tasks',
+  const [tab, setTab] = useState<'tasks' | 'shopping' | 'maintenance'>(
+    searchParams.get('tab') === 'shopping' || searchParams.get('tab') === 'maintenance'
+      ? searchParams.get('tab') as 'shopping' | 'maintenance'
+      : 'tasks',
   );
   const [showAdd, setShowAdd] = useState(false);
   const [showShoppingAdd, setShowShoppingAdd] = useState(false);
   const [newShoppingName, setNewShoppingName] = useState('');
+  const [showMaintenanceAdd, setShowMaintenanceAdd] = useState(false);
+  const [maintenanceFilter, setMaintenanceFilter] = useState<'ALL' | MaintenanceStatus>('ALL');
+  const [newMaintenanceTitle, setNewMaintenanceTitle] = useState('');
+  const [newMaintenanceDescription, setNewMaintenanceDescription] = useState('');
+  const [newMaintenancePriority, setNewMaintenancePriority] = useState<MaintenancePriority>('MEDIUM');
+  const [newMaintenanceAssignee, setNewMaintenanceAssignee] = useState('');
+  const [newMaintenanceDue, setNewMaintenanceDue] = useState('');
+  const [newMaintenanceCost, setNewMaintenanceCost] = useState('');
   const [editingId, setEditingId] = useState<number | null>(null);
   const [newTitle, setNewTitle] = useState('');
   const [newAssignee, setNewAssignee] = useState('');
@@ -178,6 +193,8 @@ function TasksMain() {
   const [newXp, setNewXp] = useState('10');
   const [newRecurrence, setNewRecurrence] = useState('NONE');
   const [commentingId, setCommentingId] = useState<number | null>(null);
+  const [swappingTaskId, setSwappingTaskId] = useState<number | null>(null);
+  const [swapRecipient, setSwapRecipient] = useState('');
   const [commentText, setCommentText] = useState('');
   const [feedbackAnonymous, setFeedbackAnonymous] = useState(false);
   const [feedbackImage, setFeedbackImage] = useState<{
@@ -290,13 +307,17 @@ function TasksMain() {
   const fetchAll = async () => {
     if (!name) return;
     const requestId = ++fetchRequestIdRef.current;
-    const [taskRes, shopRes] = await Promise.all([
+    const [taskRes, shopRes, swapRequestRes, maintenanceRes] = await Promise.all([
       api.get<Task[]>(`/tasks?memberName=${encodeURIComponent(name)}`),
       api.get<ShoppingItem[]>(`/tasks/shopping?memberName=${encodeURIComponent(name)}`),
+      api.get<TaskSwapRequest[]>(`/users/${currentUser?.id}/swap-requests`),
+      api.get<MaintenanceTicket[]>('/maintenance/tickets'),
     ]);
     if (requestId !== fetchRequestIdRef.current) return;
     setTasksState(mergeFetchedTasks(taskRes));
     setShopping(shopRes);
+    setSwapRequests(swapRequestRes);
+    setMaintenanceTickets(maintenanceRes);
     setLoading(false);
   };
 
@@ -340,6 +361,7 @@ function TasksMain() {
           'SHOPPING_ITEM_DELETED',
           'SHOPPING_ITEM_UPDATED',
           'SHOPPING_ITEM_BOUGHT',
+          'MAINTENANCE_UPDATED',
         ].includes(event.type)
       ) {
         void fetchAll();
@@ -357,6 +379,48 @@ function TasksMain() {
     setShopping((prev) => [...prev, created]);
     setNewShoppingName('');
     setShowShoppingAdd(false);
+  };
+
+  const handleMaintenanceAdd = async () => {
+    if (!newMaintenanceTitle.trim()) return;
+    const created = await api.post<MaintenanceTicket>('/maintenance/tickets', {
+      title: newMaintenanceTitle,
+      description: newMaintenanceDescription,
+      priority: newMaintenancePriority,
+      assignee: newMaintenanceAssignee || null,
+      dueDate: newMaintenanceDue || null,
+      costEstimate: newMaintenanceCost ? Number(newMaintenanceCost) : null,
+    });
+    setMaintenanceTickets((previous) => [...previous, created]);
+    setNewMaintenanceTitle('');
+    setNewMaintenanceDescription('');
+    setNewMaintenanceAssignee('');
+    setNewMaintenanceDue('');
+    setNewMaintenanceCost('');
+    setShowMaintenanceAdd(false);
+  };
+
+  const updateMaintenanceTicket = async (ticketId: number, updates: Partial<MaintenanceTicket>) => {
+    const updated = await api.patch<MaintenanceTicket>(`/maintenance/tickets/${ticketId}`, updates);
+    setMaintenanceTickets((tickets) => tickets.map((ticket) => ticket.id === ticketId ? updated : ticket));
+  };
+
+  const requestTaskSwap = async (taskId: number) => {
+    if (!swapRecipient) return;
+    await api.post<TaskSwapRequest>(`/tasks/${taskId}/swap-requests`, {
+      toUser: swapRecipient,
+    });
+    setSwappingTaskId(null);
+    setSwapRecipient('');
+  };
+
+  const resolveTaskSwap = async (
+    requestId: number,
+    status: 'ACCEPTED' | 'DECLINED',
+  ) => {
+    await api.patch<TaskSwapRequest>(`/swap-requests/${requestId}`, { status });
+    setSwapRequests((requests) => requests.filter((request) => request.id !== requestId));
+    if (status === 'ACCEPTED') await fetchAll();
   };
 
   const updateTaskInPlace = (taskId: number, nextTask: Task) => {
@@ -646,10 +710,10 @@ function TasksMain() {
       </div>
 
       <div className="seg">
-        {(['tasks', 'shopping'] as const).map((value) => (
+        {(['tasks', 'shopping', 'maintenance'] as const).map((value) => (
           <button
             key={value}
-            onClick={() => { setTab(value); setShowAdd(false); setShowShoppingAdd(false); }}
+            onClick={() => { setTab(value); setShowAdd(false); setShowShoppingAdd(false); setShowMaintenanceAdd(false); }}
             className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all ${
               tab === value
                 ? 'bg-primary text-primary-foreground'
@@ -670,10 +734,14 @@ function TasksMain() {
         </div>
       )}
 
-      {!showAdd && !showShoppingAdd && (
+      {!showAdd && !showShoppingAdd && !showMaintenanceAdd && (
         <Fab
-          onClick={() => { if (tab === 'tasks') { resetForm(); setShowAdd(true); } else { setShowShoppingAdd(true); } }}
-          label={tab === 'tasks' ? t('tasks.addTask') : t('tasks.addSupply')}
+          onClick={() => {
+            if (tab === 'tasks') { resetForm(); setShowAdd(true); }
+            else if (tab === 'shopping') setShowShoppingAdd(true);
+            else setShowMaintenanceAdd(true);
+          }}
+          label={tab === 'tasks' ? t('tasks.addTask') : tab === 'shopping' ? t('tasks.addSupply') : t('tasks.maintenance.addTicket')}
         />
       )}
 
@@ -711,8 +779,69 @@ function TasksMain() {
         )}
       </AnimatePresence>
 
+      <AnimatePresence>
+        {showMaintenanceAdd && tab === 'maintenance' && (
+          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
+            <div className="glass space-y-3 rounded-xl p-4">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-semibold">{t('tasks.maintenance.newTicket')}</p>
+                <button onClick={() => setShowMaintenanceAdd(false)}><X className="h-4 w-4 text-muted-foreground" /></button>
+              </div>
+              <input value={newMaintenanceTitle} onChange={(event) => setNewMaintenanceTitle(event.target.value)} placeholder={t('tasks.maintenance.titlePlaceholder')} className="w-full rounded-lg bg-muted/50 px-3 py-2 text-sm" />
+              <textarea value={newMaintenanceDescription} onChange={(event) => setNewMaintenanceDescription(event.target.value)} placeholder={t('tasks.maintenance.descriptionPlaceholder')} rows={3} className="w-full resize-none rounded-lg bg-muted/50 px-3 py-2 text-sm" />
+              <div className="grid grid-cols-2 gap-2">
+                <select value={newMaintenancePriority} onChange={(event) => setNewMaintenancePriority(event.target.value as MaintenancePriority)} className="rounded-lg bg-muted/50 px-3 py-2 text-sm">
+                  {(['LOW', 'MEDIUM', 'HIGH', 'URGENT'] as const).map((priority) => <option key={priority} value={priority}>{t(`tasks.maintenance.priorities.${priority}`)}</option>)}
+                </select>
+                <select value={newMaintenanceAssignee} onChange={(event) => setNewMaintenanceAssignee(event.target.value)} className="rounded-lg bg-muted/50 px-3 py-2 text-sm">
+                  <option value="">{t('tasks.maintenance.unassigned')}</option>
+                  {memberOptions.map((member) => <option key={member} value={member}>{member}</option>)}
+                </select>
+                <input type="date" value={newMaintenanceDue} onChange={(event) => setNewMaintenanceDue(event.target.value)} className="rounded-lg bg-muted/50 px-3 py-2 text-sm" />
+                <input type="number" min="0" value={newMaintenanceCost} onChange={(event) => setNewMaintenanceCost(event.target.value)} placeholder={t('tasks.maintenance.costPlaceholder')} className="rounded-lg bg-muted/50 px-3 py-2 text-sm" />
+              </div>
+              <button onClick={() => void handleMaintenanceAdd()} disabled={!newMaintenanceTitle.trim()} className="w-full rounded-lg bg-primary py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50">{t('tasks.maintenance.addTicket')}</button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {tab === 'tasks' ? (
         <>
+          {swapRequests.some((request) => request.status === 'PENDING') && (
+            <section className="rounded-[1.35rem] border border-primary/25 bg-primary/5 p-4">
+              <div className="mb-3 flex items-center gap-2">
+                <Repeat2 className="h-4 w-4 text-primary" />
+                <h3 className="text-sm font-bold">{t('tasks.swap.inboxTitle')}</h3>
+              </div>
+              <div className="space-y-3">
+                {swapRequests
+                  .filter((request) => request.status === 'PENDING')
+                  .map((request) => (
+                    <div key={request.id} className="rounded-xl border border-border bg-card p-3">
+                      <p className="text-sm font-semibold">{request.taskTitle}</p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {t('tasks.swap.requestedBy', { name: request.fromUser })}
+                      </p>
+                      <div className="mt-3 flex gap-2">
+                        <button
+                          onClick={() => void resolveTaskSwap(request.id, 'ACCEPTED')}
+                          className="rounded-full bg-primary px-3 py-2 text-xs font-bold text-primary-foreground"
+                        >
+                          {t('tasks.swap.accept')}
+                        </button>
+                        <button
+                          onClick={() => void resolveTaskSwap(request.id, 'DECLINED')}
+                          className="rounded-full border border-border bg-card px-3 py-2 text-xs font-bold"
+                        >
+                          {t('tasks.swap.decline')}
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </section>
+          )}
           <div className="flex gap-2 flex-wrap">
             {TASK_FILTERS.map((value) => (
               <button
@@ -870,6 +999,18 @@ function TasksMain() {
                       >
                         <Edit3 className="h-4 w-4 text-muted-foreground" />
                       </button>
+                      {task.assignee === name && !task.completed && (
+                        <button
+                          onClick={() => {
+                            setSwappingTaskId(swappingTaskId === task.id ? null : task.id);
+                            setSwapRecipient('');
+                          }}
+                          className="grid h-10 w-10 place-items-center rounded-full border border-border bg-card"
+                          aria-label={t('tasks.swap.request')}
+                        >
+                          <Repeat2 className="h-4 w-4 text-primary" />
+                        </button>
+                      )}
                       <button
                         onClick={() => {
                           void deleteTask(task.id);
@@ -889,6 +1030,30 @@ function TasksMain() {
                         <MessageSquare className="h-4 w-4" />
                       </button>
                     </div>
+
+                    {swappingTaskId === task.id && (
+                      <div className="mt-3 flex gap-2 rounded-xl border border-border bg-muted/30 p-3">
+                        <select
+                          value={swapRecipient}
+                          onChange={(event) => setSwapRecipient(event.target.value)}
+                          className="min-w-0 flex-1 rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                        >
+                          <option value="">{t('tasks.swap.chooseRoommate')}</option>
+                          {memberOptions
+                            .filter((member) => member !== name)
+                            .map((member) => (
+                              <option key={member} value={member}>{member}</option>
+                            ))}
+                        </select>
+                        <button
+                          onClick={() => void requestTaskSwap(task.id)}
+                          disabled={!swapRecipient}
+                          className="rounded-lg bg-primary px-3 py-2 text-xs font-bold text-primary-foreground disabled:opacity-50"
+                        >
+                          {t('tasks.swap.send')}
+                        </button>
+                      </div>
+                    )}
 
                     <AnimatePresence>
                       {commentingId === task.id && (
@@ -1038,7 +1203,7 @@ function TasksMain() {
             })}
           </div>
         </>
-      ) : (
+      ) : tab === 'shopping' ? (
         <div className="space-y-3">
           <div className="glass rounded-2xl p-4 flex items-center gap-4">
             <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-secondary/40 to-secondary/10 flex items-center justify-center shrink-0">
@@ -1245,6 +1410,70 @@ function TasksMain() {
               </motion.div>
             ))}
           </div>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          <div className="glass flex items-center gap-4 rounded-2xl p-4">
+            <div className="grid h-12 w-12 place-items-center rounded-xl bg-primary/15"><Wrench className="h-6 w-6 text-primary" /></div>
+            <div className="flex-1">
+              <p className="text-sm font-semibold">{t('tasks.maintenance.boardTitle')}</p>
+              <p className="text-[10px] text-muted-foreground">{t('tasks.maintenance.boardSubtitle')}</p>
+            </div>
+            <span className="rounded-full bg-primary px-2.5 py-1 text-[11px] font-bold text-primary-foreground">{maintenanceTickets.filter((ticket) => ticket.status !== 'DONE').length}</span>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            {(['ALL', 'OPEN', 'IN_PROGRESS', 'BLOCKED', 'DONE'] as const).map((status) => (
+              <button key={status} onClick={() => setMaintenanceFilter(status)} className={`rounded-full px-3 py-1.5 text-xs font-medium ${maintenanceFilter === status ? 'bg-primary text-primary-foreground' : 'glass text-muted-foreground'}`}>
+                {status === 'ALL' ? t('tasks.maintenance.all') : t(`tasks.maintenance.statuses.${status}`)}
+              </button>
+            ))}
+          </div>
+
+          {maintenanceTickets.filter((ticket) => maintenanceFilter === 'ALL' || ticket.status === maintenanceFilter).length === 0 && (
+            <p className="py-6 text-center text-sm text-muted-foreground">{t('tasks.maintenance.empty')}</p>
+          )}
+
+          {maintenanceTickets
+            .filter((ticket) => maintenanceFilter === 'ALL' || ticket.status === maintenanceFilter)
+            .map((ticket) => (
+              <div key={ticket.id} className={`rounded-[1.2rem] border bg-card p-4 ${ticket.overdue ? 'border-destructive/60' : 'border-border'}`}>
+                <div className="flex items-start gap-3">
+                  <div className={`grid h-9 w-9 shrink-0 place-items-center rounded-lg ${ticket.overdue ? 'bg-destructive/15' : 'bg-muted'}`}>
+                    {ticket.overdue ? <AlertTriangle className="h-4 w-4 text-destructive" /> : <Wrench className="h-4 w-4 text-muted-foreground" />}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="font-bold">{ticket.title}</p>
+                      <span className={`rounded-full px-2 py-0.5 text-[9px] font-bold ${ticket.priority === 'URGENT' ? 'bg-destructive/15 text-destructive' : ticket.priority === 'HIGH' ? 'bg-secondary/30' : 'bg-muted text-muted-foreground'}`}>{t(`tasks.maintenance.priorities.${ticket.priority}`)}</span>
+                    </div>
+                    {ticket.description && <p className="mt-1 text-xs text-muted-foreground">{ticket.description}</p>}
+                    <p className="mt-2 text-[10px] text-muted-foreground">
+                      {ticket.dueDate ? `${t('tasks.maintenance.due')} ${formatDate(ticket.dueDate)}` : t('tasks.maintenance.noDueDate')}
+                      {ticket.costEstimate != null ? ` · ${ticket.costEstimate} kr` : ''}
+                    </p>
+                    {ticket.overdue && <p className="mt-1 text-[10px] font-bold text-destructive">{t('tasks.maintenance.overdue')}</p>}
+                  </div>
+                </div>
+                <div className="mt-3 grid grid-cols-3 gap-2">
+                  <select value={ticket.status} onChange={(event) => void updateMaintenanceTicket(ticket.id, { status: event.target.value as MaintenanceStatus })} className="rounded-lg border border-border bg-background px-2 py-2 text-xs">
+                    {(['OPEN', 'IN_PROGRESS', 'BLOCKED', 'DONE'] as const).map((status) => <option key={status} value={status}>{t(`tasks.maintenance.statuses.${status}`)}</option>)}
+                  </select>
+                  <select value={ticket.assignee ?? ''} onChange={(event) => void updateMaintenanceTicket(ticket.id, { assignee: event.target.value })} className="rounded-lg border border-border bg-background px-2 py-2 text-xs">
+                    <option value="">{t('tasks.maintenance.unassigned')}</option>
+                    {memberOptions.map((member) => <option key={member} value={member}>{member}</option>)}
+                  </select>
+                  <select value={ticket.priority} onChange={(event) => void updateMaintenanceTicket(ticket.id, { priority: event.target.value as MaintenancePriority })} className="rounded-lg border border-border bg-background px-2 py-2 text-xs">
+                    {(['LOW', 'MEDIUM', 'HIGH', 'URGENT'] as const).map((priority) => <option key={priority} value={priority}>{t(`tasks.maintenance.priorities.${priority}`)}</option>)}
+                  </select>
+                </div>
+                {ticket.statusHistory.length > 1 && (
+                  <p className="mt-3 text-[9px] text-muted-foreground">
+                    {ticket.statusHistory.map((entry) => `${t(`tasks.maintenance.statuses.${entry.status}`)} · ${entry.changedBy}`).join(' → ')}
+                  </p>
+                )}
+              </div>
+            ))}
         </div>
       )}
     </motion.div>

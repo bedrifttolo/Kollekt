@@ -30,7 +30,7 @@ import {
   listenForGoogleCalendarReturn,
   openNativeGoogleCalendarOAuth,
 } from "../lib/googleCalendarOAuth";
-import type { CalendarEvent, EventType } from "../lib/types";
+import type { CalendarEvent, EventType, GuestNotice, HouseCheckin } from "../lib/types";
 import { Eyebrow, Fab } from "../components/ui-kit";
 
 const EVENT_TYPES: EventType[] = ["PARTY", "MOVIE", "DINNER", "OTHER"];
@@ -60,11 +60,15 @@ export default function CalendarPage() {
   const [month, setMonth] = useState(now.getMonth());
   const [selectedDay, setSelectedDay] = useState(now.getDate());
   const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const [guestNotices, setGuestNotices] = useState<GuestNotice[]>([]);
+  const [checkin, setCheckin] = useState<HouseCheckin | null>(null);
   const [showAdd, setShowAdd] = useState(false);
+  const [addMode, setAddMode] = useState<"event" | "guest">("event");
   const [newTitle, setNewTitle] = useState("");
   const [newTime, setNewTime] = useState("12:00");
   const [newEndTime, setNewEndTime] = useState("");
   const [newType, setNewType] = useState<EventType>("OTHER");
+  const [overnightGuest, setOvernightGuest] = useState(false);
   const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const [editTime, setEditTime] = useState("");
@@ -79,16 +83,24 @@ export default function CalendarPage() {
 
   const fetchEvents = async () => {
     if (!name) return;
-    const res = await api.get<CalendarEvent[]>(
-      `/events?memberName=${encodeURIComponent(name)}`,
-    );
-    setEvents(res);
+    const [eventResponse, guestResponse] = await Promise.all([
+      api.get<CalendarEvent[]>(`/events?memberName=${encodeURIComponent(name)}`),
+      api.get<GuestNotice[]>("/guest-notices"),
+    ]);
+    setEvents(eventResponse);
+    setGuestNotices(guestResponse);
     setLoading(false);
   };
 
   useEffect(() => {
     fetchEvents();
     if (!name) return;
+    if (currentUser) {
+      api.get<{ collectiveId: number }>(`/onboarding/collectives/code/${currentUser.id}`)
+        .then((collective) => api.post<HouseCheckin>(`/collectives/${collective.collectiveId}/checkins/generate`, {}))
+        .then(setCheckin)
+        .catch(() => {});
+    }
     api
       .get<{ connected: boolean }>(
         `/google-calendar/status?memberName=${encodeURIComponent(name)}`,
@@ -112,7 +124,7 @@ export default function CalendarPage() {
     if (!name) return;
     const disconnect = connectCollectiveRealtime(name, (event) => {
       if (
-        ["EVENT_CREATED", "EVENT_DELETED", "EVENT_UPDATED"].includes(event.type)
+        ["EVENT_CREATED", "EVENT_DELETED", "EVENT_UPDATED", "GUEST_NOTICE_CREATED"].includes(event.type)
       ) {
         fetchEvents();
       }
@@ -138,6 +150,22 @@ export default function CalendarPage() {
   const handleAdd = async () => {
     if (!newTitle.trim()) return;
     const date = `${year}-${String(month + 1).padStart(2, "0")}-${String(selectedDay).padStart(2, "0")}`;
+    if (addMode === "guest") {
+      if (!newEndTime) return;
+      const created = await api.post<GuestNotice>("/guest-notices", {
+        guestName: newTitle,
+        date,
+        startTime: newTime,
+        endTime: newEndTime,
+        overnight: overnightGuest,
+      });
+      setGuestNotices((previous) => [...previous, created]);
+      setNewTitle("");
+      setNewEndTime("");
+      setOvernightGuest(false);
+      setShowAdd(false);
+      return;
+    }
     const created = await api.post<CalendarEvent>("/events", {
       title: newTitle,
       date,
@@ -246,7 +274,8 @@ export default function CalendarPage() {
   const dayEvents = events
     .filter((e) => e.date === selectedDateStr)
     .sort((a, b) => a.time.localeCompare(b.time));
-  const eventDays = new Set(events.map((event) => event.date));
+  const dayGuests = guestNotices.filter((notice) => notice.date === selectedDateStr).sort((a, b) => a.startTime.localeCompare(b.startTime));
+  const eventDays = new Set([...events.map((event) => event.date), ...guestNotices.map((notice) => notice.date), ...(checkin ? [checkin.weekStart] : [])]);
   const weekdayLabels = getWeekdayLabels();
   const selectedDateLabel = t("calendar.dateGroup", {
     relative: selectedDay === today ? t("common.today") : formatMonthDay(selectedDateStr),
@@ -273,6 +302,16 @@ export default function CalendarPage() {
           {t("calendar.title")}
         </h2>
       </div>
+
+      {checkin && (
+        <div className="flex items-center gap-3 rounded-[1.1rem] border border-primary/25 bg-primary/5 p-3">
+          <span className="text-xl">💬</span>
+          <div>
+            <p className="text-sm font-bold">{t("checkin.calendarTitle")}</p>
+            <p className="text-[10px] text-muted-foreground">{formatDate(checkin.weekStart)} · {t("checkin.recurring")}</p>
+          </div>
+        </div>
+      )}
 
       {/* Week calendar */}
       <div className="card !p-4">
@@ -425,10 +464,17 @@ export default function CalendarPage() {
                     <X className="h-4 w-4 text-muted-foreground" />
                   </button>
                 </div>
+                <div className="grid grid-cols-2 gap-1 rounded-xl bg-muted/40 p-1">
+                  {(["event", "guest"] as const).map((mode) => (
+                    <button key={mode} onClick={() => setAddMode(mode)} className={`rounded-lg py-2 text-xs font-bold ${addMode === mode ? "bg-card text-primary shadow-sm" : "text-muted-foreground"}`}>
+                      {t(`calendar.addModes.${mode}`)}
+                    </button>
+                  ))}
+                </div>
                 <input
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
-                  placeholder={t("calendar.eventTitlePlaceholder")}
+                  placeholder={t(addMode === "guest" ? "calendar.guestNamePlaceholder" : "calendar.eventTitlePlaceholder")}
                   className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
                   onKeyDown={(e) => e.key === "Enter" && handleAdd()}
                 />
@@ -456,7 +502,13 @@ export default function CalendarPage() {
                     />
                   </div>
                 </div>
-                <div className="flex gap-2">
+                {addMode === "guest" && (
+                  <label className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <input type="checkbox" checked={overnightGuest} onChange={(event) => setOvernightGuest(event.target.checked)} />
+                    {t("calendar.guestOvernight")}
+                  </label>
+                )}
+                {addMode === "event" && <div className="flex gap-2">
                   {EVENT_TYPES.map((eventType) => (
                     <button
                       key={eventType}
@@ -467,23 +519,35 @@ export default function CalendarPage() {
                       {translateKey("common.eventTypes", eventType)}
                     </button>
                   ))}
-                </div>
+                </div>}
                 <button
                   onClick={handleAdd}
                   className="w-full gradient-primary rounded-lg py-2 text-sm font-semibold text-primary-foreground"
                 >
-                  {t("calendar.addEvent")}
+                  {t(addMode === "guest" ? "calendar.addGuestNotice" : "calendar.addEvent")}
                 </button>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {dayEvents.length === 0 && (
+        {dayEvents.length === 0 && dayGuests.length === 0 && (
           <p className="text-sm text-muted-foreground text-center py-4">
             {t("calendar.noEventsForDay")}
           </p>
         )}
+
+        {dayGuests.map((notice) => (
+          <div key={`guest-${notice.id}`} className={`event !flex items-center gap-3 !p-3.5 ${notice.overlapsQuietHours ? "border-secondary/60" : ""}`}>
+            <span className="text-2xl">🏠</span>
+            <div className="min-w-0 flex-1">
+              <h4 className="text-[15px] font-bold">{t("calendar.guestVisit", { guest: notice.guestName })}</h4>
+              <p className="text-xs text-muted-foreground">{formatTime(notice.startTime)}–{formatTime(notice.endTime)} · {notice.createdBy}</p>
+              {notice.overnight && <span className="text-[10px] font-bold text-primary">{t("calendar.guestOvernight")}</span>}
+              {notice.overlapsQuietHours && <p className="text-[10px] font-bold text-secondary-foreground">{t("calendar.quietHoursOverlap")}</p>}
+            </div>
+          </div>
+        ))}
 
         {dayEvents.map((e, i) => (
           <motion.div

@@ -14,12 +14,18 @@ val ALL_NOTIFICATION_TYPES =
         "TASK_ASSIGNED",
         "TASK_DEADLINE_SOON",
         "TASK_OVERDUE",
+        "TASK_SWAP_REQUESTED",
+        "TASK_SWAP_ACCEPTED",
+        "TASK_SWAP_DECLINED",
         "NEW_MESSAGE",
         "EXPENSE_OWED",
         "EXPENSE_DEADLINE_SOON",
         "EXPENSE_OVERDUE",
         "SHOPPING_ITEM_ADDED",
         "EVENT_ADDED",
+        "HOUSE_RULES_UPDATED",
+        "GUEST_NOTICE_CREATED",
+        "GUEST_QUIET_HOURS_OVERLAP",
     )
 
 @Service

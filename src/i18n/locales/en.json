@@ -295,7 +295,8 @@
     "remaining_other": "{{count}} tasks left this week",
     "tabs": {
       "tasks": "Tasks",
-      "shopping": "Shopping List"
+      "shopping": "Shopping List",
+      "maintenance": "Maintenance"
     },
     "filters": {
       "ALL": "Tasks",
@@ -335,6 +336,15 @@
     "deleteTaskAria": "Delete task",
     "editShoppingItemAria": "Edit shopping item",
     "deleteShoppingItemAria": "Delete shopping item",
+    "swap": {
+      "request": "Request swap",
+      "chooseRoommate": "Choose a roommate",
+      "send": "Send request",
+      "inboxTitle": "Swap requests",
+      "requestedBy": "{{name}} would like you to take this task",
+      "accept": "Accept",
+      "decline": "Decline"
+    },
     "shopping": {
       "buy": "Buy",
       "amountPlaceholder": "Amount (NOK)",
@@ -342,8 +352,51 @@
       "purchaseDate": "Purchase date",
       "logPurchase": "Log",
       "closePurchaseForm": "Close purchase form"
+    },
+    "maintenance": {
+      "boardTitle": "Maintenance board",
+      "boardSubtitle": "Track household repairs from report to completion",
+      "addTicket": "Add ticket",
+      "newTicket": "New maintenance ticket",
+      "titlePlaceholder": "What needs fixing?",
+      "descriptionPlaceholder": "Describe the issue...",
+      "costPlaceholder": "Cost estimate (NOK)",
+      "unassigned": "Unassigned",
+      "all": "All",
+      "empty": "No maintenance tickets here.",
+      "due": "Due",
+      "noDueDate": "No due date",
+      "overdue": "Overdue",
+      "priorities": { "LOW": "Low", "MEDIUM": "Medium", "HIGH": "High", "URGENT": "Urgent" },
+      "statuses": { "OPEN": "Open", "IN_PROGRESS": "In progress", "BLOCKED": "Blocked", "DONE": "Done" }
     }
   },
+  "checkin": {
+    "title": "Weekly house check-in",
+    "mood": "How is the household feeling?",
+    "issue": "One issue to discuss",
+    "improvement": "One improvement for this week",
+    "anonymous": "Submit anonymously",
+    "submit": "Submit check-in",
+    "thanks": "Your response is in. Thanks for checking in.",
+    "progress": "{{count}} of {{total}} responded",
+    "calendarTitle": "Weekly house check-in",
+    "recurring": "Repeats weekly",
+    "summaryTitle": "This week's house check-in",
+    "averageMood": "Mood {{mood}}/5",
+    "anonymousAuthor": "Anonymous",
+    "issueLabel": "Issue",
+    "improvementLabel": "Improvement"
+  },
+  "kudos": {
+    "sendTitle": "Send kudos", "chooseRoommate": "Choose a roommate", "generalHelp": "General help",
+    "contextPlaceholder": "What did they do that helped?", "send": "Send kudos",
+    "dailyLimit": "You can send up to 3 kudos per day.", "weeklyTitle": "Weekly positivity",
+    "weeklyTotal_one": "{{count}} kudo shared this week", "weeklyTotal_other": "{{count}} kudos shared this week",
+    "weeklyEmpty": "Be the first to appreciate someone this week.", "profileBadge": "Kudos received",
+    "receivedTotal_one": "{{count}} appreciation from your household", "receivedTotal_other": "{{count}} appreciations from your household"
+  },
+  "quietHours": { "title": "Quiet hours", "window": "{{start}}–{{end}}", "disabled": "Quiet hours are off", "save": "Save quiet hours" },
   "calendar": {
     "eyebrow": "Together",
     "title": "House calendar",
@@ -358,6 +411,12 @@
     "subscribeButton": "Subscribe",
     "subscribeUrlLabel": "Calendar subscription link",
     "newEvent": "New Event",
+    "addModes": { "event": "Event", "guest": "Guest notice" },
+    "guestNamePlaceholder": "Guest name...",
+    "guestOvernight": "Overnight guest",
+    "addGuestNotice": "Share guest notice",
+    "guestVisit": "{{guest}} is visiting",
+    "quietHoursOverlap": "Overlaps quiet hours",
     "eventTitlePlaceholder": "Event title...",
     "addEvent": "Add Event",
     "noEventsForDay": "No events for this day",
@@ -888,9 +947,15 @@
         "TASK_OVERDUE_GROUP": "Task '{{title}}' assigned to {{assignee}} is overdue and not completed.",
         "TASK_FEEDBACK": "{{author}} left feedback on your task '{{title}}'.",
         "TASK_COMPLETED_LATE": "You completed '{{title}}' late. XP has been reduced.",
+        "TASK_SWAP_REQUESTED": "{{fromUser}} asked you to take '{{title}}'.",
+        "TASK_SWAP_ACCEPTED": "{{toUser}} accepted the swap for '{{title}}'.",
+        "TASK_SWAP_DECLINED": "{{toUser}} declined the swap for '{{title}}'.",
         "SHOPPING_ITEM_ADDED": "{{actorName}} added '{{item}}' to the shopping list",
         "EVENT_ADDED": "New event: '{{title}}' on {{date}}",
-        "NEW_MESSAGE": "{{sender}}: \"{{preview}}\""
+        "NEW_MESSAGE": "{{sender}}: \"{{preview}}\"",
+        "HOUSE_RULES_UPDATED": "House rules were updated to version {{version}}.",
+        "GUEST_NOTICE_CREATED": "{{host}} is having {{guest}} over on {{date}}.",
+        "GUEST_QUIET_HOURS_OVERLAP": "{{guest}}'s visit overlaps quiet hours from {{start}}."
       }
     },
     "notificationPreferences": {
@@ -900,12 +965,18 @@
         "TASK_ASSIGNED": "Task assigned to me",
         "TASK_DEADLINE_SOON": "Task due tomorrow",
         "TASK_OVERDUE": "Task deadline expired",
+        "TASK_SWAP_REQUESTED": "Task swap requests",
+        "TASK_SWAP_ACCEPTED": "Accepted task swaps",
+        "TASK_SWAP_DECLINED": "Declined task swaps",
         "NEW_MESSAGE": "New chat message",
         "EXPENSE_OWED": "Expense: you owe money",
         "EXPENSE_DEADLINE_SOON": "Expense: payment due tomorrow",
         "EXPENSE_OVERDUE": "Expense: payment deadline expired",
         "SHOPPING_ITEM_ADDED": "Item added to shopping list",
-        "EVENT_ADDED": "New calendar event"
+        "EVENT_ADDED": "New calendar event",
+        "HOUSE_RULES_UPDATED": "House rule updates",
+        "GUEST_NOTICE_CREATED": "Guest notices",
+        "GUEST_QUIET_HOURS_OVERLAP": "Quiet-hour guest reminders"
       }
     },
     "paymentMethods": {
@@ -919,6 +990,18 @@
       "save": "Save",
       "saved": "Payment methods saved",
       "saveFailed": "Couldn't save payment methods. Check the format and try again."
+    },
+    "houseRules": {
+      "title": "House Rules",
+      "version": "Version {{version}}",
+      "empty": "No house rules have been published",
+      "create": "Create",
+      "edit": "Edit",
+      "ackBanner": "These rules were updated. Please acknowledge the latest version.",
+      "acknowledge": "Acknowledge",
+      "editorTitle": "Edit House Rules",
+      "placeholder": "Write the shared expectations for your household...",
+      "publish": "Publish new version"
     },
     "inviteRoommates": {
       "title": "Invite Roommates",
