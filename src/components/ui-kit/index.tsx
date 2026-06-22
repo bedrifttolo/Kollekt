@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes, CSSProperties, HTMLAttributes, InputHTMLAttributes, ReactNode } from 'react';
+import type { ButtonHTMLAttributes, CSSProperties, InputHTMLAttributes, ReactNode } from 'react';
 import { Plus } from 'lucide-react';
 import { cn } from '../ui/utils';
 import { colorForMember } from '../../lib/memberColors';
@@ -38,40 +38,6 @@ export function VibeRing({ score }: { score: number }) {
 
 export function Eyebrow({ children }: { children: ReactNode }) {
   return <p className="eyebrow">{children}</p>;
-}
-
-export function Card({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn('card', className)} {...props} />;
-}
-
-type Tone = 'pine' | 'sky' | 'lemon' | 'berry';
-const pillTones: Record<Tone, string> = {
-  pine: 'bg-primary/15 text-primary',
-  sky: 'bg-accent/20 text-accent-foreground',
-  lemon: 'bg-secondary/25 text-secondary-foreground',
-  berry: 'bg-destructive/15 text-destructive',
-};
-
-export function Pill({ tone = 'pine', className, ...props }: HTMLAttributes<HTMLSpanElement> & { tone?: Tone }) {
-  return <span className={cn('pill', pillTones[tone], className)} {...props} />;
-}
-
-type ButtonVariant = 'pine' | 'lemon' | 'ghost';
-export function Button({ variant = 'pine', className, ...props }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: ButtonVariant }) {
-  return <button className={cn(`btn-${variant}`, className)} {...props} />;
-}
-
-export function Segmented({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn('seg', className)} {...props} />;
-}
-
-export function StatTile({ value, label, className }: { value: ReactNode; label: ReactNode; className?: string }) {
-  return (
-    <div className={cn('stat-tile text-center', className)}>
-      <p className="font-display text-xl font-extrabold">{value}</p>
-      <p className="mt-1 text-[10px] text-current/65">{label}</p>
-    </div>
-  );
 }
 
 export function Avatar({ name, color, className }: { name: string; color?: string | null; className?: string }) {
