@@ -1,0 +1,42 @@
+// Local games catalog. All game content/logic lives in this folder (src/games) — no API.
+// Add new games by appending a GameEntry here and (for playable ones) a component the
+// GamesPanel can launch.
+
+export type GameCategory = 'classic' | 'party' | 'cards';
+export type GameDifficulty = 'easy' | 'medium' | 'hard' | 'party';
+export type GameCategoryFilter = 'all' | GameCategory;
+
+export interface GameEntry {
+  id: string;
+  /** i18n key under `social.games.catalog.<titleKey>` */
+  titleKey: string;
+  emoji: string;
+  category: GameCategory;
+  difficulty: GameDifficulty;
+  minPlayers: number;
+  minutes: number;
+  /** Playable locally now. `false` renders a "coming soon" card to be filled in later. */
+  playable: boolean;
+}
+
+export const GAME_CATALOG: GameEntry[] = [
+  { id: 'spin-the-wheel', titleKey: 'spinTheWheel', emoji: '🎡', category: 'party', difficulty: 'easy', minPlayers: 2, minutes: 5, playable: true },
+  { id: 'never-have-i-ever', titleKey: 'neverHaveIEver', emoji: '🙈', category: 'party', difficulty: 'party', minPlayers: 3, minutes: 20, playable: false },
+  { id: 'mexican', titleKey: 'mexican', emoji: '🎲', category: 'classic', difficulty: 'easy', minPlayers: 2, minutes: 10, playable: false },
+  { id: 'kings-cup', titleKey: 'kingsCup', emoji: '🃏', category: 'cards', difficulty: 'medium', minPlayers: 4, minutes: 30, playable: false },
+  { id: 'categories', titleKey: 'categories', emoji: '💭', category: 'party', difficulty: 'easy', minPlayers: 3, minutes: 15, playable: false },
+  { id: 'charades', titleKey: 'charades', emoji: '🕺', category: 'party', difficulty: 'party', minPlayers: 4, minutes: 20, playable: false },
+];
+
+export const GAME_CATEGORIES: Array<{ id: GameCategoryFilter; emoji?: string }> = [
+  { id: 'all' },
+  { id: 'classic', emoji: '🎲' },
+  { id: 'party', emoji: '🎉' },
+  { id: 'cards', emoji: '🃏' },
+];
+
+/** Deterministic "tonight's pick" that rotates once per day. */
+export function tonightsPick(): GameEntry {
+  const day = Math.floor(Date.now() / 86_400_000);
+  return GAME_CATALOG[day % GAME_CATALOG.length];
+}

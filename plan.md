@@ -1,273 +1,154 @@
-# Kollekt — Full Frontend Rebrand Plan
+# Plan — Global Look & Feel Restyle
 
-> **Status: PLAN ONLY. Do not implement from this document.** It is the blueprint for a
-> later, staged execution. The HTML baseline (`kollekt-design-2.html`) is a *visual* reference —
-> it deliberately shows only a subset of screens and **none** of the real logic, data, or
-> API wiring. The contract below is: **adopt the new look, lose zero functionality.**
+## 1. Objective & scope
 
----
+Refresh the **app-wide visual identity** (color palette, typography scale, radius,
+density, elevation, navigation chrome) without changing app behavior, routing, copy,
+or data flow.
 
-## 1. Objective & non-negotiable guardrails
+- **Frontend:** primary work, and almost entirely centralized.
+- **Backend:** _not required_ — a pure visual restyle touches no Kotlin/API code.
+- **Tests:** no frontend test harness exists; backend is untouched. See §6.
 
-**Goal:** Re-skin the entire React frontend to the new "warm paper + pine/lemon/sky/berry"
-design system shown in `kollekt-design-2.html`, while:
+### Assumption (confirm or override)
+Direction = **evolve the current pine + lemon system toward `kollekt-design-2.html`**
+(the existing design mockup), tightening palette, type scale, and density rather than
+inventing a new aesthetic. The plan's structure is direction-agnostic: only the token
+_values_ in §4.1 change if you want a different palette.
 
-1. **Preserving every existing feature and every API endpoint** (full inventory in §6). The
-   baseline mockup is NOT the source of truth for features — the current `src/` is.
-2. **Adding** a real **Vibe score** tracker (new; §7) surfaced on Home.
-3. **Reworking Login** to 2 fields + social sign-in (Google / Apple / Android) (§8).
+## 2. Why this is centralized (key finding)
 
-**Guardrails (do not violate):**
-- Re-skin is **presentation-only** unless a step is explicitly listed as logic/back-end work
-  (only §7 Vibe and §8 Social-auth touch logic/back-end). Everything else changes JSX/CSS/tokens,
-  not data flow.
-- Keep all routes in `src/App.tsx`, all `api.*` calls, all i18n keys, all WebSocket/realtime
-  wiring, all Capacitor native calls intact.
-- Work **token-first, then page-by-page**, one page per PR, each verified against §6 before moving on.
-- Run `npm run typecheck` + `npm run build:mobile` after every page (the gate already used in this repo).
-- No new heavy UI dependency. The old shadcn/Radix stack was removed; the app is built from
-  raw Tailwind + `framer-motion` + `lucide-react`. Stay on that stack.
+The UI is fully **token-driven**:
+- All colors/spacing/radii are CSS custom properties in `src/styles/globals.css`
+  (`:root` for light, `.dark` for dark), exposed to Tailwind v4 via `@theme inline`.
+- Reusable surfaces are semantic classes in the same file's `@layer components`
+  (`.card`, `.btn-pine/lemon/ghost`, `.househero`, `.podium`, `.gcard`, `.task`,
+  `.event`, `.pill-*`, `.vibe-ring`, `.seg`, `.field`).
+- Shared primitives live in `src/components/ui-kit/index.tsx`.
+- **There are zero hardcoded hex colors in `src/pages/**` or `src/components/**`** —
+  pages compose token-backed Tailwind classes (`bg-card`, `text-primary`, etc.).
 
----
+⇒ A global restyle is achieved by editing **tokens + component classes in one file**,
+not by editing the 12 pages. This is the lowest-risk, highest-leverage approach and the
+one this plan uses. Sweeping per-page edits are explicitly out of scope (§5).
 
-## 2. The reusable rebrand prompt (give this per page, later)
+## 3. Files touched (and justification)
 
-> **Prompt template — fill in `{PAGE}` and paste one page's §6 row with it:**
->
-> "You are re-skinning **only** `src/pages/{PAGE}` to the Kollekt design system defined in
-> `src/styles/globals.css` (the new tokens) and mirrored in `kollekt-design-2.html`. This is a
-> **visual change only**. Constraints:
-> 1. Do **not** add, remove, or rename any `api.*` call, prop, state variable, effect, handler,
->    realtime subscription, or navigation target. Diff the data layer to zero.
-> 2. Every feature listed for this page in `plan.md §6` must still be reachable and functional —
->    check each box before you finish.
-> 3. Replace only `className`s, wrapper markup, icons, and copy structure to match the new
->    components (`.card`, `.btn-pine/.btn-lemon/.btn-ghost`, `.pill-*`, `.eyebrow`, `.househero`,
->    `.seg`, etc.). Use the CSS variables, never hard-coded hex.
-> 4. Keep all `t('…')` i18n keys; add new keys to BOTH `en.json` and `no.json` if copy changes.
-> 5. Support **light and dark** via the `.dark` class tokens — do not hard-code a single theme.
-> 6. End by running `npm run typecheck` and reporting which §6 features you verified."
+| File | Change | Why |
+|------|--------|-----|
+| `src/styles/globals.css` | **Primary.** Update token values (`:root` + `.dark`), `--radius`, `--shadow`, font vars, and `@layer components` class rules. | Single source of truth for the entire visual system. |
+| `src/context/ThemeContext.tsx` | Update the **hardcoded status-bar hex** (`#0D1912` / `#F1EEE2`, lines ~20–21) to match new `--background` light/dark values. | These two literals are the _only_ color values that live outside the token file; if the background token changes they must change in lockstep or the native status bar will mismatch. |
+| `src/components/ui-kit/index.tsx` | Adjust **only if** a primitive's structure must change (e.g. `VibeRing` sizing, `Fab` shadow). Token-driven classes need no edit. | Avoid touching unless a token change alone can't achieve the look. Treat as conditional. |
 
----
+No other source files are expected to change. `index.html`, `capacitor.config.ts`, and
+`vite.config.ts` are out of scope.
 
-## 3. Design system: old → new (token swap is the foundation)
+## 4. Concrete changes
 
-The entire rebrand pivots on rewriting `src/styles/globals.css` tokens ONCE, so most pages
-re-theme for free. Map:
+### 4.1 Tokens — `src/styles/globals.css` (`:root` and `.dark`)
+Adjust as a coordinated set (keep both themes in sync):
+- **Palette:** `--primary` (pine), `--secondary` (lemon), `--accent` (sky),
+  `--destructive` (berry) and their `-foreground` pairs; `--background`, `--card`,
+  `--muted`, `--border`. Reconcile values against `kollekt-design-2.html`.
+- **Shape:** `--radius` (currently `1.25rem`) → choose one global value; component
+  radii derive from it.
+- **Elevation:** `--shadow` (light) and the `.dark` shadow.
+- **Type:** `--font-sans` / `--font-display`; if the typeface changes, update the
+  Google Fonts `@import` at the top of the file **and** the matching `<link>`/preconnect
+  in `index.html` (font wiring only — still within the restyle, flagged here for sync).
 
-| Concept | Current (`globals.css`) | New (from baseline) |
-|---|---|---|
-| Theme | dark-only, `hsl(228 40% 6%)` bg | **light default** `#F1EEE2` paper + **dark** `#121B15`; both via `.dark` |
-| Primary | cyan `hsl(185 100% 50%)` | **pine** `#1F4A36` (dark: `#2C5C43`) |
-| Accent/CTA | orange `hsl(33 100% 64%)` | **lemon** `#EFC64B` |
-| Info | — | **sky** `#7FA7C9` |
-| Alert/owe | `--destructive` red | **berry** `#B24A66` |
-| Surface | `--card` glass | `--surface #FBFAF1`, `--surface-2 #E7E2D2` |
-| Body font | Inter | **Schibsted Grotesk** |
-| Display font | Space Grotesk | **Bricolage Grotesque** (`.h-disp`, `.title-l`) |
-| Radius | `1rem` | cards `22px`, pills `100px`, phones rounded |
-| Signature motif | `text-gradient` | **highlighter `.mark`** (lemon underline swipe) + **roof** eyebrow icon |
+### 4.2 Component classes — `src/styles/globals.css` (`@layer components`)
+Only where the new direction requires it: `.card` padding/radius, `.btn-*` height &
+weight, `.househero/.wallet/.gamehero` gradient, `.vibe-ring` conic-gradient stops,
+`.pill-*` tints, `.seg`, `.field`. These propagate everywhere automatically.
 
-**Concrete token tasks (one PR):**
-1. Replace `:root` token block with the **light** palette; add a `.dark { … }` block with the
-   dark palette (both already enumerated in the baseline's `.app` / `.app.dark` token lists).
-2. Swap `--font-sans` → Schibsted Grotesk, `--font-display` → Bricolage Grotesque; add the
-   Google Fonts `<link>` to `index.html` (preconnect + the two families from the baseline `<head>`).
-3. Add the new utility classes from the baseline as real CSS (or Tailwind components):
-   `.mark`, `.eyebrow`, `.roof`, `.card`, `.pill-*`, `.btn-*`, `.seg`, `.househero`, `.vibe/.ring`,
-   `.bignum`, `.wallet`, `.podium`, `.gamehero`, `.task/.check`, `.event`, `.msg/.bub`, `.field`.
-4. Introduce a minimal **theme controller**: `next-themes` was removed in cleanup, so add a tiny
-   `ThemeProvider` (React context + `localStorage` + toggling `document.documentElement.classList`),
-   plus sync to Capacitor `@capacitor/status-bar` style. Wire the Profile → Appearance toggle.
-5. Replace the brand mark: reuse the K-house SVG from the baseline (`BRAND` const) for header/auth.
-   App icons/splash/favicon are already done — do **not** touch `assets/` or native icon files.
+### 4.3 Navigation chrome (uses tokens; verify, edit only if needed)
+- `src/components/BottomNav.tsx` — uses `bg-sidebar`, `sidebar-primary`, etc.; restyle
+  via the `--sidebar-*` tokens in §4.1. Edit the component only if the indicator/shape
+  itself must change.
+- `src/components/AppHeader.tsx`, `src/components/AppLayout.tsx` — token-backed; same rule.
 
-> After step 1–3, every page will already look ~60% rebranded because they consume tokens.
-> The per-page work in §6 is then mostly structural cleanup, not color-by-hand.
+## 5. Out of scope / do not touch
+- No per-page restyling in `src/pages/**` unless a page contains a one-off style that
+  the token change can't reach (none found in audit — escalate before editing).
+- No new components, abstractions, or refactors.
+- No behavior, routing, i18n copy, or API changes.
+- No backend changes.
 
----
+## 6. Tests
+- **Frontend:** no test runner is configured (`package.json` has no
+  vitest/jest/playwright). There are no frontend tests to update for a visual change.
+  - Optional, only if you want it: add a minimal smoke test setup. This is **new
+    infrastructure**, outside the restyle's minimal scope — left as an explicit opt-in,
+    not assumed.
+- **Backend:** unaffected by a visual restyle; the existing Kotlin tests under
+  `backend/src/test/**` require no changes.
 
-## 4. Component layer (build once, reuse across pages)
+## 7. Verification
+1. `npm run typecheck` — guards the `ThemeContext.tsx` edit.
+2. `npm run build` — confirms Tailwind/`@theme` tokens compile.
+3. Run the app (`npm run dev`) and visually walk every route: `/`, `/tasks`,
+   `/calendar`, `/chat`, `/economy`, `/economy/pant`, `/leaderboard`, `/games`,
+   `/games/kollekt`, `/profile`, plus `/login` and `/create-household`.
+4. **Toggle light/dark** (Profile → appearance) on each surface; confirm both token
+   sets and the native status-bar color match.
+5. Check contrast on key pairs (`--foreground`/`--background`,
+   `--primary-foreground`/`--primary`, pills, bottom nav).
 
-Create small presentational components under `src/components/ui-kit/` (new, app-specific —
-NOT the old shadcn set) to encode the baseline patterns once:
-- `Card`, `Eyebrow` (roof + label), `Pill` (variant: pine/sky/lemon/berry), `Button`
-  (pine/lemon/ghost), `Segmented` (the `.seg` toggle), `StatTile`, `Avatar`/`AvatarStack`,
-  `ProgressBar`, `VibeRing` (§7), `Fab`, `BottomNav` (restyle existing).
-- These wrap raw markup + tokens; they hold **no business logic**. Pages keep their own data/handlers.
+## 8. Risks & mitigations
+- **Status-bar drift:** background token changed but `ThemeContext.tsx` literals not →
+  mismatch on device. Mitigation: §3 pairs the edits.
+- **Dark-mode regression:** editing only `:root` and forgetting `.dark`. Mitigation:
+  change both blocks together; verify in step 7.4.
+- **Contrast/accessibility:** new palette failing AA. Mitigation: step 7.5.
+- **Font swap weight/flash:** if typeface changes, ensure `@import` + `index.html`
+  `<link>` agree on loaded weights.
 
----
-
-## 5. Navigation reconciliation (one decision to make before coding)
-
-- **Current app has 7 bottom-nav tabs** (`src/components/BottomNav.tsx`): Home, Tasks, Calendar,
-  Chat, Economy, **Board (/leaderboard)**, **Games (/games)**.
-- **Baseline shows 6 tabs**: Home, Tasks, Calendar, Chat, Economy, **Board** — with **Games as a
-  tab *inside* Board** (`Ranks | Games` segmented control), matching the existing `LeaderboardPage`.
-- **Plan:** keep all routes (`/games`, `/games/kollekt`, `/leaderboard`) but present Games as a
-  segment within the Board screen per the baseline, and **drop the standalone Games tab from the
-  bottom bar** (route stays reachable via the Board segment + deep links). 6-tab bar = baseline.
-  → This loses no feature; it only relocates the entry point. Confirm with product before building.
-
----
-
-## 6. FEATURE + ENDPOINT INVENTORY — the "lose nothing" contract
-
-Re-skin each page only after checking off every item here. Endpoints are the literal paths the
-page calls today; they must remain unchanged.
-
-### `LoginPage.tsx` → rework in §8
-- login (`POST /onboarding/login`), register (`POST /onboarding/users`), auto-join via invite
-  (`GET /invitations`, `POST /onboarding/collectives/join`), language switcher, show/hide password.
-
-### `CreateHouseholdPage.tsx` (onboarding)
-- Create collective `POST /onboarding/collectives`; join by code `POST /onboarding/collectives/join`;
-  rooms→XP setup; `GET /onboarding/me`. Baseline "Onboarding" screen maps here.
-
-### `DashboardPage.tsx` (Home)
-- `GET /dashboard?memberName=` → name, XP, level, rank, completedTasksCount, balance,
-  upcomingTasks, upcomingEvents, recentExpenses, pendingShoppingItems.
-- Quick actions, activity feed, member/online stats, **+ new Vibe ring (§7)**.
-
-### `TasksPage.tsx` (largest — 1242 lines; audit carefully)
-- List/create/edit/delete tasks (`GET/POST /tasks`, `PATCH/DELETE /tasks/{id}?memberName=`),
-  toggle complete (`/tasks/{id}/toggle`), regret/late (`/tasks/{id}/regret`,
-  `/tasks/{id}/regret-missed`), task feedback w/ image (`/tasks/{id}/feedback`), recurrence rules,
-  XP + penalty XP, rotation banner.
-- **Restock / shopping** segment: `GET/POST /tasks/shopping`, toggle `/tasks/shopping/{id}/toggle`,
-  mark bought + split `/tasks/shopping/{id}/bought`, edit/delete `/tasks/shopping/{id}`.
-
-### `CalendarPage.tsx`
-- Events CRUD `GET/POST /events`, `PATCH/DELETE /events/{id}`; month grid; day agenda; attendees;
-  event types/colors; **Google Calendar**: `/google-calendar/auth-url`, `/status`, `/disconnect`
-  (+ `googleCalendarOAuth.ts`, mobile return URL). Preserve all of this.
-
-### `ChatPage.tsx`
-- Messages `GET/POST /chat/messages`; images `POST /chat/images`; reactions
-  `/chat/messages/{id}/reactions`; polls `POST /chat/polls` + vote `/chat/messages/{id}/poll/vote`;
-  reply-to; **realtime** via `realtime.ts` WebSocket. Baseline chat screen maps here.
-
-### `EconomyPage.tsx`
-- `GET /economy/summary`, balances, expenses CRUD `GET/POST /economy/expenses`,
-  `PATCH/DELETE /economy/expenses/{id}`; settle `POST /economy/settle-with`,
-  pay-options `/economy/pay-options`; recent activity; link to Pant.
-
-### `PantTrackerPage.tsx`
-- `GET/POST /economy/pant`, edit/delete `/economy/pant/{id}`, goal `/economy/pant/goal`;
-  progress to goal. Surfaced as a card in Economy in the baseline.
-
-### `LeaderboardPage.tsx` (Board)
-- `GET /leaderboard?period=` (period switch), podium, `GET /monthly-prize`,
-  achievements `GET /achievements`, `/achievements/catalog`, `/achievements/config`;
-  member stats `GET /members/stats`. **Games segment lives here (§5).**
-
-### `GamesPage.tsx` + `CollektGamePage.tsx`
-- Separate **Games service** (`gamesApi.ts`, `VITE_GAMES_API_URL` + key): `GET /games`,
-  `GET /games/{id}` with `langQuery`; full Collekt game engine (rounds, presets, players, stats).
-  Re-skin to `.gamehero/.gamegrid/.gcard`; **do not touch the game engine logic**.
-
-### `ProfilePage.tsx` (675 lines)
-- Profile + stats, household code (copy), invite roommates `POST /members/invite`,
-  members list `GET /members/collective`, friends add/remove `/members/friends/*`,
-  status `POST /members/status`, notifications prefs `GET/PATCH /notifications/preferences`,
-  reset password `POST /members/reset-password`, leave `POST /members/leave-collective`,
-  delete account `/members/delete`, logout (`logoutSession`), **language toggle**,
-  **+ new theme (light/dark) toggle (§3.4)**.
-
-### App-wide / cross-cutting (must keep working through the reskin)
-- `AppLayout.tsx`, `AppHeader.tsx`, `BottomNav.tsx`, `LanguageSwitcher.tsx`.
-- Auth/session: token refresh, `authStorage`, guards in `App.tsx`.
-- Notifications: `GET /notifications/{user}`, read/delete, **push** (`pushNotifications.ts`,
-  `POST /push/device-token`).
-- Native: `nativeBootstrap.ts`, `haptics.ts`, splash/status-bar, `@capacitor/*`.
-- i18n: `en.json` / `no.json` must stay in sync for any copy change.
+## 9. Open decision for you
+Confirm the **target palette/type direction** (or point me at `kollekt-design-2.html`
+as canonical). Once confirmed, the only values that change are the tokens in §4.1.
 
 ---
 
-## 7. NEW FEATURE — Vibe score tracker
+## 10. Implemented — Login/Register screen (first frontend issue)
 
-The baseline Home shows a **Vibe ring (e.g. "84")** with a one-line reason. It does not exist yet.
+Rebuilt the auth screen to match the provided light/dark screenshots, plus a
+**proper secure password-reset flow** (user-chosen).
 
-**Definition (derive server-side; deterministic, explainable):**
-- Compute a 0–100 collective "Vibe" from signals already in the DB, e.g. weighted blend of:
-  task completion rate this week, overdue/penalty count, outstanding balances spread,
-  recent activity/streaks. (The `Member.chemistry` column already exists and is the natural
-  home for per-member inputs — reuse, don't reinvent.)
+### Frontend
+- `src/pages/LoginPage.tsx` — rewritten: constant "Welcome home." heading (lemon
+  highlight), new tagline, Log in / Register segmented tabs, stacked label fields
+  (no icons/eye-toggle), pine "Log in" / lemon "Create account" buttons, platform-aware
+  social buttons (iOS: Google+Apple, Android/web: Google — existing `socialAuth` logic),
+  register terms line, "New build · v0.1" footer, and a **Forgot password?** view
+  (email entry → request endpoint). Removed the decorative blobs and the pre-login
+  language switcher to match the design.
+- `src/components/ui-kit/index.tsx` — added shared `Field` (label + input, reuses the
+  token-driven `.field` class), used by login and reset pages.
+- `src/pages/ResetPasswordPage.tsx` (new) + public route `/reset-password` in
+  `src/App.tsx` — reads `?token=`, sets a new password via the confirm endpoint.
+- `src/i18n/locales/{en,no}.json` — new `auth.*` keys (tagline, heading, labels,
+  placeholders, forgot/reset copy, terms, build label).
 
-**Backend (new, minimal):**
-1. Add `vibeScore: Int` (+ optional `vibeLabel`/`vibeReason: String`) to `DashboardResponse`
-   in `ApiModels.kt` and compute it in `StatsService` (the dashboard already aggregates the
-   needed counts). No new endpoint required — extends the existing `GET /dashboard`.
-2. Add a Flyway migration only if a stored history/trend is wanted (e.g. `collective_vibe_history`)
-   for a sparkline; otherwise compute on the fly (preferred for v1).
-3. Cover with a `StatsServiceTest` case.
+### Backend (secure reset flow; reuses existing `auth_tokens` table — no migration)
+- `TokenStoreService` — `storePasswordResetToken` / `consumePasswordResetToken`
+  (single-use, time-limited, stores **SHA-256 hash** of the token).
+- `PasswordResetService` (new) — request (silent on unknown email → no enumeration) +
+  confirm (8-char min, generic invalid-token error). Token is random 32 bytes.
+- `PasswordResetMailer` (new) — builds `${app.frontend-url}/reset-password?token=…`.
+- `OnboardingController` — `POST /api/onboarding/password-reset/{request,confirm}`,
+  added to `SecurityConfig` permitAll. Config: `app.frontend-url`,
+  `app.password-reset.token-validity-seconds`.
+- Tests: `PasswordResetServiceTest` (new), reset cases added to `TokenStoreServiceTest`,
+  and `passwordResetService` mock added to the three `@WebMvcTest` slices.
 
-**Frontend:**
-1. Extend the dashboard response type in `src/lib/types.ts` with `vibeScore` (+ label/reason).
-2. Build `VibeRing` component (conic-gradient ring per baseline `.ring`) in the ui-kit.
-3. Place it on `DashboardPage` exactly where the baseline `.vibe` block sits.
-4. i18n keys for label/reason in `en.json` + `no.json`.
+### Verified
+`npm run typecheck` ✓, `npm run build` ✓, `./gradlew test` ✓ (full suite).
 
-> Vibe is the only place the rebrand adds real data flow on the read path — keep it isolated to
-> dashboard so it can't regress other screens.
-
----
-
-## 8. NEW — Login rework (2 fields + social sign-in)
-
-**Target (baseline auth screen):** two fields (Email, Password) + "continue with
-Google / Apple" social buttons, register as a secondary panel.
-
-**Frontend:**
-1. Collapse the login form to exactly **2 fields**. NOTE: today login posts `{ name, password }`
-   to `/onboarding/login` (username, not email). **Decision needed:** either (a) allow
-   email-or-username in the existing field, or (b) add backend support for email login. Pick (a)
-   for a pure-frontend v1 unless product wants email-only. Register keeps name/email/password.
-2. Add social buttons wired to native plugins (see below), with web fallbacks.
-3. Keep invite auto-join (`tryJoinFromInvitation`) and post-login routing untouched.
-
-**Social auth (this is real platform + backend work — scope it explicitly):**
-- **Google & Apple:** add a Capacitor social-auth plugin (e.g. `@capgo/capacitor-social-login`
-  or platform SDKs). Apple "Sign in with Apple" is **mandatory** by App Store rules if any other
-  social login is offered — include it.
-- **"Android"** = Google Sign-In on Android (same Google flow), not a separate provider.
-- **Backend:** add a token-exchange endpoint (e.g. `POST /onboarding/oauth/{provider}`) that
-  verifies the provider ID token and returns the same `AuthResponse` (access/refresh) shape, so
-  the rest of the app is unchanged. Requires Google/Apple client IDs in the consoles
-  (handoff items, like the existing publish checklist).
-- Reuse the existing `googleCalendarOAuth.ts` patterns for the native browser/redirect handling.
-- This sub-project has its own credentials + backend + store-config dependencies — treat §8 social
-  as a **separate milestone** that can ship after the visual rebrand.
-
----
-
-## 9. Execution order (staged, each step independently shippable)
-
-1. **Tokens & fonts** (§3.1–3.3) — global CSS + `index.html` fonts. Visual smoke-test only.
-2. **Theme controller** (§3.4) + Profile appearance toggle.
-3. **ui-kit components** (§4).
-4. **BottomNav restyle + nav reconciliation** (§5).
-5. **Per page, in this order** (low-risk → high-risk), one PR each, verified vs §6:
-   Profile → Economy → Pant → Calendar → Board(+Games segment) → Chat → Home → **Tasks (last; biggest)**.
-6. **Games/Collekt** re-skin (engine untouched).
-7. **Vibe score** (§7) — backend + Home.
-8. **Login rework** (§8 frontend) → then **Social auth** (§8 milestone).
-
-## 10. Verification gate (run after every step)
-```bash
-npm run typecheck
-npm run build:mobile
-# backend (only when §7/§8 touch it):
-cd backend && ./gradlew build && cd ..
-```
-Plus a manual pass of the changed page's §6 checklist (light AND dark), and `npm run mobile:sync`
-before a device check.
-
----
-
-## 11. Open decisions to confirm before building
-1. **Nav:** collapse Games into the Board screen (6-tab bar) per baseline? (§5)
-2. **Default theme:** baseline is **light-first** — make light the default (current app is dark-only)?
-3. **Login identifier:** email-or-username field (frontend-only) vs add email-login backend? (§8.1)
-4. **Social providers for v1:** Google + Apple now, or defer social to a post-rebrand milestone?
-5. **Vibe:** compute on-the-fly (v1) vs store history for a trend sparkline? (§7.2)
+### ⚠️ Remaining to go live
+1. **Email transport is not wired** — `PasswordResetMailer` currently *logs* the reset
+   link (dev-safe, no secrets). To deliver real email, add `spring-boot-starter-mail` +
+   `spring.mail.*` config and send from `sendResetLink`.
+2. **Native deep-linking** — the reset link targets the web route. For an external email
+   client to open the installed app, configure universal links / a custom scheme.
+3. **Terms link** is presentational (no `/terms` page exists yet).

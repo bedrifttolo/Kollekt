@@ -177,6 +177,15 @@ data class SocialLoginRequest(
     val displayName: String? = null,
 )
 
+data class PasswordResetRequest(
+    val email: String,
+)
+
+data class PasswordResetConfirmRequest(
+    val token: String,
+    val newPassword: String,
+)
+
 data class AuthResponse(
     val accessToken: String,
     val refreshToken: String,

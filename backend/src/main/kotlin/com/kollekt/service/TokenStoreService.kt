@@ -68,6 +68,36 @@ class TokenStoreService(
             Instant.now(),
         )
 
+    @Transactional
+    fun storePasswordResetToken(
+        hashedToken: String,
+        subject: String,
+        ttl: Duration,
+    ) {
+        purgeExpired()
+        tokenEntryRepository.save(
+            TokenEntry(
+                jti = hashedToken,
+                subject = subject,
+                tokenType = PASSWORD_RESET,
+                expiresAt = Instant.now().plus(ttl),
+            ),
+        )
+    }
+
+    /** Returns the token subject and removes the token (single use), or null if it is missing or expired. */
+    @Transactional
+    fun consumePasswordResetToken(hashedToken: String): String? {
+        val entry =
+            tokenEntryRepository.findByJtiAndTokenTypeAndExpiresAtAfter(
+                hashedToken,
+                PASSWORD_RESET,
+                Instant.now(),
+            ) ?: return null
+        tokenEntryRepository.deleteByJtiAndTokenType(hashedToken, PASSWORD_RESET)
+        return entry.subject
+    }
+
     private fun purgeExpired() {
         tokenEntryRepository.deleteByExpiresAtBefore(Instant.now())
     }
@@ -75,5 +105,6 @@ class TokenStoreService(
     private companion object {
         const val REFRESH = "REFRESH"
         const val REVOKED_ACCESS = "REVOKED_ACCESS"
+        const val PASSWORD_RESET = "PASSWORD_RESET"
     }
 }

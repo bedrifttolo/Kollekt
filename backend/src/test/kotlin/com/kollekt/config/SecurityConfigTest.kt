@@ -8,6 +8,7 @@ import com.kollekt.api.dto.SocialLoginRequest
 import com.kollekt.api.dto.UserDto
 import com.kollekt.service.AccountOperations
 import com.kollekt.service.CollectiveOperations
+import com.kollekt.service.PasswordResetService
 import com.kollekt.service.ShoppingOperations
 import com.kollekt.service.SocialAuthService
 import com.kollekt.service.TaskOperations
@@ -64,6 +65,8 @@ class SecurityConfigTest {
     @MockitoBean lateinit var collectiveOperations: CollectiveOperations
 
     @MockitoBean lateinit var socialAuthService: SocialAuthService
+
+    @MockitoBean lateinit var passwordResetService: PasswordResetService
 
     @MockitoBean lateinit var taskOperations: TaskOperations
 

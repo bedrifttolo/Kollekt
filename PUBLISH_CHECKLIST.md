@@ -24,21 +24,28 @@ git status                    # expect: up to date with 'origin/main'
 
 ---
 
-## 1. Point the mobile build at the deployed services
+## 1. Point the mobile build at the deployed backend
 
-**Prerequisite:** backend and Kollekt Games must be reachable over public **HTTPS**
-(a phone can't reach `localhost`). If they aren't deployed yet, that hosting step is
-the one true platform dependency before this works.
+**Prerequisite:** the backend must be reachable over public **HTTPS**
+(a phone can't reach `localhost`). If it isn't deployed yet, that hosting step is
+the one true platform dependency before this works. (Games run in-app from
+`src/games/` — nothing to deploy for them.)
 
-Edit `.env.mobile` — replace the `*.example.com` placeholders with the real hosts:
+Edit `.env.mobile` — replace the `*.example.com` placeholder with the real host:
 
 ```bash
 VITE_API_URL=https://<your-backend-host>/api
-VITE_GAMES_API_URL=https://<your-games-host>/api
-VITE_GAMES_API_KEY=<real-games-key>
+VITE_GOOGLE_CLIENT_ID=<google-web-client-id>
+VITE_GOOGLE_IOS_CLIENT_ID=<google-ios-client-id>
+VITE_APPLE_CLIENT_ID=no.kollekt.app
 ```
 
-Both URLs must start with `https://` or the mobile build will refuse to run.
+Start from the tracked template with `cp .env.mobile.example .env.mobile`. Both URLs
+must use real HTTPS hosts, and the games key must not be a placeholder; the mobile
+build rejects incomplete release configuration.
+
+The deployed backend must also set `SOCIAL_GOOGLE_CLIENT_IDS` to every accepted Google
+audience (comma-separated) and `SOCIAL_APPLE_CLIENT_IDS=no.kollekt.app`.
 
 ---
 
@@ -195,6 +202,6 @@ Once the above is done, the rest happens outside VS Code:
 ---
 
 ### Quick reality check before you start tomorrow
-1. Is the backend (and games service) deployed on public HTTPS? ← unblocks steps 1–3.
+1. Is the backend deployed on public HTTPS? ← unblocks steps 1–3.
 2. Do you have/ want an Apple Developer + Play Console account? ← needed only at handoff.
 3. Push notifications in v1, or defer? ← if defer, skip step 5 entirely.

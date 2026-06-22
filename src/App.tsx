@@ -9,10 +9,9 @@ import CalendarPage from './pages/CalendarPage';
 import ChatPage from './pages/ChatPage';
 import EconomyPage from './pages/EconomyPage';
 import PantTrackerPage from './pages/PantTrackerPage';
-import LeaderboardPage from './pages/LeaderboardPage';
-import GamesPage from './pages/GamesPage';
-import CollektGamePage from './pages/CollektGamePage';
+import SocialPage from './pages/SocialPage';
 import ProfilePage from './pages/ProfilePage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 
 // Guard for auth-only pages that don't need a collective (create-household)
 function AuthOnlyRoute({ children }: { children: React.ReactNode }) {
@@ -44,6 +43,7 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={<GuestOnlyRoute><LoginPage /></GuestOnlyRoute>} />
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route
         path="/create-household"
         element={<AuthOnlyRoute><CreateHouseholdPage /></AuthOnlyRoute>}
@@ -55,9 +55,10 @@ function AppRoutes() {
         <Route path="/chat" element={<ChatPage />} />
         <Route path="/economy" element={<EconomyPage />} />
         <Route path="/economy/pant" element={<PantTrackerPage />} />
-        <Route path="/leaderboard" element={<LeaderboardPage />} />
-        <Route path="/games" element={<GamesPage />} />
-        <Route path="/games/kollekt" element={<CollektGamePage />} />
+        <Route path="/social" element={<SocialPage />} />
+        <Route path="/leaderboard" element={<Navigate to="/social" replace />} />
+        <Route path="/games" element={<Navigate to="/social" replace />} />
+        <Route path="/games/kollekt" element={<Navigate to="/social" replace />} />
         <Route path="/profile" element={<ProfilePage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

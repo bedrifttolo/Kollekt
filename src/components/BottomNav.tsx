@@ -9,7 +9,7 @@ const tabs = [
   { labelKey: 'bottomNav.calendar', icon: Calendar, path: '/calendar' },
   { labelKey: 'bottomNav.chat', icon: MessageCircle, path: '/chat' },
   { labelKey: 'bottomNav.economy', icon: Wallet, path: '/economy' },
-  { labelKey: 'bottomNav.board', icon: Trophy, path: '/leaderboard' },
+  { labelKey: 'bottomNav.social', icon: Trophy, path: '/social' },
 ];
 
 export default function BottomNav() {

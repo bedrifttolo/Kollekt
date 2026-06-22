@@ -8,7 +8,7 @@ import { useUser } from '../context/UserContext';
 import { formatCurrency, formatDate, formatTime, translateKey } from '../i18n/helpers';
 import { connectCollectiveRealtime } from '../lib/realtime';
 import type { DashboardResponse } from '../lib/types';
-import { Eyebrow, VibeRing } from '../components/ui-kit';
+import { AvatarStack, Eyebrow, VibeRing } from '../components/ui-kit';
 
 const container = {
   hidden: {},
@@ -37,6 +37,7 @@ export default function DashboardPage() {
   const { t: translate } = useTranslation();
   const { currentUser } = useUser();
   const [data, setData] = useState<DashboardResponse | null>(null);
+  const [members, setMembers] = useState<string[]>([]);
   const [onlineCount, setOnlineCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
@@ -50,6 +51,11 @@ export default function DashboardPage() {
 
   useEffect(() => {
     fetchDashboard();
+    if (currentUser) {
+      api.get<{ name: string }[]>(`/members/collective?memberName=${encodeURIComponent(currentUser.name)}`)
+        .then((list) => setMembers(list.map((m) => m.name)))
+        .catch(() => {});
+    }
   }, [currentUser]);
 
   useEffect(() => {
@@ -93,6 +99,11 @@ export default function DashboardPage() {
 
       <motion.div variants={item} className="househero">
         <p className="eyebrow !text-white/65">{translate('dashboard.householdTitle')}</p>
+        {members.length > 0 && (
+          <div className="mb-3 mt-2">
+            <AvatarStack names={members} />
+          </div>
+        )}
         <div className="flex items-center gap-3 mb-3">
           <div className="h-12 w-12 rounded-full gradient-primary flex items-center justify-center shrink-0">
             <span className="font-display text-lg font-bold text-primary-foreground">

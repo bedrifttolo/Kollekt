@@ -2,7 +2,9 @@ package com.kollekt.service
 
 import com.kollekt.domain.TokenEntry
 import com.kollekt.repository.TokenEntryRepository
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -39,6 +41,29 @@ class TokenStoreServiceTest {
 
         assertTrue(service.isAccessTokenRevoked("jti-2"))
         assertFalse(service.isAccessTokenRevoked("ignored-zero"))
+    }
+
+    @Test
+    fun `password reset token is single use and returns its subject`() {
+        service.storePasswordResetToken("hash-1", "kasper@example.com", Duration.ofMinutes(30))
+
+        assertEquals("kasper@example.com", service.consumePasswordResetToken("hash-1"))
+        // Second consume fails: the token was removed.
+        assertNull(service.consumePasswordResetToken("hash-1"))
+    }
+
+    @Test
+    fun `expired password reset token cannot be consumed`() {
+        tokenEntryRepository.saveAndFlush(
+            TokenEntry(
+                jti = "hash-expired",
+                subject = "kasper@example.com",
+                tokenType = "PASSWORD_RESET",
+                expiresAt = Instant.now().minusSeconds(60),
+            ),
+        )
+
+        assertNull(service.consumePasswordResetToken("hash-expired"))
     }
 
     @Test
