@@ -11,8 +11,6 @@ import {
   Copy,
   Check,
   ChevronDown,
-  UserPlus,
-  UserMinus,
   Settings,
   X,
   Sun,
@@ -39,6 +37,7 @@ import type {
   Achievement,
   PaymentHandles,
   HouseRules,
+  QuietHours,
   Kudo,
 } from "../lib/types";
 import { useTheme } from "../context/ThemeContext";
@@ -70,7 +69,7 @@ const NOTIFICATION_TYPES = [
 export default function ProfilePage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { theme, toggleTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
   const {
     currentUser,
     setCurrentUser,
@@ -97,8 +96,6 @@ export default function ProfilePage() {
   const [paymentSaving, setPaymentSaving] = useState(false);
   const [expandPassword, setExpandPassword] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [friendName, setFriendName] = useState("");
-  const [friendError, setFriendError] = useState("");
   const [myStats, setMyStats] = useState<LeaderboardPlayer | null>(null);
   const [achievementsUnlocked, setAchievementsUnlocked] = useState(0);
   const [achievementsTotal, setAchievementsTotal] = useState(0);
@@ -107,8 +104,6 @@ export default function ProfilePage() {
   const [feedback, setFeedback] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [statusSaving, setStatusSaving] = useState(false);
   const [inviteSaving, setInviteSaving] = useState(false);
-  const [friendSaving, setFriendSaving] = useState(false);
-  const [removingFriend, setRemovingFriend] = useState<string | null>(null);
   const [notifSaving, setNotifSaving] = useState<string | null>(null);
   const [colorSaving, setColorSaving] = useState(false);
   const [copyingCode, setCopyingCode] = useState(false);
@@ -120,6 +115,7 @@ export default function ProfilePage() {
   const [rulesDraft, setRulesDraft] = useState("");
   const [rulesSaving, setRulesSaving] = useState(false);
   const [receivedKudos, setReceivedKudos] = useState(0);
+  const [quietHours, setQuietHours] = useState<QuietHours | null>(null);
 
   const name = currentUser?.name ?? "";
 
@@ -128,7 +124,23 @@ export default function ProfilePage() {
     const collective = await api.get<{ collectiveId: number }>(`/onboarding/collectives/code/${currentUser.id}`);
     setCollectiveId(collective.collectiveId);
     setHouseRules(await api.get<HouseRules>(`/collectives/${collective.collectiveId}/rules`));
+    setQuietHours(await api.get<QuietHours>(`/collectives/${collective.collectiveId}/quiet-hours`));
   }, [currentUser?.id]);
+
+  const saveQuietHours = async () => {
+    if (!collectiveId || !quietHours?.canEdit) return;
+    setFeedback(null);
+    try {
+      setQuietHours(await api.patch<QuietHours>(`/collectives/${collectiveId}/quiet-hours`, {
+        enabled: quietHours.enabled,
+        startTime: quietHours.startTime,
+        endTime: quietHours.endTime,
+      }));
+      setFeedback({ type: "success", text: t("profile.feedback.quietHoursSaved") });
+    } catch (error: unknown) {
+      setFeedback({ type: "error", text: getUserMessage(error, t("profile.errors.quietHoursFailed")) });
+    }
+  };
 
   const loadKudos = useCallback(async () => {
     if (!name) return;
@@ -325,44 +337,6 @@ export default function ProfilePage() {
       );
     } finally {
       setPasswordSaving(false);
-    }
-  };
-
-  const addFriend = async () => {
-    setFriendError("");
-    const trimmed = friendName.trim();
-    if (!trimmed || !currentUser || friendSaving) return;
-    setFriendSaving(true);
-    try {
-      await api.post(
-        `/members/friends/add?memberName=${encodeURIComponent(name)}`,
-        { friendName: trimmed },
-      );
-      const refreshed = await api.get<AppUser>("/onboarding/me");
-      setCurrentUser(refreshed);
-      setFriendName("");
-    } catch (error: unknown) {
-      setFriendError(getUserMessage(error, t("profile.errors.addFriendFailed")));
-    } finally {
-      setFriendSaving(false);
-    }
-  };
-
-  const removeFriend = async (friend: string) => {
-    if (!currentUser || removingFriend) return;
-    setRemovingFriend(friend);
-    setFeedback(null);
-    try {
-      await api.delete(
-        `/members/friends/remove?memberName=${encodeURIComponent(name)}&friendName=${encodeURIComponent(friend)}`,
-      );
-      const refreshed = await api.get<AppUser>("/onboarding/me");
-      setCurrentUser(refreshed);
-      setFeedback({ type: "success", text: t("profile.feedback.friendRemoved") });
-    } catch (error: unknown) {
-      setFeedback({ type: "error", text: getUserMessage(error, t("profile.errors.removeFriendFailed")) });
-    } finally {
-      setRemovingFriend(null);
     }
   };
 
@@ -640,6 +614,32 @@ export default function ProfilePage() {
         </div>
       )}
 
+      {quietHours && (
+        <div className="card space-y-3">
+          <div className="flex items-center gap-3">
+            <div className="grid h-9 w-9 place-items-center rounded-xl bg-primary/20">
+              <Moon className="h-4 w-4 text-primary" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold">{t("quietHours.title")}</p>
+              <p className="text-[10px] text-muted-foreground">
+                {quietHours.enabled ? t("quietHours.window", { start: quietHours.startTime, end: quietHours.endTime }) : t("quietHours.disabled")}
+              </p>
+            </div>
+            {quietHours.canEdit && (
+              <input type="checkbox" checked={quietHours.enabled} onChange={(event) => setQuietHours({ ...quietHours, enabled: event.target.checked })} />
+            )}
+          </div>
+          {quietHours.canEdit && (
+            <div className="grid grid-cols-2 gap-2">
+              <input type="time" value={quietHours.startTime} onChange={(event) => setQuietHours({ ...quietHours, startTime: event.target.value })} className="rounded-xl border border-border bg-background px-3 py-2 text-sm" />
+              <input type="time" value={quietHours.endTime} onChange={(event) => setQuietHours({ ...quietHours, endTime: event.target.value })} className="rounded-xl border border-border bg-background px-3 py-2 text-sm" />
+              <button onClick={() => void saveQuietHours()} className="col-span-2 rounded-xl bg-primary py-2 text-sm font-bold text-primary-foreground">{t("quietHours.save")}</button>
+            </div>
+          )}
+        </div>
+      )}
+
       <div className="glass rounded-2xl p-4 flex items-center gap-3">
         <div className="h-9 w-9 rounded-xl bg-accent/20 flex items-center justify-center shrink-0">
           <Globe2 className="h-4 w-4 text-accent-foreground" />
@@ -658,10 +658,17 @@ export default function ProfilePage() {
           <p className="text-sm font-semibold">{t("profile.appearance.title")}</p>
           <p className="text-[10px] text-muted-foreground">{t(`profile.appearance.${theme}`)}</p>
         </div>
-        <button onClick={toggleTheme} className="seg !p-1" aria-label={t("profile.appearance.toggle")}>
-          <span className={`px-2 py-1.5 rounded-lg text-[9px] font-bold ${theme === "light" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>{t("profile.appearance.lightLabel")}</span>
-          <span className={`px-2 py-1.5 rounded-lg text-[9px] font-bold ${theme === "dark" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>{t("profile.appearance.darkLabel")}</span>
-        </button>
+        <div className="seg !p-1" role="group" aria-label={t("profile.appearance.toggle")}>
+          {(["light", "dark", "pink"] as const).map((option) => (
+            <button
+              key={option}
+              onClick={() => setTheme(option)}
+              className={`px-2 py-1.5 rounded-lg text-[9px] font-bold ${theme === option ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+            >
+              {t(`profile.appearance.${option}Label`)}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="glass rounded-2xl overflow-hidden">
@@ -1007,60 +1014,6 @@ export default function ProfilePage() {
         </AnimatePresence>
       </div>
 
-      <div className="glass rounded-2xl overflow-hidden">
-        <div className="w-full flex items-center gap-3 p-4">
-          <div className="h-9 w-9 rounded-xl bg-primary/20 flex items-center justify-center shrink-0">
-            <UserPlus className="h-4 w-4 text-primary" />
-          </div>
-          <div className="flex-1 text-left">
-            <p className="text-sm font-semibold">{t("profile.friends.title")}</p>
-            <p className="text-[10px] text-muted-foreground">
-              {t("profile.friends.subtitle")}
-            </p>
-          </div>
-        </div>
-        <div className="px-4 pb-4 space-y-2">
-          <div className="flex gap-2">
-            <input
-              value={friendName}
-              onChange={(event) => setFriendName(event.target.value)}
-              placeholder={t("profile.friends.placeholder")}
-              className="flex-1 bg-muted/50 rounded-xl px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-              onKeyDown={(event) => event.key === "Enter" && void addFriend()}
-            />
-            <button
-              onClick={() => void addFriend()}
-              disabled={friendSaving}
-              className="px-3 rounded-xl gradient-primary text-sm font-semibold text-primary-foreground disabled:opacity-60"
-            >
-              {t("profile.friends.add")}
-            </button>
-          </div>
-          {friendError && <p className="text-xs text-destructive">{friendError}</p>}
-          {(currentUser?.friends?.length ?? 0) === 0 && (
-            <p className="text-xs text-muted-foreground">
-              {t("profile.friends.empty")}
-            </p>
-          )}
-          {(currentUser?.friends ?? []).map((friend) => (
-            <div
-              key={friend.name}
-              className="flex items-center gap-2 rounded-xl bg-muted/20 px-3 py-2"
-            >
-              <span className="flex-1 text-sm">{friend.name}</span>
-              <button
-                onClick={() => void removeFriend(friend.name)}
-                disabled={removingFriend !== null}
-                className="h-7 w-7 rounded-lg glass flex items-center justify-center disabled:opacity-60"
-                aria-label={t("profile.friends.remove", { name: friend.name })}
-              >
-                <UserMinus className="h-3.5 w-3.5 text-destructive" />
-              </button>
-            </div>
-          ))}
-        </div>
-      </div>
-
       <div className="glass rounded-2xl p-4 space-y-2">
         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
           {t("profile.account")}
@@ -1111,14 +1064,14 @@ export default function ProfilePage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-4 sm:items-center"
+            className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4"
             onClick={() => setShowRulesEditor(false)}
           >
             <motion.div
               initial={{ y: 24 }}
               animate={{ y: 0 }}
               exit={{ y: 24 }}
-              className="w-full max-w-lg rounded-[1.5rem] bg-background p-5"
+              className="w-full max-w-lg max-h-[85vh] overflow-y-auto rounded-[1.5rem] bg-background p-5"
               onClick={(event) => event.stopPropagation()}
             >
               <div className="flex items-center justify-between">

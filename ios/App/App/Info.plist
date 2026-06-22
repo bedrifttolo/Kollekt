@@ -67,5 +67,9 @@
 	<string>Kollekt adds your household events to your calendar.</string>
 	<key>NSCalendarsUsageDescription</key>
 	<string>Kollekt adds your household events to your calendar.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Kollekt lets you take photos to share in chat and on task feedback.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Kollekt lets you attach photos from your library to chat and task feedback.</string>
 </dict>
 </plist>

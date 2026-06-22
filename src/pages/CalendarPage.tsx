@@ -33,18 +33,30 @@ import {
 import type { CalendarEvent, EventType, GuestNotice, HouseCheckin } from "../lib/types";
 import { Eyebrow, Fab } from "../components/ui-kit";
 
-const EVENT_TYPES: EventType[] = ["PARTY", "MOVIE", "DINNER", "OTHER"];
+const EVENT_TYPES: EventType[] = ["PARTY", "MOVIE", "DINNER", "GAME_NIGHT", "CLEANING", "SPORTS", "BIRTHDAY", "MEETING", "TRIP", "OTHER"];
 
 const typeColors: Record<EventType, string> = {
   PARTY: "bg-secondary",
   MOVIE: "bg-accent",
   DINNER: "bg-destructive",
+  GAME_NIGHT: "bg-primary",
+  CLEANING: "bg-accent",
+  SPORTS: "bg-primary",
+  BIRTHDAY: "bg-secondary",
+  MEETING: "bg-accent",
+  TRIP: "bg-primary",
   OTHER: "bg-primary",
 };
 const typeEmoji: Record<EventType, string> = {
   PARTY: "🎉",
   MOVIE: "🎬",
   DINNER: "🍝",
+  GAME_NIGHT: "🎲",
+  CLEANING: "🧹",
+  SPORTS: "⚽",
+  BIRTHDAY: "🎂",
+  MEETING: "📋",
+  TRIP: "🧳",
   OTHER: "📌",
 };
 

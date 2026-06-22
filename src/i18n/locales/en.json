@@ -79,6 +79,12 @@
       "PARTY": "Party",
       "MOVIE": "Movie",
       "DINNER": "Dinner",
+      "GAME_NIGHT": "Game night",
+      "CLEANING": "Cleaning",
+      "SPORTS": "Sports",
+      "BIRTHDAY": "Birthday",
+      "MEETING": "Meeting",
+      "TRIP": "Trip",
       "OTHER": "Other"
     },
     "memberStatus": {
@@ -361,6 +367,14 @@
       "titlePlaceholder": "What needs fixing?",
       "descriptionPlaceholder": "Describe the issue...",
       "costPlaceholder": "Cost estimate (NOK)",
+      "splitLabel": "Split cost with",
+      "splitHint": "When the ticket is completed, the cost is split between these people on the economy page.",
+      "completeTitle": "Complete ticket",
+      "completeSubtitle": "Split the {{amount}} cost of \"{{title}}\" — choose who shares it.",
+      "completeConfirm": "Complete & add to economy",
+      "edit": "Edit ticket",
+      "delete": "Delete ticket",
+      "saveEdit": "Save changes",
       "unassigned": "Unassigned",
       "all": "All",
       "empty": "No maintenance tickets here.",
@@ -389,12 +403,23 @@
     "improvementLabel": "Improvement"
   },
   "kudos": {
+    "typeLabel": "What for?",
+    "types": { "THANK_YOU": "Thank you", "CLEANEST": "Cleanest", "MOST_HELPFUL": "Most helpful", "PEACEMAKER": "Peacemaker" },
+    "privateNote": "Only they will see this — it won't be shared with the house.",
     "sendTitle": "Send kudos", "chooseRoommate": "Choose a roommate", "generalHelp": "General help",
     "contextPlaceholder": "What did they do that helped?", "send": "Send kudos",
     "dailyLimit": "You can send up to 3 kudos per day.", "weeklyTitle": "Weekly positivity",
     "weeklyTotal_one": "{{count}} kudo shared this week", "weeklyTotal_other": "{{count}} kudos shared this week",
     "weeklyEmpty": "Be the first to appreciate someone this week.", "profileBadge": "Kudos received",
     "receivedTotal_one": "{{count}} appreciation from your household", "receivedTotal_other": "{{count}} appreciations from your household"
+  },
+  "laundry": {
+    "title": "Going to wash",
+    "typeLabel": "Wash type",
+    "tempLabel": "Temperature",
+    "send": "Announce in chat",
+    "message": "🧺 I'm doing a {{temp}}°C wash ({{type}}) — join in to save power!",
+    "types": { "WHITES": "Whites", "COLORS": "Colors", "DELICATES": "Delicates", "WOOL": "Wool", "SPORTS": "Sportswear", "TOWELS": "Towels" }
   },
   "quietHours": { "title": "Quiet hours", "window": "{{start}}–{{end}}", "disabled": "Quiet hours are off", "save": "Save quiet hours" },
   "calendar": {
@@ -905,6 +930,8 @@
       "dark": "Night pine theme",
       "lightLabel": "Light",
       "darkLabel": "Dark",
+      "pink": "Soft pink theme",
+      "pinkLabel": "Pink",
       "toggle": "Toggle light or dark appearance"
     },
     "status": {
@@ -953,6 +980,7 @@
         "SHOPPING_ITEM_ADDED": "{{actorName}} added '{{item}}' to the shopping list",
         "EVENT_ADDED": "New event: '{{title}}' on {{date}}",
         "NEW_MESSAGE": "{{sender}}: \"{{preview}}\"",
+        "KUDOS_RECEIVED": "💛 {{sender}} gave you kudos: {{context}}",
         "HOUSE_RULES_UPDATED": "House rules were updated to version {{version}}.",
         "GUEST_NOTICE_CREATED": "{{host}} is having {{guest}} over on {{date}}.",
         "GUEST_QUIET_HOURS_OVERLAP": "{{guest}}'s visit overlaps quiet hours from {{start}}."
@@ -1040,7 +1068,8 @@
       "friendRemoved": "Friend removed",
       "preferencesSaved": "Notification preferences saved",
       "colorSaved": "Profile color saved",
-      "codeCopied": "Household code copied"
+      "codeCopied": "Household code copied",
+      "quietHoursSaved": "Quiet hours saved"
     },
     "errors": {
       "passwordTooShort": "Password must be at least 8 characters",
@@ -1053,6 +1082,7 @@
       "preferencesUpdateFailed": "Could not update notification preferences",
       "colorUpdateFailed": "Could not update profile color",
       "copyFailed": "Could not copy household code",
+      "quietHoursFailed": "Couldn't save quiet hours",
       "leaveFailed": "Could not leave the household",
       "partialLoadFailed": "Some profile information could not be loaded."
     }

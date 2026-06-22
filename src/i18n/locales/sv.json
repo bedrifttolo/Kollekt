@@ -79,6 +79,12 @@
       "PARTY": "Fest",
       "MOVIE": "Film",
       "DINNER": "Middag",
+      "GAME_NIGHT": "Spelkväll",
+      "CLEANING": "Städning",
+      "SPORTS": "Sport",
+      "BIRTHDAY": "Födelsedag",
+      "MEETING": "Möte",
+      "TRIP": "Resa",
       "OTHER": "Annat"
     },
     "memberStatus": {
@@ -361,6 +367,14 @@
       "titlePlaceholder": "Vad behöver lagas?",
       "descriptionPlaceholder": "Beskriv problemet...",
       "costPlaceholder": "Kostnadsuppskattning (kr)",
+      "splitLabel": "Dela kostnaden med",
+      "splitHint": "När ärendet är klart delas kostnaden mellan dessa på ekonomisidan.",
+      "completeTitle": "Slutför ärende",
+      "completeSubtitle": "Dela kostnaden på {{amount}} för ”{{title}}” — välj vilka som delar den.",
+      "completeConfirm": "Slutför och lägg till i ekonomi",
+      "edit": "Redigera ärende",
+      "delete": "Ta bort ärende",
+      "saveEdit": "Spara ändringar",
       "unassigned": "Ej tilldelad",
       "all": "Alla",
       "empty": "Inga underhållsärenden här.",
@@ -389,12 +403,23 @@
     "improvementLabel": "Förbättring"
   },
   "kudos": {
+    "typeLabel": "För vad?",
+    "types": { "THANK_YOU": "Tack", "CLEANEST": "Renast", "MOST_HELPFUL": "Mest hjälpsam", "PEACEMAKER": "Fredsmäklare" },
+    "privateNote": "Bara de ser detta — det delas inte med kollektivet.",
     "sendTitle": "Skicka beröm", "chooseRoommate": "Välj en rumskamrat", "generalHelp": "Allmän hjälp",
     "contextPlaceholder": "Vad gjorde personen som hjälpte?", "send": "Skicka beröm",
     "dailyLimit": "Du kan skicka upp till 3 beröm per dag.", "weeklyTitle": "Veckans positivitet",
     "weeklyTotal_one": "{{count}} beröm delat denna vecka", "weeklyTotal_other": "{{count}} beröm delade denna vecka",
     "weeklyEmpty": "Bli först med att uppskatta någon denna vecka.", "profileBadge": "Mottagna beröm",
     "receivedTotal_one": "{{count}} uppskattning från hushållet", "receivedTotal_other": "{{count}} uppskattningar från hushållet"
+  },
+  "laundry": {
+    "title": "Ska tvätta",
+    "typeLabel": "Tvättyp",
+    "tempLabel": "Temperatur",
+    "send": "Meddela i chatten",
+    "message": "🧺 Jag kör en tvätt på {{temp}}°C ({{type}}) — häng på för att spara el!",
+    "types": { "WHITES": "Vitt", "COLORS": "Kulört", "DELICATES": "Fintvätt", "WOOL": "Ylle", "SPORTS": "Träningskläder", "TOWELS": "Handdukar" }
   },
   "quietHours": { "title": "Tyst tid", "window": "{{start}}–{{end}}", "disabled": "Tyst tid är av", "save": "Spara tyst tid" },
   "calendar": {
@@ -905,6 +930,8 @@
       "dark": "Mörkt talltema",
       "lightLabel": "Ljus",
       "darkLabel": "Mörk",
+      "pink": "Mjukt rosa tema",
+      "pinkLabel": "Rosa",
       "toggle": "Växla mellan ljust och mörkt utseende"
     },
     "status": {
@@ -953,6 +980,7 @@
         "SHOPPING_ITEM_ADDED": "{{actorName}} lade till '{{item}}' i inköpslistan",
         "EVENT_ADDED": "Ny händelse: '{{title}}' den {{date}}",
         "NEW_MESSAGE": "{{sender}}: \"{{preview}}\"",
+        "KUDOS_RECEIVED": "💛 {{sender}} gav dig kudos: {{context}}",
         "HOUSE_RULES_UPDATED": "Husreglerna uppdaterades till version {{version}}.",
         "GUEST_NOTICE_CREATED": "{{host}} får besök av {{guest}} den {{date}}.",
         "GUEST_QUIET_HOURS_OVERLAP": "{{guest}}s besök överlappar tyst tid från {{start}}."
@@ -1040,7 +1068,8 @@
       "friendRemoved": "Vän borttagen",
       "preferencesSaved": "Aviseringsinställningar sparade",
       "colorSaved": "Profilfärg sparad",
-      "codeCopied": "Kollektivkoden kopierad"
+      "codeCopied": "Kollektivkoden kopierad",
+      "quietHoursSaved": "Tyst tid sparad"
     },
     "errors": {
       "passwordTooShort": "Lösenordet måste vara minst 8 tecken",
@@ -1053,6 +1082,7 @@
       "preferencesUpdateFailed": "Kunde inte uppdatera aviseringsinställningarna",
       "colorUpdateFailed": "Kunde inte uppdatera profilfärgen",
       "copyFailed": "Kunde inte kopiera kollektivkoden",
+      "quietHoursFailed": "Kunde inte spara tyst tid",
       "leaveFailed": "Kunde inte lämna kollektivet",
       "partialLoadFailed": "En del profilinformation kunde inte laddas."
     }

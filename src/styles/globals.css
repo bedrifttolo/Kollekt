@@ -70,6 +70,39 @@
   --shadow: 0 12px 36px rgba(0, 0, 0, 0.24);
 }
 
+.pink {
+  color-scheme: light;
+  --background: #fdeef4;
+  --foreground: #3b1f2b;
+  --card: #fff5fa;
+  --card-foreground: #3b1f2b;
+  --popover: #fff5fa;
+  --popover-foreground: #3b1f2b;
+  --primary: #c43e74;
+  --primary-foreground: #fff5fa;
+  --secondary: #f4a8c8;
+  --secondary-foreground: #3b1f2b;
+  --muted: #f6dde8;
+  --muted-foreground: #8c6675;
+  --accent: #e58fb4;
+  --accent-foreground: #3b1f2b;
+  --destructive: #c0395f;
+  --destructive-foreground: #fff8fb;
+  --border: #f0ccdb;
+  --input: #f0ccdb;
+  --ring: #c43e74;
+  --glass-border: #f0ccdb;
+  --sidebar: #c43e74;
+  --sidebar-foreground: #fff5fa;
+  --sidebar-primary: #ffd9e7;
+  --sidebar-primary-foreground: #3b1f2b;
+  --sidebar-accent: #d4628c;
+  --sidebar-accent-foreground: #fff5fa;
+  --sidebar-border: #d4628c;
+  --sidebar-ring: #ffd9e7;
+  --shadow: 0 10px 32px rgba(150, 40, 80, 0.10);
+}
+
 @theme inline {
   --color-background: var(--background); --color-foreground: var(--foreground);
   --color-card: var(--card); --color-card-foreground: var(--card-foreground);

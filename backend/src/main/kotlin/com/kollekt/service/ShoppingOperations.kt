@@ -23,7 +23,10 @@ class ShoppingOperations(
 ) {
     fun getShoppingItems(memberName: String): List<ShoppingItemDto> {
         val collectiveCode = collectiveAccessService.requireCollectiveCodeByMemberName(memberName)
-        return shoppingItemRepository.findAllByCollectiveCode(collectiveCode).map { it.toDto() }
+        val boughtCutoff = LocalDateTime.now().minusDays(1)
+        return shoppingItemRepository.findAllByCollectiveCode(collectiveCode)
+            .filter { !(it.completed && it.completedAt != null && it.completedAt.isBefore(boughtCutoff)) }
+            .map { it.toDto() }
     }
 
     @Transactional

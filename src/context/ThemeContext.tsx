@@ -1,27 +1,35 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { StatusBar, Style } from '@capacitor/status-bar';
 
-type Theme = 'light' | 'dark';
+export type Theme = 'light' | 'dark' | 'pink';
 
-const ThemeContext = createContext<{ theme: Theme; toggleTheme: () => void } | null>(null);
+const ThemeContext = createContext<{ theme: Theme; setTheme: (theme: Theme) => void } | null>(null);
 
 function initialTheme(): Theme {
   const stored = localStorage.getItem('kollekt-theme');
-  if (stored === 'light' || stored === 'dark') return stored;
+  if (stored === 'light' || stored === 'dark' || stored === 'pink') return stored;
   return 'light';
 }
+
+const STATUS_BAR_COLOR: Record<Theme, string> = {
+  light: '#F1EEE2',
+  dark: '#0D1912',
+  pink: '#FDEEF4',
+};
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<Theme>(initialTheme);
 
   useEffect(() => {
-    document.documentElement.classList.toggle('dark', theme === 'dark');
+    const root = document.documentElement;
+    root.classList.toggle('dark', theme === 'dark');
+    root.classList.toggle('pink', theme === 'pink');
     localStorage.setItem('kollekt-theme', theme);
     void StatusBar.setStyle({ style: theme === 'dark' ? Style.Light : Style.Dark }).catch(() => {});
-    void StatusBar.setBackgroundColor({ color: theme === 'dark' ? '#0D1912' : '#F1EEE2' }).catch(() => {});
+    void StatusBar.setBackgroundColor({ color: STATUS_BAR_COLOR[theme] }).catch(() => {});
   }, [theme]);
 
-  const value = useMemo(() => ({ theme, toggleTheme: () => setTheme((value) => value === 'light' ? 'dark' : 'light') }), [theme]);
+  const value = useMemo(() => ({ theme, setTheme }), [theme]);
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
 

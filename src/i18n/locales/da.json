@@ -79,6 +79,12 @@
       "PARTY": "Fest",
       "MOVIE": "Film",
       "DINNER": "Middag",
+      "GAME_NIGHT": "Spilaften",
+      "CLEANING": "Rengøring",
+      "SPORTS": "Sport",
+      "BIRTHDAY": "Fødselsdag",
+      "MEETING": "Møde",
+      "TRIP": "Tur",
       "OTHER": "Andet"
     },
     "memberStatus": {
@@ -361,6 +367,14 @@
       "titlePlaceholder": "Hvad skal repareres?",
       "descriptionPlaceholder": "Beskriv problemet...",
       "costPlaceholder": "Prisoverslag (kr)",
+      "splitLabel": "Del udgiften med",
+      "splitHint": "Når sagen er fuldført, deles udgiften mellem disse på økonomisiden.",
+      "completeTitle": "Fuldfør sag",
+      "completeSubtitle": "Del udgiften på {{amount}} for “{{title}}” — vælg hvem der deler den.",
+      "completeConfirm": "Fuldfør og føj til økonomi",
+      "edit": "Rediger sag",
+      "delete": "Slet sag",
+      "saveEdit": "Gem ændringer",
       "unassigned": "Ikke tildelt",
       "all": "Alle",
       "empty": "Ingen vedligeholdelsessager her.",
@@ -389,12 +403,23 @@
     "improvementLabel": "Forbedring"
   },
   "kudos": {
+    "typeLabel": "For hvad?",
+    "types": { "THANK_YOU": "Tak", "CLEANEST": "Reneste", "MOST_HELPFUL": "Mest hjælpsom", "PEACEMAKER": "Fredsmægler" },
+    "privateNote": "Kun de ser dette — det deles ikke med kollektivet.",
     "sendTitle": "Send ros", "chooseRoommate": "Vælg en bofælle", "generalHelp": "Generel hjælp",
     "contextPlaceholder": "Hvad gjorde personen, som hjalp?", "send": "Send ros",
     "dailyLimit": "Du kan sende op til 3 ros om dagen.", "weeklyTitle": "Ugens positivitet",
     "weeklyTotal_one": "{{count}} ros delt i denne uge", "weeklyTotal_other": "{{count}} ros delt i denne uge",
     "weeklyEmpty": "Vær den første til at værdsætte nogen i denne uge.", "profileBadge": "Modtaget ros",
     "receivedTotal_one": "{{count}} anerkendelse fra hjemmet", "receivedTotal_other": "{{count}} anerkendelser fra hjemmet"
+  },
+  "laundry": {
+    "title": "Skal vaske",
+    "typeLabel": "Vasketype",
+    "tempLabel": "Temperatur",
+    "send": "Annoncér i chatten",
+    "message": "🧺 Jeg kører en vask på {{temp}}°C ({{type}}) — vær med for at spare strøm!",
+    "types": { "WHITES": "Hvidt", "COLORS": "Kulørt", "DELICATES": "Finvask", "WOOL": "Uld", "SPORTS": "Sportstøj", "TOWELS": "Håndklæder" }
   },
   "quietHours": { "title": "Stilletid", "window": "{{start}}–{{end}}", "disabled": "Stilletid er slået fra", "save": "Gem stilletid" },
   "calendar": {
@@ -905,6 +930,8 @@
       "dark": "Mørkt fyrretema",
       "lightLabel": "Lys",
       "darkLabel": "Mørk",
+      "pink": "Blødt lyserødt tema",
+      "pinkLabel": "Lyserød",
       "toggle": "Skift mellem lyst og mørkt udseende"
     },
     "status": {
@@ -953,6 +980,7 @@
         "SHOPPING_ITEM_ADDED": "{{actorName}} tilføjede '{{item}}' til indkøbslisten",
         "EVENT_ADDED": "Ny begivenhed: '{{title}}' den {{date}}",
         "NEW_MESSAGE": "{{sender}}: \"{{preview}}\"",
+        "KUDOS_RECEIVED": "💛 {{sender}} gav dig kudos: {{context}}",
         "HOUSE_RULES_UPDATED": "Husreglerne blev opdateret til version {{version}}.",
         "GUEST_NOTICE_CREATED": "{{host}} får besøg af {{guest}} den {{date}}.",
         "GUEST_QUIET_HOURS_OVERLAP": "{{guest}}s besøg overlapper stilleperioden fra {{start}}."
@@ -1040,7 +1068,8 @@
       "friendRemoved": "Ven fjernet",
       "preferencesSaved": "Notifikationsindstillinger gemt",
       "colorSaved": "Profilfarve gemt",
-      "codeCopied": "Kollektivkoden er kopieret"
+      "codeCopied": "Kollektivkoden er kopieret",
+      "quietHoursSaved": "Stilletid gemt"
     },
     "errors": {
       "passwordTooShort": "Adgangskoden skal være mindst 8 tegn",
@@ -1053,6 +1082,7 @@
       "preferencesUpdateFailed": "Kunne ikke opdatere notifikationsindstillingerne",
       "colorUpdateFailed": "Kunne ikke opdatere profilfarven",
       "copyFailed": "Kunne ikke kopiere kollektivkoden",
+      "quietHoursFailed": "Kunne ikke gemme stilletid",
       "leaveFailed": "Kunne ikke forlade kollektivet",
       "partialLoadFailed": "Nogle profiloplysninger kunne ikke indlæses."
     }

@@ -15,6 +15,12 @@ enum class EventType {
     PARTY,
     MOVIE,
     DINNER,
+    GAME_NIGHT,
+    CLEANING,
+    SPORTS,
+    BIRTHDAY,
+    MEETING,
+    TRIP,
     OTHER,
 }
 

@@ -155,6 +155,7 @@ data class CreateMaintenanceTicketRequest(
     val assignee: String? = null,
     val dueDate: LocalDate? = null,
     val costEstimate: Int? = null,
+    val splitParticipants: List<String> = emptyList(),
 )
 
 data class UpdateMaintenanceTicketRequest(
@@ -165,6 +166,7 @@ data class UpdateMaintenanceTicketRequest(
     val assignee: String? = null,
     val dueDate: LocalDate? = null,
     val costEstimate: Int? = null,
+    val splitParticipants: List<String>? = null,
 )
 
 data class MaintenanceStatusHistoryDto(
@@ -183,6 +185,7 @@ data class MaintenanceTicketDto(
     val assignee: String?,
     val dueDate: LocalDate?,
     val costEstimate: Int?,
+    val splitParticipants: List<String>,
     val createdBy: String,
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime,
@@ -193,6 +196,7 @@ data class MaintenanceTicketDto(
 data class CreateKudoRequest(
     val receiver: String,
     val context: String,
+    val type: String = "THANK_YOU",
     val taskId: Long? = null,
 )
 
@@ -200,6 +204,7 @@ data class KudoDto(
     val id: Long,
     val sender: String,
     val receiver: String,
+    val type: String,
     val context: String,
     val taskId: Long?,
     val taskTitle: String?,

@@ -185,6 +185,15 @@ function TasksMain() {
   const [newMaintenanceAssignee, setNewMaintenanceAssignee] = useState('');
   const [newMaintenanceDue, setNewMaintenanceDue] = useState('');
   const [newMaintenanceCost, setNewMaintenanceCost] = useState('');
+  const [newMaintenanceSplit, setNewMaintenanceSplit] = useState<string[]>([]);
+  const [completingTicket, setCompletingTicket] = useState<MaintenanceTicket | null>(null);
+  const [completeSplit, setCompleteSplit] = useState<string[]>([]);
+  const [editingTicketId, setEditingTicketId] = useState<number | null>(null);
+  const [editTicketTitle, setEditTicketTitle] = useState('');
+  const [editTicketDescription, setEditTicketDescription] = useState('');
+  const [editTicketCost, setEditTicketCost] = useState('');
+  const [editTicketDue, setEditTicketDue] = useState('');
+  const [deletingTicketId, setDeletingTicketId] = useState<number | null>(null);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [newTitle, setNewTitle] = useState('');
   const [newAssignee, setNewAssignee] = useState('');
@@ -362,6 +371,7 @@ function TasksMain() {
           'SHOPPING_ITEM_UPDATED',
           'SHOPPING_ITEM_BOUGHT',
           'MAINTENANCE_UPDATED',
+          'MAINTENANCE_DELETED',
         ].includes(event.type)
       ) {
         void fetchAll();
@@ -390,6 +400,7 @@ function TasksMain() {
       assignee: newMaintenanceAssignee || null,
       dueDate: newMaintenanceDue || null,
       costEstimate: newMaintenanceCost ? Number(newMaintenanceCost) : null,
+      splitParticipants: newMaintenanceCost ? newMaintenanceSplit : [],
     });
     setMaintenanceTickets((previous) => [...previous, created]);
     setNewMaintenanceTitle('');
@@ -397,7 +408,50 @@ function TasksMain() {
     setNewMaintenanceAssignee('');
     setNewMaintenanceDue('');
     setNewMaintenanceCost('');
+    setNewMaintenanceSplit([]);
     setShowMaintenanceAdd(false);
+  };
+
+  // Completing a paid ticket asks who shares the cost, then files it as an economy expense.
+  const handleMaintenanceStatusChange = (ticket: MaintenanceTicket, status: MaintenanceStatus) => {
+    if (status === 'DONE' && ticket.status !== 'DONE' && (ticket.costEstimate ?? 0) > 0) {
+      setCompleteSplit(ticket.splitParticipants.length > 0 ? ticket.splitParticipants : memberOptions);
+      setCompletingTicket(ticket);
+    } else {
+      void updateMaintenanceTicket(ticket.id, { status });
+    }
+  };
+
+  const confirmCompleteTicket = async () => {
+    if (!completingTicket) return;
+    await updateMaintenanceTicket(completingTicket.id, { status: 'DONE', splitParticipants: completeSplit });
+    setCompletingTicket(null);
+  };
+
+  const startEditTicket = (ticket: MaintenanceTicket) => {
+    setEditingTicketId(ticket.id);
+    setEditTicketTitle(ticket.title);
+    setEditTicketDescription(ticket.description);
+    setEditTicketCost(ticket.costEstimate != null ? String(ticket.costEstimate) : '');
+    setEditTicketDue(ticket.dueDate ?? '');
+    setDeletingTicketId(null);
+  };
+
+  const saveEditTicket = async () => {
+    if (editingTicketId == null || !editTicketTitle.trim()) return;
+    await updateMaintenanceTicket(editingTicketId, {
+      title: editTicketTitle,
+      description: editTicketDescription,
+      costEstimate: editTicketCost ? Number(editTicketCost) : null,
+      dueDate: editTicketDue || null,
+    });
+    setEditingTicketId(null);
+  };
+
+  const deleteMaintenanceTicket = async (ticketId: number) => {
+    await api.delete(`/maintenance/tickets/${ticketId}`);
+    setMaintenanceTickets((tickets) => tickets.filter((ticket) => ticket.id !== ticketId));
+    setDeletingTicketId(null);
   };
 
   const updateMaintenanceTicket = async (ticketId: number, updates: Partial<MaintenanceTicket>) => {
@@ -800,6 +854,26 @@ function TasksMain() {
                 <input type="date" value={newMaintenanceDue} onChange={(event) => setNewMaintenanceDue(event.target.value)} className="rounded-lg bg-muted/50 px-3 py-2 text-sm" />
                 <input type="number" min="0" value={newMaintenanceCost} onChange={(event) => setNewMaintenanceCost(event.target.value)} placeholder={t('tasks.maintenance.costPlaceholder')} className="rounded-lg bg-muted/50 px-3 py-2 text-sm" />
               </div>
+              {Number(newMaintenanceCost) > 0 && (
+                <div>
+                  <p className="mb-1.5 text-[11px] font-semibold text-muted-foreground">{t('tasks.maintenance.splitLabel')}</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {memberOptions.map((member) => {
+                      const selected = newMaintenanceSplit.includes(member);
+                      return (
+                        <button
+                          key={member}
+                          onClick={() => setNewMaintenanceSplit((prev) => selected ? prev.filter((m) => m !== member) : [...prev, member])}
+                          className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${selected ? 'bg-primary text-primary-foreground' : 'bg-muted/60 text-muted-foreground'}`}
+                        >
+                          {member}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <p className="mt-1 text-[10px] text-muted-foreground">{t('tasks.maintenance.splitHint')}</p>
+                </div>
+              )}
               <button onClick={() => void handleMaintenanceAdd()} disabled={!newMaintenanceTitle.trim()} className="w-full rounded-lg bg-primary py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50">{t('tasks.maintenance.addTicket')}</button>
             </div>
           </motion.div>
@@ -1454,9 +1528,28 @@ function TasksMain() {
                     </p>
                     {ticket.overdue && <p className="mt-1 text-[10px] font-bold text-destructive">{t('tasks.maintenance.overdue')}</p>}
                   </div>
+                  <div className="flex shrink-0 items-center gap-1">
+                    <button onClick={() => startEditTicket(ticket)} aria-label={t('tasks.maintenance.edit')} className="grid h-8 w-8 place-items-center rounded-lg text-muted-foreground hover:bg-muted">
+                      <Edit3 className="h-3.5 w-3.5" />
+                    </button>
+                    {deletingTicketId === ticket.id ? (
+                      <>
+                        <button onClick={() => void deleteMaintenanceTicket(ticket.id)} aria-label={t('common.done')} className="grid h-8 w-8 place-items-center rounded-lg text-destructive hover:bg-destructive/10">
+                          <CheckCircle2 className="h-3.5 w-3.5" />
+                        </button>
+                        <button onClick={() => setDeletingTicketId(null)} aria-label={t('common.cancel')} className="grid h-8 w-8 place-items-center rounded-lg text-muted-foreground hover:bg-muted">
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                      </>
+                    ) : (
+                      <button onClick={() => setDeletingTicketId(ticket.id)} aria-label={t('tasks.maintenance.delete')} className="grid h-8 w-8 place-items-center rounded-lg text-muted-foreground hover:text-destructive">
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    )}
+                  </div>
                 </div>
                 <div className="mt-3 grid grid-cols-3 gap-2">
-                  <select value={ticket.status} onChange={(event) => void updateMaintenanceTicket(ticket.id, { status: event.target.value as MaintenanceStatus })} className="rounded-lg border border-border bg-background px-2 py-2 text-xs">
+                  <select value={ticket.status} onChange={(event) => handleMaintenanceStatusChange(ticket, event.target.value as MaintenanceStatus)} className="rounded-lg border border-border bg-background px-2 py-2 text-xs">
                     {(['OPEN', 'IN_PROGRESS', 'BLOCKED', 'DONE'] as const).map((status) => <option key={status} value={status}>{t(`tasks.maintenance.statuses.${status}`)}</option>)}
                   </select>
                   <select value={ticket.assignee ?? ''} onChange={(event) => void updateMaintenanceTicket(ticket.id, { assignee: event.target.value })} className="rounded-lg border border-border bg-background px-2 py-2 text-xs">
@@ -1467,6 +1560,20 @@ function TasksMain() {
                     {(['LOW', 'MEDIUM', 'HIGH', 'URGENT'] as const).map((priority) => <option key={priority} value={priority}>{t(`tasks.maintenance.priorities.${priority}`)}</option>)}
                   </select>
                 </div>
+                {editingTicketId === ticket.id && (
+                  <div className="mt-3 space-y-2 rounded-xl border border-border bg-background/40 p-3">
+                    <input value={editTicketTitle} onChange={(event) => setEditTicketTitle(event.target.value)} placeholder={t('tasks.maintenance.titlePlaceholder')} className="w-full rounded-lg bg-muted/50 px-3 py-2 text-sm" />
+                    <textarea value={editTicketDescription} onChange={(event) => setEditTicketDescription(event.target.value)} placeholder={t('tasks.maintenance.descriptionPlaceholder')} rows={2} className="w-full resize-none rounded-lg bg-muted/50 px-3 py-2 text-sm" />
+                    <div className="grid grid-cols-2 gap-2">
+                      <input type="date" value={editTicketDue} onChange={(event) => setEditTicketDue(event.target.value)} className="rounded-lg bg-muted/50 px-3 py-2 text-sm" />
+                      <input type="number" min="0" value={editTicketCost} onChange={(event) => setEditTicketCost(event.target.value)} placeholder={t('tasks.maintenance.costPlaceholder')} className="rounded-lg bg-muted/50 px-3 py-2 text-sm" />
+                    </div>
+                    <div className="flex gap-2">
+                      <button onClick={() => void saveEditTicket()} disabled={!editTicketTitle.trim()} className="flex-1 rounded-lg bg-primary py-2 text-xs font-bold text-primary-foreground disabled:opacity-50">{t('tasks.maintenance.saveEdit')}</button>
+                      <button onClick={() => setEditingTicketId(null)} className="flex-1 rounded-lg glass py-2 text-xs font-medium">{t('common.cancel')}</button>
+                    </div>
+                  </div>
+                )}
                 {ticket.statusHistory.length > 1 && (
                   <p className="mt-3 text-[9px] text-muted-foreground">
                     {ticket.statusHistory.map((entry) => `${t(`tasks.maintenance.statuses.${entry.status}`)} · ${entry.changedBy}`).join(' → ')}
@@ -1476,6 +1583,49 @@ function TasksMain() {
             ))}
         </div>
       )}
+
+      <AnimatePresence>
+        {completingTicket && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4"
+            onClick={() => setCompletingTicket(null)}
+          >
+            <motion.div
+              initial={{ y: 24 }} animate={{ y: 0 }} exit={{ y: 24 }}
+              className="w-full max-w-md max-h-[85vh] overflow-y-auto rounded-[1.5rem] bg-background p-5 space-y-3"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <div className="flex items-center justify-between">
+                <h3 className="font-display text-lg font-bold">{t('tasks.maintenance.completeTitle')}</h3>
+                <button onClick={() => setCompletingTicket(null)} className="grid h-8 w-8 place-items-center rounded-full bg-muted"><X className="h-4 w-4" /></button>
+              </div>
+              <p className="text-sm text-muted-foreground">{t('tasks.maintenance.completeSubtitle', { title: completingTicket.title, amount: `${completingTicket.costEstimate} kr` })}</p>
+              <div className="flex flex-wrap gap-1.5">
+                {memberOptions.map((member) => {
+                  const selected = completeSplit.includes(member);
+                  return (
+                    <button
+                      key={member}
+                      onClick={() => setCompleteSplit((prev) => selected ? prev.filter((m) => m !== member) : [...prev, member])}
+                      className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${selected ? 'bg-primary text-primary-foreground' : 'bg-muted/60 text-muted-foreground'}`}
+                    >
+                      {member}
+                    </button>
+                  );
+                })}
+              </div>
+              <button
+                onClick={() => void confirmCompleteTicket()}
+                disabled={completeSplit.length === 0}
+                className="w-full rounded-xl bg-primary py-2.5 text-sm font-bold text-primary-foreground disabled:opacity-50"
+              >
+                {t('tasks.maintenance.completeConfirm')}
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }
