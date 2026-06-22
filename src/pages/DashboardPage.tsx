@@ -64,7 +64,7 @@ export default function DashboardPage() {
     const disconnect = connectCollectiveRealtime(
       currentUser.name,
       (event) => {
-        if (event.type === 'TASK_UPDATED' || event.type === 'EXPENSE_CREATED' || event.type === 'EVENT_CREATED') {
+        if (['TASK_UPDATED', 'TASK_COMPLETED_LATE', 'EXPENSE_CREATED', 'EVENT_CREATED', 'BALANCES_SETTLED'].includes(event.type)) {
           fetchDashboard();
         }
         if (event.type === 'MEMBER_ONLINE' || event.type === 'MEMBER_OFFLINE') {
@@ -88,13 +88,17 @@ export default function DashboardPage() {
 
   const xpLabel = `${data.currentUserXp % 200}/200 XP`;
 
+  const hour = new Date().getHours();
+  const greetingKey =
+    hour < 12 ? 'dashboard.greetingMorning' : hour < 18 ? 'dashboard.greetingAfternoon' : 'dashboard.greetingEvening';
+
   return (
     <motion.div variants={container} initial="hidden" animate="show" className="space-y-5 pt-3 pb-6">
       {/* Welcome */}
       <motion.div variants={item}>
         <Eyebrow>{translate('dashboard.today')}</Eyebrow>
         <h2 className="font-display text-[2.55rem] leading-[.98] font-extrabold tracking-[-.04em] mt-2">
-          {translate('dashboard.greeting', { name: currentUser?.name })} <span className="mark">🌿</span>
+          {translate(greetingKey, { name: currentUser?.name })} <span className="mark">🌿</span>
         </h2>
       </motion.div>
 

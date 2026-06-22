@@ -8,6 +8,7 @@ import { formatDateTime, formatTime } from '../i18n/helpers';
 import { connectCollectiveRealtime } from '../lib/realtime';
 import type { ChatMessage } from '../lib/types';
 import { AvatarStack } from '../components/ui-kit';
+import { colorForMember } from '../lib/memberColors';
 
 const REACTION_EMOJIS = [
   '👍', '❤️', '😂', '🎉', '😮', '😢', '😡', '🔥',
@@ -29,13 +30,18 @@ export default function ChatPage() {
   const [expandedImage, setExpandedImage] = useState<{ src: string; alt: string } | null>(null);
   const [onlineCount, setOnlineCount] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
+  const [mention, setMention] = useState<{ query: string; start: number } | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const messageInputRef = useRef<HTMLInputElement>(null);
 
   const name = currentUser?.name ?? '';
   const messageById = new Map(messages.map((message) => [message.id, message]));
   const participants = Array.from(new Set(messages.map((message) => message.sender)));
   const headerMembers = members.length > 0 ? members : participants.length > 0 ? participants : [name];
+  const mentionCandidates = mention
+    ? members.filter((m) => m !== name && m.toLowerCase().includes(mention.query.toLowerCase())).slice(0, 6)
+    : [];
   const formatMessageTimestamp = (value: string) => {
     const messageDate = new Date(value);
     const now = new Date();
@@ -88,9 +94,45 @@ export default function ChatPage() {
     const text = input;
     const replyToMessageId = replyingToId;
     setInput('');
+    setMention(null);
     setReplyingToId(null);
     await api.post('/chat/messages', { sender: name, text, replyToMessageId });
     fetchMessages();
+  };
+
+  // Detect an in-progress "@name" token immediately before the caret.
+  const detectMention = (value: string, caret: number): { query: string; start: number } | null => {
+    for (let i = caret - 1; i >= 0; i--) {
+      const char = value[i];
+      if (/\s/.test(char)) return null;
+      if (char === '@') {
+        const prev = i === 0 ? ' ' : value[i - 1];
+        return /\s/.test(prev) ? { query: value.slice(i + 1, caret), start: i } : null;
+      }
+    }
+    return null;
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setInput(value);
+    setMention(detectMention(value, e.target.selectionStart ?? value.length));
+  };
+
+  const insertMention = (member: string) => {
+    if (!mention) return;
+    const before = input.slice(0, mention.start);
+    const after = input.slice(mention.start + 1 + mention.query.length);
+    setInput(`${before}@${member} ${after}`);
+    setMention(null);
+    const caret = before.length + member.length + 2;
+    requestAnimationFrame(() => {
+      const el = messageInputRef.current;
+      if (el) {
+        el.focus();
+        el.setSelectionRange(caret, caret);
+      }
+    });
   };
 
   const sendPoll = async () => {
@@ -328,25 +370,50 @@ export default function ChatPage() {
       )}
 
       {/* Input bar */}
-      <div className="flex gap-2 rounded-[1.35rem] border border-border bg-card p-2 shadow-sm">
-        <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/heic"
-          className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) sendImage(f); }} />
-        <button onClick={() => fileInputRef.current?.click()} className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-muted" aria-label={t('chat.sendImage')}>
-          <ImageIcon className="h-4 w-4 text-muted-foreground" />
-        </button>
-        <button onClick={() => setShowPollForm((v) => !v)} className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-muted" aria-label={t('chat.togglePollForm')}>
-          <BarChart3 className="h-4 w-4 text-muted-foreground" />
-        </button>
-        <input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && sendMessage()}
-          placeholder={t('chat.messagePlaceholder')}
-          className="min-w-0 flex-1 rounded-full bg-muted px-4 py-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-        />
-        <button onClick={sendMessage} className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary" aria-label={t('common.send')}>
-          <Send className="h-4 w-4 text-primary-foreground" />
-        </button>
+      <div className="relative">
+        {mention && mentionCandidates.length > 0 && (
+          <div className="absolute bottom-full left-0 right-0 mb-2 z-30 max-h-52 overflow-y-auto rounded-2xl border border-border bg-popover p-1 shadow-xl">
+            {mentionCandidates.map((member) => (
+              <button
+                key={member}
+                onMouseDown={(e) => { e.preventDefault(); insertMention(member); }}
+                className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm hover:bg-muted/60"
+              >
+                <span style={{ backgroundColor: colorForMember(member) }} className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-xs font-bold text-white">
+                  {member[0].toUpperCase()}
+                </span>
+                <span className="font-medium">{member}</span>
+              </button>
+            ))}
+          </div>
+        )}
+        <div className="flex gap-2 rounded-[1.35rem] border border-border bg-card p-2 shadow-sm">
+          <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/heic"
+            className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) sendImage(f); }} />
+          <button onClick={() => fileInputRef.current?.click()} className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-muted" aria-label={t('chat.sendImage')}>
+            <ImageIcon className="h-4 w-4 text-muted-foreground" />
+          </button>
+          <button onClick={() => setShowPollForm((v) => !v)} className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-muted" aria-label={t('chat.togglePollForm')}>
+            <BarChart3 className="h-4 w-4 text-muted-foreground" />
+          </button>
+          <input
+            ref={messageInputRef}
+            value={input}
+            onChange={handleInputChange}
+            onKeyDown={(e) => {
+              if (mention && mentionCandidates.length > 0) {
+                if (e.key === 'Enter') { e.preventDefault(); insertMention(mentionCandidates[0]); return; }
+                if (e.key === 'Escape') { setMention(null); return; }
+              }
+              if (e.key === 'Enter' && !e.shiftKey) sendMessage();
+            }}
+            placeholder={t('chat.messagePlaceholder')}
+            className="min-w-0 flex-1 rounded-full bg-muted px-4 py-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+          />
+          <button onClick={sendMessage} className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary" aria-label={t('common.send')}>
+            <Send className="h-4 w-4 text-primary-foreground" />
+          </button>
+        </div>
       </div>
 
       <AnimatePresence>

@@ -649,7 +649,7 @@ function TasksMain() {
         {(['tasks', 'shopping'] as const).map((value) => (
           <button
             key={value}
-            onClick={() => setTab(value)}
+            onClick={() => { setTab(value); setShowAdd(false); setShowShoppingAdd(false); }}
             className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all ${
               tab === value
                 ? 'bg-primary text-primary-foreground'

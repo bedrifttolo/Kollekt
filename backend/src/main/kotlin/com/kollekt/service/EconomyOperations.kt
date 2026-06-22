@@ -7,6 +7,7 @@ import com.kollekt.api.dto.EconomySummaryDto
 import com.kollekt.api.dto.ExpenseDto
 import com.kollekt.api.dto.PantEntryDto
 import com.kollekt.api.dto.PantSummaryDto
+import com.kollekt.api.dto.PaymentHandlesDto
 import com.kollekt.api.dto.PayOptionDto
 import com.kollekt.api.dto.SettleUpResponse
 import com.kollekt.api.dto.UpdateExpenseRequest
@@ -177,7 +178,18 @@ class EconomyOperations(
         val allExpenses = expenseRepository.findAllByCollectiveCode(collectiveCode)
         if (allExpenses.isEmpty()) return emptyList()
 
-        val members = memberRepository.findAllByCollectiveCode(collectiveCode).map { it.name }
+        val memberEntities = memberRepository.findAllByCollectiveCode(collectiveCode)
+        val handlesByName =
+            memberEntities.associate { member ->
+                member.name to
+                    PaymentHandlesDto(
+                        vipps = member.vippsHandle,
+                        mobilepay = member.mobilepayHandle,
+                        paypal = member.paypalHandle,
+                        bankAccount = member.bankAccount,
+                    )
+            }
+        val members = memberEntities.map { it.name }
         val memberSet = members.toSet()
         val payerCheckpoint = latestSettledExpenseIdForMember(collectiveCode, memberName)
         val personalSettlements = personalSettlementRepository.findAllByCollectiveCode(collectiveCode)
@@ -208,7 +220,15 @@ class EconomyOperations(
                         .sumOf { it.amount }
                 val netOwed = (bilateralDebt - alreadyPaidByPayer + alreadyPaidByCreditor).coerceAtLeast(0)
 
-                if (netOwed > 0) PayOptionDto(name = creditorName, amount = netOwed) else null
+                if (netOwed > 0) {
+                    PayOptionDto(
+                        name = creditorName,
+                        amount = netOwed,
+                        handles = handlesByName[creditorName] ?: PaymentHandlesDto(),
+                    )
+                } else {
+                    null
+                }
             }.sortedByDescending { it.amount }
             .toList()
     }

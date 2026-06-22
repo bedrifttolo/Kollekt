@@ -403,6 +403,22 @@ data class SettleWithRequest(
 data class PayOptionDto(
     val name: String,
     val amount: Int,
+    val handles: PaymentHandlesDto = PaymentHandlesDto(),
+)
+
+data class PaymentHandlesDto(
+    val vipps: String? = null,
+    val mobilepay: String? = null,
+    val paypal: String? = null,
+    val bankAccount: String? = null,
+)
+
+data class UpdatePaymentHandlesRequest(
+    val memberName: String,
+    val vipps: String? = null,
+    val mobilepay: String? = null,
+    val paypal: String? = null,
+    val bankAccount: String? = null,
 )
 
 data class SettleUpResponse(

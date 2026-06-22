@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowUpRight, ArrowDownLeft, Check, Recycle, ChevronRight, X, Users, Pencil, Trash2 } from 'lucide-react';
+import { ArrowUpRight, ArrowDownLeft, Check, Recycle, ChevronRight, X, Users, Pencil, Trash2, Copy, ExternalLink } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { api } from '../lib/api';
 import { useUser } from '../context/UserContext';
@@ -10,6 +10,14 @@ import { connectCollectiveRealtime } from '../lib/realtime';
 import type { EconomySummary, Expense, PayOption } from '../lib/types';
 import { Eyebrow, Fab } from '../components/ui-kit';
 import { colorForMember } from '../lib/memberColors';
+import { availableMethods, hasAnyMethod, openPaymentLink } from '../lib/paymentLinks';
+
+const PROVIDER_LABELS: Record<string, string> = {
+  vipps: 'Vipps',
+  mobilepay: 'MobilePay',
+  paypal: 'PayPal',
+  bank: 'economy.pay.bankTransfer',
+};
 
 const EXPENSE_CATEGORIES = ['Groceries', 'Bills', 'Cleaning', 'Entertainment', 'Food', 'Other'];
 
@@ -35,6 +43,8 @@ export default function EconomyPage() {
   const [deletingExpenseId, setDeletingExpenseId] = useState<number | null>(null);
   const [payOptions, setPayOptions] = useState<PayOption[]>([]);
   const [selectedCreditorName, setSelectedCreditorName] = useState('');
+  const [showPaySheet, setShowPaySheet] = useState(false);
+  const [copiedValue, setCopiedValue] = useState<string | null>(null);
 
   const name = currentUser?.name ?? '';
 
@@ -131,14 +141,32 @@ export default function EconomyPage() {
     setSettling(false);
   };
 
-  const handlePayCreditor = async () => {
+  const handleMarkSettled = async () => {
     if (!selectedPayOption) return;
     setSettling(true);
     try {
       await api.post('/economy/settle-with', { creditorName: selectedPayOption.name });
+      setShowPaySheet(false);
       fetchSummary();
     } catch {}
     setSettling(false);
+  };
+
+  const handlePayCreditor = () => {
+    if (!selectedPayOption) return;
+    if (hasAnyMethod(selectedPayOption.handles)) {
+      setShowPaySheet(true);
+    } else {
+      handleMarkSettled();
+    }
+  };
+
+  const copyValue = async (value: string) => {
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopiedValue(value);
+      setTimeout(() => setCopiedValue((v) => (v === value ? null : v)), 1500);
+    } catch {}
   };
 
   if (loading || !summary) {
@@ -200,6 +228,73 @@ export default function EconomyPage() {
           </div>
         )}
       </div>
+
+      {/* Pay sheet — deep-links to the creditor's payment apps; Kollekt never moves money */}
+      <AnimatePresence>
+        {showPaySheet && selectedPayOption && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4"
+            onClick={() => setShowPaySheet(false)}
+          >
+            <motion.div
+              initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 40, opacity: 0 }}
+              className="glass w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 space-y-3"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-semibold">{t('economy.pay.title', { name: selectedPayOption.name })}</p>
+                  <p className="text-xs text-muted-foreground">{t('economy.pay.subtitle', { amount: formatCurrency(selectedPayOption.amount) })}</p>
+                </div>
+                <button onClick={() => setShowPaySheet(false)} aria-label={t('common.cancel')}>
+                  <X className="h-4 w-4 text-muted-foreground" />
+                </button>
+              </div>
+
+              <div className="space-y-2">
+                {availableMethods(selectedPayOption.handles, selectedPayOption.amount).map((m) => {
+                  const label = PROVIDER_LABELS[m.provider];
+                  const display = label.includes('.') ? t(label) : label;
+                  return (
+                    <div key={m.provider} className="glass rounded-xl p-3 flex items-center gap-3">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold">{display}</p>
+                        <p className="text-xs text-muted-foreground truncate">{m.value}</p>
+                      </div>
+                      <button
+                        onClick={() => void copyValue(m.value)}
+                        className="h-9 w-9 rounded-lg glass flex items-center justify-center shrink-0"
+                        aria-label={t('economy.pay.copy')}
+                      >
+                        {copiedValue === m.value ? <Check className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4 text-muted-foreground" />}
+                      </button>
+                      {m.url && (
+                        <button
+                          onClick={() => void openPaymentLink(m.url!)}
+                          className="rounded-lg gradient-primary px-3 py-2 text-xs font-semibold text-primary-foreground flex items-center gap-1.5 shrink-0"
+                        >
+                          <ExternalLink className="h-3.5 w-3.5" /> {t('economy.pay.open')}
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              <p className="text-[10px] text-muted-foreground">{t('economy.pay.disclaimer')}</p>
+
+              <button
+                onClick={() => void handleMarkSettled()}
+                disabled={settling}
+                className="w-full gradient-primary rounded-xl py-2.5 text-sm font-semibold text-primary-foreground flex items-center justify-center gap-2 disabled:opacity-60"
+              >
+                <Check className="h-4 w-4" /> {t('economy.pay.markSettled')}
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {!showAdd && <Fab onClick={() => setShowAdd(true)} label={t('economy.newExpense')} />}
 

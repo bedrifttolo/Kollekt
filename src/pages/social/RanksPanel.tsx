@@ -172,7 +172,7 @@ export default function RanksPanel() {
   return (
     <div className="space-y-5">
       {/* Podium */}
-      {podiumOrder.length >= 3 && (
+      {podiumOrder.length >= 2 && (
         <div className="flex items-end justify-center gap-3 pt-12">
           {podiumOrder.map((user, i) => (
             <motion.button

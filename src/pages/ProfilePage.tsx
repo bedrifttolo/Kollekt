@@ -18,6 +18,8 @@ import {
   Sun,
   Moon,
   Globe2,
+  Wallet,
+  ArrowLeft,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
@@ -34,6 +36,7 @@ import type {
   NotificationPreferences,
   LeaderboardPlayer,
   Achievement,
+  PaymentHandles,
 } from "../lib/types";
 import { useTheme } from "../context/ThemeContext";
 import { Eyebrow } from "../components/ui-kit";
@@ -83,6 +86,9 @@ export default function ProfilePage() {
   const [expandNotifPrefs, setExpandNotifPrefs] = useState(false);
   const [notifPrefs, setNotifPrefs] = useState<NotificationPreferences>({});
   const [expandInvite, setExpandInvite] = useState(false);
+  const [expandPayment, setExpandPayment] = useState(false);
+  const [paymentHandles, setPaymentHandles] = useState<PaymentHandles>({});
+  const [paymentSaving, setPaymentSaving] = useState(false);
   const [expandPassword, setExpandPassword] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [friendName, setFriendName] = useState("");
@@ -132,6 +138,9 @@ export default function ProfilePage() {
     void api.get<AppUser[]>(`/members/collective?memberName=${encodeURIComponent(name)}`)
       .then(setHouseholdMembers)
       .catch(() => setProfileLoadFailed(true));
+    void api.get<PaymentHandles>(`/members/payment-handles?memberName=${encodeURIComponent(name)}`)
+      .then(setPaymentHandles)
+      .catch(() => {});
     void loadStatsAndAchievements();
   }, [name, loadStatsAndAchievements]);
 
@@ -219,6 +228,27 @@ export default function ProfilePage() {
       setFeedback({ type: "error", text: getUserMessage(error, t("profile.errors.invitationFailed")) });
     } finally {
       setInviteSaving(false);
+    }
+  };
+
+  const handleSavePayment = async () => {
+    if (!name || paymentSaving) return;
+    setPaymentSaving(true);
+    setFeedback(null);
+    try {
+      const saved = await api.patch<PaymentHandles>("/members/payment-handles", {
+        memberName: name,
+        vipps: paymentHandles.vipps ?? null,
+        mobilepay: paymentHandles.mobilepay ?? null,
+        paypal: paymentHandles.paypal ?? null,
+        bankAccount: paymentHandles.bankAccount ?? null,
+      });
+      setPaymentHandles(saved);
+      setFeedback({ type: "success", text: t("profile.paymentMethods.saved") });
+    } catch (error: unknown) {
+      setFeedback({ type: "error", text: getUserMessage(error, t("profile.paymentMethods.saveFailed")) });
+    } finally {
+      setPaymentSaving(false);
     }
   };
 
@@ -346,6 +376,14 @@ export default function ProfilePage() {
       animate={{ opacity: 1, y: 0 }}
       className="space-y-4 pt-4 pb-8"
     >
+      <button
+        onClick={() => navigate(-1)}
+        className="-ml-1 inline-flex items-center gap-1 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+        aria-label={t("common.back")}
+      >
+        <ArrowLeft className="h-5 w-5" />
+        {t("common.back")}
+      </button>
       <div>
         <Eyebrow>{t("profile.eyebrow")}</Eyebrow>
         <h2 className="mt-2 font-display text-[2.35rem] font-extrabold leading-none tracking-[-.04em]">{t("profile.title")}</h2>
@@ -678,6 +716,77 @@ export default function ProfilePage() {
                     </button>
                   );
                 })}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      <div className="glass rounded-2xl overflow-hidden">
+        <button
+          onClick={() => setExpandPayment((value) => !value)}
+          className="w-full flex items-center gap-3 p-4"
+        >
+          <div className="h-9 w-9 rounded-xl bg-primary/20 flex items-center justify-center shrink-0">
+            <Wallet className="h-4 w-4 text-primary" />
+          </div>
+          <div className="flex-1 text-left">
+            <p className="text-sm font-semibold">
+              {t("profile.paymentMethods.title")}
+            </p>
+            <p className="text-[10px] text-muted-foreground">
+              {t("profile.paymentMethods.subtitle")}
+            </p>
+          </div>
+          <ChevronDown
+            className={`h-4 w-4 text-muted-foreground transition-transform ${expandPayment ? "rotate-180" : ""}`}
+          />
+        </button>
+
+        <AnimatePresence>
+          {expandPayment && (
+            <motion.div
+              initial={{ height: 0 }}
+              animate={{ height: "auto" }}
+              exit={{ height: 0 }}
+              className="overflow-hidden"
+            >
+              <div className="px-4 pb-4 space-y-2">
+                <input
+                  value={paymentHandles.vipps ?? ""}
+                  onChange={(event) => setPaymentHandles((p) => ({ ...p, vipps: event.target.value }))}
+                  placeholder={t("profile.paymentMethods.vippsPlaceholder")}
+                  inputMode="tel"
+                  className="w-full bg-muted/50 rounded-xl px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                />
+                <input
+                  value={paymentHandles.mobilepay ?? ""}
+                  onChange={(event) => setPaymentHandles((p) => ({ ...p, mobilepay: event.target.value }))}
+                  placeholder={t("profile.paymentMethods.mobilepayPlaceholder")}
+                  inputMode="tel"
+                  className="w-full bg-muted/50 rounded-xl px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                />
+                <input
+                  value={paymentHandles.paypal ?? ""}
+                  onChange={(event) => setPaymentHandles((p) => ({ ...p, paypal: event.target.value }))}
+                  placeholder={t("profile.paymentMethods.paypalPlaceholder")}
+                  className="w-full bg-muted/50 rounded-xl px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                />
+                <input
+                  value={paymentHandles.bankAccount ?? ""}
+                  onChange={(event) => setPaymentHandles((p) => ({ ...p, bankAccount: event.target.value }))}
+                  placeholder={t("profile.paymentMethods.bankPlaceholder")}
+                  className="w-full bg-muted/50 rounded-xl px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                />
+                <p className="text-[10px] text-muted-foreground">{t("profile.paymentMethods.hint")}</p>
+                <button
+                  onClick={() => void handleSavePayment()}
+                  disabled={paymentSaving}
+                  className="w-full gradient-primary rounded-xl py-2 text-sm font-semibold text-primary-foreground flex items-center justify-center gap-2 disabled:opacity-60"
+                >
+                  <Check className="h-4 w-4" />
+                  {paymentSaving ? t("profile.loading.sending") : t("profile.paymentMethods.save")}
+                </button>
               </div>
             </motion.div>
           )}

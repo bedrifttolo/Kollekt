@@ -3,14 +3,18 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 import { initReactI18next } from 'react-i18next';
 import en from './locales/en.json';
 import no from './locales/no.json';
+import sv from './locales/sv.json';
+import da from './locales/da.json';
 
 export const LANGUAGE_STORAGE_KEY = 'kollekt-language';
-export const SUPPORTED_LANGUAGES = ['en', 'no'] as const;
+export const SUPPORTED_LANGUAGES = ['en', 'no', 'sv', 'da'] as const;
 export type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number];
 
 const resources = {
   en: { translation: en },
   no: { translation: no },
+  sv: { translation: sv },
+  da: { translation: da },
 } as const;
 
 void i18n

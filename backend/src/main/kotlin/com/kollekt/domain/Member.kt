@@ -35,4 +35,8 @@ data class Member(
     @Column(nullable = true, columnDefinition = "TEXT") val googleAccessToken: String? = null,
     @Column(nullable = true, length = 512) val googleRefreshToken: String? = null,
     @Column(nullable = true, columnDefinition = "TEXT") val notificationPreferences: String? = null,
+    @Column(name = "vipps_handle", nullable = true, length = 32) val vippsHandle: String? = null,
+    @Column(name = "mobilepay_handle", nullable = true, length = 32) val mobilepayHandle: String? = null,
+    @Column(name = "paypal_handle", nullable = true, length = 64) val paypalHandle: String? = null,
+    @Column(name = "bank_account", nullable = true, length = 64) val bankAccount: String? = null,
 )
