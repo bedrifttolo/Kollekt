@@ -272,6 +272,7 @@ class StatsService(
     fun getDashboard(memberName: String): DashboardResponse {
         val user = collectiveAccessService.requireMember(memberName)
         val collectiveCode = collectiveAccessService.requireCollectiveCode(user)
+        val collective = collectiveAccessService.requireCollectiveByCode(collectiveCode)
         val leaderboard = getLeaderboard(memberName)
         val rank =
             leaderboard.players.firstOrNull { it.name == user.name }?.rank
@@ -304,6 +305,7 @@ class StatsService(
 
         val response =
             DashboardResponse(
+                collectiveName = collective.name,
                 currentUserName = user.name,
                 currentUserXp = user.xp,
                 currentUserLevel = user.level,

@@ -616,7 +616,7 @@ class TaskOperationsTest {
                     title = "Kitchen",
                     assignee = "Emma",
                     collectiveCode = "ABC123",
-                    dueDate = LocalDate.parse("2026-04-01"),
+                    dueDate = LocalDate.now().minusDays(1),
                     category = TaskCategory.CLEANING,
                     xp = 20,
                     recurrenceRule = "WEEKLY",
@@ -627,7 +627,7 @@ class TaskOperationsTest {
                     title = "Trash",
                     assignee = "Kasper",
                     collectiveCode = "ABC123",
-                    dueDate = LocalDate.parse("2026-04-01"),
+                    dueDate = LocalDate.now().minusDays(1),
                     category = TaskCategory.OTHER,
                     xp = 10,
                     recurrenceRule = "WEEKLY",
@@ -645,14 +645,14 @@ class TaskOperationsTest {
             savedTasks.allValues.any {
                 it.title == "Kitchen" &&
                     it.assignee == "Kasper" &&
-                    it.dueDate == LocalDate.parse("2026-04-08")
+                    it.dueDate == LocalDate.now().plusDays(6)
             },
         )
         assertTrue(
             savedTasks.allValues.any {
                 it.title == "Trash" &&
                     it.assignee == "Emma" &&
-                    it.dueDate == LocalDate.parse("2026-04-08")
+                    it.dueDate == LocalDate.now().plusDays(6)
             },
         )
     }
@@ -672,7 +672,7 @@ class TaskOperationsTest {
                     title = "Kitchen",
                     assignee = "Emma",
                     collectiveCode = "ABC123",
-                    dueDate = LocalDate.parse("2026-04-01"),
+                    dueDate = LocalDate.now().minusDays(1),
                     category = TaskCategory.CLEANING,
                     xp = 20,
                     recurrenceRule = "WEEKLY",
@@ -688,9 +688,67 @@ class TaskOperationsTest {
             check {
                 assertEquals("Kitchen", it.title)
                 assertEquals("Kasper", it.assignee)
-                assertEquals(LocalDate.parse("2026-04-08"), it.dueDate)
+                assertEquals(LocalDate.now().plusDays(6), it.dueDate)
             },
         )
+    }
+
+    @Test
+    fun `regenerate recurring tasks catches up missed daily intervals`() {
+        whenever(memberRepository.findAllByCollectiveCode("ABC123")).thenReturn(
+            listOf(member("Kasper", "kasper@example.com")),
+        )
+        whenever(taskRepository.findAllByCollectiveCode("ABC123")).thenReturn(
+            listOf(
+                TaskItem(
+                    id = 1,
+                    title = "Dishes",
+                    assignee = "Kasper",
+                    collectiveCode = "ABC123",
+                    dueDate = LocalDate.now().minusDays(4),
+                    category = TaskCategory.DISHES,
+                    xp = 10,
+                    recurrenceRule = "DAILY",
+                    recurring = true,
+                ),
+            ),
+        )
+        whenever(taskRepository.save(any<TaskItem>())).thenAnswer { it.arguments[0] as TaskItem }
+
+        operations.regenerateRecurringTasksForCollective("ABC123")
+
+        verify(taskRepository).save(
+            check {
+                assertEquals("Dishes", it.title)
+                assertEquals(LocalDate.now(), it.dueDate)
+            },
+        )
+    }
+
+    @Test
+    fun `regenerate recurring tasks does not duplicate a future occurrence`() {
+        whenever(memberRepository.findAllByCollectiveCode("ABC123")).thenReturn(
+            listOf(member("Kasper", "kasper@example.com")),
+        )
+        whenever(taskRepository.findAllByCollectiveCode("ABC123")).thenReturn(
+            listOf(
+                TaskItem(
+                    id = 1,
+                    title = "Kitchen",
+                    assignee = "Kasper",
+                    collectiveCode = "ABC123",
+                    dueDate = LocalDate.now().plusDays(6),
+                    category = TaskCategory.CLEANING,
+                    xp = 20,
+                    recurrenceRule = "WEEKLY",
+                    recurring = true,
+                ),
+            ),
+        )
+
+        operations.regenerateRecurringTasksForCollective("ABC123")
+
+        verify(taskRepository, org.mockito.kotlin.never()).save(any<TaskItem>())
     }
 
     private fun member(

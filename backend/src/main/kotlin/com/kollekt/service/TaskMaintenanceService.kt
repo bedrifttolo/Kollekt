@@ -1,6 +1,8 @@
 package com.kollekt.service
 
 import com.kollekt.repository.CollectiveRepository
+import org.springframework.boot.context.event.ApplicationReadyEvent
+import org.springframework.context.event.EventListener
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -33,7 +35,10 @@ class TaskMaintenanceService(
     @Scheduled(cron = "0 0 9 * * *")
     fun notifyExpiredExpenseDeadlines() = economyOperations.notifyExpiredExpenseDeadlines()
 
-    @Scheduled(cron = "0 0 3 * * MON")
+    @EventListener(ApplicationReadyEvent::class)
+    fun regenerateRecurringTasksOnStartup() = scheduledWeeklyTaskRotation()
+
+    @Scheduled(cron = "0 0 3 * * *")
     fun scheduledWeeklyTaskRotation() {
         collectiveRepository.findAll().forEach { collective ->
             taskOperations.regenerateRecurringTasksForCollective(collective.joinCode)

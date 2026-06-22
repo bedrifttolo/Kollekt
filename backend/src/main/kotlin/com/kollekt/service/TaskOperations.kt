@@ -427,6 +427,7 @@ class TaskOperations(
         if (members.isEmpty()) return
 
         val memberNames = members.map { it.name }.sorted()
+        val today = LocalDate.now()
         val allRecurringTasks =
             taskRepository
                 .findAllByCollectiveCode(collectiveCode)
@@ -446,20 +447,12 @@ class TaskOperations(
         for ((key, tasks) in groupedTasks) {
             val (title, recurrenceRule) = key
             val template = tasks.maxByOrNull { it.dueDate } ?: continue
-            val nextDueDate =
-                when (recurrenceRule.uppercase()) {
-                    "WEEKLY" -> template.dueDate.plusWeeks(1)
-                    "MONTHLY" -> template.dueDate.plusMonths(1)
-                    else -> template.dueDate.plusWeeks(1)
-                }
+            if (!template.dueDate.isBefore(today)) continue
 
-            allRecurringTasks
-                .filter {
-                    it.title == title &&
-                        (normalizeRecurrenceRule(it.recurrenceRule) ?: "WEEKLY") == recurrenceRule &&
-                        !it.completed &&
-                        it.dueDate == nextDueDate
-                }.forEach { taskRepository.deleteById(it.id) }
+            var nextDueDate = nextRecurringDueDate(template.dueDate, recurrenceRule)
+            while (nextDueDate.isBefore(today)) {
+                nextDueDate = nextRecurringDueDate(nextDueDate, recurrenceRule)
+            }
 
             tasksToAssign.add(
                 TaskTemplate(
@@ -532,6 +525,16 @@ class TaskOperations(
     private fun calculateLateCompletionXp(baseXp: Int): Int = (baseXp / 2).coerceAtLeast(1)
 
     private fun calculatePenaltyXp(task: TaskItem): Int = -kotlin.math.abs(task.xp)
+
+    private fun nextRecurringDueDate(
+        dueDate: LocalDate,
+        recurrenceRule: String,
+    ): LocalDate =
+        when (recurrenceRule.uppercase()) {
+            "DAILY" -> dueDate.plusDays(1)
+            "MONTHLY" -> dueDate.plusMonths(1)
+            else -> dueDate.plusWeeks(1)
+        }
 
     private fun normalizeRecurrenceRule(
         recurrenceRule: String?,

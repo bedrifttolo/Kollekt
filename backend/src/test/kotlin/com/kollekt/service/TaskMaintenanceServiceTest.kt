@@ -73,4 +73,15 @@ class TaskMaintenanceServiceTest {
         verify(taskOperations).regenerateRecurringTasksForCollective("ABC123")
         verify(taskOperations).regenerateRecurringTasksForCollective("XYZ789")
     }
+
+    @Test
+    fun `startup regeneration uses the recurring task rotation`() {
+        whenever(collectiveRepository.findAll()).thenReturn(
+            listOf(Collective(id = 1, name = "Villa", joinCode = "ABC123", ownerMemberId = 1)),
+        )
+
+        service.regenerateRecurringTasksOnStartup()
+
+        verify(taskOperations).regenerateRecurringTasksForCollective("ABC123")
+    }
 }

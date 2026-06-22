@@ -309,6 +309,7 @@ data class AchievementDto(
 )
 
 data class DashboardResponse(
+    val collectiveName: String,
     val currentUserName: String,
     val currentUserXp: Int,
     val currentUserLevel: Int,

@@ -160,6 +160,7 @@ export interface Achievement {
 }
 
 export interface DashboardResponse {
+  collectiveName: string;
   currentUserName: string;
   currentUserXp: number;
   currentUserLevel: number;
@@ -263,4 +264,26 @@ export interface ChatMessage {
   timestamp: string;
   reactions: ChatReaction[];
   poll?: ChatPoll | null;
+}
+
+export interface PartyGameParticipant {
+  name: string;
+  ready: boolean;
+  questionCount: number;
+}
+
+export interface PartyGameQuestion {
+  id: number;
+  prompt: string;
+  category: string;
+}
+
+export interface PartyGameRoom {
+  code: string;
+  hostName: string;
+  status: 'LOBBY' | 'PLAYING' | 'FINISHED';
+  currentQuestionIndex: number;
+  participants: PartyGameParticipant[];
+  myQuestions: PartyGameQuestion[];
+  questions: PartyGameQuestion[];
 }

@@ -27,7 +27,12 @@ class ChatOperations(
     private val collectiveAccessService: CollectiveAccessService,
 ) {
     private val objectMapper = jacksonObjectMapper()
-    private val allowedReactionEmojis = setOf("👍", "❤️", "😂", "🎉", "😮")
+    private val allowedReactionEmojis =
+        setOf(
+            "👍", "❤️", "😂", "🎉", "😮", "😢", "😡", "🔥",
+            "👏", "🙌", "💯", "👎", "🤔", "😍", "🥰", "😭",
+            "🤯", "😎", "🫶", "✅", "👀", "🤝", "💀", "🙏",
+        )
     private val maxChatImageBytes = 5 * 1024 * 1024L
 
     fun getMessages(memberName: String): List<MessageDto> {

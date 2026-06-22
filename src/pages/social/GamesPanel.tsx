@@ -5,6 +5,9 @@ import { useTranslation } from 'react-i18next';
 import { api } from '../../lib/api';
 import { useUser } from '../../context/UserContext';
 import { GAME_CATALOG, GAME_CATEGORIES, tonightsPick, type GameCategoryFilter, type GameEntry } from '../../games/catalog';
+import PlayerSetup from '../../games/PlayerSetup';
+import PromptGame from '../../games/PromptGame';
+import RoomPromptGame from '../../games/RoomPromptGame';
 import SpinTheWheel from '../../games/SpinTheWheel';
 
 export default function GamesPanel() {
@@ -13,6 +16,8 @@ export default function GamesPanel() {
   const [members, setMembers] = useState<string[]>([]);
   const [filter, setFilter] = useState<GameCategoryFilter>('all');
   const [activeGame, setActiveGame] = useState<string | null>(null);
+  const [setupGame, setSetupGame] = useState<GameEntry | null>(null);
+  const [sessionPlayers, setSessionPlayers] = useState<string[]>([]);
   const [notice, setNotice] = useState<string | null>(null);
 
   const name = currentUser?.name ?? '';
@@ -33,7 +38,19 @@ export default function GamesPanel() {
       setTimeout(() => setNotice(null), 1800);
       return;
     }
-    setActiveGame(game.id);
+    if (game.roomGame) {
+      setActiveGame(game.id);
+      return;
+    }
+    setSetupGame(game);
+  };
+
+  const activeEntry = activeGame ? GAME_CATALOG.find((game) => game.id === activeGame) ?? null : null;
+
+  const editPlayers = () => {
+    if (!activeEntry) return;
+    setActiveGame(null);
+    setSetupGame(activeEntry);
   };
 
   return (
@@ -97,7 +114,31 @@ export default function GamesPanel() {
       </div>
 
       {activeGame === 'spin-the-wheel' && (
-        <SpinTheWheel members={members} onClose={() => setActiveGame(null)} />
+        <SpinTheWheel members={sessionPlayers} onClose={() => setActiveGame(null)} />
+      )}
+      {activeEntry?.drinkingGameId && (
+        <PromptGame
+          gameId={activeEntry.drinkingGameId}
+          players={sessionPlayers}
+          onEditPlayers={editPlayers}
+          onClose={() => setActiveGame(null)}
+        />
+      )}
+      {activeEntry?.roomGame && <RoomPromptGame onClose={() => setActiveGame(null)} />}
+      {setupGame && (
+        <PlayerSetup
+          key={setupGame.id}
+          gameTitle={t(`social.games.catalog.${setupGame.titleKey}`)}
+          householdMembers={members}
+          initialPlayers={sessionPlayers}
+          minPlayers={setupGame.minPlayers}
+          onClose={() => setSetupGame(null)}
+          onStart={(players) => {
+            setSessionPlayers(players);
+            setActiveGame(setupGame.id);
+            setSetupGame(null);
+          }}
+        />
       )}
     </div>
   );

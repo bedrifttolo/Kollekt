@@ -263,6 +263,7 @@ class AdditionalControllerCoverageTest {
         whenever(statsService.getDashboard("Kasper"))
             .thenReturn(
                 DashboardResponse(
+                    collectiveName = "Villa",
                     currentUserName = "Kasper",
                     currentUserXp = 320,
                     currentUserLevel = 2,
