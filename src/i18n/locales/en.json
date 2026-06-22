@@ -15,6 +15,7 @@
   "common": {
     "seeAll": "See all",
     "showLess": "Show less",
+    "copy": "Copy",
     "cancel": "Cancel",
     "back": "Back",
     "next": "Next",
@@ -196,7 +197,9 @@
     "tabJoin": "Join with code",
     "householdName": "Household name",
     "defaultHouseholdName": "My Household",
-    "householdNamePlaceholder": "e.g. Birkegata 14",
+    "householdNamePlaceholder": "e.g. Tolo's Home",
+    "address": "Address",
+    "addressPlaceholder": "e.g. Birkegata 14",
     "roomsHeader": "Rooms & effort → XP",
     "minLabel": "min to clean",
     "addRoom": "Add a room",
@@ -311,6 +314,7 @@
     "editShoppingItemAria": "Edit shopping item",
     "deleteShoppingItemAria": "Delete shopping item",
     "shopping": {
+      "buy": "Buy",
       "amountPlaceholder": "Amount (NOK)",
       "splitWith": "Split with",
       "purchaseDate": "Purchase date",
@@ -327,6 +331,10 @@
     "syncGoogleCalendar": "Sync Google Calendar",
     "syncConnected": "Connected, click to disconnect",
     "syncDisconnected": "Connect to import and export events",
+    "subscribeTitle": "Subscribe in any calendar",
+    "subscribeSubtitle": "Add to Apple, Google, Outlook or Android via a calendar link",
+    "subscribeButton": "Subscribe",
+    "subscribeUrlLabel": "Calendar subscription link",
     "newEvent": "New Event",
     "eventTitlePlaceholder": "Event title...",
     "addEvent": "Add Event",
@@ -435,6 +443,7 @@
         "party": "Party"
       },
       "catalog": {
+        "kollekt": "Kollekt",
         "spinTheWheel": "Spin the Wheel",
         "promptRelay": "Prompt Relay",
         "hundredQuestions": "100 Questions",
@@ -444,6 +453,60 @@
         "kingsCup": "Kings Cup",
         "categories": "Categories",
         "charades": "Charades"
+      },
+      "rules": "How to play",
+      "turn": "{{player}}'s turn",
+      "playAgain": "Play again",
+      "mexican": {
+        "rules": "Roll in secret and announce a result. The next player must either challenge you or roll and announce a higher result. 21 is highest, followed by doubles and then regular rolls. Whoever loses a challenge takes your agreed penalty.",
+        "previousClaim": "{{player}} announced",
+        "privateRoll": "Only you should see this roll",
+        "announce": "What do you announce?",
+        "hideAndPass": "Hide and pass",
+        "challenge": "Challenge the previous player",
+        "roll": "Roll the dice",
+        "lieResult": "Bluff caught: {{previous}} rolled {{roll}}. {{previous}} loses the round.",
+        "truthResult": "The claim held up: {{previous}} rolled {{roll}}. {{challenger}} loses the round."
+      },
+      "kings": {
+        "cardsLeft": "{{count}} cards left",
+        "kingsDrawn": "{{count}}/4 kings",
+        "ready": "Draw the first card when everyone is ready.",
+        "draw": "Draw a card",
+        "cards": {
+          "A": { "title": "Waterfall", "rule": "Everyone starts drinking. Nobody stops until the person to their right has stopped." },
+          "2": { "title": "You", "rule": "{{player}} chooses someone to take two sips." },
+          "3": { "title": "Me", "rule": "{{player}} takes three sips." },
+          "4": { "title": "Floor", "rule": "Last person to touch the floor takes a sip." },
+          "5": { "title": "Guys", "rule": "Everyone who identifies as a guy takes a sip." },
+          "6": { "title": "Girls", "rule": "Everyone who identifies as a girl takes a sip." },
+          "7": { "title": "Heaven", "rule": "Last person to point upward takes a sip." },
+          "8": { "title": "Mate", "rule": "{{player}} picks a mate. Whenever one drinks, both drink." },
+          "9": { "title": "Rhyme", "rule": "{{player}} says a word. Go around with rhymes; the first miss loses." },
+          "10": { "title": "Category", "rule": "{{player}} picks a category. Go around the group; the first miss loses." },
+          "J": { "title": "Never have I ever", "rule": "{{player}} says «Never have I ever …». Anyone who has done it takes a sip." },
+          "Q": { "title": "Question master", "rule": "Answer a question from {{player}} and you drink. This lasts until the next queen." },
+          "K": { "title": "King's cup", "rule": "Pour a little into the cup. Whoever draws the fourth king drinks it." }
+        }
+      },
+      "categoriesGame": {
+        "rules": "Name something in the category before time runs out, then pass the turn. A repeat, wrong answer, or timeout knocks you out. Last player standing wins.",
+        "category": "Category",
+        "next": "Accepted – next",
+        "out": "Player is out",
+        "timeOut": "Time is up",
+        "winner": "{{player}} wins!",
+        "prompts": { "countries": "Countries", "foods": "Foods", "movies": "Movies", "animals": "Animals", "brands": "Brands", "songs": "Songs", "cities": "Cities", "thingsInKitchen": "Things in a kitchen", "excuses": "Bad excuses", "houseRules": "Shared-house rules" }
+      },
+      "charadesGame": {
+        "turn": "{{player}} acts",
+        "passPhone": "Pass the phone to {{player}}. Only the actor should see the card.",
+        "show": "Show card and start",
+        "noWords": "No words or sounds.",
+        "skip": "Skip",
+        "correct": "Correct",
+        "nextPlayer": "Time is up – next player",
+        "prompts": { "vacuum": "Vacuuming", "penguin": "Penguin", "superhero": "Superhero", "pizza": "Making pizza", "washingMachine": "Washing machine", "cat": "Cat", "football": "Playing football", "alarmClock": "Alarm clock", "hairdresser": "Hairdresser", "airplane": "Airplane", "ghost": "Ghost", "chef": "Chef", "robot": "Robot", "fishing": "Fishing", "selfie": "Taking a selfie", "banana": "Peeling a banana", "snowman": "Building a snowman", "guitar": "Playing guitar", "trafficJam": "Traffic jam", "movingDay": "Moving day" }
       },
       "spin": {
         "spinButton": "Spin",
@@ -482,6 +545,8 @@
         "writing": "Writing",
         "writeTitle": "Write your prompts",
         "writeHint": "Others only see how many you added. Your text stays hidden until the game starts.",
+        "categoryLabel": "Category",
+        "selectedCategory": "Selected category",
         "addQuestion": "Add prompt",
         "yourQuestions": "Your prompts",
         "doneWriting": "I'm done writing",
@@ -503,7 +568,14 @@
           "HOUSE_AWARDS": { "title": "House Awards", "example": "Invent an award and nominate someone", "placeholder": "Who deserves an award, and for what?" },
           "IMPOSSIBLE_CHOICES": { "title": "Impossible Choices", "example": "Difficult, funny either-or questions", "placeholder": "Create an impossible either-or choice…" },
           "FRIENDLY_CHALLENGES": { "title": "Friendly Challenges", "example": "Quick, harmless challenges for the group", "placeholder": "Give someone a one-minute challenge…" },
-          "WILDCARD": { "title": "Wildcard", "example": "Anything original that fits the room", "placeholder": "Write any question for the room…" }
+          "WILDCARD": { "title": "Wildcard", "example": "Anything original that fits the room", "placeholder": "Write any question for the room…" },
+          "PEKELEK": { "title": "Pekelek", "example": "Everyone points at whoever fits the description", "placeholder": "Who in the room fits this best?" },
+          "JEG_HAR_ALDRI": { "title": "Never Have I Ever", "example": "Tiny confessions and weird experiences", "placeholder": "What have you never done?" },
+          "RED_FLAG_DEALBREAKER_OK": { "title": "Red Flag, Dealbreaker, OK", "example": "Sort things from yes to no", "placeholder": "What is a clear red flag for you?" },
+          "FUCK_MARRY_KILL": { "title": "Fuck, Marry, Kill...", "example": "Three choices, no perfect answer", "placeholder": "Pick: who, who, and who?" },
+          "LAG_EN_REGEL": { "title": "Make a Rule", "example": "Invent a new rule for the night", "placeholder": "Which rule should apply for the rest of the game?" },
+          "DILEMMA": { "title": "Dilemma", "example": "Two good or bad options", "placeholder": "What would you choose in this dilemma?" },
+          "KATEGORILEK": { "title": "Category Game", "example": "Find words that fit the category", "placeholder": "Which category should test the room?" }
         }
       }
     }
@@ -678,6 +750,7 @@
   "profile": {
     "eyebrow": "Your household life",
     "title": "Profile & settings",
+    "avatarColor": "Profile color",
     "householdMembers": "Household members",
     "language": "Language",
     "appearance": {

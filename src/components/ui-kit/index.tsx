@@ -1,6 +1,7 @@
 import type { ButtonHTMLAttributes, CSSProperties, HTMLAttributes, InputHTMLAttributes, ReactNode } from 'react';
 import { Plus } from 'lucide-react';
 import { cn } from '../ui/utils';
+import { colorForMember } from '../../lib/memberColors';
 
 export function Field({ label, className, ...props }: InputHTMLAttributes<HTMLInputElement> & { label: string }) {
   return (
@@ -73,24 +74,17 @@ export function StatTile({ value, label, className }: { value: ReactNode; label:
   );
 }
 
-export function Avatar({ name, className }: { name: string; className?: string }) {
-  return <span className={cn('grid h-9 w-9 shrink-0 place-items-center rounded-full bg-primary font-bold text-primary-foreground', className)}>{name[0]?.toUpperCase()}</span>;
+export function Avatar({ name, color, className }: { name: string; color?: string | null; className?: string }) {
+  return <span style={{ backgroundColor: colorForMember(name, color) }} className={cn('grid h-9 w-9 shrink-0 place-items-center rounded-full font-bold text-white', className)}>{name[0]?.toUpperCase()}</span>;
 }
-
-const avatarTones = [
-  'bg-primary text-primary-foreground',
-  'bg-destructive text-destructive-foreground',
-  'bg-accent text-accent-foreground',
-  'bg-secondary text-secondary-foreground',
-];
 
 export function AvatarStack({ names, max = 4 }: { names: string[]; max?: number }) {
   const shown = names.slice(0, max);
   const extra = names.length - shown.length;
   return (
     <div className="flex -space-x-2">
-      {shown.map((name, i) => (
-        <Avatar key={name} name={name} className={cn('border-2 border-card', avatarTones[i % avatarTones.length])} />
+      {shown.map((name) => (
+        <Avatar key={name} name={name} className="border-2 border-card" />
       ))}
       {extra > 0 && (
         <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border-2 border-card bg-secondary text-xs font-bold text-secondary-foreground">

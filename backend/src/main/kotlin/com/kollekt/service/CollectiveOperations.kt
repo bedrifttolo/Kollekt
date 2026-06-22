@@ -54,6 +54,7 @@ class CollectiveOperations(
             collectiveRepository.save(
                 Collective(
                     name = collectiveName,
+                    address = request.address?.trim()?.takeIf { it.isNotBlank() },
                     joinCode = generateUniqueJoinCode(),
                     ownerMemberId = owner.id,
                 ),

@@ -153,6 +153,7 @@ data class UserDto(
     val email: String = "",
     val collectiveCode: String?,
     val status: MemberStatus = MemberStatus.ACTIVE,
+    val color: String? = null,
     val friends: List<FriendDto> = emptyList(),
 )
 
@@ -210,6 +211,7 @@ data class CollectiveDto(
 
 data class CreateCollectiveRequest(
     val name: String,
+    val address: String? = null,
     val ownerUserId: Long,
     val numRooms: Int,
     val residents: List<String>,

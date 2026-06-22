@@ -8,12 +8,14 @@ import com.kollekt.repository.CollectiveRepository
 import com.kollekt.repository.MemberRepository
 import com.kollekt.repository.TaskRepository
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.check
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import java.time.LocalDate
@@ -69,6 +71,64 @@ class MemberOperationsTest {
                 assertEquals("Ola", it.assignee)
             },
         )
+    }
+
+    @Test
+    fun `delete user removes member and redistributes open tasks`() {
+        val kasper = member("Kasper", "kasper@example.com")
+        val emma = member("Emma", "emma@example.com", id = 2)
+        whenever(memberRepository.findByName("Kasper")).thenReturn(kasper)
+        whenever(memberRepository.findAllByCollectiveCode("ABC123")).thenReturn(listOf(emma))
+        whenever(taskRepository.findAllByCollectiveCode("ABC123")).thenReturn(
+            listOf(task(id = 1, title = "Trash", assignee = "Kasper", xp = 20)),
+        )
+
+        operations.deleteUser("Kasper")
+
+        verify(memberRepository).delete(kasper)
+        verify(taskRepository).save(
+            check {
+                assertEquals(1L, it.id)
+                assertEquals("Emma", it.assignee)
+            },
+        )
+    }
+
+    @Test
+    fun `leave collective does nothing when member has no collective`() {
+        val kasper = member("Kasper", "kasper@example.com", collectiveCode = null)
+        whenever(memberRepository.findByName("Kasper")).thenReturn(kasper)
+
+        operations.leaveCollective("Kasper")
+
+        verify(memberRepository, never()).save(any())
+        verify(taskRepository, never()).findAllByCollectiveCode(any())
+    }
+
+    @Test
+    fun `update member color trims and saves a valid hex color`() {
+        val kasper = member("Kasper", "kasper@example.com")
+        whenever(memberRepository.findByName("Kasper")).thenReturn(kasper)
+
+        operations.updateMemberColor("Kasper", "  #1f563F  ")
+
+        verify(memberRepository).save(kasper.copy(color = "#1f563F"))
+    }
+
+    @Test
+    fun `update member color rejects invalid values and missing members`() {
+        val kasper = member("Kasper", "kasper@example.com")
+        whenever(memberRepository.findByName("Kasper")).thenReturn(kasper)
+        whenever(memberRepository.findByName("Missing")).thenReturn(null)
+
+        assertThrows(IllegalArgumentException::class.java) {
+            operations.updateMemberColor("Kasper", "pine")
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            operations.updateMemberColor("Missing", "#1f563f")
+        }
+
+        verify(memberRepository, never()).save(any())
     }
 
     @Test

@@ -3,14 +3,17 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   ChevronLeft,
   ChevronRight,
-  Plus,
   X,
   Trash2,
   ExternalLink,
   Pencil,
+  CalendarPlus,
+  Copy,
+  Check,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { api } from "../lib/api";
+import { api, API_BASE } from "../lib/api";
+import { addEventToDeviceCalendar } from "../lib/deviceCalendar";
 import { useUser } from "../context/UserContext";
 import {
   formatMonthDay,
@@ -68,6 +71,8 @@ export default function CalendarPage() {
   const [editEndTime, setEditEndTime] = useState("");
   const [editType, setEditType] = useState<EventType>("OTHER");
   const [googleConnected, setGoogleConnected] = useState(false);
+  const [feedUrl, setFeedUrl] = useState("");
+  const [feedCopied, setFeedCopied] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const name = currentUser?.name ?? "";
@@ -89,6 +94,12 @@ export default function CalendarPage() {
         `/google-calendar/status?memberName=${encodeURIComponent(name)}`,
       )
       .then((r) => setGoogleConnected(r.connected))
+      .catch(() => {});
+    api
+      .get<{ path: string }>(
+        `/events/calendar-feed?memberName=${encodeURIComponent(name)}`,
+      )
+      .then((r) => setFeedUrl(`${API_BASE}${r.path}`))
       .catch(() => {});
   }, [name]);
 
@@ -138,6 +149,12 @@ export default function CalendarPage() {
       syncToGoogle: true,
     });
     setEvents((prev) => [...prev, created]);
+    void addEventToDeviceCalendar({
+      title: newTitle,
+      date,
+      time: newTime,
+      endTime: newEndTime || null,
+    });
     setNewTitle("");
     setNewTime("12:00");
     setNewEndTime("");
@@ -203,6 +220,15 @@ export default function CalendarPage() {
         authWindow?.close();
       }
     }
+  };
+
+  const copyFeedUrl = async () => {
+    if (!feedUrl) return;
+    try {
+      await navigator.clipboard.writeText(feedUrl);
+      setFeedCopied(true);
+      window.setTimeout(() => setFeedCopied(false), 1500);
+    } catch {}
   };
 
   const today =
@@ -335,18 +361,51 @@ export default function CalendarPage() {
         )}
       </button>
 
+      {/* Subscribe in any calendar app (Apple, Google, Android, Outlook) via an .ics feed */}
+      <div className="rounded-[1.1rem] border border-border bg-card p-3">
+        <div className="flex items-center gap-3">
+          <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
+            <CalendarPlus className="h-4 w-4 text-muted-foreground" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium">{t("calendar.subscribeTitle")}</p>
+            <p className="text-[10px] text-muted-foreground">{t("calendar.subscribeSubtitle")}</p>
+          </div>
+        </div>
+        {feedUrl && (
+          <div className="mt-3 space-y-2">
+            <div className="flex gap-2">
+              <input
+                readOnly
+                value={feedUrl}
+                onFocus={(event) => event.currentTarget.select()}
+                className="min-w-0 flex-1 bg-muted/50 rounded-lg px-3 py-2 text-xs text-muted-foreground focus:outline-none"
+                aria-label={t("calendar.subscribeUrlLabel")}
+              />
+              <button
+                onClick={() => void copyFeedUrl()}
+                className="h-9 w-9 shrink-0 rounded-lg glass flex items-center justify-center"
+                aria-label={t("common.copy")}
+              >
+                {feedCopied ? <Check className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4 text-muted-foreground" />}
+              </button>
+            </div>
+            <a
+              href={feedUrl.replace(/^https?:\/\//, "webcal://")}
+              className="flex w-full items-center justify-center gap-1.5 gradient-primary rounded-lg py-2 text-sm font-semibold text-primary-foreground"
+            >
+              <CalendarPlus className="h-4 w-4" /> {t("calendar.subscribeButton")}
+            </a>
+          </div>
+        )}
+      </div>
+
       {/* Events for selected day */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <h3 className="font-display text-xl font-extrabold tracking-[-.02em]">
             {selectedDateLabel}
           </h3>
-          <button
-            onClick={() => setShowAdd(true)}
-            className="h-8 w-8 rounded-xl bg-secondary flex items-center justify-center"
-          >
-            <Plus className="h-4 w-4 text-secondary-foreground" />
-          </button>
         </div>
 
         <AnimatePresence>

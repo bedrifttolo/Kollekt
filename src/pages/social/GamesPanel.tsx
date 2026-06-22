@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
-import { motion } from 'framer-motion';
 import { Play, Users, Clock } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { api } from '../../lib/api';
 import { useUser } from '../../context/UserContext';
 import { GAME_CATALOG, GAME_CATEGORIES, tonightsPick, type GameCategoryFilter, type GameEntry } from '../../games/catalog';
@@ -9,9 +9,14 @@ import PlayerSetup from '../../games/PlayerSetup';
 import PromptGame from '../../games/PromptGame';
 import RoomPromptGame from '../../games/RoomPromptGame';
 import SpinTheWheel from '../../games/SpinTheWheel';
+import MexicanGame from '../../games/MexicanGame';
+import KingsCupGame from '../../games/KingsCupGame';
+import CategoriesGame from '../../games/CategoriesGame';
+import CharadesGame from '../../games/CharadesGame';
 
 export default function GamesPanel() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { currentUser } = useUser();
   const [members, setMembers] = useState<string[]>([]);
   const [filter, setFilter] = useState<GameCategoryFilter>('all');
@@ -38,7 +43,11 @@ export default function GamesPanel() {
       setTimeout(() => setNotice(null), 1800);
       return;
     }
-    if (game.roomGame) {
+    if (game.id === 'kollekt') {
+      navigate('/games/kollekt');
+      return;
+    }
+    if (game.roomGame || game.id === 'spin-the-wheel') {
       setActiveGame(game.id);
       return;
     }
@@ -95,7 +104,7 @@ export default function GamesPanel() {
           <button
             key={game.id}
             onClick={() => launch(game)}
-            className={`card !p-4 text-left flex flex-col gap-3 ${game.playable ? '' : 'opacity-70'}`}
+            className={`group card !p-4 text-left flex flex-col gap-3 ${game.playable ? '' : 'opacity-70'}`}
           >
             <div className="flex items-start justify-between">
               <span className="grid h-11 w-11 place-items-center rounded-xl bg-muted text-xl">{game.emoji}</span>
@@ -109,12 +118,21 @@ export default function GamesPanel() {
                 {t('social.games.playersLong', { count: game.minPlayers })} · {t('social.games.minutes', { min: game.minutes })}
               </p>
             </div>
+            <div className={`mt-auto inline-flex items-center justify-center gap-1.5 rounded-2xl px-3 py-2 text-xs font-bold ${game.playable ? 'bg-primary/10 text-primary group-hover:bg-primary/15' : 'bg-muted/60 text-muted-foreground'}`}>
+              {game.playable ? (
+                <>
+                  <Play className="h-3.5 w-3.5" /> {t('social.games.startGame')}
+                </>
+              ) : (
+                t('social.games.soon')
+              )}
+            </div>
           </button>
         ))}
       </div>
 
       {activeGame === 'spin-the-wheel' && (
-        <SpinTheWheel members={sessionPlayers} onClose={() => setActiveGame(null)} />
+        <SpinTheWheel members={members} onClose={() => setActiveGame(null)} />
       )}
       {activeEntry?.drinkingGameId && (
         <PromptGame
@@ -125,6 +143,10 @@ export default function GamesPanel() {
         />
       )}
       {activeEntry?.roomGame && <RoomPromptGame onClose={() => setActiveGame(null)} />}
+      {activeGame === 'mexican' && <MexicanGame players={sessionPlayers} onClose={() => setActiveGame(null)} />}
+      {activeGame === 'kings-cup' && <KingsCupGame players={sessionPlayers} onClose={() => setActiveGame(null)} />}
+      {activeGame === 'categories' && <CategoriesGame players={sessionPlayers} onClose={() => setActiveGame(null)} />}
+      {activeGame === 'charades' && <CharadesGame players={sessionPlayers} onClose={() => setActiveGame(null)} />}
       {setupGame && (
         <PlayerSetup
           key={setupGame.id}

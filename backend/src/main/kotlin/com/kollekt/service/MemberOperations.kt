@@ -40,6 +40,19 @@ class MemberOperations(
     }
 
     @Transactional
+    fun updateMemberColor(
+        memberName: String,
+        color: String,
+    ) {
+        val member =
+            memberRepository.findByName(memberName)
+                ?: throw IllegalArgumentException("User '$memberName' not found")
+        val normalized = color.trim()
+        require(normalized.matches(Regex("^#[0-9a-fA-F]{6}$"))) { "Color must be a hex value like #1f563f" }
+        memberRepository.save(member.copy(color = normalized))
+    }
+
+    @Transactional
     fun updateMemberStatus(
         memberName: String,
         newStatus: MemberStatus,

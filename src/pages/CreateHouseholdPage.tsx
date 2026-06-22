@@ -33,6 +33,7 @@ export default function CreateHouseholdPage() {
   const roomId = useRef(3);
   const [mode, setMode] = useState<'create' | 'join'>('create');
   const [houseName, setHouseName] = useState('');
+  const [address, setAddress] = useState('');
   const [roomsOpen, setRoomsOpen] = useState(true);
   const [rooms, setRooms] = useState<RoomDraft[]>(() => [
     { id: 0, emoji: '🍳', name: t('createHousehold.defaultRooms.kitchen'), minutes: '20' },
@@ -96,6 +97,7 @@ export default function CreateHouseholdPage() {
     try {
       const res = await api.post<{ joinCode: string }>('/onboarding/collectives', {
         name: houseName.trim() || t('createHousehold.defaultHouseholdName'),
+        address: address.trim() || undefined,
         ownerUserId: currentUser.id,
         numRooms: roomConfigs.length,
         residents: [currentUser.name],
@@ -172,6 +174,13 @@ export default function CreateHouseholdPage() {
               value={houseName}
               onChange={(e) => setHouseName(e.target.value)}
               placeholder={t('createHousehold.householdNamePlaceholder')}
+            />
+
+            <Field
+              label={t('createHousehold.address')}
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              placeholder={t('createHousehold.addressPlaceholder')}
             />
 
             <div>

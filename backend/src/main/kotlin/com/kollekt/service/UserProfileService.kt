@@ -55,6 +55,7 @@ class UserProfileService(
             email = member.email,
             collectiveCode = member.collectiveCode,
             status = member.status,
+            color = member.color,
             friends = friends,
         )
     }

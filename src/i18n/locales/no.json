@@ -15,6 +15,7 @@
   "common": {
     "seeAll": "Se alle",
     "showLess": "Vis færre",
+    "copy": "Kopier",
     "cancel": "Avbryt",
     "back": "Tilbake",
     "next": "Neste",
@@ -196,7 +197,9 @@
     "tabJoin": "Bli med via kode",
     "householdName": "Navn på kollektivet",
     "defaultHouseholdName": "Mitt kollektiv",
-    "householdNamePlaceholder": "f.eks. Birkegata 14",
+    "householdNamePlaceholder": "f.eks. Tolos Hjem",
+    "address": "Adresse",
+    "addressPlaceholder": "f.eks. Birkegata 14",
     "roomsHeader": "Rom & innsats → XP",
     "minLabel": "min å vaske",
     "addRoom": "Legg til rom",
@@ -311,6 +314,7 @@
     "editShoppingItemAria": "Rediger handlelistevare",
     "deleteShoppingItemAria": "Slett handlelistevare",
     "shopping": {
+      "buy": "Kjøp",
       "amountPlaceholder": "Beløp (kr)",
       "splitWith": "Del med",
       "purchaseDate": "Kjøpsdato",
@@ -327,6 +331,10 @@
     "syncGoogleCalendar": "Synkroniser Google Kalender",
     "syncConnected": "Tilkoblet, trykk for å koble fra",
     "syncDisconnected": "Koble til for å importere og eksportere hendelser",
+    "subscribeTitle": "Abonner i hvilken som helst kalender",
+    "subscribeSubtitle": "Legg til i Apple, Google, Outlook eller Android via en kalenderlenke",
+    "subscribeButton": "Abonner",
+    "subscribeUrlLabel": "Kalenderabonnement-lenke",
     "newEvent": "Ny hendelse",
     "eventTitlePlaceholder": "Tittel på hendelse...",
     "addEvent": "Legg til hendelse",
@@ -435,6 +443,7 @@
         "party": "Fest"
       },
       "catalog": {
+        "kollekt": "Kollekt",
         "spinTheWheel": "Lykkehjulet",
         "promptRelay": "Spørsmålsstafetten",
         "hundredQuestions": "100 spørsmål",
@@ -444,6 +453,60 @@
         "kingsCup": "Kings Cup",
         "categories": "Kategorier",
         "charades": "Charades"
+      },
+      "rules": "Slik spiller dere",
+      "turn": "{{player}} sin tur",
+      "playAgain": "Spill igjen",
+      "mexican": {
+        "rules": "Kast skjult og annonser et resultat. Neste spiller må enten utfordre deg eller kaste og annonsere et høyere resultat. 21 er høyest, deretter par og så vanlige kast. Den som taper en utfordring tar straffen dere har avtalt.",
+        "previousClaim": "{{player}} annonserte",
+        "privateRoll": "Bare du skal se kastet",
+        "announce": "Hva annonserer du?",
+        "hideAndPass": "Skjul og send videre",
+        "challenge": "Utfordre forrige spiller",
+        "roll": "Kast terningene",
+        "lieResult": "Bløffen ble avslørt: {{previous}} kastet {{roll}}. {{previous}} taper runden.",
+        "truthResult": "Påstanden holdt: {{previous}} kastet {{roll}}. {{challenger}} taper runden."
+      },
+      "kings": {
+        "cardsLeft": "{{count}} kort igjen",
+        "kingsDrawn": "{{count}}/4 konger",
+        "ready": "Trekk første kort når dere er klare.",
+        "draw": "Trekk kort",
+        "cards": {
+          "A": { "title": "Fossefall", "rule": "Alle begynner å drikke. Ingen stopper før personen til høyre har stoppet." },
+          "2": { "title": "Du", "rule": "{{player}} velger noen som tar to slurker." },
+          "3": { "title": "Meg", "rule": "{{player}} tar tre slurker." },
+          "4": { "title": "Gulvet", "rule": "Siste person som berører gulvet tar en slurk." },
+          "5": { "title": "Gutta", "rule": "Alle som identifiserer seg som gutt tar en slurk." },
+          "6": { "title": "Jentene", "rule": "Alle som identifiserer seg som jente tar en slurk." },
+          "7": { "title": "Himmelen", "rule": "Siste person som peker opp tar en slurk." },
+          "8": { "title": "Makker", "rule": "{{player}} velger en makker. Når én drikker, drikker begge." },
+          "9": { "title": "Rim", "rule": "{{player}} sier et ord. Fortsett med rim rundt bordet; første bom taper." },
+          "10": { "title": "Kategori", "rule": "{{player}} velger en kategori. Fortsett rundt bordet; første bom taper." },
+          "J": { "title": "Jeg har aldri", "rule": "{{player}} sier «Jeg har aldri …». De som har gjort det tar en slurk." },
+          "Q": { "title": "Spørsmålsmester", "rule": "Svar på et spørsmål fra {{player}}, og du må drikke. Gjelder til neste dame." },
+          "K": { "title": "Kongens kopp", "rule": "Hell litt i koppen. Den som trekker den fjerde kongen må ta koppen." }
+        }
+      },
+      "categoriesGame": {
+        "rules": "Si noe som passer kategorien før tiden går ut, og send turen videre. Gjentakelse, feil eller tom tid betyr at du er ute. Siste spiller igjen vinner.",
+        "category": "Kategori",
+        "next": "Godkjent – neste",
+        "out": "Spiller er ute",
+        "timeOut": "Tiden er ute",
+        "winner": "{{player}} vinner!",
+        "prompts": { "countries": "Land", "foods": "Matretter", "movies": "Filmer", "animals": "Dyr", "brands": "Merkevarer", "songs": "Sanger", "cities": "Byer", "thingsInKitchen": "Ting på kjøkkenet", "excuses": "Dårlige unnskyldninger", "houseRules": "Regler i et kollektiv" }
+      },
+      "charadesGame": {
+        "turn": "{{player}} skal mime",
+        "passPhone": "Send telefonen til {{player}}. Bare den som mimer skal se kortet.",
+        "show": "Vis kort og start",
+        "noWords": "Ingen ord eller lyder.",
+        "skip": "Hopp over",
+        "correct": "Riktig",
+        "nextPlayer": "Tiden er ute – neste spiller",
+        "prompts": { "vacuum": "Støvsuge", "penguin": "Pingvin", "superhero": "Superhelt", "pizza": "Lage pizza", "washingMachine": "Vaskemaskin", "cat": "Katt", "football": "Spille fotball", "alarmClock": "Vekkerklokke", "hairdresser": "Frisør", "airplane": "Fly", "ghost": "Spøkelse", "chef": "Kokk", "robot": "Robot", "fishing": "Fiske", "selfie": "Ta en selfie", "banana": "Skrelle en banan", "snowman": "Bygge snømann", "guitar": "Spille gitar", "trafficJam": "Trafikkork", "movingDay": "Flyttedag" }
       },
       "spin": {
         "spinButton": "Snurr",
@@ -482,6 +545,8 @@
         "writing": "Skriver",
         "writeTitle": "Skriv spørsmålene dine",
         "writeHint": "De andre ser bare antallet. Teksten skjules frem til spillet starter.",
+        "categoryLabel": "Kategori",
+        "selectedCategory": "Valgt kategori",
         "addQuestion": "Legg til spørsmål",
         "yourQuestions": "Dine spørsmål",
         "doneWriting": "Jeg er ferdig med å skrive",
@@ -503,7 +568,14 @@
           "HOUSE_AWARDS": { "title": "Huspriser", "example": "Finn på en pris og nominer noen", "placeholder": "Hvem fortjener en pris, og for hva?" },
           "IMPOSSIBLE_CHOICES": { "title": "Umulige valg", "example": "Vanskelige og morsomme enten-eller-spørsmål", "placeholder": "Lag et umulig enten-eller-valg…" },
           "FRIENDLY_CHALLENGES": { "title": "Vennlige utfordringer", "example": "Raske og harmløse utfordringer", "placeholder": "Gi noen en ett-minutts utfordring…" },
-          "WILDCARD": { "title": "Joker", "example": "Noe originalt som passer rommet", "placeholder": "Skriv et valgfritt spørsmål til rommet…" }
+          "WILDCARD": { "title": "Joker", "example": "Noe originalt som passer rommet", "placeholder": "Skriv et valgfritt spørsmål til rommet…" },
+          "PEKELEK": { "title": "Pekelek", "example": "Alle peker på noen som passer beskrivelsen", "placeholder": "Hvem i rommet passer best til dette?" },
+          "JEG_HAR_ALDRI": { "title": "Jeg har aldri", "example": "Små avsløringer og rare erfaringer", "placeholder": "Hva har du aldri gjort?" },
+          "RED_FLAG_DEALBREAKER_OK": { "title": "Red flag, dealbreaker, ok", "example": "Sorter ting fra ja til nei", "placeholder": "Hva er en tydelig red flag for deg?" },
+          "FUCK_MARRY_KILL": { "title": "Fuck, marry, kill...", "example": "Tre valg, ingen perfekte svar", "placeholder": "Velg: hvem, hvem og hvem?" },
+          "LAG_EN_REGEL": { "title": "Lag en regel", "example": "En ny regel for kvelden", "placeholder": "Hvilken regel skal gjelde resten av spillet?" },
+          "DILEMMA": { "title": "Dilemma", "example": "To dårlige eller gode valg", "placeholder": "Hva ville du valgt i dette dilemmaet?" },
+          "KATEGORILEK": { "title": "Kategorilek", "example": "Finn ord som passer kategorien", "placeholder": "Hvilken kategori vil du teste rommet med?" }
         }
       }
     }
@@ -678,6 +750,7 @@
   "profile": {
     "eyebrow": "Livet i kollektivet",
     "title": "Profil og innstillinger",
+    "avatarColor": "Profilfarge",
     "householdMembers": "Medlemmer i kollektivet",
     "language": "Språk",
     "appearance": {

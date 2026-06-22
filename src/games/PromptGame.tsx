@@ -71,7 +71,7 @@ export default function PromptGame({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-background safe-top safe-bottom">
+    <div className="fixed inset-0 z-[60] flex flex-col bg-background safe-top safe-bottom">
       <div className="flex items-center justify-between border-b border-border px-5 py-4">
         <div className="min-w-0">
           <h2 className="truncate font-display text-xl font-extrabold">{game.title}</h2>

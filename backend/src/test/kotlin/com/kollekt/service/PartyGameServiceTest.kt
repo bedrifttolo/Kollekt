@@ -130,6 +130,110 @@ class PartyGameServiceTest {
         assertEquals(2, result.questions.size)
     }
 
+    @Test
+    fun `member joins lobby only once`() {
+        val room = PartyGameRoom(code = "ABC234", hostName = "Kasper")
+        val emma = PartyGameParticipant(roomCode = room.code, memberName = "Emma")
+        whenever(memberRepository.findByName("Emma")).thenReturn(member("Emma"))
+        whenever(roomRepository.findById("ABC234")).thenReturn(Optional.of(room))
+        whenever(participantRepository.findByRoomCodeAndMemberName("ABC234", "Emma"))
+            .thenReturn(null, emma)
+        whenever(participantRepository.findAllByRoomCodeOrderByJoinedAt("ABC234")).thenReturn(listOf(emma))
+        whenever(questionRepository.findAllByRoomCode("ABC234")).thenReturn(emptyList())
+
+        val result = service.joinRoom(" abc234 ", "Emma")
+
+        assertEquals("ABC234", result.code)
+        verify(participantRepository).save(
+            org.mockito.kotlin.check {
+                assertEquals("ABC234", it.roomCode)
+                assertEquals("Emma", it.memberName)
+                assertEquals(false, it.ready)
+            },
+        )
+    }
+
+    @Test
+    fun `participant adds normalized question to lobby`() {
+        val room = PartyGameRoom(code = "ABC234", hostName = "Kasper")
+        val emma = PartyGameParticipant(roomCode = room.code, memberName = "Emma")
+        whenever(roomRepository.findById("ABC234")).thenReturn(Optional.of(room))
+        whenever(participantRepository.findByRoomCodeAndMemberName("ABC234", "Emma")).thenReturn(emma)
+        whenever(participantRepository.findAllByRoomCodeOrderByJoinedAt("ABC234")).thenReturn(listOf(emma))
+        whenever(questionRepository.findAllByRoomCode("ABC234")).thenReturn(emptyList())
+
+        service.addQuestion("ABC234", "Emma", "  Who cooks?  ", " house_awards ")
+
+        verify(questionRepository).save(
+            org.mockito.kotlin.check {
+                assertEquals("Who cooks?", it.prompt)
+                assertEquals("HOUSE_AWARDS", it.category)
+                assertEquals("Emma", it.authorName)
+            },
+        )
+    }
+
+    @Test
+    fun `author deletes own lobby question`() {
+        val room = PartyGameRoom(code = "ABC234", hostName = "Kasper")
+        val emma = PartyGameParticipant(roomCode = room.code, memberName = "Emma")
+        val question = question(7, "Emma", "Who cooks?")
+        whenever(roomRepository.findById("ABC234")).thenReturn(Optional.of(room))
+        whenever(questionRepository.findByIdAndRoomCode(7, "ABC234")).thenReturn(question)
+        whenever(participantRepository.findByRoomCodeAndMemberName("ABC234", "Emma")).thenReturn(emma)
+        whenever(participantRepository.findAllByRoomCodeOrderByJoinedAt("ABC234")).thenReturn(listOf(emma))
+        whenever(questionRepository.findAllByRoomCode("ABC234")).thenReturn(emptyList())
+
+        service.deleteQuestion("ABC234", 7, "Emma")
+
+        verify(questionRepository).delete(question)
+    }
+
+    @Test
+    fun `participant can mark ready after adding a question and resume writing`() {
+        val room = PartyGameRoom(code = "ABC234", hostName = "Kasper")
+        val writing = PartyGameParticipant(roomCode = room.code, memberName = "Emma")
+        val ready = writing.copy(ready = true)
+        val questions = listOf(question(1, "Emma", "Who cooks?"))
+        whenever(roomRepository.findById("ABC234")).thenReturn(Optional.of(room))
+        whenever(participantRepository.findByRoomCodeAndMemberName("ABC234", "Emma"))
+            .thenReturn(writing, writing, ready, ready)
+        whenever(participantRepository.findAllByRoomCodeOrderByJoinedAt("ABC234")).thenReturn(listOf(ready))
+        whenever(questionRepository.findAllByRoomCode("ABC234")).thenReturn(questions)
+
+        service.setReady("ABC234", "Emma", true)
+        service.setReady("ABC234", "Emma", false)
+
+        val saved = argumentCaptor<PartyGameParticipant>()
+        verify(participantRepository, org.mockito.kotlin.times(2)).save(saved.capture())
+        assertEquals(listOf(true, false), saved.allValues.map { it.ready })
+    }
+
+    @Test
+    fun `host advances active question and finishes after final question`() {
+        val first = PartyGameRoom(code = "ABC234", hostName = "Kasper", status = "PLAYING", currentQuestionIndex = 0)
+        val second = first.copy(currentQuestionIndex = 1)
+        val finished = first.copy(status = "FINISHED", currentQuestionIndex = 2)
+        val host = PartyGameParticipant(roomCode = first.code, memberName = "Kasper", ready = true)
+        val questions = listOf(question(1, "Kasper", "One"), question(2, "Emma", "Two"))
+        whenever(roomRepository.findById("ABC234"))
+            .thenReturn(Optional.of(first), Optional.of(second), Optional.of(second), Optional.of(finished))
+        whenever(roomRepository.save(any<PartyGameRoom>())).thenAnswer { it.arguments[0] as PartyGameRoom }
+        whenever(participantRepository.findByRoomCodeAndMemberName("ABC234", "Kasper")).thenReturn(host)
+        whenever(participantRepository.findAllByRoomCodeOrderByJoinedAt("ABC234")).thenReturn(listOf(host))
+        whenever(questionRepository.findAllByRoomCode("ABC234")).thenReturn(questions)
+
+        service.next("ABC234", "Kasper")
+        service.next("ABC234", "Kasper")
+
+        val saved = argumentCaptor<PartyGameRoom>()
+        verify(roomRepository, org.mockito.kotlin.times(2)).save(saved.capture())
+        assertEquals("PLAYING", saved.allValues[0].status)
+        assertEquals(1, saved.allValues[0].currentQuestionIndex)
+        assertEquals("FINISHED", saved.allValues[1].status)
+        assertEquals(2, saved.allValues[1].currentQuestionIndex)
+    }
+
     private fun member(name: String) =
         Member(
             id = 1,
