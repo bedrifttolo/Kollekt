@@ -25,6 +25,7 @@ class MemberOperations(
 
         if (collectiveCode != null) {
             redistributeOpenTasks(memberName, collectiveCode)
+            taskOperations.regenerateRecurringTasksForCollective(collectiveCode)
         }
     }
 
@@ -37,6 +38,7 @@ class MemberOperations(
 
         memberRepository.save(member.copy(collectiveCode = null))
         redistributeOpenTasks(memberName, collectiveCode)
+        taskOperations.regenerateRecurringTasksForCollective(collectiveCode)
     }
 
     @Transactional
@@ -91,7 +93,7 @@ class MemberOperations(
         val remainingMembers =
             memberRepository
                 .findAllByCollectiveCode(collectiveCode)
-                .filter { it.name != departingMemberName }
+                .filter { it.name != departingMemberName && it.status == MemberStatus.ACTIVE }
 
         val memberNames = remainingMembers.map { it.name }.sorted()
         if (memberNames.isEmpty()) {

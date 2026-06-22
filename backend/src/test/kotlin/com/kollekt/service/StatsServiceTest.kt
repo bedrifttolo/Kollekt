@@ -1,13 +1,17 @@
 package com.kollekt.service
 
+import com.kollekt.api.dto.CreateCustomAchievementRequest
 import com.kollekt.domain.CalendarEvent
 import com.kollekt.domain.Collective
+import com.kollekt.domain.CustomAchievement
+import com.kollekt.domain.CustomAchievementMetric
 import com.kollekt.domain.EventType
 import com.kollekt.domain.Expense
 import com.kollekt.domain.Member
 import com.kollekt.domain.TaskCategory
 import com.kollekt.domain.TaskItem
 import com.kollekt.repository.CollectiveRepository
+import com.kollekt.repository.CustomAchievementRepository
 import com.kollekt.repository.EventRepository
 import com.kollekt.repository.ExpenseRepository
 import com.kollekt.repository.MemberRepository
@@ -17,6 +21,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.isNull
 import org.mockito.kotlin.mock
@@ -29,6 +34,7 @@ import java.time.LocalTime
 class StatsServiceTest {
     private lateinit var memberRepository: MemberRepository
     private lateinit var collectiveRepository: CollectiveRepository
+    private lateinit var customAchievementRepository: CustomAchievementRepository
     private lateinit var taskRepository: TaskRepository
     private lateinit var eventRepository: EventRepository
     private lateinit var expenseRepository: ExpenseRepository
@@ -42,6 +48,7 @@ class StatsServiceTest {
     fun setUp() {
         memberRepository = mock()
         collectiveRepository = mock()
+        customAchievementRepository = mock()
         taskRepository = mock()
         eventRepository = mock()
         expenseRepository = mock()
@@ -54,6 +61,7 @@ class StatsServiceTest {
                 collectiveAccessService = collectiveAccessService,
                 memberRepository = memberRepository,
                 collectiveRepository = collectiveRepository,
+                customAchievementRepository = customAchievementRepository,
                 taskRepository = taskRepository,
                 eventRepository = eventRepository,
                 expenseRepository = expenseRepository,
@@ -65,6 +73,7 @@ class StatsServiceTest {
         whenever(collectiveRepository.findByJoinCode("ABC123")).thenReturn(
             Collective(id = 1, name = "Villa", joinCode = "ABC123", ownerMemberId = 1, monthlyPrize = "Pizza"),
         )
+        whenever(customAchievementRepository.findAllByCollectiveCodeOrderByIdAsc("ABC123")).thenReturn(emptyList())
     }
 
     @Test
@@ -171,6 +180,60 @@ class StatsServiceTest {
         assertTrue(result.isNotEmpty())
         assertTrue(result.any { it.key == "TASK_1" && it.enabled })
         assertTrue(result.any { it.key == "TASK_5" && !it.enabled })
+    }
+
+    @Test
+    fun `get achievements computes custom household achievement progress`() {
+        whenever(taskRepository.findAllByCollectiveCode("ABC123")).thenReturn(
+            listOf(
+                task(id = 1, title = "Trash", assignee = "Kasper", completed = true, completedAt = LocalDateTime.now()),
+                task(id = 2, title = "Dishes", assignee = "Kasper", completed = true, completedAt = LocalDateTime.now()),
+            ),
+        )
+        whenever(customAchievementRepository.findAllByCollectiveCodeOrderByIdAsc("ABC123")).thenReturn(
+            listOf(
+                CustomAchievement(
+                    id = 7,
+                    collectiveCode = "ABC123",
+                    createdBy = "Emma",
+                    title = "Double trouble",
+                    description = "Complete two tasks",
+                    metric = CustomAchievementMetric.TASKS_COMPLETED,
+                    target = 2,
+                ),
+            ),
+        )
+
+        val result = service.getAchievements("Kasper").single { it.key == "CUSTOM_7" }
+
+        assertTrue(result.custom)
+        assertTrue(result.unlocked)
+        assertEquals(2, result.progress)
+        assertEquals("Emma", result.createdBy)
+    }
+
+    @Test
+    fun `create custom achievement stores it for the household`() {
+        whenever(customAchievementRepository.save(any<CustomAchievement>())).thenAnswer {
+            (it.arguments[0] as CustomAchievement).copy(id = 9)
+        }
+        whenever(taskRepository.findAllByCollectiveCode("ABC123")).thenReturn(emptyList())
+
+        val result =
+            service.createCustomAchievement(
+                "Kasper",
+                CreateCustomAchievementRequest(
+                    title = "  Kitchen legend  ",
+                    description = "  Complete ten kitchen tasks  ",
+                    metric = CustomAchievementMetric.CATEGORY_COMPLETIONS,
+                    target = 10,
+                    taskCategory = TaskCategory.KITCHEN,
+                ),
+            )
+
+        assertEquals("Kitchen legend", result.title)
+        assertEquals("CUSTOM_9", result.key)
+        verify(realtimeUpdateService).publish(eq("ABC123"), eq("ACHIEVEMENT_CONFIG_UPDATED"), isNull())
     }
 
     @Test

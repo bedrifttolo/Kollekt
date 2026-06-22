@@ -424,6 +424,7 @@
     },
     "games": {
       "tonightsPick": "Kveldens valg",
+      "singlePlayer": "Én spiller",
       "startGame": "Start spill",
       "minutes": "{{min}} min",
       "playersShort": "{{count}}+",
@@ -443,6 +444,8 @@
         "party": "Fest"
       },
       "catalog": {
+        "dice": "Terning",
+        "liarsDice": "Løgnerterning",
         "kollekt": "Kollekt",
         "spinTheWheel": "Lykkehjulet",
         "promptRelay": "Spørsmålsstafetten",
@@ -453,6 +456,28 @@
         "kingsCup": "Kings Cup",
         "categories": "Kategorier",
         "charades": "Charades"
+      },
+      "dice": {
+        "roll": "Kast terningen",
+        "rolling": "Kaster…",
+        "result": "Du fikk {{value}}",
+        "hint": "Trykk på terningen eller knappen for å kaste igjen."
+      },
+      "liarsDice": {
+        "rules": "Kast terningene skjult, og kom med eller utfordre påstander rundt bordet. Enere er jokere og teller som tallet det påstås. Taper du en runde, fjerner du én terning. Uten terninger er du ute.",
+        "chooseDice": "Antall terninger ved start",
+        "start": "Start med {{count}} terninger",
+        "diceLeft": "{{count}} terninger igjen",
+        "remove": "Fjern én terning",
+        "shake": "Rist koppen",
+        "shaking": "Rister…",
+        "tapCup": "Trykk på koppen for å vise kastet.",
+        "wildHint": "Enere er jokere. Summene under inkluderer alle enere.",
+        "confirmTitle": "Fjerne én terning?",
+        "confirmDescription": "Fjern bare en terning når du taper en runde. Dette kan ikke angres i den aktive runden.",
+        "confirm": "Fjern terning",
+        "out": "Du er ute",
+        "outHint": "Du har ingen terninger igjen. Start et nytt spill når bordet er klart."
       },
       "rules": "Slik spiller dere",
       "turn": "{{player}} sin tur",
@@ -609,14 +634,45 @@
       "TASK_5":    { "title": "Godt i gang",        "description": "Fullfør 5 oppgaver" },
       "TASK_10":   { "title": "Ti fullført",        "description": "Fullfør 10 oppgaver" },
       "TASK_25":   { "title": "Kollektivhelt",      "description": "Fullfør 25 oppgaver" },
+      "TASK_50":   { "title": "Oppgavetitan",       "description": "Fullfør 50 oppgaver" },
       "STREAK_3":  { "title": "På rekke",           "description": "Fullfør oppgaver 3 dager på rad" },
       "STREAK_7":  { "title": "Ukekriger",          "description": "Fullfør oppgaver 7 dager på rad" },
+      "STREAK_14": { "title": "Fortsettelsesstyrke", "description": "Fullfør oppgaver 14 dager på rad" },
       "EARLY_BIRD":{ "title": "Tidligfugl",         "description": "Fullfør 3 oppgaver før fristen" },
+      "EARLY_10":  { "title": "I forkant",          "description": "Fullfør 10 oppgaver før fristen" },
+      "ON_TIME_10":{ "title": "Presis",             "description": "Fullfør 10 oppgaver innen fristen" },
       "NO_PENALTY":{ "title": "Rent rulleblad",     "description": "Fullfør 5 oppgaver uten straff" },
       "CLEANING_5":{ "title": "Rent hus",           "description": "Fullfør 5 ryddeoppgaver" },
+      "DISHES_5":  { "title": "Oppvaskknuser",      "description": "Fullfør 5 oppvaskoppgaver" },
+      "TRASH_5":   { "title": "Søppelmester",       "description": "Fullfør 5 søppeloppgaver" },
+      "RECURRING_10": { "title": "Pålitelig romkamerat", "description": "Fullfør 10 gjentakende oppgaver" },
       "LEVEL_2":   { "title": "Nivå opp",           "description": "Nå nivå 2" },
+      "LEVEL_5":   { "title": "Kollektivproff",     "description": "Nå nivå 5" },
       "XP_100":    { "title": "Hundring",           "description": "Tjen 100 XP" },
-      "XP_500":    { "title": "XP-maskin",          "description": "Tjen 500 XP" }
+      "XP_500":    { "title": "XP-maskin",          "description": "Tjen 500 XP" },
+      "XP_1000":   { "title": "Fire sifre",         "description": "Tjen 1 000 XP" }
+    },
+    "custom": {
+      "builtIn": "Innebygde prestasjoner",
+      "houseGoals": "Kollektivmål",
+      "houseGoal": "Kollektivmål",
+      "none": "Ingen egne kollektivmål ennå.",
+      "create": "Lag en prestasjon",
+      "createHint": "Alle i kollektivet får sin egen fremdrift mot målet.",
+      "title": "Navn på prestasjonen",
+      "description": "Hva skal folk oppnå?",
+      "target": "Mål",
+      "add": "Legg til prestasjon",
+      "delete": "Slett prestasjon",
+      "metrics": {
+        "TASKS_COMPLETED": "Fullførte oppgaver",
+        "XP_EARNED": "Opptjent XP",
+        "STREAK_DAYS": "Dager på rad",
+        "EARLY_COMPLETIONS": "Fullført før frist",
+        "ON_TIME_COMPLETIONS": "Fullført innen frist",
+        "RECURRING_COMPLETIONS": "Gjentakende oppgaver",
+        "CATEGORY_COMPLETIONS": "Oppgaver i kategori"
+      }
     }
   },
   "kollektGame": {
@@ -757,7 +813,28 @@
       "title": "Utseende",
       "light": "Varmt papirtema",
       "dark": "Mørkt furutema",
+      "lightLabel": "Lys",
+      "darkLabel": "Mørk",
       "toggle": "Bytt mellom lyst og mørkt utseende"
+    },
+    "status": {
+      "title": "Status i kollektivet",
+      "activeDescription": "Tas med når gjentakende oppgaver fordeles.",
+      "awayDescription": "Settes på pause fra fordeling av gjentakende oppgaver.",
+      "saving": "Lagrer status..."
+    },
+    "stats": {
+      "xp": "XP",
+      "rank": "Rangering",
+      "level": "Nivå",
+      "tasksDone": "Oppgaver utført",
+      "streak": "Rekke",
+      "achievements": "Prestasjoner"
+    },
+    "loading": {
+      "saving": "Lagrer...",
+      "sending": "Sender...",
+      "leaving": "Forlater..."
     },
     "householdCode": "Kollektivkode",
     "copyHouseholdCode": "Kopier kollektivkode",
@@ -827,14 +904,31 @@
     "logOut": "Logg ut",
     "leaveHousehold": "Forlat kollektivet",
     "leaveHouseholdSubtitle": "Du kan bli med i eller opprette et nytt",
+    "leaveConfirm": "Forlate dette kollektivet? Åpne oppgaver kan bli fordelt på nytt.",
     "deleteAccount": "Slett konto",
     "deleteAccountSubtitle": "Fjern kontoen din permanent",
     "deleteConfirm": "Slette kontoen din? Dette kan ikke angres.",
+    "feedback": {
+      "statusSaved": "Status lagret",
+      "invitationSent": "Invitasjon sendt",
+      "friendRemoved": "Venn fjernet",
+      "preferencesSaved": "Varslingsinnstillinger lagret",
+      "colorSaved": "Profilfarge lagret",
+      "codeCopied": "Kollektivkoden er kopiert"
+    },
     "errors": {
-      "passwordTooShort": "Passordet må være minst 6 tegn",
+      "passwordTooShort": "Passordet må være minst 8 tegn",
       "passwordsMismatch": "Passordene er ikke like",
       "passwordUpdateFailed": "Kunne ikke oppdatere passordet",
-      "addFriendFailed": "Kunne ikke legge til venn"
+      "addFriendFailed": "Kunne ikke legge til venn",
+      "removeFriendFailed": "Kunne ikke fjerne venn",
+      "statusUpdateFailed": "Kunne ikke oppdatere status",
+      "invitationFailed": "Kunne ikke sende invitasjonen",
+      "preferencesUpdateFailed": "Kunne ikke oppdatere varslingsinnstillingene",
+      "colorUpdateFailed": "Kunne ikke oppdatere profilfargen",
+      "copyFailed": "Kunne ikke kopiere kollektivkoden",
+      "leaveFailed": "Kunne ikke forlate kollektivet",
+      "partialLoadFailed": "Noe profilinformasjon kunne ikke lastes inn."
     }
   }
 }

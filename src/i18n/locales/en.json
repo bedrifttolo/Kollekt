@@ -424,6 +424,7 @@
     },
     "games": {
       "tonightsPick": "Tonight's pick",
+      "singlePlayer": "Single player",
       "startGame": "Start game",
       "minutes": "{{min}} min",
       "playersShort": "{{count}}+",
@@ -443,6 +444,8 @@
         "party": "Party"
       },
       "catalog": {
+        "dice": "Dice",
+        "liarsDice": "Liar's Dice",
         "kollekt": "Kollekt",
         "spinTheWheel": "Spin the Wheel",
         "promptRelay": "Prompt Relay",
@@ -453,6 +456,28 @@
         "kingsCup": "Kings Cup",
         "categories": "Categories",
         "charades": "Charades"
+      },
+      "dice": {
+        "roll": "Roll the die",
+        "rolling": "Rolling…",
+        "result": "You rolled {{value}}",
+        "hint": "Tap the die or the button to roll again."
+      },
+      "liarsDice": {
+        "rules": "Roll your dice privately, then make or challenge claims around the table. Ones are wild and count as the face being claimed. Lose a round, remove one die. No dice means you are out.",
+        "chooseDice": "Starting dice",
+        "start": "Start with {{count}} dice",
+        "diceLeft": "{{count}} dice left",
+        "remove": "Remove one die",
+        "shake": "Shake the cup",
+        "shaking": "Shaking…",
+        "tapCup": "Tap the cup to reveal your roll.",
+        "wildHint": "Ones are wild. The totals below include every one.",
+        "confirmTitle": "Remove one die?",
+        "confirmDescription": "Only remove a die when you lose a round. This cannot be undone for the current game.",
+        "confirm": "Remove die",
+        "out": "You are out",
+        "outHint": "You have no dice left. Start a new game when the table is ready."
       },
       "rules": "How to play",
       "turn": "{{player}}'s turn",
@@ -609,14 +634,45 @@
       "TASK_5":    { "title": "Getting Going",   "description": "Complete 5 tasks" },
       "TASK_10":   { "title": "Ten Done",        "description": "Complete 10 tasks" },
       "TASK_25":   { "title": "Household Hero",  "description": "Complete 25 tasks" },
+      "TASK_50":   { "title": "Task Titan",      "description": "Complete 50 tasks" },
       "STREAK_3":  { "title": "On a Roll",       "description": "Complete tasks 3 days in a row" },
       "STREAK_7":  { "title": "Week Warrior",    "description": "Complete tasks 7 days in a row" },
+      "STREAK_14": { "title": "Fortnight Force", "description": "Complete tasks 14 days in a row" },
       "EARLY_BIRD":{ "title": "Early Bird",      "description": "Complete 3 tasks before the due date" },
+      "EARLY_10":  { "title": "Ahead of the Game", "description": "Complete 10 tasks before the due date" },
+      "ON_TIME_10":{ "title": "Right on Time",    "description": "Complete 10 tasks by their due date" },
       "NO_PENALTY":{ "title": "Clean Record",    "description": "Complete 5 tasks without any penalty" },
       "CLEANING_5":{ "title": "Clean House",     "description": "Complete 5 cleaning tasks" },
+      "DISHES_5":  { "title": "Dish Destroyer",  "description": "Complete 5 dishwashing tasks" },
+      "TRASH_5":   { "title": "Trash Champion",  "description": "Complete 5 trash tasks" },
+      "RECURRING_10": { "title": "Reliable Roommate", "description": "Complete 10 recurring tasks" },
       "LEVEL_2":   { "title": "Level Up",        "description": "Reach level 2" },
+      "LEVEL_5":   { "title": "Household Pro",   "description": "Reach level 5" },
       "XP_100":    { "title": "Century",         "description": "Earn 100 XP" },
-      "XP_500":    { "title": "XP Grinder",      "description": "Earn 500 XP" }
+      "XP_500":    { "title": "XP Grinder",      "description": "Earn 500 XP" },
+      "XP_1000":   { "title": "Four Digits",     "description": "Earn 1,000 XP" }
+    },
+    "custom": {
+      "builtIn": "Built-in achievements",
+      "houseGoals": "House goals",
+      "houseGoal": "House goal",
+      "none": "No custom house goals yet.",
+      "create": "Create an achievement",
+      "createHint": "Everyone in the household gets their own progress toward this goal.",
+      "title": "Achievement title",
+      "description": "What should people accomplish?",
+      "target": "Target",
+      "add": "Add achievement",
+      "delete": "Delete achievement",
+      "metrics": {
+        "TASKS_COMPLETED": "Completed tasks",
+        "XP_EARNED": "Earned XP",
+        "STREAK_DAYS": "Streak days",
+        "EARLY_COMPLETIONS": "Early completions",
+        "ON_TIME_COMPLETIONS": "On-time completions",
+        "RECURRING_COMPLETIONS": "Recurring tasks",
+        "CATEGORY_COMPLETIONS": "Tasks in category"
+      }
     }
   },
   "kollektGame": {
@@ -757,7 +813,28 @@
       "title": "Appearance",
       "light": "Warm paper theme",
       "dark": "Night pine theme",
+      "lightLabel": "Light",
+      "darkLabel": "Dark",
       "toggle": "Toggle light or dark appearance"
+    },
+    "status": {
+      "title": "Household status",
+      "activeDescription": "Included when recurring tasks are assigned.",
+      "awayDescription": "Paused from recurring-task assignment.",
+      "saving": "Saving status..."
+    },
+    "stats": {
+      "xp": "XP",
+      "rank": "Rank",
+      "level": "Level",
+      "tasksDone": "Tasks done",
+      "streak": "Streak",
+      "achievements": "Achievements"
+    },
+    "loading": {
+      "saving": "Saving...",
+      "sending": "Sending...",
+      "leaving": "Leaving..."
     },
     "householdCode": "Household code",
     "copyHouseholdCode": "Copy household code",
@@ -827,14 +904,31 @@
     "logOut": "Log out",
     "leaveHousehold": "Leave Household",
     "leaveHouseholdSubtitle": "You can join or create a new one",
+    "leaveConfirm": "Leave this household? Your open tasks may be reassigned.",
     "deleteAccount": "Delete Account",
     "deleteAccountSubtitle": "Permanently remove your account",
     "deleteConfirm": "Delete your account? This cannot be undone.",
+    "feedback": {
+      "statusSaved": "Status saved",
+      "invitationSent": "Invitation sent",
+      "friendRemoved": "Friend removed",
+      "preferencesSaved": "Notification preferences saved",
+      "colorSaved": "Profile color saved",
+      "codeCopied": "Household code copied"
+    },
     "errors": {
-      "passwordTooShort": "Password must be at least 6 characters",
+      "passwordTooShort": "Password must be at least 8 characters",
       "passwordsMismatch": "Passwords do not match",
       "passwordUpdateFailed": "Failed to update password",
-      "addFriendFailed": "Could not add friend"
+      "addFriendFailed": "Could not add friend",
+      "removeFriendFailed": "Could not remove friend",
+      "statusUpdateFailed": "Could not update status",
+      "invitationFailed": "Could not send invitation",
+      "preferencesUpdateFailed": "Could not update notification preferences",
+      "colorUpdateFailed": "Could not update profile color",
+      "copyFailed": "Could not copy household code",
+      "leaveFailed": "Could not leave the household",
+      "partialLoadFailed": "Some profile information could not be loaded."
     }
   }
 }

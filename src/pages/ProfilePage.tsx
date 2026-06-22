@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -39,6 +39,7 @@ import { useTheme } from "../context/ThemeContext";
 import { Eyebrow } from "../components/ui-kit";
 import LanguageSwitcher from "../components/LanguageSwitcher";
 import { MEMBER_COLORS, colorForMember } from "../lib/memberColors";
+import { connectCollectiveRealtime } from "../lib/realtime";
 
 const STATUS_OPTIONS: { value: MemberStatus; emoji: string }[] = [
   { value: "ACTIVE", emoji: "🟢" },
@@ -89,65 +90,141 @@ export default function ProfilePage() {
   const [myStats, setMyStats] = useState<LeaderboardPlayer | null>(null);
   const [achievementsUnlocked, setAchievementsUnlocked] = useState(0);
   const [achievementsTotal, setAchievementsTotal] = useState(0);
-  const [householdMembers, setHouseholdMembers] = useState<string[]>([]);
+  const [householdMembers, setHouseholdMembers] = useState<AppUser[]>([]);
+  const [profileLoadFailed, setProfileLoadFailed] = useState(false);
+  const [feedback, setFeedback] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [statusSaving, setStatusSaving] = useState(false);
+  const [inviteSaving, setInviteSaving] = useState(false);
+  const [friendSaving, setFriendSaving] = useState(false);
+  const [removingFriend, setRemovingFriend] = useState<string | null>(null);
+  const [notifSaving, setNotifSaving] = useState<string | null>(null);
+  const [colorSaving, setColorSaving] = useState(false);
+  const [copyingCode, setCopyingCode] = useState(false);
+  const [leaving, setLeaving] = useState(false);
+  const [passwordSaving, setPasswordSaving] = useState(false);
 
   const name = currentUser?.name ?? "";
 
-  useEffect(() => {
+  const loadStatsAndAchievements = useCallback(async () => {
     if (!name) return;
-    getNotificationPreferences(name).then(setNotifPrefs).catch(() => {});
-    Promise.all([
+    const [leaderboard, achievements] = await Promise.allSettled([
       api.get<{ players: LeaderboardPlayer[] }>(`/leaderboard?memberName=${encodeURIComponent(name)}&period=OVERALL`),
       api.get<Achievement[]>(`/achievements?memberName=${encodeURIComponent(name)}`),
-      api.get<{ name: string }[]>(`/members/collective?memberName=${encodeURIComponent(name)}`),
-    ]).then(([lb, ach, members]) => {
-      setMyStats(lb.players.find((p) => p.name === name) ?? null);
-      setAchievementsUnlocked(ach.filter((a) => a.unlocked).length);
-      setAchievementsTotal(ach.length);
-      setHouseholdMembers(members.map((member) => member.name));
-    }).catch(() => {});
+    ]);
+    if (leaderboard.status === "fulfilled") {
+      setMyStats(leaderboard.value.players.find((player) => player.name === name) ?? null);
+    }
+    if (achievements.status === "fulfilled") {
+      setAchievementsUnlocked(achievements.value.filter((achievement) => achievement.unlocked).length);
+      setAchievementsTotal(achievements.value.length);
+    }
+    if (leaderboard.status === "rejected" || achievements.status === "rejected") {
+      setProfileLoadFailed(true);
+    }
   }, [name]);
 
-  const handleToggleNotifPref = async (type: string, enabled: boolean) => {
+  useEffect(() => {
     if (!name) return;
+    setProfileLoadFailed(false);
+    void getNotificationPreferences(name)
+      .then(setNotifPrefs)
+      .catch(() => setProfileLoadFailed(true));
+    void api.get<AppUser[]>(`/members/collective?memberName=${encodeURIComponent(name)}`)
+      .then(setHouseholdMembers)
+      .catch(() => setProfileLoadFailed(true));
+    void loadStatsAndAchievements();
+  }, [name, loadStatsAndAchievements]);
+
+  useEffect(() => {
+    if (!name) return;
+    const refreshEvents = new Set([
+      "TASK_CREATED",
+      "TASK_UPDATED",
+      "TASK_DELETED",
+      "TASK_COMPLETED_LATE",
+      "XP_UPDATED",
+      "ACHIEVEMENT_CONFIG_UPDATED",
+    ]);
+    return connectCollectiveRealtime(name, (event) => {
+      if (refreshEvents.has(event.type)) void loadStatsAndAchievements();
+    });
+  }, [name, loadStatsAndAchievements]);
+
+  const handleToggleNotifPref = async (type: string, enabled: boolean) => {
+    if (!name || notifSaving) return;
+    const previous = notifPrefs;
     const updated = { ...notifPrefs, [type]: enabled };
     setNotifPrefs(updated);
-    await updateNotificationPreference(name, updated).catch(() => {});
+    setNotifSaving(type);
+    setFeedback(null);
+    try {
+      await updateNotificationPreference(name, updated);
+      setFeedback({ type: "success", text: t("profile.feedback.preferencesSaved") });
+    } catch (error: unknown) {
+      setNotifPrefs(previous);
+      setFeedback({ type: "error", text: getUserMessage(error, t("profile.errors.preferencesUpdateFailed")) });
+    } finally {
+      setNotifSaving(null);
+    }
   };
 
   const handleStatusChange = async (status: MemberStatus) => {
-    if (!currentUser) return;
+    if (!currentUser || statusSaving || currentUser.status === status) return;
+    const previous = currentUser;
+    setCurrentUser({ ...currentUser, status });
+    setStatusSaving(true);
+    setFeedback(null);
     try {
       await api.patch("/members/status", { memberName: name, status });
-      setCurrentUser({ ...currentUser, status });
-    } catch {}
+      setFeedback({ type: "success", text: t("profile.feedback.statusSaved") });
+    } catch (error: unknown) {
+      setCurrentUser(previous);
+      setFeedback({ type: "error", text: getUserMessage(error, t("profile.errors.statusUpdateFailed")) });
+    } finally {
+      setStatusSaving(false);
+    }
   };
 
   const handleColorChange = async (color: string) => {
-    if (!currentUser) return;
+    if (!currentUser || colorSaving) return;
     const previous = currentUser.color;
     setCurrentUser({ ...currentUser, color });
+    setColorSaving(true);
+    setFeedback(null);
     try {
       await api.patch("/members/color", { memberName: name, color });
-    } catch {
+      setFeedback({ type: "success", text: t("profile.feedback.colorSaved") });
+    } catch (error: unknown) {
       setCurrentUser({ ...currentUser, color: previous });
+      setFeedback({ type: "error", text: getUserMessage(error, t("profile.errors.colorUpdateFailed")) });
+    } finally {
+      setColorSaving(false);
     }
   };
 
   const handleInvite = async () => {
-    if (!inviteEmail.trim() || !currentUser?.collectiveCode) return;
-    await api.post("/members/invite", {
-      email: inviteEmail.trim(),
-      collectiveCode: currentUser.collectiveCode,
-    });
-    setInviteEmail("");
-    setInviteSent(true);
-    setTimeout(() => setInviteSent(false), 3000);
+    if (!inviteEmail.trim() || !currentUser?.collectiveCode || inviteSaving) return;
+    setInviteSaving(true);
+    setFeedback(null);
+    try {
+      await api.post("/members/invite", {
+        email: inviteEmail.trim(),
+        collectiveCode: currentUser.collectiveCode,
+      });
+      setInviteEmail("");
+      setInviteSent(true);
+      setFeedback({ type: "success", text: t("profile.feedback.invitationSent") });
+      setTimeout(() => setInviteSent(false), 3000);
+    } catch (error: unknown) {
+      setFeedback({ type: "error", text: getUserMessage(error, t("profile.errors.invitationFailed")) });
+    } finally {
+      setInviteSaving(false);
+    }
   };
 
   const handleResetPassword = async () => {
     setPwError("");
-    if (newPassword.length < 6) {
+    if (newPassword.length < 8) {
       setPwError(t("profile.errors.passwordTooShort"));
       return;
     }
@@ -156,6 +233,7 @@ export default function ProfilePage() {
       return;
     }
     try {
+      setPasswordSaving(true);
       await api.patch(
         `/members/reset-password?memberName=${encodeURIComponent(name)}`,
         { newPassword },
@@ -168,13 +246,16 @@ export default function ProfilePage() {
       setPwError(
         getUserMessage(error, t("profile.errors.passwordUpdateFailed")),
       );
+    } finally {
+      setPasswordSaving(false);
     }
   };
 
   const addFriend = async () => {
     setFriendError("");
     const trimmed = friendName.trim();
-    if (!trimmed || !currentUser) return;
+    if (!trimmed || !currentUser || friendSaving) return;
+    setFriendSaving(true);
     try {
       await api.post(
         `/members/friends/add?memberName=${encodeURIComponent(name)}`,
@@ -185,36 +266,59 @@ export default function ProfilePage() {
       setFriendName("");
     } catch (error: unknown) {
       setFriendError(getUserMessage(error, t("profile.errors.addFriendFailed")));
+    } finally {
+      setFriendSaving(false);
     }
   };
 
   const removeFriend = async (friend: string) => {
-    if (!currentUser) return;
+    if (!currentUser || removingFriend) return;
+    setRemovingFriend(friend);
+    setFeedback(null);
     try {
       await api.delete(
         `/members/friends/remove?memberName=${encodeURIComponent(name)}&friendName=${encodeURIComponent(friend)}`,
       );
       const refreshed = await api.get<AppUser>("/onboarding/me");
       setCurrentUser(refreshed);
-    } catch {}
+      setFeedback({ type: "success", text: t("profile.feedback.friendRemoved") });
+    } catch (error: unknown) {
+      setFeedback({ type: "error", text: getUserMessage(error, t("profile.errors.removeFriendFailed")) });
+    } finally {
+      setRemovingFriend(null);
+    }
   };
 
-  const handleCopyCode = () => {
-    if (!currentUser?.collectiveCode) return;
-    void navigator.clipboard.writeText(currentUser.collectiveCode);
-    setCodeCopied(true);
-    setTimeout(() => setCodeCopied(false), 2000);
+  const handleCopyCode = async () => {
+    if (!currentUser?.collectiveCode || copyingCode) return;
+    setCopyingCode(true);
+    setFeedback(null);
+    try {
+      await navigator.clipboard.writeText(currentUser.collectiveCode);
+      setCodeCopied(true);
+      setFeedback({ type: "success", text: t("profile.feedback.codeCopied") });
+      setTimeout(() => setCodeCopied(false), 2000);
+    } catch (error: unknown) {
+      setFeedback({ type: "error", text: getUserMessage(error, t("profile.errors.copyFailed")) });
+    } finally {
+      setCopyingCode(false);
+    }
   };
 
   const handleLeave = async () => {
-    if (!currentUser) return;
+    if (!currentUser || leaving || !window.confirm(t("profile.leaveConfirm"))) return;
+    setLeaving(true);
+    setFeedback(null);
     try {
       await api.patch(
         `/members/leave-collective?memberName=${encodeURIComponent(name)}`,
       );
-      setCurrentUser({ ...currentUser, collectiveCode: "" });
+      setCurrentUser({ ...currentUser, collectiveCode: null });
       navigate("/create-household");
-    } catch {}
+    } catch (error: unknown) {
+      setFeedback({ type: "error", text: getUserMessage(error, t("profile.errors.leaveFailed")) });
+      setLeaving(false);
+    }
   };
 
   const handleDelete = async () => {
@@ -246,6 +350,19 @@ export default function ProfilePage() {
         <Eyebrow>{t("profile.eyebrow")}</Eyebrow>
         <h2 className="mt-2 font-display text-[2.35rem] font-extrabold leading-none tracking-[-.04em]">{t("profile.title")}</h2>
       </div>
+      {profileLoadFailed && (
+        <p className="rounded-xl bg-destructive/10 px-3 py-2 text-xs text-destructive">
+          {t("profile.errors.partialLoadFailed")}
+        </p>
+      )}
+      {feedback && (
+        <p
+          role={feedback.type === "error" ? "alert" : "status"}
+          className={`rounded-xl px-3 py-2 text-xs ${feedback.type === "error" ? "bg-destructive/10 text-destructive" : "bg-primary/10 text-primary"}`}
+        >
+          {feedback.text}
+        </p>
+      )}
       <div className="glass rounded-2xl p-5 glow-primary">
         <div className="flex items-center gap-4">
           <div
@@ -259,25 +376,36 @@ export default function ProfilePage() {
             <p className="text-xs text-muted-foreground truncate">
               {currentUser?.email}
             </p>
-            <div className="flex gap-1.5 mt-2">
-              {STATUS_OPTIONS.map((status) => (
+          </div>
+        </div>
+
+        <div className="mt-4" aria-label={t("profile.status.title")}>
+          <p className="mb-2 text-[10px] font-bold uppercase tracking-[.12em] text-muted-foreground">
+            {t("profile.status.title")}
+          </p>
+          <div className="grid grid-cols-2 gap-1 rounded-xl bg-muted/40 p-1">
+            {STATUS_OPTIONS.map((status) => {
+              const selected = currentUser?.status === status.value;
+              return (
                 <button
                   key={status.value}
-                  onClick={() => handleStatusChange(status.value)}
-                  className={`text-[10px] px-2 py-0.5 rounded-full font-medium transition-all ${
-                    currentUser?.status === status.value
-                      ? status.value === "ACTIVE"
-                        ? "bg-primary/20 text-primary border border-primary/30"
-                        : "bg-secondary/20 text-secondary border border-secondary/30"
-                      : "glass text-muted-foreground"
-                  }`}
+                  type="button"
+                  disabled={statusSaving}
+                  aria-pressed={selected}
+                  onClick={() => void handleStatusChange(status.value)}
+                  className={`min-h-20 rounded-lg px-3 py-2 text-left transition-all disabled:opacity-60 ${selected ? "bg-card shadow-sm ring-1 ring-primary/30" : "text-muted-foreground hover:bg-card/50"}`}
                 >
-                  {status.emoji}{" "}
-                  {translateKey("common.memberStatus", status.value)}
+                  <span className="block text-sm font-semibold">
+                    {status.emoji} {translateKey("common.memberStatus", status.value)}
+                  </span>
+                  <span className="mt-1 block text-[10px] leading-snug">
+                    {t(`profile.status.${status.value.toLowerCase()}Description`)}
+                  </span>
                 </button>
-              ))}
-            </div>
+              );
+            })}
           </div>
+          {statusSaving && <p className="mt-2 text-[10px] text-muted-foreground">{t("profile.status.saving")}</p>}
         </div>
 
         <div className="mt-4">
@@ -291,6 +419,7 @@ export default function ProfilePage() {
                 <button
                   key={swatch}
                   onClick={() => void handleColorChange(swatch)}
+                  disabled={colorSaving}
                   style={{ backgroundColor: swatch }}
                   className={`grid h-8 w-8 place-items-center rounded-full transition-transform ${active ? "scale-110 ring-2 ring-foreground ring-offset-2 ring-offset-card" : ""}`}
                   aria-label={swatch}
@@ -313,8 +442,9 @@ export default function ProfilePage() {
               </p>
             </div>
             <button
-              onClick={handleCopyCode}
-              className="h-8 w-8 rounded-lg glass flex items-center justify-center"
+              onClick={() => void handleCopyCode()}
+              disabled={copyingCode}
+              className="h-8 w-8 rounded-lg glass flex items-center justify-center disabled:opacity-60"
               aria-label={t("profile.copyHouseholdCode")}
             >
               {codeCopied ? (
@@ -332,27 +462,27 @@ export default function ProfilePage() {
           <div className="grid grid-cols-3 gap-2">
             <div className="bg-background/30 rounded-lg p-2.5 text-center">
               <p className="font-display font-bold text-base">{myStats.xp}</p>
-              <p className="text-[9px] text-muted-foreground mt-0.5">XP</p>
+              <p className="text-[9px] text-muted-foreground mt-0.5">{t("profile.stats.xp")}</p>
             </div>
             <div className="bg-background/30 rounded-lg p-2.5 text-center">
               <p className="font-display font-bold text-base">#{myStats.rank}</p>
-              <p className="text-[9px] text-muted-foreground mt-0.5">Rank</p>
+              <p className="text-[9px] text-muted-foreground mt-0.5">{t("profile.stats.rank")}</p>
             </div>
             <div className="bg-background/30 rounded-lg p-2.5 text-center">
               <p className="font-display font-bold text-base">{myStats.level}</p>
-              <p className="text-[9px] text-muted-foreground mt-0.5">Level</p>
+              <p className="text-[9px] text-muted-foreground mt-0.5">{t("profile.stats.level")}</p>
             </div>
             <div className="bg-background/30 rounded-lg p-2.5 text-center">
               <p className="font-display font-bold text-base">{myStats.tasksCompleted}</p>
-              <p className="text-[9px] text-muted-foreground mt-0.5">Tasks done</p>
+              <p className="text-[9px] text-muted-foreground mt-0.5">{t("profile.stats.tasksDone")}</p>
             </div>
             <div className="bg-background/30 rounded-lg p-2.5 text-center">
               <p className="font-display font-bold text-base">{myStats.streak}d</p>
-              <p className="text-[9px] text-muted-foreground mt-0.5">Streak</p>
+              <p className="text-[9px] text-muted-foreground mt-0.5">{t("profile.stats.streak")}</p>
             </div>
             <div className="bg-background/30 rounded-lg p-2.5 text-center">
               <p className="font-display font-bold text-base">{achievementsUnlocked}/{achievementsTotal}</p>
-              <p className="text-[9px] text-muted-foreground mt-0.5">Achievements</p>
+              <p className="text-[9px] text-muted-foreground mt-0.5">{t("profile.stats.achievements")}</p>
             </div>
           </div>
         </div>
@@ -363,9 +493,17 @@ export default function ProfilePage() {
           <p className="text-xs font-bold uppercase tracking-[.14em] text-muted-foreground">{t("profile.householdMembers")}</p>
           <div className="mt-3 flex flex-wrap gap-2">
             {householdMembers.map((member) => (
-              <span key={member} className="pill pill-pine flex items-center gap-1.5">
-                <span className="grid h-5 w-5 place-items-center rounded-full bg-primary text-[9px] text-primary-foreground">{member[0]?.toUpperCase()}</span>
-                {member}
+              <span key={member.id} className="pill pill-pine flex items-center gap-1.5">
+                <span
+                  style={{ backgroundColor: colorForMember(member.name, member.color) }}
+                  className="grid h-5 w-5 place-items-center rounded-full text-[9px] text-white"
+                >
+                  {member.name[0]?.toUpperCase()}
+                </span>
+                {member.name}
+                <span className="text-[9px]" aria-label={translateKey("common.memberStatus", member.status)}>
+                  {member.status === "ACTIVE" ? "🟢" : "🟡"}
+                </span>
               </span>
             ))}
           </div>
@@ -391,8 +529,8 @@ export default function ProfilePage() {
           <p className="text-[10px] text-muted-foreground">{t(`profile.appearance.${theme}`)}</p>
         </div>
         <button onClick={toggleTheme} className="seg !p-1" aria-label={t("profile.appearance.toggle")}>
-          <span className={`px-2 py-1.5 rounded-lg text-[9px] font-bold ${theme === "light" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>LIGHT</span>
-          <span className={`px-2 py-1.5 rounded-lg text-[9px] font-bold ${theme === "dark" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>DARK</span>
+          <span className={`px-2 py-1.5 rounded-lg text-[9px] font-bold ${theme === "light" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>{t("profile.appearance.lightLabel")}</span>
+          <span className={`px-2 py-1.5 rounded-lg text-[9px] font-bold ${theme === "dark" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>{t("profile.appearance.darkLabel")}</span>
         </button>
       </div>
 
@@ -519,8 +657,9 @@ export default function ProfilePage() {
                   return (
                     <button
                       key={type}
-                      onClick={() => handleToggleNotifPref(type, !enabled)}
-                      className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-muted/30 transition-colors"
+                      onClick={() => void handleToggleNotifPref(type, !enabled)}
+                      disabled={notifSaving !== null}
+                      className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-muted/30 transition-colors disabled:opacity-60"
                     >
                       <span className="text-sm text-left">
                         {translateKey("profile.notificationPreferences.types", type)}
@@ -583,8 +722,9 @@ export default function ProfilePage() {
                   className="w-full bg-muted/50 rounded-xl px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
                 />
                 <button
-                  onClick={handleInvite}
-                  className="w-full gradient-primary rounded-xl py-2 text-sm font-semibold text-primary-foreground flex items-center justify-center gap-2"
+                  onClick={() => void handleInvite()}
+                  disabled={inviteSaving}
+                  className="w-full gradient-primary rounded-xl py-2 text-sm font-semibold text-primary-foreground flex items-center justify-center gap-2 disabled:opacity-60"
                 >
                   {inviteSent ? (
                     <>
@@ -592,7 +732,7 @@ export default function ProfilePage() {
                       {t("profile.inviteRoommates.sent")}
                     </>
                   ) : (
-                    t("profile.inviteRoommates.send")
+                    inviteSaving ? t("profile.loading.sending") : t("profile.inviteRoommates.send")
                   )}
                 </button>
               </div>
@@ -647,8 +787,9 @@ export default function ProfilePage() {
                 />
                 {pwError && <p className="text-xs text-destructive">{pwError}</p>}
                 <button
-                  onClick={handleResetPassword}
-                  className="w-full gradient-primary rounded-xl py-2 text-sm font-semibold text-primary-foreground flex items-center justify-center gap-2"
+                  onClick={() => void handleResetPassword()}
+                  disabled={passwordSaving}
+                  className="w-full gradient-primary rounded-xl py-2 text-sm font-semibold text-primary-foreground flex items-center justify-center gap-2 disabled:opacity-60"
                 >
                   {pwSuccess ? (
                     <>
@@ -656,7 +797,7 @@ export default function ProfilePage() {
                       {t("profile.resetPassword.updated")}
                     </>
                   ) : (
-                    t("profile.resetPassword.update")
+                    passwordSaving ? t("profile.loading.saving") : t("profile.resetPassword.update")
                   )}
                 </button>
               </div>
@@ -687,8 +828,9 @@ export default function ProfilePage() {
               onKeyDown={(event) => event.key === "Enter" && void addFriend()}
             />
             <button
-              onClick={addFriend}
-              className="px-3 rounded-xl gradient-primary text-sm font-semibold text-primary-foreground"
+              onClick={() => void addFriend()}
+              disabled={friendSaving}
+              className="px-3 rounded-xl gradient-primary text-sm font-semibold text-primary-foreground disabled:opacity-60"
             >
               {t("profile.friends.add")}
             </button>
@@ -706,8 +848,9 @@ export default function ProfilePage() {
             >
               <span className="flex-1 text-sm">{friend.name}</span>
               <button
-                onClick={() => removeFriend(friend.name)}
-                className="h-7 w-7 rounded-lg glass flex items-center justify-center"
+                onClick={() => void removeFriend(friend.name)}
+                disabled={removingFriend !== null}
+                className="h-7 w-7 rounded-lg glass flex items-center justify-center disabled:opacity-60"
                 aria-label={t("profile.friends.remove", { name: friend.name })}
               >
                 <UserMinus className="h-3.5 w-3.5 text-destructive" />
@@ -731,12 +874,13 @@ export default function ProfilePage() {
         </button>
 
         <button
-          onClick={handleLeave}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-muted/40 transition-colors"
+          onClick={() => void handleLeave()}
+          disabled={leaving}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-muted/40 transition-colors disabled:opacity-60"
         >
           <ArrowRightLeft className="h-4 w-4 text-muted-foreground" />
           <div className="text-left">
-            <p className="text-sm font-medium">{t("profile.leaveHousehold")}</p>
+            <p className="text-sm font-medium">{leaving ? t("profile.loading.leaving") : t("profile.leaveHousehold")}</p>
             <p className="text-[10px] text-muted-foreground">
               {t("profile.leaveHouseholdSubtitle")}
             </p>

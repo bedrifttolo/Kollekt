@@ -92,15 +92,14 @@ class MemberController(
 
     @PatchMapping("/reset-password")
     fun resetPassword(
-        @RequestParam(required = false) memberName: String?,
-        @RequestParam(required = false) email: String?,
+        @RequestParam memberName: String,
         @RequestBody body: Map<String, String>,
+        @AuthenticationPrincipal jwt: Jwt,
     ) {
+        requireTokenSubject(jwt, memberName)
         val newPassword = body["newPassword"] ?: throw IllegalArgumentException("Missing newPassword")
-        if ((memberName.isNullOrBlank() && email.isNullOrBlank()) || newPassword.isBlank()) {
-            throw IllegalArgumentException("Provide either memberName or email and a newPassword")
-        }
-        accountOperations.resetPassword(memberName, email, newPassword)
+        if (newPassword.length < 8) throw IllegalArgumentException("Password must be at least 8 characters")
+        accountOperations.resetPassword(memberName, newPassword)
     }
 
     @DeleteMapping("/delete")

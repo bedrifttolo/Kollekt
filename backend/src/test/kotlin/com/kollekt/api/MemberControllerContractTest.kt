@@ -6,7 +6,6 @@ import com.kollekt.service.MemberOperations
 import com.kollekt.service.TokenStoreService
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
-import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.springframework.beans.factory.annotation.Autowired
@@ -92,18 +91,33 @@ class MemberControllerContractTest {
     }
 
     @Test
-    fun `member reset password forwards identifier and password`() {
+    fun `member reset password forwards authenticated member and password`() {
         mockMvc
             .perform(
                 patch("/api/members/reset-password")
-                    .param("email", "kasper@example.com")
+                    .param("memberName", "Kasper")
                     .contentType(MediaType.APPLICATION_JSON)
                     .with(csrf())
                     .with(jwt().jwt { it.subject("Kasper") })
                     .content("""{"newPassword":"new-secret"}"""),
             ).andExpect(status().isOk)
 
-        verify(accountOperations).resetPassword(null, "kasper@example.com", "new-secret")
+        verify(accountOperations).resetPassword("Kasper", "new-secret")
+    }
+
+    @Test
+    fun `member reset password rejects a different authenticated member`() {
+        mockMvc
+            .perform(
+                patch("/api/members/reset-password")
+                    .param("memberName", "Emma")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .with(csrf())
+                    .with(jwt().jwt { it.subject("Kasper") })
+                    .content("""{"newPassword":"new-secret"}"""),
+            ).andExpect(status().isForbidden)
+
+        verify(accountOperations, never()).resetPassword(any(), any())
     }
 
     @Test
@@ -171,6 +185,6 @@ class MemberControllerContractTest {
                     .content("""{}"""),
             ).andExpect(status().isBadRequest)
 
-        verify(accountOperations, never()).resetPassword(anyOrNull(), anyOrNull(), any())
+        verify(accountOperations, never()).resetPassword(any(), any())
     }
 }

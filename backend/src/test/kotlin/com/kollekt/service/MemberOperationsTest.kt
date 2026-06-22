@@ -5,11 +5,11 @@ import com.kollekt.domain.MemberStatus
 import com.kollekt.domain.TaskCategory
 import com.kollekt.domain.TaskItem
 import com.kollekt.repository.CollectiveRepository
+import com.kollekt.repository.FriendshipRepository
 import com.kollekt.repository.MemberRepository
 import com.kollekt.repository.TaskRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
@@ -22,6 +22,7 @@ import java.time.LocalDate
 
 class MemberOperationsTest {
     private lateinit var memberRepository: MemberRepository
+    private lateinit var friendshipRepository: FriendshipRepository
     private lateinit var taskRepository: TaskRepository
     private lateinit var collectiveRepository: CollectiveRepository
     private lateinit var taskOperations: TaskOperations
@@ -32,10 +33,11 @@ class MemberOperationsTest {
     @BeforeEach
     fun setUp() {
         memberRepository = mock()
+        friendshipRepository = mock()
         taskRepository = mock()
         collectiveRepository = mock()
         taskOperations = mock()
-        userProfileService = UserProfileService(memberRepository)
+        userProfileService = UserProfileService(memberRepository, friendshipRepository)
         collectiveAccessService = CollectiveAccessService(memberRepository, collectiveRepository)
         operations =
             MemberOperations(
@@ -143,6 +145,17 @@ class MemberOperationsTest {
     }
 
     @Test
+    fun `returning active triggers recurring task redistribution`() {
+        val kasper = member("Kasper", "kasper@example.com").copy(status = MemberStatus.AWAY)
+        whenever(memberRepository.findByName("Kasper")).thenReturn(kasper)
+
+        operations.updateMemberStatus("Kasper", MemberStatus.ACTIVE)
+
+        verify(memberRepository).save(kasper.copy(status = MemberStatus.ACTIVE))
+        verify(taskOperations).regenerateRecurringTasksForCollective("ABC123")
+    }
+
+    @Test
     fun `get collective members sorts by name before mapping`() {
         whenever(memberRepository.findByName("Kasper")).thenReturn(member("Kasper", "kasper@example.com"))
         whenever(memberRepository.findAllByCollectiveCode("ABC123")).thenReturn(
@@ -158,17 +171,21 @@ class MemberOperationsTest {
     }
 
     @Test
-    fun `add and remove friend updates user profile state`() {
+    fun `add and remove friend delegates to persistent profile state`() {
         whenever(memberRepository.findByName("Kasper")).thenReturn(member("Kasper", "kasper@example.com"))
         whenever(memberRepository.findByName("Emma")).thenReturn(member("Emma", "emma@example.com", id = 2))
+        whenever(friendshipRepository.deleteByMemberIdAndFriendId(1, 2)).thenReturn(1)
 
         operations.addFriend("Kasper", "Emma")
-        val withFriend = userProfileService.getUserByName("Kasper")
         operations.removeFriend("Kasper", "Emma")
-        val withoutFriend = userProfileService.getUserByName("Kasper")
 
-        assertEquals(listOf("Emma"), withFriend.friends.map { it.name })
-        assertTrue(withoutFriend.friends.isEmpty())
+        verify(friendshipRepository).save(
+            check { friendship ->
+                assertEquals(1, friendship.memberId)
+                assertEquals(2, friendship.friendId)
+            },
+        )
+        verify(friendshipRepository).deleteByMemberIdAndFriendId(1, 2)
     }
 
     private fun member(

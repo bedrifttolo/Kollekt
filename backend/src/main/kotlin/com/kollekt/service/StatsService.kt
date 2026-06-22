@@ -2,6 +2,7 @@ package com.kollekt.service
 
 import com.kollekt.api.dto.AchievementCatalogItemDto
 import com.kollekt.api.dto.AchievementDto
+import com.kollekt.api.dto.CreateCustomAchievementRequest
 import com.kollekt.api.dto.DashboardResponse
 import com.kollekt.api.dto.EventDto
 import com.kollekt.api.dto.ExpenseDto
@@ -13,10 +14,13 @@ import com.kollekt.api.dto.PeriodStatsDto
 import com.kollekt.api.dto.ShoppingItemDto
 import com.kollekt.api.dto.TaskDto
 import com.kollekt.domain.CalendarEvent
+import com.kollekt.domain.CustomAchievement
+import com.kollekt.domain.CustomAchievementMetric
 import com.kollekt.domain.Expense
 import com.kollekt.domain.Member
 import com.kollekt.domain.TaskItem
 import com.kollekt.repository.CollectiveRepository
+import com.kollekt.repository.CustomAchievementRepository
 import com.kollekt.repository.EventRepository
 import com.kollekt.repository.ExpenseRepository
 import com.kollekt.repository.MemberRepository
@@ -49,14 +53,26 @@ private val ACHIEVEMENT_DEFINITIONS: List<AchievementDefinition> =
         AchievementDefinition("TASK_25", "Household Hero", "Complete 25 tasks", "home", 25) { t, _, _ ->
             t.count { it.completed }.coerceAtMost(25)
         },
+        AchievementDefinition("TASK_50", "Task Titan", "Complete 50 tasks", "trophy", 50) { t, _, _ ->
+            t.count { it.completed }.coerceAtMost(50)
+        },
         AchievementDefinition("STREAK_3", "On a Roll", "Complete tasks 3 days in a row", "flame", 3) { _, _, streak ->
             streak.coerceAtMost(3)
         },
         AchievementDefinition("STREAK_7", "Week Warrior", "Complete tasks 7 days in a row", "zap", 7) { _, _, streak ->
             streak.coerceAtMost(7)
         },
+        AchievementDefinition("STREAK_14", "Fortnight Force", "Complete tasks 14 days in a row", "flame", 14) { _, _, streak ->
+            streak.coerceAtMost(14)
+        },
         AchievementDefinition("EARLY_BIRD", "Early Bird", "Complete 3 tasks before the due date", "sunrise", 3) { t, _, _ ->
             t.count { it.completed && it.completedAt != null && it.completedAt.toLocalDate() < it.dueDate }.coerceAtMost(3)
+        },
+        AchievementDefinition("EARLY_10", "Ahead of the Game", "Complete 10 tasks before the due date", "sunrise", 10) { t, _, _ ->
+            t.count { it.completed && it.completedAt != null && it.completedAt.toLocalDate() < it.dueDate }.coerceAtMost(10)
+        },
+        AchievementDefinition("ON_TIME_10", "Right on Time", "Complete 10 tasks by their due date", "clock", 10) { t, _, _ ->
+            t.count { it.completed && it.completedAt != null && !it.completedAt.toLocalDate().isAfter(it.dueDate) }.coerceAtMost(10)
         },
         AchievementDefinition("NO_PENALTY", "Clean Record", "Complete 5 tasks without any penalty", "shield", 5) { t, _, _ ->
             t.count { it.completed && it.penaltyXp == 0 }.coerceAtMost(5)
@@ -64,14 +80,29 @@ private val ACHIEVEMENT_DEFINITIONS: List<AchievementDefinition> =
         AchievementDefinition("CLEANING_5", "Clean House", "Complete 5 cleaning tasks", "sparkles", 5) { t, _, _ ->
             t.count { it.completed && it.category == com.kollekt.domain.TaskCategory.CLEANING }.coerceAtMost(5)
         },
+        AchievementDefinition("DISHES_5", "Dish Destroyer", "Complete 5 dishwashing tasks", "sparkles", 5) { t, _, _ ->
+            t.count { it.completed && it.category == com.kollekt.domain.TaskCategory.DISHES }.coerceAtMost(5)
+        },
+        AchievementDefinition("TRASH_5", "Trash Champion", "Complete 5 trash tasks", "trash", 5) { t, _, _ ->
+            t.count { it.completed && it.category == com.kollekt.domain.TaskCategory.TRASH }.coerceAtMost(5)
+        },
+        AchievementDefinition("RECURRING_10", "Reliable Roommate", "Complete 10 recurring tasks", "repeat", 10) { t, _, _ ->
+            t.count { it.completed && !it.recurrenceRule.isNullOrBlank() && it.recurrenceRule.uppercase() != "NONE" }.coerceAtMost(10)
+        },
         AchievementDefinition("LEVEL_2", "Level Up", "Reach level 2", "trending-up", 2) { _, m, _ ->
             m.level.coerceAtMost(2)
+        },
+        AchievementDefinition("LEVEL_5", "Household Pro", "Reach level 5", "trending-up", 5) { _, m, _ ->
+            m.level.coerceAtMost(5)
         },
         AchievementDefinition("XP_100", "Century", "Earn 100 XP", "award", 100) { _, m, _ ->
             m.xp.coerceAtMost(100)
         },
         AchievementDefinition("XP_500", "XP Grinder", "Earn 500 XP", "trophy", 500) { _, m, _ ->
             m.xp.coerceAtMost(500)
+        },
+        AchievementDefinition("XP_1000", "Four Digits", "Earn 1,000 XP", "award", 1000) { _, m, _ ->
+            m.xp.coerceAtMost(1000)
         },
     )
 
@@ -80,7 +111,12 @@ private val DEFAULT_ENABLED_KEYS: Set<String> =
         "TASK_1",
         "TASK_10",
         "STREAK_3",
+        "EARLY_BIRD",
+        "ON_TIME_10",
+        "CLEANING_5",
+        "RECURRING_10",
         "LEVEL_2",
+        "XP_100",
     )
 
 @Service
@@ -88,6 +124,7 @@ class StatsService(
     private val collectiveAccessService: CollectiveAccessService,
     private val memberRepository: MemberRepository,
     private val collectiveRepository: CollectiveRepository,
+    private val customAchievementRepository: CustomAchievementRepository,
     private val taskRepository: TaskRepository,
     private val eventRepository: EventRepository,
     private val expenseRepository: ExpenseRepository,
@@ -183,7 +220,7 @@ class StatsService(
         val memberTasks = taskRepository.findAllByCollectiveCode(collectiveCode).filter { it.assignee == memberName }
         val streak = computeStreak(memberTasks)
 
-        val result =
+        val builtInAchievements =
             ACHIEVEMENT_DEFINITIONS
                 .filter { it.key in enabledKeys }
                 .mapIndexed { index, def ->
@@ -199,8 +236,12 @@ class StatsService(
                         total = def.total,
                     )
                 }
+        val customAchievements =
+            customAchievementRepository
+                .findAllByCollectiveCodeOrderByIdAsc(collectiveCode)
+                .map { it.toDto(memberTasks, member, streak) }
 
-        return result
+        return builtInAchievements + customAchievements
     }
 
     fun getAchievementsCatalog(memberName: String): List<AchievementCatalogItemDto> {
@@ -231,6 +272,52 @@ class StatsService(
             collectiveRepository.findByJoinCode(collectiveCode)
                 ?: throw IllegalArgumentException("Collective not found")
         collectiveRepository.save(collective.copy(enabledAchievementKeys = enabledKeys))
+        realtimeUpdateService.publish(collectiveCode, "ACHIEVEMENT_CONFIG_UPDATED")
+    }
+
+    @Transactional
+    fun createCustomAchievement(
+        memberName: String,
+        request: CreateCustomAchievementRequest,
+    ): AchievementDto {
+        val member = collectiveAccessService.requireMember(memberName)
+        val collectiveCode = collectiveAccessService.requireCollectiveCode(member)
+        val title = request.title.trim()
+        val description = request.description.trim()
+        require(title.isNotBlank() && title.length <= 80) { "Title must contain 1 to 80 characters" }
+        require(description.isNotBlank() && description.length <= 240) { "Description must contain 1 to 240 characters" }
+        require(request.target in 1..10_000) { "Target must be between 1 and 10000" }
+        require(request.metric != CustomAchievementMetric.CATEGORY_COMPLETIONS || request.taskCategory != null) {
+            "Task category is required for category achievements"
+        }
+
+        val saved =
+            customAchievementRepository.save(
+                CustomAchievement(
+                    collectiveCode = collectiveCode,
+                    createdBy = memberName,
+                    title = title,
+                    description = description,
+                    metric = request.metric,
+                    target = request.target,
+                    taskCategory = request.taskCategory,
+                ),
+            )
+        realtimeUpdateService.publish(collectiveCode, "ACHIEVEMENT_CONFIG_UPDATED")
+        val memberTasks = taskRepository.findAllByCollectiveCode(collectiveCode).filter { it.assignee == memberName }
+        return saved.toDto(memberTasks, member, computeStreak(memberTasks))
+    }
+
+    @Transactional
+    fun deleteCustomAchievement(
+        memberName: String,
+        achievementId: Long,
+    ) {
+        val collectiveCode = collectiveAccessService.requireCollectiveCodeByMemberName(memberName)
+        val achievement =
+            customAchievementRepository.findByIdAndCollectiveCode(achievementId, collectiveCode)
+                ?: throw IllegalArgumentException("Custom achievement not found")
+        customAchievementRepository.delete(achievement)
         realtimeUpdateService.publish(collectiveCode, "ACHIEVEMENT_CONFIG_UPDATED")
     }
 
@@ -428,6 +515,46 @@ class StatsService(
             if (level >= 5) add("PRO")
             if (tasksCompleted >= 25) add("HERO")
         }
+
+    private fun CustomAchievement.toDto(
+        memberTasks: List<TaskItem>,
+        member: Member,
+        streak: Int,
+    ): AchievementDto {
+        val progress =
+            when (metric) {
+                CustomAchievementMetric.TASKS_COMPLETED -> memberTasks.count { it.completed }
+                CustomAchievementMetric.XP_EARNED -> member.xp.coerceAtLeast(0)
+                CustomAchievementMetric.STREAK_DAYS -> streak
+                CustomAchievementMetric.EARLY_COMPLETIONS ->
+                    memberTasks.count {
+                        it.completed && it.completedAt != null && it.completedAt.toLocalDate().isBefore(it.dueDate)
+                    }
+                CustomAchievementMetric.ON_TIME_COMPLETIONS ->
+                    memberTasks.count {
+                        it.completed && it.completedAt != null && !it.completedAt.toLocalDate().isAfter(it.dueDate)
+                    }
+                CustomAchievementMetric.RECURRING_COMPLETIONS ->
+                    memberTasks.count {
+                        it.completed && !it.recurrenceRule.isNullOrBlank() && it.recurrenceRule.uppercase() != "NONE"
+                    }
+                CustomAchievementMetric.CATEGORY_COMPLETIONS ->
+                    memberTasks.count { it.completed && it.category == taskCategory }
+            }.coerceAtMost(target)
+
+        return AchievementDto(
+            id = -id,
+            key = "CUSTOM_$id",
+            title = title,
+            description = description,
+            icon = "sparkles",
+            unlocked = progress >= target,
+            progress = progress,
+            total = target,
+            custom = true,
+            createdBy = createdBy,
+        )
+    }
 
     private fun TaskItem.toDto() =
         TaskDto(
