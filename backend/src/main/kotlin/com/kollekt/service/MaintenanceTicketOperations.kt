@@ -91,7 +91,14 @@ class MaintenanceTicketOperations(
         require(costEstimate == null || costEstimate >= 0) { "Cost estimate cannot be negative" }
         val status = request.status ?: ticket.status
         val splitParticipants =
-            if (request.splitParticipants != null) encodeParticipants(request.splitParticipants, collectiveCode) else ticket.splitParticipants
+            if (request.splitParticipants != null) {
+                encodeParticipants(
+                    request.splitParticipants,
+                    collectiveCode,
+                )
+            } else {
+                ticket.splitParticipants
+            }
         val saved =
             ticketRepository.save(
                 ticket.copy(
