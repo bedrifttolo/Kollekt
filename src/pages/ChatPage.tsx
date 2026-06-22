@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Image as ImageIcon, BarChart3, X, Smile, Reply } from 'lucide-react';
+import { Send, Image as ImageIcon, BarChart3, X, Smile, Reply, HeartHandshake } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { api } from '../lib/api';
 import { useUser } from '../context/UserContext';
 import { formatDateTime, formatTime } from '../i18n/helpers';
 import { connectCollectiveRealtime } from '../lib/realtime';
-import type { ChatMessage } from '../lib/types';
+import type { ChatMessage, CheckinSummary, HouseCheckin, Kudo, Task } from '../lib/types';
 import { AvatarStack } from '../components/ui-kit';
 import { colorForMember } from '../lib/memberColors';
 
@@ -23,6 +23,11 @@ export default function ChatPage() {
   const [members, setMembers] = useState<string[]>([]);
   const [input, setInput] = useState('');
   const [showPollForm, setShowPollForm] = useState(false);
+  const [showKudosForm, setShowKudosForm] = useState(false);
+  const [kudosReceiver, setKudosReceiver] = useState('');
+  const [kudosContext, setKudosContext] = useState('');
+  const [kudosTaskId, setKudosTaskId] = useState('');
+  const [householdTasks, setHouseholdTasks] = useState<Task[]>([]);
   const [pollQuestion, setPollQuestion] = useState('');
   const [pollOptions, setPollOptions] = useState(['', '']);
   const [reactingId, setReactingId] = useState<number | null>(null);
@@ -30,6 +35,7 @@ export default function ChatPage() {
   const [expandedImage, setExpandedImage] = useState<{ src: string; alt: string } | null>(null);
   const [onlineCount, setOnlineCount] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
+  const [checkinSummary, setCheckinSummary] = useState<CheckinSummary | null>(null);
   const [mention, setMention] = useState<{ query: string; start: number } | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -59,12 +65,21 @@ export default function ChatPage() {
     setLoading(false);
   };
 
+  const fetchCheckinSummary = async () => {
+    if (!currentUser) return;
+    const collective = await api.get<{ collectiveId: number }>(`/onboarding/collectives/code/${currentUser.id}`);
+    const checkin = await api.post<HouseCheckin>(`/collectives/${collective.collectiveId}/checkins/generate`, {});
+    setCheckinSummary(await api.get<CheckinSummary>(`/checkins/${checkin.id}/summary`));
+  };
+
   useEffect(() => {
     fetchMessages();
+    void fetchCheckinSummary();
     if (name) {
       api.get<{ name: string }[]>(`/members/collective?memberName=${encodeURIComponent(name)}`)
         .then((response) => setMembers(response.map((member) => member.name)))
         .catch(() => {});
+      api.get<Task[]>(`/tasks?memberName=${encodeURIComponent(name)}`).then(setHouseholdTasks).catch(() => {});
     }
   }, [name]);
 
@@ -76,6 +91,7 @@ export default function ChatPage() {
         if (['MESSAGE_CREATED', 'MESSAGE_REACTION_UPDATED', 'MESSAGE_POLL_UPDATED'].includes(event.type)) {
           fetchMessages();
         }
+        if (event.type === 'CHECKIN_UPDATED') void fetchCheckinSummary();
         if (event.type === 'MEMBER_ONLINE' || event.type === 'MEMBER_OFFLINE') {
           const count = (event.payload as { count?: number })?.count;
           if (count !== undefined) setOnlineCount(count);
@@ -145,6 +161,19 @@ export default function ChatPage() {
     fetchMessages();
   };
 
+  const sendKudos = async () => {
+    if (!kudosReceiver || !kudosContext.trim()) return;
+    await api.post<Kudo>('/kudos', {
+      receiver: kudosReceiver,
+      context: kudosContext,
+      taskId: kudosTaskId ? Number(kudosTaskId) : null,
+    });
+    setKudosReceiver('');
+    setKudosContext('');
+    setKudosTaskId('');
+    setShowKudosForm(false);
+  };
+
   const votePoll = async (messageId: number, optionId: number) => {
     await api.post(`/chat/messages/${messageId}/poll/vote`, { optionId });
     fetchMessages();
@@ -195,6 +224,25 @@ export default function ChatPage() {
           </p>
         </div>
       </div>
+
+      {checkinSummary && checkinSummary.responseCount > 0 && (
+        <div className="mt-3 rounded-[1.35rem] border border-primary/25 bg-primary/5 p-4">
+          <div className="flex items-center justify-between gap-3">
+            <h3 className="font-display text-sm font-bold">💬 {t('checkin.summaryTitle')}</h3>
+            <span className="text-xs font-bold text-primary">{t('checkin.averageMood', { mood: checkinSummary.averageMood?.toFixed(1) })}</span>
+          </div>
+          <p className="mt-1 text-[10px] text-muted-foreground">{t('checkin.progress', { count: checkinSummary.responseCount, total: checkinSummary.memberCount })}</p>
+          <div className="mt-3 space-y-2">
+            {checkinSummary.responses.map((response) => (
+              <div key={response.id} className="rounded-xl bg-card p-3 text-xs">
+                <p className="font-bold">{response.author ?? t('checkin.anonymousAuthor')} · {response.mood}/5</p>
+                <p className="mt-1"><span className="text-muted-foreground">{t('checkin.issueLabel')}:</span> {response.issue}</p>
+                <p className="mt-1"><span className="text-muted-foreground">{t('checkin.improvementLabel')}:</span> {response.improvement}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Message list */}
       <div className="flex-1 space-y-4 overflow-y-auto py-4 pr-1">
@@ -328,6 +376,30 @@ export default function ChatPage() {
 
       {/* Poll form */}
       <AnimatePresence>
+        {showKudosForm && (
+          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
+            <div className="glass mb-2 space-y-2 rounded-xl p-3">
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-semibold">{t('kudos.sendTitle')}</p>
+                <button onClick={() => setShowKudosForm(false)}><X className="h-3.5 w-3.5 text-muted-foreground" /></button>
+              </div>
+              <select value={kudosReceiver} onChange={(event) => setKudosReceiver(event.target.value)} className="w-full rounded-lg bg-muted/50 px-3 py-2 text-xs">
+                <option value="">{t('kudos.chooseRoommate')}</option>
+                {members.filter((member) => member !== name).map((member) => <option key={member} value={member}>{member}</option>)}
+              </select>
+              <select value={kudosTaskId} onChange={(event) => setKudosTaskId(event.target.value)} className="w-full rounded-lg bg-muted/50 px-3 py-2 text-xs">
+                <option value="">{t('kudos.generalHelp')}</option>
+                {householdTasks.map((task) => <option key={task.id} value={task.id}>{task.title}</option>)}
+              </select>
+              <input value={kudosContext} onChange={(event) => setKudosContext(event.target.value)} maxLength={500} placeholder={t('kudos.contextPlaceholder')} className="w-full rounded-lg bg-muted/50 px-3 py-2 text-xs" />
+              <button onClick={() => void sendKudos()} disabled={!kudosReceiver || !kudosContext.trim()} className="w-full rounded-lg bg-primary py-2 text-xs font-bold text-primary-foreground disabled:opacity-50">{t('kudos.send')}</button>
+              <p className="text-[9px] text-muted-foreground">{t('kudos.dailyLimit')}</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
         {showPollForm && (
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
             <div className="glass rounded-xl p-3 space-y-2 mb-2">
@@ -395,6 +467,9 @@ export default function ChatPage() {
           </button>
           <button onClick={() => setShowPollForm((v) => !v)} className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-muted" aria-label={t('chat.togglePollForm')}>
             <BarChart3 className="h-4 w-4 text-muted-foreground" />
+          </button>
+          <button onClick={() => setShowKudosForm((value) => !value)} className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-muted" aria-label={t('kudos.sendTitle')}>
+            <HeartHandshake className="h-4 w-4 text-primary" />
           </button>
           <input
             ref={messageInputRef}

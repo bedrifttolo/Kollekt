@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { CheckSquare, Calendar, Wallet, Zap, ShoppingCart } from 'lucide-react';
+import { CheckSquare, Calendar, Wallet, Zap, ShoppingCart, MessageCircleHeart, Moon, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { api } from '../lib/api';
 import { useUser } from '../context/UserContext';
 import { formatCurrency, formatDate, formatTime, translateKey } from '../i18n/helpers';
 import { connectCollectiveRealtime } from '../lib/realtime';
-import type { DashboardResponse } from '../lib/types';
+import type { DashboardResponse, HouseCheckin, KudosWeeklySummary, QuietHours } from '../lib/types';
 import { AvatarStack, Eyebrow, VibeRing } from '../components/ui-kit';
 import { colorForMember } from '../lib/memberColors';
 
@@ -41,6 +41,14 @@ export default function DashboardPage() {
   const [members, setMembers] = useState<string[]>([]);
   const [onlineCount, setOnlineCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [checkin, setCheckin] = useState<HouseCheckin | null>(null);
+  const [mood, setMood] = useState(3);
+  const [issue, setIssue] = useState('');
+  const [improvement, setImprovement] = useState('');
+  const [anonymous, setAnonymous] = useState(false);
+  const [collectiveId, setCollectiveId] = useState<number | null>(null);
+  const [quietHours, setQuietHours] = useState<QuietHours | null>(null);
+  const [kudosSummary, setKudosSummary] = useState<KudosWeeklySummary | null>(null);
 
   const fetchDashboard = () => {
     if (!currentUser) return;
@@ -50,14 +58,35 @@ export default function DashboardPage() {
       .finally(() => setLoading(false));
   };
 
+  const fetchKudosSummary = () => {
+    api.get<KudosWeeklySummary>('/kudos/weekly-summary').then(setKudosSummary).catch(() => {});
+  };
+
+  const fetchCheckin = async () => {
+    if (!currentUser) return;
+    const collective = await api.get<{ collectiveId: number }>(`/onboarding/collectives/code/${currentUser.id}`);
+    setCollectiveId(collective.collectiveId);
+    const current = await api.post<HouseCheckin>(`/collectives/${collective.collectiveId}/checkins/generate`, {});
+    setCheckin(current);
+    setQuietHours(await api.get<QuietHours>(`/collectives/${collective.collectiveId}/quiet-hours`));
+  };
+
   useEffect(() => {
     fetchDashboard();
+    fetchKudosSummary();
+    void fetchCheckin();
     if (currentUser) {
       api.get<{ name: string }[]>(`/members/collective?memberName=${encodeURIComponent(currentUser.name)}`)
         .then((list) => setMembers(list.map((m) => m.name)))
         .catch(() => {});
     }
   }, [currentUser]);
+
+  const submitCheckin = async () => {
+    if (!checkin || !issue.trim() || !improvement.trim()) return;
+    await api.post(`/checkins/${checkin.id}/responses`, { mood, issue, improvement, anonymous });
+    setCheckin({ ...checkin, hasResponded: true, responseCount: checkin.responseCount + 1 });
+  };
 
   useEffect(() => {
     if (!currentUser) return;
@@ -67,6 +96,8 @@ export default function DashboardPage() {
         if (['TASK_UPDATED', 'TASK_COMPLETED_LATE', 'EXPENSE_CREATED', 'EVENT_CREATED', 'BALANCES_SETTLED'].includes(event.type)) {
           fetchDashboard();
         }
+        if (event.type === 'QUIET_HOURS_UPDATED') void fetchCheckin();
+        if (event.type === 'KUDOS_CREATED') fetchKudosSummary();
         if (event.type === 'MEMBER_ONLINE' || event.type === 'MEMBER_OFFLINE') {
           const count = (event.payload as { count?: number })?.count;
           if (count !== undefined) setOnlineCount(count);
@@ -87,6 +118,15 @@ export default function DashboardPage() {
   }
 
   const xpLabel = `${data.currentUserXp % 200}/200 XP`;
+
+  const saveQuietHours = async () => {
+    if (!collectiveId || !quietHours?.canEdit) return;
+    setQuietHours(await api.patch<QuietHours>(`/collectives/${collectiveId}/quiet-hours`, {
+      enabled: quietHours.enabled,
+      startTime: quietHours.startTime,
+      endTime: quietHours.endTime,
+    }));
+  };
 
   const hour = new Date().getHours();
   const greetingKey =
@@ -155,6 +195,76 @@ export default function DashboardPage() {
           </p>
         </div>
       </motion.div>
+
+      {checkin && (
+        <motion.div variants={item} className="card space-y-3">
+          <div className="flex items-center gap-3">
+            <MessageCircleHeart className="h-5 w-5 text-primary" />
+            <div>
+              <h3 className="font-display text-lg font-bold">{translate('checkin.title')}</h3>
+              <p className="text-xs text-muted-foreground">
+                {translate('checkin.progress', { count: checkin.responseCount, total: checkin.memberCount })}
+              </p>
+            </div>
+          </div>
+          {checkin.hasResponded ? (
+            <p className="text-sm text-primary">{translate('checkin.thanks')}</p>
+          ) : (
+            <>
+              <label className="block text-xs font-semibold">
+                {translate('checkin.mood')}
+                <input className="mt-2 w-full accent-primary" type="range" min="1" max="5" value={mood} onChange={(event) => setMood(Number(event.target.value))} />
+              </label>
+              <input value={issue} onChange={(event) => setIssue(event.target.value)} placeholder={translate('checkin.issue')} className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm" />
+              <input value={improvement} onChange={(event) => setImprovement(event.target.value)} placeholder={translate('checkin.improvement')} className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm" />
+              <label className="flex items-center gap-2 text-xs text-muted-foreground">
+                <input type="checkbox" checked={anonymous} onChange={(event) => setAnonymous(event.target.checked)} />
+                {translate('checkin.anonymous')}
+              </label>
+              <button onClick={() => void submitCheckin()} disabled={!issue.trim() || !improvement.trim()} className="w-full rounded-xl bg-primary py-2 text-sm font-bold text-primary-foreground disabled:opacity-50">
+                {translate('checkin.submit')}
+              </button>
+            </>
+          )}
+        </motion.div>
+      )}
+
+      {quietHours && (
+        <motion.div variants={item} className="card space-y-3">
+          <div className="flex items-center gap-3">
+            <Moon className="h-5 w-5 text-primary" />
+            <div className="flex-1">
+              <h3 className="font-display text-lg font-bold">{translate('quietHours.title')}</h3>
+              <p className="text-xs text-muted-foreground">{quietHours.enabled ? translate('quietHours.window', { start: quietHours.startTime, end: quietHours.endTime }) : translate('quietHours.disabled')}</p>
+            </div>
+            {quietHours.canEdit && <input type="checkbox" checked={quietHours.enabled} onChange={(event) => setQuietHours({ ...quietHours, enabled: event.target.checked })} />}
+          </div>
+          {quietHours.canEdit && (
+            <div className="grid grid-cols-2 gap-2">
+              <input type="time" value={quietHours.startTime} onChange={(event) => setQuietHours({ ...quietHours, startTime: event.target.value })} className="rounded-xl border border-border bg-background px-3 py-2 text-sm" />
+              <input type="time" value={quietHours.endTime} onChange={(event) => setQuietHours({ ...quietHours, endTime: event.target.value })} className="rounded-xl border border-border bg-background px-3 py-2 text-sm" />
+              <button onClick={() => void saveQuietHours()} className="col-span-2 rounded-xl bg-primary py-2 text-sm font-bold text-primary-foreground">{translate('quietHours.save')}</button>
+            </div>
+          )}
+        </motion.div>
+      )}
+
+      {kudosSummary && (
+        <motion.div variants={item} className="card">
+          <div className="flex items-center gap-3">
+            <Sparkles className="h-5 w-5 text-secondary" />
+            <div className="flex-1">
+              <h3 className="font-display text-lg font-bold">{translate('kudos.weeklyTitle')}</h3>
+              <p className="text-xs text-muted-foreground">{translate('kudos.weeklyTotal', { count: kudosSummary.total })}</p>
+            </div>
+          </div>
+          {kudosSummary.recipients.length > 0 ? (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {kudosSummary.recipients.map((recipient) => <span key={recipient.receiver} className="pill pill-pine">✨ {recipient.receiver} · {recipient.count}</span>)}
+            </div>
+          ) : <p className="mt-3 text-sm text-muted-foreground">{translate('kudos.weeklyEmpty')}</p>}
+        </motion.div>
+      )}
 
       {/* Real-time indicator */}
       <motion.div variants={item} className="flex items-center gap-2">

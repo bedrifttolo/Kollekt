@@ -20,6 +20,7 @@ import {
   Globe2,
   Wallet,
   ArrowLeft,
+  ScrollText,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
@@ -37,6 +38,8 @@ import type {
   LeaderboardPlayer,
   Achievement,
   PaymentHandles,
+  HouseRules,
+  Kudo,
 } from "../lib/types";
 import { useTheme } from "../context/ThemeContext";
 import { Eyebrow } from "../components/ui-kit";
@@ -59,6 +62,9 @@ const NOTIFICATION_TYPES = [
   "EXPENSE_OVERDUE",
   "SHOPPING_ITEM_ADDED",
   "EVENT_ADDED",
+  "HOUSE_RULES_UPDATED",
+  "GUEST_NOTICE_CREATED",
+  "GUEST_QUIET_HOURS_OVERLAP",
 ] as const;
 
 export default function ProfilePage() {
@@ -108,8 +114,27 @@ export default function ProfilePage() {
   const [copyingCode, setCopyingCode] = useState(false);
   const [leaving, setLeaving] = useState(false);
   const [passwordSaving, setPasswordSaving] = useState(false);
+  const [collectiveId, setCollectiveId] = useState<number | null>(null);
+  const [houseRules, setHouseRules] = useState<HouseRules | null>(null);
+  const [showRulesEditor, setShowRulesEditor] = useState(false);
+  const [rulesDraft, setRulesDraft] = useState("");
+  const [rulesSaving, setRulesSaving] = useState(false);
+  const [receivedKudos, setReceivedKudos] = useState(0);
 
   const name = currentUser?.name ?? "";
+
+  const loadHouseRules = useCallback(async () => {
+    if (!currentUser?.id) return;
+    const collective = await api.get<{ collectiveId: number }>(`/onboarding/collectives/code/${currentUser.id}`);
+    setCollectiveId(collective.collectiveId);
+    setHouseRules(await api.get<HouseRules>(`/collectives/${collective.collectiveId}/rules`));
+  }, [currentUser?.id]);
+
+  const loadKudos = useCallback(async () => {
+    if (!name) return;
+    const feed = await api.get<Kudo[]>('/kudos/feed');
+    setReceivedKudos(feed.filter((kudo) => kudo.receiver === name).length);
+  }, [name]);
 
   const loadStatsAndAchievements = useCallback(async () => {
     if (!name) return;
@@ -142,7 +167,9 @@ export default function ProfilePage() {
       .then(setPaymentHandles)
       .catch(() => {});
     void loadStatsAndAchievements();
-  }, [name, loadStatsAndAchievements]);
+    void loadHouseRules().catch(() => setProfileLoadFailed(true));
+    void loadKudos().catch(() => setProfileLoadFailed(true));
+  }, [name, loadStatsAndAchievements, loadHouseRules, loadKudos]);
 
   useEffect(() => {
     if (!name) return;
@@ -153,11 +180,31 @@ export default function ProfilePage() {
       "TASK_COMPLETED_LATE",
       "XP_UPDATED",
       "ACHIEVEMENT_CONFIG_UPDATED",
+      "HOUSE_RULES_UPDATED",
     ]);
     return connectCollectiveRealtime(name, (event) => {
       if (refreshEvents.has(event.type)) void loadStatsAndAchievements();
+      if (event.type === "HOUSE_RULES_UPDATED") void loadHouseRules();
+      if (event.type === "KUDOS_CREATED") void loadKudos();
     });
-  }, [name, loadStatsAndAchievements]);
+  }, [name, loadStatsAndAchievements, loadHouseRules, loadKudos]);
+
+  const saveHouseRules = async () => {
+    if (!collectiveId || !rulesDraft.trim() || rulesSaving) return;
+    setRulesSaving(true);
+    try {
+      const saved = await api.put<HouseRules>(`/collectives/${collectiveId}/rules`, { content: rulesDraft });
+      setHouseRules(saved);
+      setShowRulesEditor(false);
+    } finally {
+      setRulesSaving(false);
+    }
+  };
+
+  const acknowledgeHouseRules = async () => {
+    if (!collectiveId || !houseRules || houseRules.version === 0) return;
+    setHouseRules(await api.post<HouseRules>(`/collectives/${collectiveId}/rules/${houseRules.version}/ack`, {}));
+  };
 
   const handleToggleNotifPref = async (type: string, enabled: boolean) => {
     if (!name || notifSaving) return;
@@ -526,6 +573,15 @@ export default function ProfilePage() {
         </div>
       )}
 
+      <div className="card flex items-center gap-3">
+        <span className="text-2xl">✨</span>
+        <div className="flex-1">
+          <p className="text-sm font-semibold">{t("kudos.profileBadge")}</p>
+          <p className="text-xs text-muted-foreground">{t("kudos.receivedTotal", { count: receivedKudos })}</p>
+        </div>
+        <span className="font-display text-xl font-bold text-primary">{receivedKudos}</span>
+      </div>
+
       {householdMembers.length > 0 && (
         <div className="card">
           <p className="text-xs font-bold uppercase tracking-[.14em] text-muted-foreground">{t("profile.householdMembers")}</p>
@@ -545,6 +601,42 @@ export default function ProfilePage() {
               </span>
             ))}
           </div>
+        </div>
+      )}
+
+      {houseRules && (
+        <div className="card space-y-3">
+          <div className="flex items-center gap-3">
+            <div className="grid h-9 w-9 place-items-center rounded-xl bg-primary/20">
+              <ScrollText className="h-4 w-4 text-primary" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold">{t("profile.houseRules.title")}</p>
+              <p className="text-[10px] text-muted-foreground">
+                {houseRules.version > 0 ? t("profile.houseRules.version", { version: houseRules.version }) : t("profile.houseRules.empty")}
+              </p>
+            </div>
+            {houseRules.canEdit && (
+              <button
+                onClick={() => {
+                  setRulesDraft(houseRules.content);
+                  setShowRulesEditor(true);
+                }}
+                className="rounded-full border border-border px-3 py-1.5 text-xs font-bold"
+              >
+                {houseRules.version > 0 ? t("profile.houseRules.edit") : t("profile.houseRules.create")}
+              </button>
+            )}
+          </div>
+          {houseRules.content && <p className="whitespace-pre-wrap text-sm leading-relaxed">{houseRules.content}</p>}
+          {houseRules.version > 0 && !houseRules.acknowledged && (
+            <div className="rounded-xl border border-secondary/40 bg-secondary/10 p-3">
+              <p className="text-xs font-semibold">{t("profile.houseRules.ackBanner")}</p>
+              <button onClick={() => void acknowledgeHouseRules()} className="mt-2 rounded-lg bg-primary px-3 py-2 text-xs font-bold text-primary-foreground">
+                {t("profile.houseRules.acknowledge")}
+              </button>
+            </div>
+          )}
         </div>
       )}
 
@@ -1012,6 +1104,43 @@ export default function ProfilePage() {
           </div>
         </button>
       </div>
+
+      <AnimatePresence>
+        {showRulesEditor && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-4 sm:items-center"
+            onClick={() => setShowRulesEditor(false)}
+          >
+            <motion.div
+              initial={{ y: 24 }}
+              animate={{ y: 0 }}
+              exit={{ y: 24 }}
+              className="w-full max-w-lg rounded-[1.5rem] bg-background p-5"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <div className="flex items-center justify-between">
+                <h3 className="font-display text-xl font-bold">{t("profile.houseRules.editorTitle")}</h3>
+                <button onClick={() => setShowRulesEditor(false)} aria-label={t("common.close")} className="grid h-9 w-9 place-items-center rounded-full bg-muted">
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              <textarea
+                value={rulesDraft}
+                onChange={(event) => setRulesDraft(event.target.value)}
+                rows={10}
+                className="mt-4 w-full resize-none rounded-xl border border-border bg-card p-3 text-sm"
+                placeholder={t("profile.houseRules.placeholder")}
+              />
+              <button onClick={() => void saveHouseRules()} disabled={!rulesDraft.trim() || rulesSaving} className="mt-3 w-full rounded-xl bg-primary py-2.5 text-sm font-bold text-primary-foreground disabled:opacity-50">
+                {rulesSaving ? t("profile.loading.saving") : t("profile.houseRules.publish")}
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }

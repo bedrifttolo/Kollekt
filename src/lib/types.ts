@@ -28,6 +28,110 @@ export interface Task {
   feedbacks: TaskFeedback[];
 }
 
+export interface TaskSwapRequest {
+  id: number;
+  fromUser: string;
+  toUser: string;
+  taskId: number;
+  taskTitle: string;
+  status: 'PENDING' | 'ACCEPTED' | 'DECLINED' | 'EXPIRED';
+  expiresAt: string;
+}
+
+export interface HouseCheckin {
+  id: number;
+  weekStart: string;
+  hasResponded: boolean;
+  responseCount: number;
+  memberCount: number;
+}
+
+export interface CheckinResponse {
+  id: number;
+  author: string | null;
+  mood: number;
+  issue: string;
+  improvement: string;
+}
+
+export interface CheckinSummary {
+  checkinId: number;
+  weekStart: string;
+  averageMood: number | null;
+  responseCount: number;
+  memberCount: number;
+  responses: CheckinResponse[];
+}
+
+export interface HouseRules {
+  version: number;
+  content: string;
+  updatedBy: string | null;
+  createdAt: string | null;
+  acknowledged: boolean;
+  canEdit: boolean;
+}
+
+export interface GuestNotice {
+  id: number;
+  guestName: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  overnight: boolean;
+  createdBy: string;
+  overlapsQuietHours: boolean;
+}
+
+export interface QuietHours {
+  enabled: boolean;
+  startTime: string;
+  endTime: string;
+  canEdit: boolean;
+}
+
+export type MaintenancePriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+export type MaintenanceStatus = 'OPEN' | 'IN_PROGRESS' | 'BLOCKED' | 'DONE';
+
+export interface MaintenanceStatusHistory {
+  id: number;
+  status: MaintenanceStatus;
+  changedBy: string;
+  changedAt: string;
+}
+
+export interface MaintenanceTicket {
+  id: number;
+  title: string;
+  description: string;
+  priority: MaintenancePriority;
+  status: MaintenanceStatus;
+  assignee: string | null;
+  dueDate: string | null;
+  costEstimate: number | null;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+  overdue: boolean;
+  statusHistory: MaintenanceStatusHistory[];
+}
+
+export interface Kudo {
+  id: number;
+  sender: string;
+  receiver: string;
+  context: string;
+  taskId: number | null;
+  taskTitle: string | null;
+  createdAt: string;
+}
+
+export interface KudosWeeklySummary {
+  weekStart: string;
+  total: number;
+  recipients: Array<{ receiver: string; count: number }>;
+}
+
 export interface ShoppingItem {
   id: number;
   item: string;

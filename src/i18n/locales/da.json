@@ -295,7 +295,8 @@
     "remaining_other": "{{count}} opgaver tilbage denne uge",
     "tabs": {
       "tasks": "Opgaver",
-      "shopping": "Indkøbsliste"
+      "shopping": "Indkøbsliste",
+      "maintenance": "Vedligehold"
     },
     "filters": {
       "ALL": "Opgaver",
@@ -335,6 +336,15 @@
     "deleteTaskAria": "Slet opgave",
     "editShoppingItemAria": "Rediger indkøbsvare",
     "deleteShoppingItemAria": "Slet indkøbsvare",
+    "swap": {
+      "request": "Anmod om bytte",
+      "chooseRoommate": "Vælg en bofælle",
+      "send": "Send anmodning",
+      "inboxTitle": "Bytteanmodninger",
+      "requestedBy": "{{name}} vil gerne have, at du tager denne opgave",
+      "accept": "Acceptér",
+      "decline": "Afvis"
+    },
     "shopping": {
       "buy": "Køb",
       "amountPlaceholder": "Beløb (kr)",
@@ -342,8 +352,51 @@
       "purchaseDate": "Købsdato",
       "logPurchase": "Registrér",
       "closePurchaseForm": "Luk købsformular"
+    },
+    "maintenance": {
+      "boardTitle": "Vedligeholdelsestavle",
+      "boardSubtitle": "Følg reparationer fra melding til færdig",
+      "addTicket": "Tilføj sag",
+      "newTicket": "Ny vedligeholdelsessag",
+      "titlePlaceholder": "Hvad skal repareres?",
+      "descriptionPlaceholder": "Beskriv problemet...",
+      "costPlaceholder": "Prisoverslag (kr)",
+      "unassigned": "Ikke tildelt",
+      "all": "Alle",
+      "empty": "Ingen vedligeholdelsessager her.",
+      "due": "Frist",
+      "noDueDate": "Ingen frist",
+      "overdue": "Forfalden",
+      "priorities": { "LOW": "Lav", "MEDIUM": "Mellem", "HIGH": "Høj", "URGENT": "Haster" },
+      "statuses": { "OPEN": "Åben", "IN_PROGRESS": "I gang", "BLOCKED": "Blokeret", "DONE": "Færdig" }
     }
   },
+  "checkin": {
+    "title": "Ugentligt hustjek",
+    "mood": "Hvordan føles det i hjemmet?",
+    "issue": "Ét emne at tale om",
+    "improvement": "Én forbedring denne uge",
+    "anonymous": "Indsend anonymt",
+    "submit": "Indsend svar",
+    "thanks": "Dit svar er registreret. Tak!",
+    "progress": "{{count}} af {{total}} har svaret",
+    "calendarTitle": "Ugentligt hustjek",
+    "recurring": "Gentages ugentligt",
+    "summaryTitle": "Ugens hustjek",
+    "averageMood": "Humør {{mood}}/5",
+    "anonymousAuthor": "Anonym",
+    "issueLabel": "Emne",
+    "improvementLabel": "Forbedring"
+  },
+  "kudos": {
+    "sendTitle": "Send ros", "chooseRoommate": "Vælg en bofælle", "generalHelp": "Generel hjælp",
+    "contextPlaceholder": "Hvad gjorde personen, som hjalp?", "send": "Send ros",
+    "dailyLimit": "Du kan sende op til 3 ros om dagen.", "weeklyTitle": "Ugens positivitet",
+    "weeklyTotal_one": "{{count}} ros delt i denne uge", "weeklyTotal_other": "{{count}} ros delt i denne uge",
+    "weeklyEmpty": "Vær den første til at værdsætte nogen i denne uge.", "profileBadge": "Modtaget ros",
+    "receivedTotal_one": "{{count}} anerkendelse fra hjemmet", "receivedTotal_other": "{{count}} anerkendelser fra hjemmet"
+  },
+  "quietHours": { "title": "Stilletid", "window": "{{start}}–{{end}}", "disabled": "Stilletid er slået fra", "save": "Gem stilletid" },
   "calendar": {
     "eyebrow": "Sammen",
     "title": "Huskalender",
@@ -358,6 +411,12 @@
     "subscribeButton": "Abonnér",
     "subscribeUrlLabel": "Link til kalenderabonnement",
     "newEvent": "Ny begivenhed",
+    "addModes": { "event": "Begivenhed", "guest": "Gæstebesked" },
+    "guestNamePlaceholder": "Gæstens navn...",
+    "guestOvernight": "Overnattende gæst",
+    "addGuestNotice": "Del gæstebesked",
+    "guestVisit": "{{guest}} kommer på besøg",
+    "quietHoursOverlap": "Overlapper stilleperioden",
     "eventTitlePlaceholder": "Titel på begivenhed...",
     "addEvent": "Tilføj begivenhed",
     "noEventsForDay": "Ingen begivenheder denne dag",
@@ -888,9 +947,15 @@
         "TASK_OVERDUE_GROUP": "Opgaven '{{title}}' tildelt {{assignee}} er forfalden og ikke fuldført.",
         "TASK_FEEDBACK": "{{author}} gav feedback på din opgave '{{title}}'.",
         "TASK_COMPLETED_LATE": "Du fuldførte '{{title}}' for sent. XP er reduceret.",
+        "TASK_SWAP_REQUESTED": "{{fromUser}} spurgte, om du kan tage '{{title}}'.",
+        "TASK_SWAP_ACCEPTED": "{{toUser}} accepterede byttet for '{{title}}'.",
+        "TASK_SWAP_DECLINED": "{{toUser}} afviste byttet for '{{title}}'.",
         "SHOPPING_ITEM_ADDED": "{{actorName}} tilføjede '{{item}}' til indkøbslisten",
         "EVENT_ADDED": "Ny begivenhed: '{{title}}' den {{date}}",
-        "NEW_MESSAGE": "{{sender}}: \"{{preview}}\""
+        "NEW_MESSAGE": "{{sender}}: \"{{preview}}\"",
+        "HOUSE_RULES_UPDATED": "Husreglerne blev opdateret til version {{version}}.",
+        "GUEST_NOTICE_CREATED": "{{host}} får besøg af {{guest}} den {{date}}.",
+        "GUEST_QUIET_HOURS_OVERLAP": "{{guest}}s besøg overlapper stilleperioden fra {{start}}."
       }
     },
     "notificationPreferences": {
@@ -900,12 +965,18 @@
         "TASK_ASSIGNED": "Opgave tildelt mig",
         "TASK_DEADLINE_SOON": "Opgave forfalder i morgen",
         "TASK_OVERDUE": "Opgavefristen er udløbet",
+        "TASK_SWAP_REQUESTED": "Anmodninger om opgavebytte",
+        "TASK_SWAP_ACCEPTED": "Accepterede opgavebytter",
+        "TASK_SWAP_DECLINED": "Afviste opgavebytter",
         "NEW_MESSAGE": "Ny chatbesked",
         "EXPENSE_OWED": "Udgift: du skylder penge",
         "EXPENSE_DEADLINE_SOON": "Udgift: betaling forfalder i morgen",
         "EXPENSE_OVERDUE": "Udgift: betalingsfristen er udløbet",
         "SHOPPING_ITEM_ADDED": "Vare tilføjet til indkøbslisten",
-        "EVENT_ADDED": "Ny kalenderbegivenhed"
+        "EVENT_ADDED": "Ny kalenderbegivenhed",
+        "HOUSE_RULES_UPDATED": "Opdateringer af husregler",
+        "GUEST_NOTICE_CREATED": "Gæstebeskeder",
+        "GUEST_QUIET_HOURS_OVERLAP": "Påmindelser om stilleperioden"
       }
     },
     "paymentMethods": {
@@ -919,6 +990,18 @@
       "save": "Gem",
       "saved": "Betalingsmetoder gemt",
       "saveFailed": "Kunne ikke gemme betalingsmetoder. Tjek formatet og prøv igen."
+    },
+    "houseRules": {
+      "title": "Husregler",
+      "version": "Version {{version}}",
+      "empty": "Der er ikke udgivet husregler",
+      "create": "Opret",
+      "edit": "Rediger",
+      "ackBanner": "Reglerne er opdateret. Bekræft, at du har læst den nyeste version.",
+      "acknowledge": "Bekræft",
+      "editorTitle": "Rediger husregler",
+      "placeholder": "Skriv hjemmets fælles forventninger...",
+      "publish": "Udgiv ny version"
     },
     "inviteRoommates": {
       "title": "Inviter bofæller",

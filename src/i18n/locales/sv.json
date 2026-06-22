@@ -295,7 +295,8 @@
     "remaining_other": "{{count}} uppgifter kvar denna vecka",
     "tabs": {
       "tasks": "Uppgifter",
-      "shopping": "Inköpslista"
+      "shopping": "Inköpslista",
+      "maintenance": "Underhåll"
     },
     "filters": {
       "ALL": "Uppgifter",
@@ -335,6 +336,15 @@
     "deleteTaskAria": "Ta bort uppgift",
     "editShoppingItemAria": "Redigera inköpsvara",
     "deleteShoppingItemAria": "Ta bort inköpsvara",
+    "swap": {
+      "request": "Begär byte",
+      "chooseRoommate": "Välj en rumskamrat",
+      "send": "Skicka förfrågan",
+      "inboxTitle": "Bytesförfrågningar",
+      "requestedBy": "{{name}} vill att du tar den här uppgiften",
+      "accept": "Acceptera",
+      "decline": "Avböj"
+    },
     "shopping": {
       "buy": "Köp",
       "amountPlaceholder": "Belopp (kr)",
@@ -342,8 +352,51 @@
       "purchaseDate": "Inköpsdatum",
       "logPurchase": "Logga",
       "closePurchaseForm": "Stäng köpformulär"
+    },
+    "maintenance": {
+      "boardTitle": "Underhållstavla",
+      "boardSubtitle": "Följ reparationer från rapport till klart",
+      "addTicket": "Lägg till ärende",
+      "newTicket": "Nytt underhållsärende",
+      "titlePlaceholder": "Vad behöver lagas?",
+      "descriptionPlaceholder": "Beskriv problemet...",
+      "costPlaceholder": "Kostnadsuppskattning (kr)",
+      "unassigned": "Ej tilldelad",
+      "all": "Alla",
+      "empty": "Inga underhållsärenden här.",
+      "due": "Förfaller",
+      "noDueDate": "Inget förfallodatum",
+      "overdue": "Försenad",
+      "priorities": { "LOW": "Låg", "MEDIUM": "Medel", "HIGH": "Hög", "URGENT": "Brådskande" },
+      "statuses": { "OPEN": "Öppen", "IN_PROGRESS": "Pågår", "BLOCKED": "Blockerad", "DONE": "Klar" }
     }
   },
+  "checkin": {
+    "title": "Veckans husavstämning",
+    "mood": "Hur känns det i hushållet?",
+    "issue": "En fråga att diskutera",
+    "improvement": "En förbättring denna vecka",
+    "anonymous": "Skicka anonymt",
+    "submit": "Skicka svar",
+    "thanks": "Ditt svar är registrerat. Tack!",
+    "progress": "{{count}} av {{total}} har svarat",
+    "calendarTitle": "Veckans husavstämning",
+    "recurring": "Upprepas varje vecka",
+    "summaryTitle": "Veckans husavstämning",
+    "averageMood": "Humör {{mood}}/5",
+    "anonymousAuthor": "Anonym",
+    "issueLabel": "Fråga",
+    "improvementLabel": "Förbättring"
+  },
+  "kudos": {
+    "sendTitle": "Skicka beröm", "chooseRoommate": "Välj en rumskamrat", "generalHelp": "Allmän hjälp",
+    "contextPlaceholder": "Vad gjorde personen som hjälpte?", "send": "Skicka beröm",
+    "dailyLimit": "Du kan skicka upp till 3 beröm per dag.", "weeklyTitle": "Veckans positivitet",
+    "weeklyTotal_one": "{{count}} beröm delat denna vecka", "weeklyTotal_other": "{{count}} beröm delade denna vecka",
+    "weeklyEmpty": "Bli först med att uppskatta någon denna vecka.", "profileBadge": "Mottagna beröm",
+    "receivedTotal_one": "{{count}} uppskattning från hushållet", "receivedTotal_other": "{{count}} uppskattningar från hushållet"
+  },
+  "quietHours": { "title": "Tyst tid", "window": "{{start}}–{{end}}", "disabled": "Tyst tid är av", "save": "Spara tyst tid" },
   "calendar": {
     "eyebrow": "Tillsammans",
     "title": "Huskalender",
@@ -358,6 +411,12 @@
     "subscribeButton": "Prenumerera",
     "subscribeUrlLabel": "Länk för kalenderprenumeration",
     "newEvent": "Ny händelse",
+    "addModes": { "event": "Händelse", "guest": "Gästmeddelande" },
+    "guestNamePlaceholder": "Gästens namn...",
+    "guestOvernight": "Övernattande gäst",
+    "addGuestNotice": "Dela gästmeddelande",
+    "guestVisit": "{{guest}} kommer på besök",
+    "quietHoursOverlap": "Överlappar tyst tid",
     "eventTitlePlaceholder": "Titel på händelse...",
     "addEvent": "Lägg till händelse",
     "noEventsForDay": "Inga händelser denna dag",
@@ -888,9 +947,15 @@
         "TASK_OVERDUE_GROUP": "Uppgiften '{{title}}' tilldelad {{assignee}} är försenad och ej slutförd.",
         "TASK_FEEDBACK": "{{author}} gav feedback på din uppgift '{{title}}'.",
         "TASK_COMPLETED_LATE": "Du slutförde '{{title}}' för sent. XP har minskats.",
+        "TASK_SWAP_REQUESTED": "{{fromUser}} frågade om du kan ta '{{title}}'.",
+        "TASK_SWAP_ACCEPTED": "{{toUser}} accepterade bytet för '{{title}}'.",
+        "TASK_SWAP_DECLINED": "{{toUser}} avböjde bytet för '{{title}}'.",
         "SHOPPING_ITEM_ADDED": "{{actorName}} lade till '{{item}}' i inköpslistan",
         "EVENT_ADDED": "Ny händelse: '{{title}}' den {{date}}",
-        "NEW_MESSAGE": "{{sender}}: \"{{preview}}\""
+        "NEW_MESSAGE": "{{sender}}: \"{{preview}}\"",
+        "HOUSE_RULES_UPDATED": "Husreglerna uppdaterades till version {{version}}.",
+        "GUEST_NOTICE_CREATED": "{{host}} får besök av {{guest}} den {{date}}.",
+        "GUEST_QUIET_HOURS_OVERLAP": "{{guest}}s besök överlappar tyst tid från {{start}}."
       }
     },
     "notificationPreferences": {
@@ -900,12 +965,18 @@
         "TASK_ASSIGNED": "Uppgift tilldelad mig",
         "TASK_DEADLINE_SOON": "Uppgift förfaller imorgon",
         "TASK_OVERDUE": "Uppgiftsfristen har gått ut",
+        "TASK_SWAP_REQUESTED": "Förfrågningar om uppgiftsbyte",
+        "TASK_SWAP_ACCEPTED": "Accepterade uppgiftsbyten",
+        "TASK_SWAP_DECLINED": "Avböjda uppgiftsbyten",
         "NEW_MESSAGE": "Nytt chattmeddelande",
         "EXPENSE_OWED": "Utgift: du är skyldig pengar",
         "EXPENSE_DEADLINE_SOON": "Utgift: betalning förfaller imorgon",
         "EXPENSE_OVERDUE": "Utgift: betalningsfristen har gått ut",
         "SHOPPING_ITEM_ADDED": "Vara tillagd i inköpslistan",
-        "EVENT_ADDED": "Ny kalenderhändelse"
+        "EVENT_ADDED": "Ny kalenderhändelse",
+        "HOUSE_RULES_UPDATED": "Uppdateringar av husregler",
+        "GUEST_NOTICE_CREATED": "Gästmeddelanden",
+        "GUEST_QUIET_HOURS_OVERLAP": "Påminnelser om tyst tid"
       }
     },
     "paymentMethods": {
@@ -919,6 +990,18 @@
       "save": "Spara",
       "saved": "Betalningsmetoder sparade",
       "saveFailed": "Kunde inte spara betalningsmetoder. Kontrollera formatet och försök igen."
+    },
+    "houseRules": {
+      "title": "Husregler",
+      "version": "Version {{version}}",
+      "empty": "Inga husregler har publicerats",
+      "create": "Skapa",
+      "edit": "Redigera",
+      "ackBanner": "Reglerna har uppdaterats. Bekräfta att du har läst den senaste versionen.",
+      "acknowledge": "Bekräfta",
+      "editorTitle": "Redigera husregler",
+      "placeholder": "Skriv hushållets gemensamma förväntningar...",
+      "publish": "Publicera ny version"
     },
     "inviteRoommates": {
       "title": "Bjud in rumskompisar",

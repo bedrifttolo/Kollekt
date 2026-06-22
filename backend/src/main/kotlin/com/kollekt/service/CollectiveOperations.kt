@@ -175,7 +175,7 @@ class CollectiveOperations(
             user.collectiveCode
                 ?: throw IllegalArgumentException("User $userId is not in a collective")
 
-        return CollectiveCodeDto(code)
+        return CollectiveCodeDto(code, collectiveRepository.findByJoinCode(code)?.id ?: 0)
     }
 
     @Transactional
