@@ -121,6 +121,7 @@ class StatsServiceTest {
 
         val result = service.getDashboard("Kasper")
 
+        assertEquals("Villa", result.collectiveName)
         assertEquals("Kasper", result.currentUserName)
         assertEquals(1, result.currentUserRank)
         assertEquals(listOf("Dishes", "Floors"), result.upcomingTasks.map { it.title })

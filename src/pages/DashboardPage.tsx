@@ -24,10 +24,10 @@ function XpProgress({ xp, label }: { xp: number; label: string }) {
   const progress = Math.min((xp % xpPerLevel) / xpPerLevel * 100, 100);
   return (
     <div className="flex items-center gap-2 mt-1">
-      <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
-        <div className="h-full gradient-primary rounded-full transition-all" style={{ width: `${progress}%` }} />
+      <div className="h-2 flex-1 overflow-hidden rounded-full bg-white/80">
+        <div className="h-full rounded-full bg-secondary transition-all" style={{ width: `${progress}%` }} />
       </div>
-      <span className="text-[10px] text-muted-foreground shrink-0">{label}</span>
+      <span className="shrink-0 text-[10px] text-white/75">{label}</span>
     </div>
   );
 }
@@ -99,6 +99,9 @@ export default function DashboardPage() {
 
       <motion.div variants={item} className="househero">
         <p className="eyebrow !text-white/65">{translate('dashboard.householdTitle')}</p>
+        <h3 className="mt-2 font-display text-2xl font-extrabold leading-tight text-white">
+          {data.collectiveName}
+        </h3>
         {members.length > 0 && (
           <div className="mb-3 mt-2">
             <AvatarStack names={members} />
@@ -113,7 +116,7 @@ export default function DashboardPage() {
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
               <p className="font-semibold text-sm">{translate('dashboard.level', { level: data.currentUserLevel })}</p>
-              <span className="text-xs px-2 py-0.5 rounded-full bg-primary/20 text-primary font-medium">
+              <span className="rounded-full bg-white/15 px-2 py-0.5 text-xs font-medium text-white/85">
                 {translate('dashboard.rank', { rank: data.currentUserRank })}
               </span>
             </div>
@@ -127,9 +130,9 @@ export default function DashboardPage() {
             { label: translate('dashboard.stats.xpEarned'), value: data.currentUserXp.toString(), icon: Zap },
           ].map((s) => (
             <div key={s.label} className="stat-tile text-center">
-              <s.icon className="h-3.5 w-3.5 mx-auto mb-1 text-muted-foreground" />
+              <s.icon className="mx-auto mb-1 h-3.5 w-3.5 text-white/70" />
               <p className="font-display font-bold text-base">{s.value}</p>
-              <p className="text-muted-foreground text-[10px]">{s.label}</p>
+              <p className="text-[10px] text-white/70">{s.label}</p>
             </div>
           ))}
         </div>

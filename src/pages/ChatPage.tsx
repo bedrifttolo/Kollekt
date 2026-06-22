@@ -9,12 +9,17 @@ import { connectCollectiveRealtime } from '../lib/realtime';
 import type { ChatMessage } from '../lib/types';
 import { AvatarStack } from '../components/ui-kit';
 
-const REACTION_EMOJIS = ['👍', '❤️', '😂', '🎉', '😮'];
+const REACTION_EMOJIS = [
+  '👍', '❤️', '😂', '🎉', '😮', '😢', '😡', '🔥',
+  '👏', '🙌', '💯', '👎', '🤔', '😍', '🥰', '😭',
+  '🤯', '😎', '🫶', '✅', '👀', '🤝', '💀', '🙏',
+];
 
 export default function ChatPage() {
   const { t } = useTranslation();
   const { currentUser } = useUser();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [members, setMembers] = useState<string[]>([]);
   const [input, setInput] = useState('');
   const [showPollForm, setShowPollForm] = useState(false);
   const [pollQuestion, setPollQuestion] = useState('');
@@ -22,7 +27,7 @@ export default function ChatPage() {
   const [reactingId, setReactingId] = useState<number | null>(null);
   const [replyingToId, setReplyingToId] = useState<number | null>(null);
   const [expandedImage, setExpandedImage] = useState<{ src: string; alt: string } | null>(null);
-  const [onlineCount, setOnlineCount] = useState(0);
+  const [onlineCount, setOnlineCount] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const bottomRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -30,6 +35,7 @@ export default function ChatPage() {
   const name = currentUser?.name ?? '';
   const messageById = new Map(messages.map((message) => [message.id, message]));
   const participants = Array.from(new Set(messages.map((message) => message.sender)));
+  const headerMembers = members.length > 0 ? members : participants.length > 0 ? participants : [name];
   const formatMessageTimestamp = (value: string) => {
     const messageDate = new Date(value);
     const now = new Date();
@@ -49,6 +55,11 @@ export default function ChatPage() {
 
   useEffect(() => {
     fetchMessages();
+    if (name) {
+      api.get<{ name: string }[]>(`/members/collective?memberName=${encodeURIComponent(name)}`)
+        .then((response) => setMembers(response.map((member) => member.name)))
+        .catch(() => {});
+    }
   }, [name]);
 
   useEffect(() => {
@@ -56,7 +67,7 @@ export default function ChatPage() {
     const disconnect = connectCollectiveRealtime(
       name,
       (event) => {
-        if (event.type === 'CHAT_MESSAGE' || event.type === 'CHAT_REACTION' || event.type === 'CHAT_POLL_VOTE') {
+        if (['MESSAGE_CREATED', 'MESSAGE_REACTION_UPDATED', 'MESSAGE_POLL_UPDATED'].includes(event.type)) {
           fetchMessages();
         }
         if (event.type === 'MEMBER_ONLINE' || event.type === 'MEMBER_OFFLINE') {
@@ -131,17 +142,20 @@ export default function ChatPage() {
   }
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="relative flex flex-col h-[calc(100vh-8.5rem)]">
-      <div className="flex items-center gap-3 border-b border-border py-3">
-        <AvatarStack names={participants.length > 0 ? participants : [name]} />
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="relative flex h-[calc(100vh-8.5rem)] flex-col">
+      <div className="flex items-center gap-3 border-b border-border py-4">
+        <AvatarStack names={headerMembers} max={3} />
         <div className="min-w-0 flex-1">
-          <h2 className="truncate font-display text-lg font-extrabold">{t('chat.threadTitle')}</h2>
-          <p className="text-[10px] text-muted-foreground"><span className="text-primary">●</span> {onlineCount > 0 ? t('chat.onlineCount', { count: onlineCount }) : t('common.connecting')}</p>
+          <h2 className="truncate font-display text-xl font-extrabold">{t('chat.threadTitle')}</h2>
+          <p className="text-xs text-muted-foreground">
+            <span className="font-semibold text-primary">● {onlineCount === null ? t('common.connecting') : t('chat.onlineCount', { count: onlineCount })}</span>
+            {members.length > 0 && <> · {t('chat.memberCount', { count: members.length })}</>}
+          </p>
         </div>
       </div>
 
       {/* Message list */}
-      <div className="flex-1 overflow-y-auto space-y-3 pb-2">
+      <div className="flex-1 space-y-4 overflow-y-auto py-4 pr-1">
         {messages.map((message, i) => {
           const isSelf = message.sender === name;
           const replyTarget = message.replyToMessageId != null ? messageById.get(message.replyToMessageId) : undefined;
@@ -153,7 +167,8 @@ export default function ChatPage() {
               transition={{ delay: Math.min(i * 0.02, 0.3) }}
               className={`flex ${isSelf ? 'justify-end' : 'justify-start'}`}
             >
-              <div className="max-w-[80%] space-y-1">
+              <div className="max-w-[82%] space-y-1">
+                {!isSelf && <p className="px-1 text-xs font-bold text-destructive">{message.sender}</p>}
                 {replyTarget && (
                   <div
                     className={`mx-1 rounded-lg px-2.5 py-1.5 text-[10px] leading-tight border ${
@@ -171,18 +186,19 @@ export default function ChatPage() {
                   </div>
                 )}
                 <div
-                  className={`rounded-2xl px-3.5 py-2.5 ${
-                    isSelf ? 'bg-primary text-primary-foreground rounded-br-md' : 'bg-card border border-border rounded-bl-md'
+                  className={`px-4 py-3 ${
+                    isSelf
+                      ? 'rounded-[1.35rem] rounded-br-md bg-primary text-primary-foreground'
+                      : 'rounded-[1.35rem] rounded-bl-md border border-border bg-card'
                   }`}
                   onClick={() => setReactingId(reactingId === message.id ? null : message.id)}
                 >
-                  {!isSelf && <p className="text-[10px] text-primary font-semibold mb-0.5">{message.sender}</p>}
-                  {message.text && <p className="text-sm">{message.text}</p>}
+                  {message.text && <p className="text-[15px] leading-relaxed">{message.text}</p>}
                   {message.imageData && (
                     <img
                       src={`data:${message.imageMimeType};base64,${message.imageData}`}
                       alt={message.imageFileName ?? t('chat.imageAlt')}
-                      className="rounded-lg mt-1 max-h-40 object-cover cursor-zoom-in"
+                      className="mt-1 max-h-56 cursor-zoom-in rounded-xl object-cover"
                       onClick={(e) => {
                         e.stopPropagation();
                         setExpandedImage({
@@ -193,8 +209,8 @@ export default function ChatPage() {
                     />
                   )}
                   {message.poll && (
-                    <div className="space-y-2 mt-1">
-                      <p className="text-sm font-semibold">{message.poll.question}</p>
+                    <div className="mt-1 space-y-2.5">
+                      <p className="font-display text-base font-bold">📊 {message.poll.question}</p>
                       {message.poll.options.map((opt) => {
                         const total = message.poll!.options.reduce((s, o) => s + o.users.length, 0);
                         const votes = opt.users.length;
@@ -202,11 +218,11 @@ export default function ChatPage() {
                         const voted = opt.users.includes(name);
                         return (
                           <button key={opt.id} onClick={() => votePoll(message.id, opt.id)}
-                            className={`w-full rounded-lg p-2 text-left text-xs font-medium relative overflow-hidden ${
-                              voted ? 'bg-primary/30 border border-primary/40' : isSelf ? 'bg-background/20' : 'bg-muted/50'
+                            className={`relative w-full overflow-hidden rounded-xl p-2.5 text-left text-sm font-semibold ${
+                              voted ? 'border border-accent/50 bg-accent/30' : isSelf ? 'bg-background/20' : 'bg-muted/70'
                             }`}>
-                            <div className="absolute inset-y-0 left-0 bg-primary/10 transition-all" style={{ width: `${pct}%` }} />
-                            <span className="relative">{opt.text} ({votes})</span>
+                            <div className="absolute inset-y-0 left-0 bg-accent/25 transition-all" style={{ width: `${pct}%` }} />
+                            <span className="relative flex justify-between gap-2"><span>{opt.text}</span><span>{votes}</span></span>
                           </button>
                         );
                       })}
@@ -240,7 +256,7 @@ export default function ChatPage() {
                       const reacted = r.users.includes(name);
                       return (
                         <button key={r.emoji} onClick={() => toggleReaction(message.id, r.emoji)}
-                          className={`text-xs px-1.5 py-0.5 rounded-full ${reacted ? 'bg-primary/20 border border-primary/30' : 'glass'}`}>
+                          className={`rounded-full border px-2 py-1 text-xs ${reacted ? 'border-primary/40 bg-primary/20' : 'border-border bg-card'}`}>
                           {r.emoji} {r.users.length}
                         </button>
                       );
@@ -250,11 +266,11 @@ export default function ChatPage() {
 
                 <AnimatePresence>
                   {reactingId === message.id && (
-                    <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }}
-                      className={`px-1 flex gap-1 ${isSelf ? 'justify-end' : 'justify-start'}`}>
+                    <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}
+                      className={`grid grid-cols-6 gap-1 rounded-2xl border border-border bg-card p-2 shadow-sm ${isSelf ? 'ml-auto' : 'mr-auto'}`}>
                       {REACTION_EMOJIS.map((emoji) => (
                         <button key={emoji} onClick={() => toggleReaction(message.id, emoji)}
-                          className="text-lg hover:scale-125 transition-transform">
+                          className="grid h-8 w-8 place-items-center rounded-lg text-lg transition-transform hover:scale-110 hover:bg-muted">
                           {emoji}
                         </button>
                       ))}
@@ -312,13 +328,13 @@ export default function ChatPage() {
       )}
 
       {/* Input bar */}
-      <div className="flex gap-2 border-t border-border bg-background/95 pt-3 pb-1">
+      <div className="flex gap-2 rounded-[1.35rem] border border-border bg-card p-2 shadow-sm">
         <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/heic"
           className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) sendImage(f); }} />
-        <button onClick={() => fileInputRef.current?.click()} className="h-10 w-10 rounded-xl glass flex items-center justify-center shrink-0" aria-label={t('chat.sendImage')}>
+        <button onClick={() => fileInputRef.current?.click()} className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-muted" aria-label={t('chat.sendImage')}>
           <ImageIcon className="h-4 w-4 text-muted-foreground" />
         </button>
-        <button onClick={() => setShowPollForm((v) => !v)} className="h-10 w-10 rounded-xl glass flex items-center justify-center shrink-0" aria-label={t('chat.togglePollForm')}>
+        <button onClick={() => setShowPollForm((v) => !v)} className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-muted" aria-label={t('chat.togglePollForm')}>
           <BarChart3 className="h-4 w-4 text-muted-foreground" />
         </button>
         <input
@@ -326,9 +342,9 @@ export default function ChatPage() {
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && sendMessage()}
           placeholder={t('chat.messagePlaceholder')}
-          className="flex-1 glass rounded-xl px-4 py-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+          className="min-w-0 flex-1 rounded-full bg-muted px-4 py-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
         />
-        <button onClick={sendMessage} className="h-10 w-10 rounded-xl gradient-primary flex items-center justify-center shrink-0" aria-label={t('common.send')}>
+        <button onClick={sendMessage} className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary" aria-label={t('common.send')}>
           <Send className="h-4 w-4 text-primary-foreground" />
         </button>
       </div>

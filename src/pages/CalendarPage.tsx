@@ -15,6 +15,7 @@ import { useUser } from "../context/UserContext";
 import {
   formatMonthDay,
   formatMonthYear,
+  formatDate,
   formatTime,
   getWeekdayLabels,
   translateKey,
@@ -32,10 +33,10 @@ import { Eyebrow, Fab } from "../components/ui-kit";
 const EVENT_TYPES: EventType[] = ["PARTY", "MOVIE", "DINNER", "OTHER"];
 
 const typeColors: Record<EventType, string> = {
-  PARTY: "bg-secondary/20 border-l-secondary",
-  MOVIE: "bg-accent/20 border-l-accent",
-  DINNER: "bg-primary/20 border-l-primary",
-  OTHER: "bg-destructive/20 border-l-destructive",
+  PARTY: "bg-secondary",
+  MOVIE: "bg-accent",
+  DINNER: "bg-destructive",
+  OTHER: "bg-primary",
 };
 const typeEmoji: Record<EventType, string> = {
   PARTY: "🎉",
@@ -44,12 +45,8 @@ const typeEmoji: Record<EventType, string> = {
   OTHER: "📌",
 };
 
-function getDaysInMonth(year: number, month: number) {
-  return new Date(year, month + 1, 0).getDate();
-}
-function getFirstDayOfMonth(year: number, month: number) {
-  const d = new Date(year, month, 1).getDay();
-  return d === 0 ? 6 : d - 1;
+function toDateString(date: Date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 }
 
 export default function CalendarPage() {
@@ -208,28 +205,27 @@ export default function CalendarPage() {
     }
   };
 
-  const daysInMonth = getDaysInMonth(year, month);
-  const firstDay = getFirstDayOfMonth(year, month);
   const today =
     now.getFullYear() === year && now.getMonth() === month ? now.getDate() : -1;
 
   const selectedDateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(selectedDay).padStart(2, "0")}`;
+  const selectedDate = new Date(year, month, selectedDay);
+  const weekStart = new Date(selectedDate);
+  weekStart.setDate(selectedDate.getDate() - ((selectedDate.getDay() + 6) % 7));
+  const weekDates = Array.from({ length: 7 }, (_, index) => {
+    const date = new Date(weekStart);
+    date.setDate(weekStart.getDate() + index);
+    return date;
+  });
   const dayEvents = events
     .filter((e) => e.date === selectedDateStr)
     .sort((a, b) => a.time.localeCompare(b.time));
-  const eventDays = new Set(
-    events
-      .map((e) => {
-        const d = new Date(e.date);
-        if (d.getFullYear() === year && d.getMonth() === month)
-          return d.getDate();
-        return null;
-      })
-      .filter(Boolean),
-  );
+  const eventDays = new Set(events.map((event) => event.date));
   const weekdayLabels = getWeekdayLabels();
-  const selectedDateLabel =
-    selectedDay === today ? t("common.today") : formatMonthDay(selectedDateStr);
+  const selectedDateLabel = t("calendar.dateGroup", {
+    relative: selectedDay === today ? t("common.today") : formatMonthDay(selectedDateStr),
+    weekday: formatDate(selectedDate, { weekday: "long" }),
+  });
 
   if (loading)
     return (
@@ -242,73 +238,82 @@ export default function CalendarPage() {
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      className="space-y-4 pt-4"
+      className="space-y-4 pt-2"
     >
       {/* Header */}
       <div>
         <Eyebrow>{t("calendar.eyebrow")}</Eyebrow>
-        <div className="mt-2 flex items-center justify-between">
-          <h2 className="font-display text-[2.25rem] leading-none font-extrabold tracking-[-.04em]">
+        <h2 className="mt-2 font-display text-[2rem] leading-none font-extrabold tracking-[-.04em]">
+          {t("calendar.title")}
+        </h2>
+      </div>
+
+      {/* Week calendar */}
+      <div className="card !p-4">
+        <div className="flex items-center justify-between">
+          <h3 className="font-display text-lg font-extrabold tracking-[-.02em]">
             {formatMonthYear(year, month)}
-          </h2>
-          <div className="flex gap-1">
+          </h3>
+          <div className="flex gap-2">
           <button
             onClick={prevMonth}
-            className="h-8 w-8 rounded-lg glass flex items-center justify-center"
+            aria-label={t("calendar.previousMonth")}
+            className="grid h-8 w-8 place-items-center rounded-full bg-primary/15 text-primary dark:bg-primary/25 dark:text-foreground"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
           <button
             onClick={nextMonth}
-            className="h-8 w-8 rounded-lg glass flex items-center justify-center"
+            aria-label={t("calendar.nextMonth")}
+            className="grid h-8 w-8 place-items-center rounded-full bg-primary/15 text-primary dark:bg-primary/25 dark:text-foreground"
           >
             <ChevronRight className="h-4 w-4" />
           </button>
           </div>
         </div>
-      </div>
-
-      {/* Month grid */}
-      <div className="glass rounded-2xl p-3">
-        <div className="grid grid-cols-7 gap-1 mb-1">
+        <div className="mt-4 grid grid-cols-7 gap-1">
           {weekdayLabels.map((day) => (
             <p
               key={day}
-              className="text-center text-[10px] text-muted-foreground font-medium"
+              className="pb-1 text-center text-[10px] font-bold uppercase tracking-[.04em] text-muted-foreground"
             >
               {day}
             </p>
           ))}
-        </div>
-        <div className="grid grid-cols-7 gap-1">
-          {Array.from({ length: firstDay }).map((_, i) => (
-            <div key={`e-${i}`} />
-          ))}
-          {Array.from({ length: daysInMonth }, (_, i) => i + 1).map((day) => (
+          {weekDates.map((date) => {
+            const dateString = toDateString(date);
+            const isSelected = dateString === selectedDateStr;
+            const isOutsideMonth = date.getMonth() !== month;
+            return (
             <button
-              key={day}
-              onClick={() => setSelectedDay(day)}
-              className={`relative w-full aspect-square rounded-lg text-xs font-medium flex items-center justify-center transition-all ${
-                day === selectedDay
-                  ? "gradient-primary text-primary-foreground"
-                  : day === today
-                    ? "bg-primary/20 text-primary"
-                    : "hover:bg-muted"
+              key={dateString}
+              onClick={() => {
+                setYear(date.getFullYear());
+                setMonth(date.getMonth());
+                setSelectedDay(date.getDate());
+              }}
+              className={`relative flex aspect-square w-full items-center justify-center rounded-xl text-sm font-semibold transition-all ${
+                isSelected
+                  ? "bg-primary text-primary-foreground"
+                  : isOutsideMonth
+                    ? "text-muted-foreground/40 hover:bg-muted"
+                    : "text-muted-foreground hover:bg-muted"
               }`}
             >
-              {day}
-              {eventDays.has(day) && day !== selectedDay && (
-                <div className="absolute bottom-0.5 h-1 w-1 rounded-full bg-primary" />
+              {date.getDate()}
+              {eventDays.has(dateString) && (
+                <span className={`absolute bottom-1 h-1 w-1 rounded-full ${isSelected ? "bg-secondary" : "bg-destructive"}`} />
               )}
             </button>
-          ))}
+            );
+          })}
         </div>
       </div>
 
       {/* Google Calendar sync */}
       <button
         onClick={handleGoogleSync}
-        className={`w-full glass rounded-xl p-3 flex items-center gap-3 hover:bg-muted/30 transition-colors ${googleConnected ? "border-primary/30" : ""}`}
+        className={`flex w-full items-center gap-3 rounded-[1.1rem] border bg-card p-3 transition-colors hover:bg-muted/30 ${googleConnected ? "border-primary/40" : "border-border"}`}
       >
         <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
           <ExternalLink className="h-4 w-4 text-muted-foreground" />
@@ -333,7 +338,7 @@ export default function CalendarPage() {
       {/* Events for selected day */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-muted-foreground">
+          <h3 className="font-display text-xl font-extrabold tracking-[-.02em]">
             {selectedDateLabel}
           </h3>
           <button
@@ -427,32 +432,51 @@ export default function CalendarPage() {
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: i * 0.06 }}
-            className={`glass rounded-xl p-3 border-l-2 ${typeColors[e.type]} flex items-center gap-3`}
+            className="event !flex items-stretch gap-3 !p-3.5"
           >
-            <div className="flex flex-col shrink-0 w-14">
-              <span className="text-xs text-muted-foreground">
+            <div className="flex w-14 shrink-0 flex-col items-center pt-0.5 text-center">
+              <strong className="font-display text-lg leading-none">
                 {formatTime(e.time)}
+              </strong>
+              <span className="mt-2 text-[9px] font-bold uppercase tracking-[.06em] text-muted-foreground">
+                {translateKey("common.eventTypes", e.type)}
               </span>
-              {e.endTime && (
-                <span className="text-[10px] text-muted-foreground/70">
-                  {formatTime(e.endTime)}
-                </span>
-              )}
             </div>
-            <span className="text-lg shrink-0">{typeEmoji[e.type]}</span>
-            <span className="text-sm font-medium flex-1">{e.title}</span>
-            <button
-              onClick={() => openEdit(e)}
-              className="h-7 w-7 rounded-lg glass flex items-center justify-center shrink-0"
-            >
-              <Pencil className="h-3 w-3 text-muted-foreground" />
-            </button>
-            <button
-              onClick={() => handleDelete(e.id)}
-              className="h-7 w-7 rounded-lg glass flex items-center justify-center shrink-0"
-            >
-              <Trash2 className="h-3 w-3 text-destructive" />
-            </button>
+            <span className={`w-[3px] shrink-0 rounded-full ${typeColors[e.type]}`} />
+            <div className="min-w-0 flex-1">
+              <div className="flex items-start gap-2">
+                <div className="min-w-0 flex-1">
+                  <h4 className="text-[15px] font-bold leading-snug">{e.title} {typeEmoji[e.type]}</h4>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    {e.description || e.organizer}
+                  </p>
+                </div>
+                <button
+                  onClick={() => openEdit(e)}
+                  className="grid h-7 w-7 shrink-0 place-items-center rounded-lg text-muted-foreground hover:bg-muted"
+                  aria-label={t("calendar.editEvent")}
+                >
+                  <Pencil className="h-3.5 w-3.5" />
+                </button>
+                <button
+                  onClick={() => handleDelete(e.id)}
+                  className="grid h-7 w-7 shrink-0 place-items-center rounded-lg text-destructive hover:bg-destructive/10"
+                  aria-label={t("calendar.deleteEvent")}
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+              </div>
+              <div className="mt-2 flex -space-x-2">
+                <span className="grid h-8 w-8 place-items-center rounded-full border-2 border-card bg-primary text-xs font-bold text-primary-foreground">
+                  {e.organizer[0]?.toUpperCase()}
+                </span>
+                {e.attendees > 1 && (
+                  <span className="grid h-8 w-8 place-items-center rounded-full border-2 border-card bg-accent text-xs font-bold text-accent-foreground">
+                    +{e.attendees - 1}
+                  </span>
+                )}
+              </div>
+            </div>
           </motion.div>
         ))}
 

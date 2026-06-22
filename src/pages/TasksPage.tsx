@@ -11,7 +11,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import {
   CheckCircle2,
-  Circle,
   Package,
   X,
   ShoppingCart,
@@ -774,56 +773,53 @@ function TasksMain() {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.04 }}
-                    className={`task ${task.completed ? 'opacity-50' : ''}`}
+                    className={`task !rounded-[1.35rem] !p-4 ${task.completed ? 'opacity-60' : ''}`}
                   >
-                    <div
-                      className="flex items-center gap-3 cursor-pointer"
-                      onClick={() => {
-                        if (taskIsPending) return;
-                        void handlePrimaryToggle(task);
-                      }}
-                    >
-                      {task.completed ? (
-                        <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
-                      ) : (
-                        <Circle className="h-5 w-5 text-muted-foreground shrink-0" />
-                      )}
+                    <div className="flex items-center gap-4">
+                      <button
+                        type="button"
+                        disabled={taskIsPending}
+                        aria-label={task.completed ? t('tasks.markIncomplete') : t('tasks.markComplete')}
+                        className={`grid h-12 w-12 shrink-0 place-items-center rounded-2xl border-[3px] transition-colors disabled:opacity-60 ${
+                          task.completed
+                            ? 'border-primary bg-primary text-primary-foreground'
+                            : 'border-muted-foreground/70 text-transparent hover:border-primary'
+                        }`}
+                        onClick={() => {
+                          if (taskIsPending) return;
+                          void handlePrimaryToggle(task);
+                        }}
+                      >
+                        <CheckCircle2 className="h-6 w-6" />
+                      </button>
                       <div className="flex-1 min-w-0">
                         <p
-                          className={`text-sm font-medium ${task.completed ? 'line-through' : ''}`}
+                          className={`text-base font-bold leading-snug ${task.completed ? 'line-through' : ''}`}
                         >
                           {task.title}
                         </p>
-                        <div className="flex items-center gap-1 flex-wrap">
-                          <span className="text-[10px] text-muted-foreground">
-                            {task.assignee} • {formatDate(task.dueDate)}
-                          </span>
-                          <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">
-                            {translateKey('common.taskCategories', task.category)}
+                        <div className="mt-3 flex flex-wrap items-center gap-2">
+                          <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
+                            isOverdue
+                              ? 'bg-destructive/15 text-destructive'
+                              : 'bg-accent/25 text-accent-foreground'
+                          }`}>
+                            {formatDate(task.dueDate)}
                           </span>
                           {task.recurrenceRule && task.recurrenceRule !== 'NONE' && (
-                            <span className="text-[10px] text-accent flex items-center gap-0.5">
-                              <RotateCcw className="h-2.5 w-2.5" />
+                            <span className="flex items-center gap-1 rounded-full bg-primary/15 px-2.5 py-1 text-xs font-semibold text-primary">
+                              <RotateCcw className="h-3 w-3" />
                               {translateKey('common.recurrence', task.recurrenceRule)}
                             </span>
                           )}
-                          {!task.completed && !isOverdue && (
-                            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/20 text-primary font-medium">
-                              {t('common.active')}
-                            </span>
-                          )}
-                          {isOverdue && (
-                            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-destructive/20 text-destructive font-medium">
-                              {t('tasks.overdue')}
-                            </span>
-                          )}
+                          <span className="text-sm font-bold text-destructive">+{task.xp} XP</span>
                           {isPenalized && (
-                            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-secondary/20 text-secondary font-medium">
+                            <span className="rounded-full bg-secondary/20 px-2 py-1 text-[10px] font-medium text-secondary-foreground">
                               {t('tasks.penaltyApplied')}
                             </span>
                           )}
                           {task.assignmentReason === 'LATE' && (
-                            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-secondary/20 text-secondary font-medium">
+                            <span className="rounded-full bg-secondary/20 px-2 py-1 text-[10px] font-medium text-secondary-foreground">
                               {translateKey(
                                 'common.taskAssignmentReasons',
                                 task.assignmentReason,
@@ -832,19 +828,24 @@ function TasksMain() {
                           )}
                         </div>
                       </div>
-                      <span className="text-[10px] font-medium text-primary shrink-0">
-                        +{task.xp} XP
-                      </span>
+                      <div className="w-14 shrink-0 text-center">
+                        <span className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-primary text-lg font-bold text-primary-foreground">
+                          {task.assignee[0]?.toUpperCase()}
+                        </span>
+                        <span className="mt-1 block truncate text-[10px] font-semibold text-muted-foreground">
+                          {task.assignee}
+                        </span>
+                      </div>
                     </div>
 
-                    <div className="flex items-center gap-1 mt-2 ml-8">
+                    <div className="mt-4 flex items-center justify-center gap-2 border-t border-border pt-3">
                       {!task.completed && isOverdue && !isPenalized && (
                         <button
                           onClick={() => {
                             void markLate(task);
                           }}
                           disabled={taskIsPending}
-                          className="h-7 px-2 rounded-lg glass text-[10px] font-medium text-secondary flex items-center gap-1 disabled:opacity-60"
+                          className="flex h-9 items-center gap-1 rounded-full border border-border bg-card px-3 text-[10px] font-medium text-destructive disabled:opacity-60"
                         >
                           <Clock className="h-3 w-3" />
                           {t('tasks.completeLate')}
@@ -856,7 +857,7 @@ function TasksMain() {
                             void completeMissedTask(task);
                           }}
                           disabled={taskIsPending}
-                          className="h-7 px-2 rounded-lg glass text-[10px] font-medium text-secondary flex items-center gap-1 disabled:opacity-60"
+                          className="flex h-9 items-center gap-1 rounded-full border border-border bg-card px-3 text-[10px] font-medium text-destructive disabled:opacity-60"
                         >
                           <Clock className="h-3 w-3" />
                           {t('tasks.regretMissed')}
@@ -864,28 +865,28 @@ function TasksMain() {
                       )}
                       <button
                         onClick={() => startEdit(task)}
-                        className="h-7 w-7 rounded-lg glass flex items-center justify-center"
+                        className="grid h-10 w-10 place-items-center rounded-full border border-border bg-card"
                         aria-label={t('tasks.editTaskAria')}
                       >
-                        <Edit3 className="h-3 w-3 text-muted-foreground" />
+                        <Edit3 className="h-4 w-4 text-muted-foreground" />
                       </button>
                       <button
                         onClick={() => {
                           void deleteTask(task.id);
                         }}
-                        className="h-7 w-7 rounded-lg glass flex items-center justify-center"
+                        className="grid h-10 w-10 place-items-center rounded-full border border-border bg-card"
                         aria-label={t('tasks.deleteTaskAria')}
                       >
-                        <Trash2 className="h-3 w-3 text-destructive" />
+                        <Trash2 className="h-4 w-4 text-destructive" />
                       </button>
                       <button
                         onClick={() =>
                           setCommentingId(commentingId === task.id ? null : task.id)
                         }
-                        className="h-7 px-2 rounded-lg glass text-[10px] font-medium text-muted-foreground flex items-center gap-1"
+                        className="grid h-10 w-10 place-items-center rounded-full border border-border bg-card text-muted-foreground"
                         aria-label={t('tasks.toggleComments')}
                       >
-                        <MessageSquare className="h-3 w-3" />
+                        <MessageSquare className="h-4 w-4" />
                       </button>
                     </div>
 
@@ -895,7 +896,7 @@ function TasksMain() {
                           initial={{ opacity: 0, height: 0 }}
                           animate={{ opacity: 1, height: 'auto' }}
                           exit={{ opacity: 0, height: 0 }}
-                          className="overflow-hidden mt-2 ml-8 space-y-2"
+                          className="mt-3 space-y-2 overflow-hidden"
                         >
                           {task.feedbacks.length > 0 && (
                             <div className="space-y-1.5">

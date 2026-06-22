@@ -144,10 +144,10 @@ class ChatOperationsTest {
         )
         whenever(chatMessageRepository.save(any<ChatMessage>())).thenAnswer { it.arguments[0] as ChatMessage }
 
-        val result = operations.addReaction(9, "😂", "Kasper")
+        val result = operations.addReaction(9, "🔥", "Kasper")
 
         assertEquals(listOf("Emma"), result.reactions.single { it.emoji == "👍" }.users)
-        assertEquals(listOf("Kasper"), result.reactions.single { it.emoji == "😂" }.users)
+        assertEquals(listOf("Kasper"), result.reactions.single { it.emoji == "🔥" }.users)
         assertNull(result.reactions.find { it.emoji == "❤️" })
     }
 
