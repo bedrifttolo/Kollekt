@@ -42,6 +42,8 @@ data class TaskDto(
     val recurrenceRule: String? = null,
     val penaltyXp: Int = 0,
     val feedbacks: List<TaskFeedbackDto> = emptyList(),
+    val completionImageData: String? = null,
+    val completionImageMime: String? = null,
 )
 
 data class CreateTaskRequest(
@@ -51,6 +53,11 @@ data class CreateTaskRequest(
     val category: TaskCategory = TaskCategory.OTHER,
     val xp: Int = 10,
     val recurrenceRule: String? = null,
+)
+
+data class CompleteTaskRequest(
+    val imageData: String? = null,
+    val imageMimeType: String? = null,
 )
 
 data class CreateTaskSwapRequest(
@@ -227,11 +234,13 @@ data class ShoppingItemDto(
     val item: String,
     val addedBy: String,
     val completed: Boolean,
+    val staple: Boolean = false,
 )
 
 data class CreateShoppingItemRequest(
     val item: String,
     val addedBy: String,
+    val staple: Boolean = false,
 )
 
 data class UpdateShoppingItemRequest(
@@ -289,6 +298,7 @@ data class MessageDto(
     val timestamp: LocalDateTime,
     val reactions: List<ReactionDto> = emptyList(),
     val poll: PollDto? = null,
+    val pinned: Boolean = false,
 )
 
 data class PollDto(
@@ -323,6 +333,7 @@ data class UserDto(
     val email: String = "",
     val collectiveCode: String?,
     val status: MemberStatus = MemberStatus.ACTIVE,
+    val awayUntil: LocalDate? = null,
     val color: String? = null,
     val friends: List<FriendDto> = emptyList(),
 )
@@ -412,6 +423,8 @@ data class ExpenseDto(
     val date: LocalDate,
     val participantNames: List<String>,
     val deadlineDate: LocalDate? = null,
+    val recurring: Boolean = false,
+    val recurrenceDayOfMonth: Int? = null,
 )
 
 data class CreateExpenseRequest(
@@ -422,6 +435,8 @@ data class CreateExpenseRequest(
     val date: LocalDate,
     val participantNames: List<String> = emptyList(),
     val deadlineDate: LocalDate? = null,
+    val recurring: Boolean = false,
+    val recurrenceDayOfMonth: Int? = null,
 )
 
 data class UpdateExpenseRequest(
@@ -549,6 +564,29 @@ data class MemberStatsDto(
     val skippedTasks: Int,
     val achievementsUnlocked: Int,
     val achievementsTotal: Int,
+)
+
+data class MemberShareDto(
+    val name: String,
+    val completedTasks: Int,
+    val sharePercent: Int,
+)
+
+data class FairnessDto(
+    val windowDays: Int,
+    val totalTasks: Int,
+    val balancePercent: Int,
+    val shares: List<MemberShareDto>,
+)
+
+data class WeeklyRecapDto(
+    val weekStart: LocalDate,
+    val tasksCompleted: Int,
+    val topContributor: String?,
+    val topContributorTasks: Int,
+    val expensesLogged: Int,
+    val bestStreak: Int,
+    val bestStreakHolder: String?,
 )
 
 data class PantSummaryDto(

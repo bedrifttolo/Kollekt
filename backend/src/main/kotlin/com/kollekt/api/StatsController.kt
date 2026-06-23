@@ -48,6 +48,15 @@ class StatsController(
         return statsService.getLeaderboard(memberName, period)
     }
 
+    @GetMapping("/fairness")
+    fun getFairness(
+        @RequestParam memberName: String,
+        @AuthenticationPrincipal jwt: Jwt,
+    ): com.kollekt.api.dto.FairnessDto {
+        requireTokenSubject(jwt, memberName)
+        return statsService.getFairness(memberName)
+    }
+
     @GetMapping("/monthly-prize")
     fun getMonthlyPrize(
         @RequestParam memberName: String,

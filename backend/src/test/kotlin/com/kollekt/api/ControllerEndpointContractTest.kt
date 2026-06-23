@@ -796,7 +796,7 @@ class ControllerEndpointContractTest {
             ).andExpect(status().isBadRequest)
             .andExpect(jsonPath("$.error").value("Invalid status"))
 
-        verify(memberOperations, never()).updateMemberStatus(any(), any())
+        verify(memberOperations, never()).updateMemberStatus(any(), any(), any())
     }
 
     @Test

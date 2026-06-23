@@ -58,6 +58,12 @@ class ChatController(
         @AuthenticationPrincipal jwt: Jwt,
     ): MessageDto = chatOperations.votePoll(messageId, request.optionId, jwt.subject)
 
+    @PostMapping("/messages/{messageId}/pin")
+    fun togglePin(
+        @PathVariable messageId: Long,
+        @AuthenticationPrincipal jwt: Jwt,
+    ): MessageDto = chatOperations.togglePin(messageId, jwt.subject)
+
     @PostMapping("/messages/{messageId}/reactions")
     fun addReaction(
         @PathVariable messageId: Long,

@@ -43,6 +43,7 @@ class ShoppingOperations(
                     item = item,
                     addedBy = actorName,
                     collectiveCode = collectiveCode,
+                    staple = request.staple,
                 ),
             )
 
@@ -149,5 +150,5 @@ class ShoppingOperations(
         return updated.toDto()
     }
 
-    private fun ShoppingItem.toDto() = ShoppingItemDto(id, item, addedBy, completed)
+    private fun ShoppingItem.toDto() = ShoppingItemDto(id, item, addedBy, completed, staple)
 }

@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
 import java.time.LocalDateTime
+import kotlin.math.roundToInt
 
 private data class AchievementDefinition(
     val key: String,
@@ -353,6 +354,81 @@ class StatsService(
             skippedTasks = skippedTasks,
             achievementsUnlocked = achievements.count { it.unlocked },
             achievementsTotal = achievements.size,
+        )
+    }
+
+    // #2 Fairness view: a non-punitive snapshot of how evenly recent chore load is shared
+    // across active members, so resentment doesn't build silently.
+    fun getFairness(
+        memberName: String,
+        windowDays: Long = 30,
+    ): com.kollekt.api.dto.FairnessDto {
+        val collectiveCode = collectiveAccessService.requireCollectiveCodeByMemberName(memberName)
+        val since = LocalDate.now().minusDays(windowDays)
+        val activeMembers =
+            memberRepository
+                .findAllByCollectiveCode(collectiveCode)
+                .filter { it.status == com.kollekt.domain.MemberStatus.ACTIVE }
+                .map { it.name }
+                .sorted()
+        val completedRecently =
+            taskRepository
+                .findAllByCollectiveCode(collectiveCode)
+                .filter { it.completed && it.completedAt != null && !it.completedAt.toLocalDate().isBefore(since) }
+        val counts = activeMembers.associateWith { name -> completedRecently.count { it.completedBy == name } }
+        val total = counts.values.sum()
+
+        val shares =
+            activeMembers.map { name ->
+                val count = counts.getValue(name)
+                com.kollekt.api.dto.MemberShareDto(
+                    name = name,
+                    completedTasks = count,
+                    sharePercent = if (total == 0) 0 else (count * 100.0 / total).roundToInt(),
+                )
+            }
+        val evenShare = if (activeMembers.isEmpty()) 0.0 else 100.0 / activeMembers.size
+        val maxShare = shares.maxOfOrNull { it.sharePercent }?.toDouble() ?: evenShare
+        val balancePercent = if (total == 0) 100 else (100 - (maxShare - evenShare)).roundToInt().coerceIn(0, 100)
+
+        return com.kollekt.api.dto.FairnessDto(
+            windowDays = windowDays.toInt(),
+            totalTasks = total,
+            balancePercent = balancePercent,
+            shares = shares.sortedByDescending { it.completedTasks },
+        )
+    }
+
+    // #10 Weekly recap: a short, upbeat summary of the household's week, used by the
+    // scheduled recap notification to give members a reason to keep opening the app.
+    fun buildWeeklyRecap(collectiveCode: String): com.kollekt.api.dto.WeeklyRecapDto {
+        val today = LocalDate.now()
+        val weekStart = today.minusDays(6)
+        val allTasks = taskRepository.findAllByCollectiveCode(collectiveCode)
+        val completedThisWeek =
+            allTasks.filter {
+                it.completed && it.completedAt != null && it.completedAt.toLocalDate() in weekStart..today
+            }
+        val byContributor = completedThisWeek.groupingBy { it.completedBy ?: it.assignee }.eachCount()
+        val top = byContributor.entries.maxByOrNull { it.value }
+
+        val members = memberRepository.findAllByCollectiveCode(collectiveCode)
+        val streaks = members.associate { it.name to computeStreak(allTasks.filter { t -> t.assignee == it.name }) }
+        val bestStreak = streaks.entries.maxByOrNull { it.value }
+
+        val expensesThisWeek =
+            expenseRepository
+                .findAllByCollectiveCode(collectiveCode)
+                .count { it.date in weekStart..today }
+
+        return com.kollekt.api.dto.WeeklyRecapDto(
+            weekStart = weekStart,
+            tasksCompleted = completedThisWeek.size,
+            topContributor = top?.key,
+            topContributorTasks = top?.value ?: 0,
+            expensesLogged = expensesThisWeek,
+            bestStreak = bestStreak?.value ?: 0,
+            bestStreakHolder = bestStreak?.takeIf { it.value > 0 }?.key,
         )
     }
 

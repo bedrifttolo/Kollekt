@@ -279,6 +279,49 @@ class StatsServiceTest {
         verify(realtimeUpdateService).publish(eq("ABC123"), eq("ACHIEVEMENT_CONFIG_UPDATED"), isNull())
     }
 
+    @Test
+    fun `fairness reports per-member share and balance over the window`() {
+        whenever(memberRepository.findAllByCollectiveCode("ABC123")).thenReturn(
+            listOf(member("Kasper", "kasper@example.com"), member("Emma", "emma@example.com", id = 2)),
+        )
+        val now = LocalDateTime.now()
+        whenever(taskRepository.findAllByCollectiveCode("ABC123")).thenReturn(
+            listOf(
+                task(id = 1, title = "A", assignee = "Kasper", completed = true, completedAt = now).copy(completedBy = "Kasper"),
+                task(id = 2, title = "B", assignee = "Kasper", completed = true, completedAt = now).copy(completedBy = "Kasper"),
+                task(id = 3, title = "C", assignee = "Emma", completed = true, completedAt = now).copy(completedBy = "Emma"),
+            ),
+        )
+
+        val result = service.getFairness("Kasper")
+
+        assertEquals(3, result.totalTasks)
+        assertEquals(2, result.shares.first().completedTasks)
+        assertEquals("Kasper", result.shares.first().name)
+        assertTrue(result.balancePercent in 0..100)
+    }
+
+    @Test
+    fun `weekly recap summarises tasks expenses and top contributor`() {
+        val now = LocalDateTime.now()
+        whenever(taskRepository.findAllByCollectiveCode("ABC123")).thenReturn(
+            listOf(
+                task(id = 1, title = "A", assignee = "Kasper", completed = true, completedAt = now).copy(completedBy = "Kasper"),
+                task(id = 2, title = "B", assignee = "Kasper", completed = true, completedAt = now).copy(completedBy = "Kasper"),
+            ),
+        )
+        whenever(memberRepository.findAllByCollectiveCode("ABC123")).thenReturn(
+            listOf(member("Kasper", "kasper@example.com")),
+        )
+        whenever(expenseRepository.findAllByCollectiveCode("ABC123")).thenReturn(emptyList())
+
+        val recap = service.buildWeeklyRecap("ABC123")
+
+        assertEquals(2, recap.tasksCompleted)
+        assertEquals("Kasper", recap.topContributor)
+        assertEquals(2, recap.topContributorTasks)
+    }
+
     private fun member(
         name: String,
         email: String,
