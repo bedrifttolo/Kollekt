@@ -21,6 +21,8 @@ const REACTION_EMOJIS = [
   '👏', '🙌', '💯', '👎', '🤔', '😍', '🥰', '😭',
   '🤯', '😎', '🫶', '✅', '👀', '🤝', '💀', '🙏',
 ];
+const COMMON_REACTION_EMOJIS = ['👍', '❤️', '😂', '🎉', '😮', '😢'];
+const MORE_REACTION_EMOJIS = REACTION_EMOJIS.filter((emoji) => !COMMON_REACTION_EMOJIS.includes(emoji));
 
 export default function ChatPage() {
   const { t } = useTranslation();
@@ -41,6 +43,7 @@ export default function ChatPage() {
   const [pollQuestion, setPollQuestion] = useState('');
   const [pollOptions, setPollOptions] = useState(['', '']);
   const [reactingId, setReactingId] = useState<number | null>(null);
+  const [expandedReactionId, setExpandedReactionId] = useState<number | null>(null);
   const [replyingToId, setReplyingToId] = useState<number | null>(null);
   const [expandedImage, setExpandedImage] = useState<{ src: string; alt: string } | null>(null);
   const [onlineCount, setOnlineCount] = useState<number | null>(null);
@@ -167,9 +170,12 @@ export default function ChatPage() {
   };
 
   const sendLaundry = async () => {
-    const text = t('laundry.message', { temp: laundryTemp, type: t(`laundry.types.${laundryType}`).toLowerCase() });
+    const question = t('laundry.message', { temp: laundryTemp, type: t(`laundry.types.${laundryType}`).toLowerCase() });
     setShowLaundryForm(false);
-    await api.post('/chat/messages', { sender: name, text });
+    await api.post('/chat/polls', {
+      question,
+      options: [t('laundry.join'), t('laundry.notThisTime')],
+    });
     fetchMessages();
   };
 
@@ -214,6 +220,7 @@ export default function ChatPage() {
       await api.post(`/chat/messages/${messageId}/reactions`, { emoji });
     }
     setReactingId(null);
+    setExpandedReactionId(null);
     fetchMessages();
   };
 
@@ -319,9 +326,12 @@ export default function ChatPage() {
                       ? 'rounded-[1.35rem] rounded-br-md bg-primary text-primary-foreground'
                       : 'rounded-[1.35rem] rounded-bl-md border border-border bg-card'
                   }`}
-                  onClick={() => setReactingId(reactingId === message.id ? null : message.id)}
+                  onClick={() => {
+                    setReactingId(reactingId === message.id ? null : message.id);
+                    setExpandedReactionId(null);
+                  }}
                 >
-                  {message.text && <p className="text-[15px] leading-relaxed">{message.text}</p>}
+                  {message.text && !message.poll && <p className="text-[15px] leading-relaxed">{message.text}</p>}
                   {message.imageData && (
                     <img
                       src={`data:${message.imageMimeType};base64,${message.imageData}`}
@@ -370,7 +380,10 @@ export default function ChatPage() {
                     <Reply className="h-3.5 w-3.5 text-muted-foreground" />
                   </button>
                   <button
-                    onClick={() => setReactingId(reactingId === message.id ? null : message.id)}
+                    onClick={() => {
+                      setReactingId(reactingId === message.id ? null : message.id);
+                      setExpandedReactionId(null);
+                    }}
                     className="h-6 w-6 rounded-full glass flex items-center justify-center"
                     aria-label={t('chat.reactToMessage')}
                   >
@@ -395,13 +408,32 @@ export default function ChatPage() {
                 <AnimatePresence>
                   {reactingId === message.id && (
                     <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}
-                      className={`grid grid-cols-6 gap-1 rounded-2xl border border-border bg-card p-2 shadow-sm ${isSelf ? 'ml-auto' : 'mr-auto'}`}>
-                      {REACTION_EMOJIS.map((emoji) => (
-                        <button key={emoji} onClick={() => toggleReaction(message.id, emoji)}
-                          className="grid h-8 w-8 place-items-center rounded-lg text-lg transition-transform hover:scale-110 hover:bg-muted">
-                          {emoji}
+                      className={`rounded-2xl border border-border bg-card p-2 shadow-sm ${isSelf ? 'ml-auto' : 'mr-auto'}`}>
+                      <div className="flex items-center gap-1">
+                        {COMMON_REACTION_EMOJIS.map((emoji) => (
+                          <button key={emoji} onClick={() => toggleReaction(message.id, emoji)}
+                            className="grid h-8 w-8 place-items-center rounded-lg text-lg transition-transform hover:scale-110 hover:bg-muted">
+                            {emoji}
+                          </button>
+                        ))}
+                        <button
+                          onClick={() => setExpandedReactionId(expandedReactionId === message.id ? null : message.id)}
+                          className="grid h-8 w-8 place-items-center rounded-lg hover:bg-muted"
+                          aria-label={t('chat.reactToMessage')}
+                        >
+                          <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${expandedReactionId === message.id ? 'rotate-180' : ''}`} />
                         </button>
-                      ))}
+                      </div>
+                      {expandedReactionId === message.id && (
+                        <div className="mt-1 grid grid-cols-6 gap-1 border-t border-border pt-1">
+                          {MORE_REACTION_EMOJIS.map((emoji) => (
+                            <button key={emoji} onClick={() => toggleReaction(message.id, emoji)}
+                              className="grid h-8 w-8 place-items-center rounded-lg text-lg transition-transform hover:scale-110 hover:bg-muted">
+                              {emoji}
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </motion.div>
                   )}
                 </AnimatePresence>

@@ -576,6 +576,15 @@ class EconomyOperationsTest {
     }
 
     @Test
+    fun `create expense rejects blank description and nonpositive amount`() {
+        val blankDescription = CreateExpenseRequest("   ", 100, "Ignored", "Food", LocalDate.parse("2026-03-01"))
+        val nonpositiveAmount = CreateExpenseRequest("Pizza", 0, "Ignored", "Food", LocalDate.parse("2026-03-01"))
+
+        assertEquals("Expense description is required", assertThrows<IllegalArgumentException> { operations.createExpense(blankDescription, "Kasper") }.message)
+        assertEquals("Expense amount must be greater than zero", assertThrows<IllegalArgumentException> { operations.createExpense(nonpositiveAmount, "Kasper") }.message)
+    }
+
+    @Test
     fun `get pay options with actual bilateral debt calculation`() {
         whenever(memberRepository.findByName("Emma")).thenReturn(member("Emma", "emma@example.com", id = 2))
         whenever(memberRepository.findAllByCollectiveCode("ABC123")).thenReturn(

@@ -70,6 +70,7 @@ export default function GamesPanel() {
       <div className="househero">
         <p className="eyebrow !text-white/65">{t('social.games.tonightsPick')} 🎲</p>
         <h3 className="font-display text-3xl font-extrabold tracking-[-.03em] mt-1">{t(`social.games.catalog.${pick.titleKey}`)}</h3>
+        <p className="mt-2 text-sm text-white/75">{t(`social.games.descriptions.${pick.descriptionKey}`)}</p>
         <div className="mt-3 flex flex-wrap gap-2">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1.5 text-xs font-bold">
             <Clock className="h-3.5 w-3.5" /> {t('social.games.minutes', { min: pick.minutes })}
@@ -116,6 +117,7 @@ export default function GamesPanel() {
             </div>
             <div>
               <p className="font-display font-extrabold leading-tight">{t(`social.games.catalog.${game.titleKey}`)}</p>
+              <p className="mt-1 text-xs leading-snug text-muted-foreground">{t(`social.games.descriptions.${game.descriptionKey}`)}</p>
               <p className="mt-1 text-xs text-muted-foreground">
                 {t('social.games.playersLong', { count: game.minPlayers })} · {t('social.games.minutes', { min: game.minutes })}
               </p>

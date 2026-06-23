@@ -38,16 +38,12 @@ export default function CreateHouseholdPage() {
   const { t } = useTranslation();
   const { currentUser, setCurrentUser, handleLogout } = useUser();
 
-  const roomId = useRef(3);
+  const roomId = useRef(0);
   const [mode, setMode] = useState<'create' | 'join'>('create');
   const [houseName, setHouseName] = useState('');
   const [address, setAddress] = useState('');
   const [roomsOpen, setRoomsOpen] = useState(true);
-  const [rooms, setRooms] = useState<RoomDraft[]>(() => [
-    { id: 0, emoji: '🍳', name: t('createHousehold.defaultRooms.kitchen'), minutes: '20' },
-    { id: 1, emoji: '🚿', name: t('createHousehold.defaultRooms.bathroom'), minutes: '15' },
-    { id: 2, emoji: '🛋️', name: t('createHousehold.defaultRooms.livingRoom'), minutes: '10' },
-  ]);
+  const [rooms, setRooms] = useState<RoomDraft[]>([]);
   const [code, setCode] = useState<string[]>(() => Array(CODE_LENGTH).fill(''));
   const codeRefs = useRef<Array<HTMLInputElement | null>>([]);
   const [error, setError] = useState('');
@@ -215,50 +211,56 @@ export default function CreateHouseholdPage() {
                           placeholder={t('createHousehold.defaultRooms.kitchen')}
                           className="w-full bg-transparent font-bold text-base placeholder:text-muted-foreground/60 focus:outline-none"
                         />
-                        <div className="mt-0.5 flex items-center gap-1 text-sm text-muted-foreground">
-                          <span>≈</span>
+                        <label className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
+                          <span>{t('createHousehold.cleaningTimeLabel')}:</span>
                           <input
                             type="number"
                             min={1}
                             max={240}
                             value={room.minutes}
                             onChange={(e) => updateRoom(room.id, { minutes: e.target.value })}
-                            className="w-9 bg-transparent text-sm tabular-nums focus:outline-none"
+                            className="w-12 rounded-md border border-border bg-background px-1.5 py-0.5 text-center text-sm font-bold tabular-nums text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
                             aria-label={t('createHousehold.minLabel')}
                           />
-                          <span>{t('createHousehold.minLabel')}</span>
-                        </div>
+                          <span>{t('createHousehold.minutesShort')}</span>
+                        </label>
                       </div>
                       <span className="shrink-0 font-display font-extrabold text-primary dark:text-secondary">
                         {xpFor(room.minutes)} XP
                       </span>
-                      {rooms.length > 1 && (
-                        <button
-                          type="button"
-                          onClick={() => removeRoom(room.id)}
-                          className="grid h-7 w-7 shrink-0 place-items-center rounded-lg text-muted-foreground hover:bg-muted"
-                          aria-label={t('createHousehold.removeRoom')}
-                        >
-                          <X className="h-4 w-4" />
-                        </button>
-                      )}
+                      <button
+                        type="button"
+                        onClick={() => removeRoom(room.id)}
+                        className="grid h-7 w-7 shrink-0 place-items-center rounded-lg text-muted-foreground hover:bg-muted"
+                        aria-label={t('createHousehold.removeRoom')}
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
                     </div>
                   ))}
 
                   {suggestions.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                      {suggestions.map((s) => (
-                        <button
-                          key={s.key}
-                          type="button"
-                          onClick={() => addSuggested(s)}
-                          className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-sm font-bold text-muted-foreground"
-                        >
-                          <span>{s.emoji}</span>
-                          {t(`createHousehold.defaultRooms.${s.key}`)}
-                        </button>
-                      ))}
+                    <div>
+                      <p className="mb-2 text-xs font-semibold text-muted-foreground">{t('createHousehold.roomExamplesLabel')}</p>
+                      <div className="flex flex-wrap gap-2">
+                        {suggestions.map((s) => (
+                          <button
+                            key={s.key}
+                            type="button"
+                            onClick={() => addSuggested(s)}
+                            className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-primary/40 bg-primary/5 px-3 py-1.5 text-sm font-bold text-foreground transition-colors hover:bg-primary/10"
+                          >
+                            <Plus className="h-3.5 w-3.5 text-primary" />
+                            <span>{s.emoji}</span>
+                            {t(`createHousehold.defaultRooms.${s.key}`)}
+                          </button>
+                        ))}
+                      </div>
                     </div>
+                  )}
+
+                  {rooms.length > 0 && (
+                    <p className="text-xs text-muted-foreground">{t('createHousehold.cleaningTimeHint')}</p>
                   )}
 
                   <button
@@ -334,7 +336,7 @@ export default function CreateHouseholdPage() {
           {t('createHousehold.backToAuth')}
         </button>
       </motion.div>
-      {mode === 'create' && <TourOverlay steps={ONBOARDING_TOUR_STEPS} storageKey="kollekt_onboarding_tour_v1" />}
+      {mode === 'create' && <TourOverlay steps={ONBOARDING_TOUR_STEPS} storageKey="kollekt_onboarding_tour_v2" />}
     </div>
   );
 }
