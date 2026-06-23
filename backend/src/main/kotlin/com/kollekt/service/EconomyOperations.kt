@@ -80,6 +80,15 @@ class EconomyOperations(
             throw IllegalArgumentException("Participants not in collective: ${invalidParticipants.joinToString(", ")}")
         }
 
+        val recurrenceDay =
+            if (request.recurring) {
+                (request.recurrenceDayOfMonth ?: request.date.dayOfMonth).also {
+                    require(it in 1..28) { "Recurring day must be between 1 and 28" }
+                }
+            } else {
+                null
+            }
+
         val saved =
             expenseRepository.save(
                 Expense(
@@ -91,6 +100,8 @@ class EconomyOperations(
                     date = request.date,
                     participantNames = participants,
                     deadlineDate = request.deadlineDate,
+                    recurring = request.recurring,
+                    recurrenceDayOfMonth = recurrenceDay,
                 ),
             )
 
@@ -413,6 +424,63 @@ class EconomyOperations(
         }
     }
 
+    // #4 Recurring shared bills: each recurring expense template spawns a fresh monthly
+    // instance on its recurrence day, so rent/internet/electricity splits are created
+    // automatically instead of someone chasing everyone every month.
+    @Transactional
+    fun generateRecurringExpenseInstances() {
+        val today = LocalDate.now()
+        val templates = expenseRepository.findAll().filter { it.recurring && it.recurrenceDayOfMonth != null }
+        for (template in templates) {
+            val day = template.recurrenceDayOfMonth!!.coerceAtMost(today.lengthOfMonth())
+            if (today.dayOfMonth != day) continue
+            // Don't duplicate the template's own origin month.
+            if (template.date.year == today.year && template.date.monthValue == today.monthValue) continue
+            val collectiveCode = template.collectiveCode ?: continue
+            val alreadyGenerated =
+                expenseRepository
+                    .findAllByCollectiveCode(collectiveCode)
+                    .any {
+                        !it.recurring &&
+                            it.description == template.description &&
+                            it.paidBy == template.paidBy &&
+                            it.date.year == today.year &&
+                            it.date.monthValue == today.monthValue
+                    }
+            if (alreadyGenerated) continue
+
+            val saved =
+                expenseRepository.save(
+                    Expense(
+                        description = template.description,
+                        amount = template.amount,
+                        paidBy = template.paidBy,
+                        collectiveCode = collectiveCode,
+                        category = template.category,
+                        date = today,
+                        participantNames = template.participantNames,
+                        recurring = false,
+                    ),
+                )
+            realtimeUpdateService.publish(collectiveCode, "EXPENSE_CREATED", saved.toDto())
+
+            val participantCount = template.participantNames.ifEmpty { setOf(template.paidBy) }.size
+            val perPerson = template.amount / participantCount
+            template.participantNames.filter { it != template.paidBy }.forEach { debtor ->
+                notificationService.createParameterizedNotification(
+                    userName = debtor,
+                    type = "EXPENSE_OWED",
+                    params =
+                        mapOf(
+                            "paidBy" to template.paidBy,
+                            "description" to template.description,
+                            "amount" to "%.0f".format(perPerson.toDouble()),
+                        ),
+                )
+            }
+        }
+    }
+
     private fun latestSettledExpenseIdForMember(
         collectiveCode: String,
         memberName: String,
@@ -504,6 +572,8 @@ class EconomyOperations(
             date = date,
             participantNames = participantNames.sorted(),
             deadlineDate = deadlineDate,
+            recurring = recurring,
+            recurrenceDayOfMonth = recurrenceDayOfMonth,
         )
 
     private fun PantEntry.toDto() = PantEntryDto(id, bottles, amount, addedBy, date)

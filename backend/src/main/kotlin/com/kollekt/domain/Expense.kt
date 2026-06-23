@@ -30,4 +30,6 @@ data class Expense(
     )
     @Column(name = "member_name", nullable = false)
     val participantNames: Set<String> = emptySet(),
+    @Column(nullable = false) val recurring: Boolean = false,
+    @Column(name = "recurrence_day_of_month", nullable = true) val recurrenceDayOfMonth: Int? = null,
 )

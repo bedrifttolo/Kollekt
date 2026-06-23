@@ -28,6 +28,7 @@ data class Member(
     @Column(nullable = true) val collectiveCode: String? = null,
     @Enumerated(EnumType.STRING)
     @Column(nullable = false) val status: MemberStatus = MemberStatus.ACTIVE,
+    @Column(name = "away_until", nullable = true) val awayUntil: java.time.LocalDate? = null,
     @Column(nullable = true, length = 16) val color: String? = null,
     @Column(nullable = true, length = 2048) val chemistry: String? = null,
     @Column(nullable = true, length = 2048) val preferences: String? = null,

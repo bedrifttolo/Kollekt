@@ -26,6 +26,8 @@ export interface Task {
   recurrenceRule: string | null;
   assignmentReason?: string;
   feedbacks: TaskFeedback[];
+  completionImageData?: string | null;
+  completionImageMime?: string | null;
 }
 
 export interface TaskSwapRequest {
@@ -141,6 +143,7 @@ export interface ShoppingItem {
   item: string;
   addedBy: string;
   completed: boolean;
+  staple?: boolean;
 }
 
 export type EventType = 'PARTY' | 'MOVIE' | 'DINNER' | 'GAME_NIGHT' | 'CLEANING' | 'SPORTS' | 'BIRTHDAY' | 'MEETING' | 'TRIP' | 'OTHER';
@@ -166,6 +169,8 @@ export interface Expense {
   date: string;
   participantNames: string[];
   deadlineDate?: string;
+  recurring?: boolean;
+  recurrenceDayOfMonth?: number | null;
 }
 
 export interface Balance {
@@ -330,6 +335,7 @@ export interface AppUser {
   email: string;
   collectiveCode: string | null;
   status: MemberStatus;
+  awayUntil?: string | null;
   color?: string | null;
   friends?: Friend[];
 }
@@ -392,6 +398,20 @@ export interface ChatMessage {
   timestamp: string;
   reactions: ChatReaction[];
   poll?: ChatPoll | null;
+  pinned?: boolean;
+}
+
+export interface MemberShare {
+  name: string;
+  completedTasks: number;
+  sharePercent: number;
+}
+
+export interface Fairness {
+  windowDays: number;
+  totalTasks: number;
+  balancePercent: number;
+  shares: MemberShare[];
 }
 
 export interface PartyGameParticipant {
