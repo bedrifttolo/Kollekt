@@ -20,6 +20,7 @@ export interface PaymentMethod {
 /** Lists the payment methods a creditor has actually registered, in display order. */
 export function availableMethods(handles: PaymentHandles, amount: number): PaymentMethod[] {
   const methods: PaymentMethod[] = [];
+  const payableAmount = Number.isFinite(amount) && amount > 0 ? Math.round(amount) : null;
   if (handles.vipps) {
     methods.push({ provider: 'vipps', value: handles.vipps, url: 'vipps://' });
   }
@@ -30,7 +31,9 @@ export function availableMethods(handles: PaymentHandles, amount: number): Payme
     methods.push({
       provider: 'paypal',
       value: handles.paypal,
-      url: `https://www.paypal.com/paypalme/${encodeURIComponent(handles.paypal)}/${amount}NOK`,
+      url: payableAmount === null
+        ? null
+        : `https://www.paypal.com/paypalme/${encodeURIComponent(handles.paypal)}/${payableAmount}NOK`,
     });
   }
   if (handles.bankAccount) {

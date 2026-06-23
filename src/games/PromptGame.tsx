@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowRight, CheckCircle2, Hash, RotateCcw, Shuffle, Users, X } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Hash, RotateCcw, Users, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import {
   getDrinkingGame,
@@ -41,7 +41,6 @@ export default function PromptGame({
     [gameId, i18n.language, i18n.resolvedLanguage],
   );
   const [phase, setPhase] = useState<'rules' | 'playing'>('rules');
-  const [randomOrder, setRandomOrder] = useState(false);
   const [deck, setDeck] = useState<number[]>([]);
   const [deckIndex, setDeckIndex] = useState(0);
   const [activePromptId, setActivePromptId] = useState<number | null>(null);
@@ -51,7 +50,7 @@ export default function PromptGame({
 
   const startGame = () => {
     const ids = game.prompts.map((prompt) => prompt.id);
-    const nextDeck = game.allowRandomOrder && randomOrder ? shuffled(ids) : ids;
+    const nextDeck = shuffled(ids).slice(0, game.promptsPerSession);
     setDeck(nextDeck);
     setDeckIndex(0);
     setUsedPromptIds([]);
@@ -98,13 +97,6 @@ export default function PromptGame({
                 ))}
               </div>
             </div>
-            {game.allowRandomOrder && (
-              <button onClick={() => setRandomOrder((value) => !value)} className="card flex w-full items-center gap-3 text-left">
-                <Shuffle className="h-5 w-5 text-primary" />
-                <span className="flex-1 font-semibold">{t(randomOrder ? 'games.randomOrder' : 'games.sequentialOrder')}</span>
-                <span className={`h-6 w-10 rounded-full p-1 ${randomOrder ? 'bg-primary' : 'bg-muted'}`}><span className={`block h-4 w-4 rounded-full bg-white transition-transform ${randomOrder ? 'translate-x-4' : ''}`} /></span>
-              </button>
-            )}
             <button onClick={startGame} className="btn-lemon w-full">{t('games.startGame')}</button>
           </div>
         ) : (
@@ -145,13 +137,13 @@ export default function PromptGame({
               <>
                 <div className="card !p-3">
                   <div className="grid grid-cols-7 gap-1.5">
-                    {game.prompts.map((prompt) => (
+                    {deck.map((promptId) => (
                       <button
-                        key={prompt.id}
-                        onClick={() => revealNumber(prompt.id)}
-                        className={`aspect-square rounded-lg border text-xs font-bold ${usedPromptIds.includes(prompt.id) ? 'border-primary/40 bg-primary/15 text-primary' : 'border-border bg-background'}`}
+                        key={promptId}
+                        onClick={() => revealNumber(promptId)}
+                        className={`aspect-square rounded-lg border text-xs font-bold ${usedPromptIds.includes(promptId) ? 'border-primary/40 bg-primary/15 text-primary' : 'border-border bg-background'}`}
                       >
-                        {prompt.id}
+                        {promptId}
                       </button>
                     ))}
                   </div>

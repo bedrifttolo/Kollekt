@@ -78,6 +78,9 @@ class TaskOperations(
         actorName: String,
     ): TaskDto {
         val collectiveCode = collectiveAccessService.requireCollectiveCodeByMemberName(actorName)
+        val title = request.title.trim()
+        require(title.isNotBlank()) { "Task title is required" }
+        require(request.xp in 1..1000) { "Task XP must be between 1 and 1000" }
 
         if (memberRepository.findByNameAndCollectiveCode(request.assignee, collectiveCode) == null) {
             throw IllegalArgumentException("Assignee '${request.assignee}' is not in your collective")
@@ -87,7 +90,7 @@ class TaskOperations(
         val initiallySaved =
             taskRepository.save(
                 TaskItem(
-                    title = request.title,
+                    title = title,
                     assignee = request.assignee,
                     collectiveCode = collectiveCode,
                     dueDate = request.dueDate,
@@ -107,7 +110,7 @@ class TaskOperations(
                 initiallySaved
             }
 
-        notificationService.createTaskAssignedNotification(saved.assignee, request.title)
+        notificationService.createTaskAssignedNotification(saved.assignee, title)
         val dto = saved.toDto()
         realtimeUpdateService.publish(collectiveCode, "TASK_CREATED", dto)
         return dto

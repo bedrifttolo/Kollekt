@@ -1,4 +1,4 @@
-export type TaskCategory = 'CLEANING' | 'VACUUMING' | 'MOPPING' | 'BATHROOM' | 'KITCHEN' | 'LAUNDRY' | 'DISHES' | 'TRASH' | 'DUSTING' | 'WINDOWS' | 'SHOPPING' | 'OTHER';
+export type TaskCategory = 'CLEANING' | 'SMALL_CLEANING' | 'VACUUMING' | 'MOPPING' | 'BATHROOM' | 'KITCHEN' | 'LAUNDRY' | 'DISHES' | 'TRASH' | 'DUSTING' | 'WINDOWS' | 'SHOPPING' | 'OTHER';
 
 export interface TaskFeedback {
   id: number;

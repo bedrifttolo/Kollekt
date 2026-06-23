@@ -35,10 +35,12 @@ class ShoppingOperations(
         actorName: String,
     ): ShoppingItemDto {
         val collectiveCode = collectiveAccessService.requireCollectiveCodeByMemberName(actorName)
+        val item = request.item.trim()
+        require(item.isNotBlank()) { "Shopping item is required" }
         val saved =
             shoppingItemRepository.save(
                 ShoppingItem(
-                    item = request.item,
+                    item = item,
                     addedBy = actorName,
                     collectiveCode = collectiveCode,
                 ),
@@ -53,7 +55,7 @@ class ShoppingOperations(
             notificationService.createParameterizedGroupNotification(
                 userNames = others,
                 type = "SHOPPING_ITEM_ADDED",
-                params = mapOf("actorName" to actorName, "item" to request.item),
+                params = mapOf("actorName" to actorName, "item" to item),
             )
         }
 

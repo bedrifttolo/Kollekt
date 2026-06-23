@@ -11,7 +11,7 @@
     "onboarding": {
       "mode": { "title": "Opprett eller bli med", "body": "Start et nytt hjem, eller bli med i romkameratenes med koden deres." },
       "name": { "title": "Gi hjemmet et navn", "body": "Velg et navn alle kjenner igjen." },
-      "rooms": { "title": "Rom blir til XP", "body": "Legg til rommene dere deler — vasketid blir til XP og rettferdig rotasjon hver uke." },
+      "rooms": { "title": "Velg fellesrommene", "body": "Trykk på eksempelrom for å legge dem til, eller legg til egne. Du kan endre vasketiden for hvert rom — tiden bestemmer XP." },
       "create": { "title": "Klar til start", "body": "Opprett hjemmet, og inviter så de andre." }
     },
     "steps": {
@@ -57,6 +57,7 @@
     "bought": "Kjøpt",
     "taskCategories": {
       "CLEANING": "Rengjøring",
+      "SMALL_CLEANING": "Smårydding",
       "VACUUMING": "Støvsuging",
       "MOPPING": "Gulvvask",
       "BATHROOM": "Baderom",
@@ -228,6 +229,10 @@
     "addressPlaceholder": "f.eks. Birkegata 14",
     "roomsHeader": "Rom & innsats → XP",
     "minLabel": "min å vaske",
+    "minutesShort": "min",
+    "roomExamplesLabel": "Trykk på et eksempelrom for å legge det til:",
+    "cleaningTimeLabel": "Vasketid",
+    "cleaningTimeHint": "Trykk på minuttene for et rom du har lagt til for å endre vasketid og XP.",
     "addRoom": "Legg til rom",
     "removeRoom": "Fjern rom",
     "rotationNotePrefix": "Rom ",
@@ -314,6 +319,11 @@
     "newTask": "Ny oppgave",
     "editTask": "Rediger oppgave",
     "taskTitlePlaceholder": "Oppgavetittel...",
+    "taskTitleLabel": "Hva må gjøres?",
+    "assigneeLabel": "Tildelt til",
+    "dueDateLabel": "Frist",
+    "categoryLabel": "Oppgavetype",
+    "recurrenceLabel": "Gjentas",
     "xpReward": "XP-belønning",
     "addTask": "Legg til oppgave",
     "saveChanges": "Lagre endringer",
@@ -337,6 +347,8 @@
     "restockSubtitle": "Felles oversikt over forbruksvarer",
     "addSupply": "Legg til vare",
     "supplyNamePlaceholder": "Varenavn...",
+    "shoppingSuggestions": "Vanlige varer",
+    "shoppingTemplates": { "toiletPaper": "Toalettpapir", "dishSoap": "Oppvaskmiddel", "trashBags": "Søppelposer", "laundryDetergent": "Vaskemiddel" },
     "toggleComments": "Vis tilbakemelding",
     "editTaskAria": "Rediger oppgave",
     "deleteTaskAria": "Slett oppgave",
@@ -364,6 +376,12 @@
       "boardSubtitle": "Følg reparasjoner fra melding til ferdig",
       "addTicket": "Legg til sak",
       "newTicket": "Ny vedlikeholdssak",
+      "titleLabel": "Problem",
+      "descriptionLabel": "Detaljer (valgfritt)",
+      "priorityLabel": "Prioritet",
+      "assigneeLabel": "Ansvarlig (valgfritt)",
+      "dueDateLabel": "Frist (valgfritt)",
+      "costLabel": "Estimert kostnad (valgfritt)",
       "titlePlaceholder": "Hva må fikses?",
       "descriptionPlaceholder": "Beskriv problemet...",
       "costPlaceholder": "Kostnadsanslag (kr)",
@@ -419,6 +437,8 @@
     "tempLabel": "Temperatur",
     "send": "Annonser i chatten",
     "message": "🧺 Jeg kjører en vask på {{temp}}°C ({{type}}) — bli med for å spare strøm!",
+    "join": "Jeg vil bli med",
+    "notThisTime": "Ikke denne gangen",
     "types": { "WHITES": "Hvitt", "COLORS": "Farget", "DELICATES": "Finvask", "WOOL": "Ull", "SPORTS": "Sportsklær", "TOWELS": "Håndklær" }
   },
   "quietHours": { "title": "Stilletid", "window": "{{start}}–{{end}}", "disabled": "Stilletid er av", "save": "Lagre stilletid" },
@@ -485,6 +505,10 @@
     "payPersonLabel": "Velg hvem du vil betale",
     "settleAll": "Gjør opp alt",
     "newExpense": "Ny utgift",
+    "descriptionLabel": "Hva gjaldt det?",
+    "amountLabel": "Beløp (kr)",
+    "categoryLabel": "Kategori",
+    "splitSummary_one": "Delt med {{count}} person", "splitSummary_other": "Delt med {{count}} personer",
     "expenseTitlePlaceholder": "Hva gjaldt det?",
     "expenseAmountPlaceholder": "Beløp (kr)",
     "splitWith": "Del med",
@@ -506,8 +530,9 @@
       "bankTransfer": "Bankoverføring",
       "open": "Åpne",
       "copy": "Kopier",
-      "markSettled": "Jeg har betalt — marker som gjort opp",
-      "disclaimer": "Kollekt åpner betalingsappen din — selve overføringen skjer der. Bekreft beløpet før du sender."
+      "noMethods": "Ingen betalingsmetode er lagret. Betal på en annen måte dere har avtalt, og bekreft deretter nedenfor.",
+      "markSettled": "Jeg bekrefter at jeg har betalt — marker som gjort opp",
+      "disclaimer": "Kollekt behandler eller bekrefter ikke overføringen. Kontroller mottaker og beløp i betalingsappen før du sender, og marker først som gjort opp etter betaling."
     }
   },
   "pant": {
@@ -571,6 +596,20 @@
         "kingsCup": "Kings Cup",
         "categories": "Kategorier",
         "charades": "Charades"
+      },
+      "descriptions": {
+        "dice": "Kast en virtuell terning og send turen videre.",
+        "liarsDice": "Kom med stadig høyere terningbud og avslør bløffen.",
+        "kollekt": "Konkurrer i personlige runder basert på kollektivets statistikk.",
+        "spinTheWheel": "Legg til navn, snurr hjulet og la tilfeldighetene velge.",
+        "promptRelay": "Bli med i et rom og svar på spørsmål sammen i sanntid.",
+        "hundredQuestions": "Pek på personen som passer best til hvert spørsmål.",
+        "truthOrChug": "Velg et tall, svar ærlig eller gjør utfordringen.",
+        "neverHaveIEver": "Drikk hvis du har gjort det som står på kortet.",
+        "mexican": "Kast etter tur og slå den forrige spillerens skjulte resultat.",
+        "kingsCup": "Trekk kort og følg regelen som hører til kortverdien.",
+        "categories": "Nevn noe i kategorien før tiden går ut.",
+        "charades": "Mime ordet mens de andre prøver å gjette det."
       },
       "dice": {
         "roll": "Kast terningen",
@@ -1010,11 +1049,16 @@
     "paymentMethods": {
       "title": "Betalingsmetoder",
       "subtitle": "La romkameratene betale deg tilbake direkte",
+      "vippsLabel": "Vipps-nummer for mottak",
+      "mobilepayLabel": "MobilePay-nummer for mottak",
+      "paypalLabel": "PayPal.Me-brukernavn",
+      "bankLabel": "Kontonummer / IBAN",
       "vippsPlaceholder": "Vipps-nummer",
       "mobilepayPlaceholder": "MobilePay-nummer",
       "paypalPlaceholder": "PayPal.Me-brukernavn",
       "bankPlaceholder": "Kontonummer / IBAN",
-      "hint": "Bare romkameratene dine ser disse, og kun for å betale deg. La et felt stå tomt for å fjerne det.",
+      "hint": "Bare innloggede romkamerater som skylder deg penger får disse opplysningene. La et felt stå tomt for å fjerne det.",
+      "securityHint": "Oppgi kun mottaksinformasjon. Aldri oppgi kortnummer, CVC/CVV, PIN-kode, passord eller innlogging til betalingsappen.",
       "save": "Lagre",
       "saved": "Betalingsmetoder lagret",
       "saveFailed": "Kunne ikke lagre betalingsmetoder. Sjekk formatet og prøv igjen."

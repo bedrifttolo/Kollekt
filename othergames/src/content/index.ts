@@ -32,6 +32,7 @@ export interface DrinkingGameDefinition {
   shortTitle: string;
   description: string;
   mode: DrinkingGameMode;
+  promptsPerSession: number;
   allowRandomOrder?: boolean;
   sourceFile: string;
   rules: string[];

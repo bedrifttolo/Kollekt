@@ -11,7 +11,7 @@
     "onboarding": {
       "mode": { "title": "Skapa eller gå med", "body": "Starta ett nytt hem, eller gå med i rumskompisarnas med deras kod." },
       "name": { "title": "Namnge ditt hem", "body": "Välj ett namn som alla känner igen." },
-      "rooms": { "title": "Rum blir till XP", "body": "Lägg till rummen ni delar — städtid blir till XP och rättvis rotation varje vecka." },
+      "rooms": { "title": "Välj era gemensamma rum", "body": "Tryck på exempelrum för att lägga till dem, eller lägg till egna. Du kan ändra städtiden för varje rum — tiden bestämmer XP." },
       "create": { "title": "Klar att börja", "body": "Skapa hemmet och bjud sedan in de andra." }
     },
     "steps": {
@@ -57,6 +57,7 @@
     "bought": "Köpt",
     "taskCategories": {
       "CLEANING": "Städning",
+      "SMALL_CLEANING": "Småstädning",
       "VACUUMING": "Dammsugning",
       "MOPPING": "Golvtvätt",
       "BATHROOM": "Badrum",
@@ -228,6 +229,10 @@
     "addressPlaceholder": "t.ex. Björkgatan 14",
     "roomsHeader": "Rum & insats → XP",
     "minLabel": "min att städa",
+    "minutesShort": "min",
+    "roomExamplesLabel": "Tryck på ett exempelrum för att lägga till det:",
+    "cleaningTimeLabel": "Städtid",
+    "cleaningTimeHint": "Tryck på minuterna för ett tillagt rum för att ändra städtid och XP.",
     "addRoom": "Lägg till rum",
     "removeRoom": "Ta bort rum",
     "rotationNotePrefix": "Rummen ",
@@ -314,6 +319,11 @@
     "newTask": "Ny uppgift",
     "editTask": "Redigera uppgift",
     "taskTitlePlaceholder": "Uppgiftstitel...",
+    "taskTitleLabel": "Vad behöver göras?",
+    "assigneeLabel": "Tilldelad till",
+    "dueDateLabel": "Förfallodatum",
+    "categoryLabel": "Uppgiftstyp",
+    "recurrenceLabel": "Upprepas",
     "xpReward": "XP-belöning",
     "addTask": "Lägg till uppgift",
     "saveChanges": "Spara ändringar",
@@ -337,6 +347,8 @@
     "restockSubtitle": "Gemensam översikt över förbrukningsvaror",
     "addSupply": "Lägg till vara",
     "supplyNamePlaceholder": "Varunamn...",
+    "shoppingSuggestions": "Vanliga varor",
+    "shoppingTemplates": { "toiletPaper": "Toalettpapper", "dishSoap": "Diskmedel", "trashBags": "Soppåsar", "laundryDetergent": "Tvättmedel" },
     "toggleComments": "Visa feedback",
     "editTaskAria": "Redigera uppgift",
     "deleteTaskAria": "Ta bort uppgift",
@@ -364,6 +376,12 @@
       "boardSubtitle": "Följ reparationer från rapport till klart",
       "addTicket": "Lägg till ärende",
       "newTicket": "Nytt underhållsärende",
+      "titleLabel": "Problem",
+      "descriptionLabel": "Detaljer (valfritt)",
+      "priorityLabel": "Prioritet",
+      "assigneeLabel": "Ansvarig (valfritt)",
+      "dueDateLabel": "Förfallodatum (valfritt)",
+      "costLabel": "Beräknad kostnad (valfritt)",
       "titlePlaceholder": "Vad behöver lagas?",
       "descriptionPlaceholder": "Beskriv problemet...",
       "costPlaceholder": "Kostnadsuppskattning (kr)",
@@ -419,6 +437,8 @@
     "tempLabel": "Temperatur",
     "send": "Meddela i chatten",
     "message": "🧺 Jag kör en tvätt på {{temp}}°C ({{type}}) — häng på för att spara el!",
+    "join": "Jag vill vara med",
+    "notThisTime": "Inte den här gången",
     "types": { "WHITES": "Vitt", "COLORS": "Kulört", "DELICATES": "Fintvätt", "WOOL": "Ylle", "SPORTS": "Träningskläder", "TOWELS": "Handdukar" }
   },
   "quietHours": { "title": "Tyst tid", "window": "{{start}}–{{end}}", "disabled": "Tyst tid är av", "save": "Spara tyst tid" },
@@ -485,6 +505,10 @@
     "payPersonLabel": "Välj vem du vill betala",
     "settleAll": "Gör upp allt",
     "newExpense": "Ny utgift",
+    "descriptionLabel": "Vad gällde det?",
+    "amountLabel": "Belopp (kr)",
+    "categoryLabel": "Kategori",
+    "splitSummary_one": "Delas med {{count}} person", "splitSummary_other": "Delas med {{count}} personer",
     "expenseTitlePlaceholder": "Vad gällde det?",
     "expenseAmountPlaceholder": "Belopp (kr)",
     "splitWith": "Dela med",
@@ -506,8 +530,9 @@
       "bankTransfer": "Banköverföring",
       "open": "Öppna",
       "copy": "Kopiera",
-      "markSettled": "Jag har betalat — markera som uppgjort",
-      "disclaimer": "Kollekt öppnar din betalningsapp — själva överföringen sker där. Bekräfta beloppet innan du skickar."
+      "noMethods": "Ingen betalningsmetod är sparad. Betala på ett annat sätt som ni har kommit överens om och bekräfta sedan nedan.",
+      "markSettled": "Jag bekräftar att jag har betalat — markera som uppgjort",
+      "disclaimer": "Kollekt behandlar eller verifierar inte överföringen. Kontrollera mottagare och belopp i betalningsappen innan du skickar och markera först som uppgjort efter betalning."
     }
   },
   "pant": {
@@ -571,6 +596,20 @@
         "kingsCup": "Kings Cup",
         "categories": "Kategorier",
         "charades": "Charader"
+      },
+      "descriptions": {
+        "dice": "Kasta en virtuell tärning och skicka turen vidare.",
+        "liarsDice": "Lägg allt högre tärningsbud och avslöja bluffen.",
+        "kollekt": "Tävla i personliga rundor baserade på hushållets statistik.",
+        "spinTheWheel": "Lägg till namn, snurra hjulet och låt slumpen välja.",
+        "promptRelay": "Gå med i ett rum och svara på frågor tillsammans i realtid.",
+        "hundredQuestions": "Peka på personen som passar bäst till varje fråga.",
+        "truthOrChug": "Välj ett nummer, svara ärligt eller gör utmaningen.",
+        "neverHaveIEver": "Drick om du har gjort det som står på kortet.",
+        "mexican": "Kasta i tur och slå föregående spelares dolda resultat.",
+        "kingsCup": "Dra kort och följ regeln som hör till kortets valör.",
+        "categories": "Nämn något i kategorin innan tiden tar slut.",
+        "charades": "Spela upp ordet medan de andra försöker gissa det."
       },
       "dice": {
         "roll": "Kasta tärningen",
@@ -1010,11 +1049,16 @@
     "paymentMethods": {
       "title": "Betalningsmetoder",
       "subtitle": "Låt rumskompisarna betala tillbaka direkt",
+      "vippsLabel": "Vipps-nummer för mottagning",
+      "mobilepayLabel": "MobilePay-nummer för mottagning",
+      "paypalLabel": "PayPal.Me-användarnamn",
+      "bankLabel": "Bankkonto / IBAN",
       "vippsPlaceholder": "Vipps-nummer",
       "mobilepayPlaceholder": "MobilePay-nummer",
       "paypalPlaceholder": "PayPal.Me-användarnamn",
       "bankPlaceholder": "Kontonummer / IBAN",
-      "hint": "Bara dina rumskompisar ser dessa, och bara för att betala dig. Lämna ett fält tomt för att ta bort det.",
+      "hint": "Endast inloggade rumskompisar som är skyldiga dig pengar får dessa uppgifter. Lämna ett fält tomt för att ta bort det.",
+      "securityHint": "Ange endast mottagningsuppgifter. Ange aldrig kortnummer, CVC/CVV, PIN-kod, lösenord eller inloggning till betalningsappen.",
       "save": "Spara",
       "saved": "Betalningsmetoder sparade",
       "saveFailed": "Kunde inte spara betalningsmetoder. Kontrollera formatet och försök igen."
