@@ -4,6 +4,7 @@
   "shortTitle": "Aldri",
   "description": "Trekk en påstand. Har du gjort det, drikker du.",
   "mode": "ordered-deck",
+  "promptsPerSession": 25,
   "allowRandomOrder": true,
   "sourceFile": "backend/src/main/resources/drinking-games/JEG_HAR_ALDRI.json",
   "rules": [

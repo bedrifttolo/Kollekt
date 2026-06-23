@@ -851,33 +851,57 @@ export default function ProfilePage() {
               className="overflow-hidden"
             >
               <div className="px-4 pb-4 space-y-2">
-                <input
-                  value={paymentHandles.vipps ?? ""}
-                  onChange={(event) => setPaymentHandles((p) => ({ ...p, vipps: event.target.value }))}
-                  placeholder={t("profile.paymentMethods.vippsPlaceholder")}
-                  inputMode="tel"
-                  className="w-full bg-muted/50 rounded-xl px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                />
-                <input
-                  value={paymentHandles.mobilepay ?? ""}
-                  onChange={(event) => setPaymentHandles((p) => ({ ...p, mobilepay: event.target.value }))}
-                  placeholder={t("profile.paymentMethods.mobilepayPlaceholder")}
-                  inputMode="tel"
-                  className="w-full bg-muted/50 rounded-xl px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                />
-                <input
-                  value={paymentHandles.paypal ?? ""}
-                  onChange={(event) => setPaymentHandles((p) => ({ ...p, paypal: event.target.value }))}
-                  placeholder={t("profile.paymentMethods.paypalPlaceholder")}
-                  className="w-full bg-muted/50 rounded-xl px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                />
-                <input
-                  value={paymentHandles.bankAccount ?? ""}
-                  onChange={(event) => setPaymentHandles((p) => ({ ...p, bankAccount: event.target.value }))}
-                  placeholder={t("profile.paymentMethods.bankPlaceholder")}
-                  className="w-full bg-muted/50 rounded-xl px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                />
+                <label className="block space-y-1">
+                  <span className="text-xs font-medium">{t("profile.paymentMethods.vippsLabel")}</span>
+                  <input
+                    value={paymentHandles.vipps ?? ""}
+                    onChange={(event) => setPaymentHandles((p) => ({ ...p, vipps: event.target.value }))}
+                    placeholder={t("profile.paymentMethods.vippsPlaceholder")}
+                    inputMode="tel"
+                    autoComplete="off"
+                    maxLength={32}
+                    className="w-full bg-muted/50 rounded-xl px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                  />
+                </label>
+                <label className="block space-y-1">
+                  <span className="text-xs font-medium">{t("profile.paymentMethods.mobilepayLabel")}</span>
+                  <input
+                    value={paymentHandles.mobilepay ?? ""}
+                    onChange={(event) => setPaymentHandles((p) => ({ ...p, mobilepay: event.target.value }))}
+                    placeholder={t("profile.paymentMethods.mobilepayPlaceholder")}
+                    inputMode="tel"
+                    autoComplete="off"
+                    maxLength={32}
+                    className="w-full bg-muted/50 rounded-xl px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                  />
+                </label>
+                <label className="block space-y-1">
+                  <span className="text-xs font-medium">{t("profile.paymentMethods.paypalLabel")}</span>
+                  <input
+                    value={paymentHandles.paypal ?? ""}
+                    onChange={(event) => setPaymentHandles((p) => ({ ...p, paypal: event.target.value }))}
+                    placeholder={t("profile.paymentMethods.paypalPlaceholder")}
+                    autoComplete="off"
+                    spellCheck={false}
+                    maxLength={64}
+                    className="w-full bg-muted/50 rounded-xl px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                  />
+                </label>
+                <label className="block space-y-1">
+                  <span className="text-xs font-medium">{t("profile.paymentMethods.bankLabel")}</span>
+                  <input
+                    value={paymentHandles.bankAccount ?? ""}
+                    onChange={(event) => setPaymentHandles((p) => ({ ...p, bankAccount: event.target.value }))}
+                    placeholder={t("profile.paymentMethods.bankPlaceholder")}
+                    inputMode="text"
+                    autoComplete="off"
+                    spellCheck={false}
+                    maxLength={64}
+                    className="w-full bg-muted/50 rounded-xl px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                  />
+                </label>
                 <p className="text-[10px] text-muted-foreground">{t("profile.paymentMethods.hint")}</p>
+                <p className="text-[10px] font-medium text-destructive">{t("profile.paymentMethods.securityHint")}</p>
                 <button
                   onClick={() => void handleSavePayment()}
                   disabled={paymentSaving}

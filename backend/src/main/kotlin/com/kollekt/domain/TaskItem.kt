@@ -13,6 +13,7 @@ import java.time.LocalDateTime
 
 enum class TaskCategory {
     CLEANING,
+    SMALL_CLEANING,
     VACUUMING,
     MOPPING,
     BATHROOM,

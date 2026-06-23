@@ -47,6 +47,8 @@ export default function EconomyPage() {
   const [copiedValue, setCopiedValue] = useState<string | null>(null);
 
   const name = currentUser?.name ?? '';
+  const parsedNewAmount = Number(newAmount);
+  const canAddExpense = newTitle.trim().length > 0 && Number.isFinite(parsedNewAmount) && parsedNewAmount >= 1 && (members.length === 0 || newSplit.length > 0);
 
   const fetchSummary = async () => {
     if (!name) return;
@@ -89,10 +91,10 @@ export default function EconomyPage() {
     setNewSplit((prev) => prev.includes(member) ? prev.filter((m) => m !== member) : [...prev, member]);
 
   const handleAddExpense = async () => {
-    if (!newTitle.trim() || !newAmount) return;
+    if (!canAddExpense) return;
     await api.post<Expense>('/economy/expenses', {
-      description: newTitle,
-      amount: Math.round(parseFloat(newAmount)),
+      description: newTitle.trim(),
+      amount: Math.round(parsedNewAmount),
       paidBy: name,
       category: newCategory,
       date: new Date().toISOString().split('T')[0],
@@ -129,18 +131,6 @@ export default function EconomyPage() {
     fetchSummary();
   };
 
-  const handleSettleAll = async () => {
-    if (payOptions.length === 0) return;
-    setSettling(true);
-    try {
-      for (const option of payOptions) {
-        await api.post('/economy/settle-with', { creditorName: option.name });
-      }
-      fetchSummary();
-    } catch {}
-    setSettling(false);
-  };
-
   const handleMarkSettled = async () => {
     if (!selectedPayOption) return;
     setSettling(true);
@@ -154,11 +144,7 @@ export default function EconomyPage() {
 
   const handlePayCreditor = () => {
     if (!selectedPayOption) return;
-    if (hasAnyMethod(selectedPayOption.handles)) {
-      setShowPaySheet(true);
-    } else {
-      handleMarkSettled();
-    }
+    setShowPaySheet(true);
   };
 
   const copyValue = async (value: string) => {
@@ -215,14 +201,10 @@ export default function EconomyPage() {
                 ))}
               </select>
             )}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div>
               <button onClick={handlePayCreditor} disabled={settling || !selectedPayOption}
                 className="btn-lemon w-full disabled:opacity-60">
                 <Check className="h-4 w-4" /> {t('economy.payAmountTo', { name: selectedPayOption.name, amount: formatCurrency(selectedPayOption.amount) })}
-              </button>
-              <button onClick={handleSettleAll} disabled={settling || payOptions.length === 0}
-                className="w-full rounded-xl border border-white/25 bg-white/10 py-2.5 px-3 text-sm font-medium text-white disabled:opacity-60">
-                {t('economy.settleAll')}
               </button>
             </div>
           </div>
@@ -253,6 +235,11 @@ export default function EconomyPage() {
               </div>
 
               <div className="space-y-2">
+                {!hasAnyMethod(selectedPayOption.handles) && (
+                  <p className="rounded-xl bg-muted/50 p-3 text-sm text-muted-foreground">
+                    {t('economy.pay.noMethods')}
+                  </p>
+                )}
                 {availableMethods(selectedPayOption.handles, selectedPayOption.amount).map((m) => {
                   const label = PROVIDER_LABELS[m.provider];
                   const display = label.includes('.') ? t(label) : label;
@@ -307,16 +294,9 @@ export default function EconomyPage() {
                 <p className="text-sm font-semibold">{t('economy.newExpense')}</p>
                 <button onClick={() => setShowAdd(false)}><X className="h-4 w-4 text-muted-foreground" /></button>
               </div>
-              <input value={newTitle} onChange={(e) => setNewTitle(e.target.value)}
-                placeholder={t('economy.expenseTitlePlaceholder')}
-                className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" />
-              <input type="number" value={newAmount} onChange={(e) => setNewAmount(e.target.value)}
-                placeholder={t('economy.expenseAmountPlaceholder')}
-                className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" />
-              <select value={newCategory} onChange={(e) => setNewCategory(e.target.value)}
-                className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary">
-                {EXPENSE_CATEGORIES.map((c) => <option key={c} value={c}>{translateKey('common.expenseCategories', c)}</option>)}
-              </select>
+              <label className="block space-y-1"><span className="text-xs font-semibold text-muted-foreground">{t('economy.descriptionLabel')}</span><input value={newTitle} onChange={(e) => setNewTitle(e.target.value)} placeholder={t('economy.expenseTitlePlaceholder')} autoFocus className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" /></label>
+              <label className="block space-y-1"><span className="text-xs font-semibold text-muted-foreground">{t('economy.amountLabel')}</span><input type="number" min="1" step="1" inputMode="decimal" value={newAmount} onChange={(e) => setNewAmount(e.target.value)} placeholder={t('economy.expenseAmountPlaceholder')} className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" /></label>
+              <label className="block space-y-1"><span className="text-xs font-semibold text-muted-foreground">{t('economy.categoryLabel')}</span><select value={newCategory} onChange={(e) => setNewCategory(e.target.value)} className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary">{EXPENSE_CATEGORIES.map((c) => <option key={c} value={c}>{translateKey('common.expenseCategories', c)}</option>)}</select></label>
               {members.length > 0 && (
                 <div>
                   <p className="text-xs text-muted-foreground mb-1.5 flex items-center gap-1"><Users className="h-3 w-3" /> {t('economy.splitWith')}</p>
@@ -330,17 +310,11 @@ export default function EconomyPage() {
                       </button>
                     ))}
                   </div>
+                  <p className="mt-1.5 text-[10px] text-muted-foreground">{t('economy.splitSummary', { count: newSplit.length })}</p>
                 </div>
               )}
-              <input
-                type="date"
-                value={newDeadline}
-                onChange={(e) => setNewDeadline(e.target.value)}
-                className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                aria-label={t('economy.deadlineDateLabel')}
-                placeholder={t('economy.deadlineDateLabel')}
-              />
-              <button onClick={handleAddExpense} className="w-full gradient-primary rounded-lg py-2 text-sm font-semibold text-primary-foreground">
+              <label className="block space-y-1"><span className="text-xs font-semibold text-muted-foreground">{t('economy.deadlineDateLabel')}</span><input type="date" value={newDeadline} onChange={(e) => setNewDeadline(e.target.value)} className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" /></label>
+              <button onClick={handleAddExpense} disabled={!canAddExpense} className="w-full gradient-primary rounded-lg py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50">
                 {t('economy.addExpense')}
               </button>
             </div>
