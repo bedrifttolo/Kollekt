@@ -53,6 +53,11 @@ class EconomyOperations(
         actorName: String,
     ): ExpenseDto {
         val collectiveCode = collectiveAccessService.requireCollectiveCodeByMemberName(actorName)
+        val description = request.description.trim()
+        val category = request.category.trim()
+        require(description.isNotBlank()) { "Expense description is required" }
+        require(request.amount > 0) { "Expense amount must be greater than zero" }
+        require(category.isNotBlank()) { "Expense category is required" }
         val collectiveMembers =
             memberRepository
                 .findAllByCollectiveCode(collectiveCode)
@@ -78,11 +83,11 @@ class EconomyOperations(
         val saved =
             expenseRepository.save(
                 Expense(
-                    description = request.description,
+                    description = description,
                     amount = request.amount,
                     paidBy = actorName,
                     collectiveCode = collectiveCode,
-                    category = request.category,
+                    category = category,
                     date = request.date,
                     participantNames = participants,
                     deadlineDate = request.deadlineDate,
@@ -101,7 +106,7 @@ class EconomyOperations(
                 params =
                     mapOf(
                         "paidBy" to actorName,
-                        "description" to request.description,
+                        "description" to description,
                         "amount" to "%.0f".format(perPerson.toDouble()),
                     ),
             )

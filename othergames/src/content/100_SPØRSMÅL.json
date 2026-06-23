@@ -4,6 +4,7 @@
   "shortTitle": "100",
   "description": "Et strukturert spørsmålskortspill for hele rommet.",
   "mode": "ordered-deck",
+  "promptsPerSession": 25,
   "sourceFile": "backend/src/main/resources/drinking-games/100_SPØRSMÅL.json",
   "rules": [
     "Les spørsmålet høyt.",

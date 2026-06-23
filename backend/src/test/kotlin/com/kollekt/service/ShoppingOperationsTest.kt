@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
@@ -66,12 +67,21 @@ class ShoppingOperationsTest {
 
         val result =
             operations.createShoppingItem(
-                request = CreateShoppingItemRequest(item = "Bread", addedBy = "Ignored"),
+                request = CreateShoppingItemRequest(item = "  Bread  ", addedBy = "Ignored"),
                 actorName = "Kasper",
             )
 
         assertEquals("Bread", result.item)
         assertEquals("Kasper", result.addedBy)
+    }
+
+    @Test
+    fun `create shopping item rejects blank input`() {
+        val error = assertThrows<IllegalArgumentException> {
+            operations.createShoppingItem(CreateShoppingItemRequest("   ", "Ignored"), "Kasper")
+        }
+
+        assertEquals("Shopping item is required", error.message)
     }
 
     @Test

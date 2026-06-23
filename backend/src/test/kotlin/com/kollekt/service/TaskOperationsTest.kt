@@ -104,7 +104,7 @@ class TaskOperationsTest {
             operations.createTask(
                 request =
                     CreateTaskRequest(
-                        title = "Vask",
+                        title = "  Vask  ",
                         assignee = "Emma",
                         dueDate = LocalDate.parse("2026-04-20"),
                         category = TaskCategory.CLEANING,
@@ -119,6 +119,17 @@ class TaskOperationsTest {
         assertTrue(taskCaptor.firstValue.recurring)
         verify(notificationService).createTaskAssignedNotification("Emma", "Vask")
         verify(realtimeUpdateService).publish("ABC123", "TASK_CREATED", result)
+    }
+
+    @Test
+    fun `create task rejects blank title and invalid xp`() {
+        val blankTitle =
+            CreateTaskRequest("   ", "Emma", LocalDate.parse("2026-04-20"), TaskCategory.CLEANING, 10)
+        val invalidXp =
+            CreateTaskRequest("Sink", "Emma", LocalDate.parse("2026-04-20"), TaskCategory.SMALL_CLEANING, 0)
+
+        assertEquals("Task title is required", assertThrows<IllegalArgumentException> { operations.createTask(blankTitle, "Kasper") }.message)
+        assertEquals("Task XP must be between 1 and 1000", assertThrows<IllegalArgumentException> { operations.createTask(invalidXp, "Kasper") }.message)
     }
 
     @Test

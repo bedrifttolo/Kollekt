@@ -34,9 +34,10 @@ import { formatDate, formatDateTime, translateKey } from '../i18n/helpers';
 import type { Task, ShoppingItem, TaskCategory, TaskSwapRequest, MaintenanceTicket, MaintenancePriority, MaintenanceStatus } from '../lib/types';
 import { Eyebrow, Fab, ProgressBar } from '../components/ui-kit';
 
-const CATEGORIES: TaskCategory[] = ['CLEANING', 'VACUUMING', 'MOPPING', 'BATHROOM', 'KITCHEN', 'LAUNDRY', 'DISHES', 'TRASH', 'DUSTING', 'WINDOWS', 'OTHER'];
+const CATEGORIES: TaskCategory[] = ['CLEANING', 'SMALL_CLEANING', 'VACUUMING', 'MOPPING', 'BATHROOM', 'KITCHEN', 'LAUNDRY', 'DISHES', 'TRASH', 'DUSTING', 'WINDOWS', 'OTHER'];
 const RECURRENCE_OPTIONS = ['NONE', 'DAILY', 'WEEKLY', 'MONTHLY'] as const;
 const TASK_FILTERS = ['ALL', 'MINE', 'TODAY', 'DONE'] as const;
+const SHOPPING_SUGGESTIONS = ['toiletPaper', 'dishSoap', 'trashBags', 'laundryDetergent'] as const;
 
 type TaskFilter = (typeof TASK_FILTERS)[number];
 
@@ -80,6 +81,8 @@ function TaskEditor({
   saveLabel: string;
 }) {
   const { t } = useTranslation();
+  const xp = Number(newXp);
+  const canSave = newTitle.trim().length > 0 && Number.isInteger(xp) && xp >= 1 && xp <= 1000;
 
   return (
     <div className="glass rounded-xl p-4 space-y-3">
@@ -89,60 +92,49 @@ function TaskEditor({
           <X className="h-4 w-4 text-muted-foreground" />
         </button>
       </div>
-      <input
-        value={newTitle}
-        onChange={(event) => setNewTitle(event.target.value)}
-        placeholder={t('tasks.taskTitlePlaceholder')}
-        className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-        onKeyDown={(event) => event.key === 'Enter' && onSave()}
-      />
-      <div className="grid grid-cols-2 gap-2">
-        <select
-          value={newAssignee}
-          onChange={(event) => setNewAssignee(event.target.value)}
-          className="bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
-        >
-          {(members.length > 0 ? members : [name]).map((member) => (
-            <option key={member} value={member}>
-              {member}
-            </option>
-          ))}
-        </select>
+      <label className="block space-y-1">
+        <span className="text-xs font-semibold text-muted-foreground">{t('tasks.taskTitleLabel')}</span>
         <input
-          type="date"
-          value={newDue}
-          onChange={(event) => setNewDue(event.target.value)}
-          className="bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+          value={newTitle}
+          onChange={(event) => setNewTitle(event.target.value)}
+          placeholder={t('tasks.taskTitlePlaceholder')}
+          className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+          onKeyDown={(event) => event.key === 'Enter' && canSave && onSave()}
+          autoFocus
         />
+      </label>
+      <div className="grid grid-cols-2 gap-2">
+        <label className="space-y-1">
+          <span className="text-xs font-semibold text-muted-foreground">{t('tasks.assigneeLabel')}</span>
+          <select value={newAssignee} onChange={(event) => setNewAssignee(event.target.value)} className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary">
+            {(members.length > 0 ? members : [name]).map((member) => <option key={member} value={member}>{member}</option>)}
+          </select>
+        </label>
+        <label className="space-y-1">
+          <span className="text-xs font-semibold text-muted-foreground">{t('tasks.dueDateLabel')}</span>
+          <input type="date" value={newDue} onChange={(event) => setNewDue(event.target.value)} className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary" />
+        </label>
       </div>
       <div className="grid grid-cols-2 gap-2">
-        <select
-          value={newCategory}
-          onChange={(event) => setNewCategory(event.target.value as TaskCategory)}
-          className="bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
-        >
-          {CATEGORIES.map((category) => (
-            <option key={category} value={category}>
-              {translateKey('common.taskCategories', category)}
-            </option>
-          ))}
-        </select>
-        <select
-          value={newRecurrence}
-          onChange={(event) => setNewRecurrence(event.target.value)}
-          className="bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
-        >
-          {RECURRENCE_OPTIONS.map((recurrence) => (
-            <option key={recurrence} value={recurrence}>
-              {translateKey('common.recurrence', recurrence)}
-            </option>
-          ))}
-        </select>
+        <label className="space-y-1">
+          <span className="text-xs font-semibold text-muted-foreground">{t('tasks.categoryLabel')}</span>
+          <select value={newCategory} onChange={(event) => setNewCategory(event.target.value as TaskCategory)} className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary">
+            {CATEGORIES.map((category) => <option key={category} value={category}>{translateKey('common.taskCategories', category)}</option>)}
+          </select>
+        </label>
+        <label className="space-y-1">
+          <span className="text-xs font-semibold text-muted-foreground">{t('tasks.recurrenceLabel')}</span>
+          <select value={newRecurrence} onChange={(event) => setNewRecurrence(event.target.value)} className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary">
+            {RECURRENCE_OPTIONS.map((recurrence) => <option key={recurrence} value={recurrence}>{translateKey('common.recurrence', recurrence)}</option>)}
+          </select>
+        </label>
       </div>
       <div className="flex items-center gap-2">
         <Zap className="h-4 w-4 text-primary" />
         <input
           type="number"
+          min={1}
+          max={1000}
           value={newXp}
           onChange={(event) => setNewXp(event.target.value)}
           className="w-20 bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
@@ -151,7 +143,8 @@ function TaskEditor({
       </div>
       <button
         onClick={onSave}
-        className="w-full gradient-primary rounded-lg py-2 text-sm font-semibold text-primary-foreground"
+        disabled={!canSave}
+        className="w-full gradient-primary rounded-lg py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
       >
         {saveLabel}
       </button>
@@ -822,9 +815,25 @@ function TasksMain() {
                 onKeyDown={(e) => e.key === 'Enter' && void handleShoppingAdd()}
                 autoFocus
               />
+              <div>
+                <p className="mb-1.5 text-xs font-semibold text-muted-foreground">{t('tasks.shoppingSuggestions')}</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {SHOPPING_SUGGESTIONS.map((suggestion) => (
+                    <button
+                      key={suggestion}
+                      type="button"
+                      onClick={() => setNewShoppingName(t(`tasks.shoppingTemplates.${suggestion}`))}
+                      className="rounded-full border border-border bg-card px-3 py-1.5 text-xs font-semibold text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                    >
+                      {t(`tasks.shoppingTemplates.${suggestion}`)}
+                    </button>
+                  ))}
+                </div>
+              </div>
               <button
                 onClick={() => void handleShoppingAdd()}
-                className="w-full gradient-primary rounded-lg py-2 text-sm font-semibold text-primary-foreground"
+                disabled={!newShoppingName.trim()}
+                className="w-full gradient-primary rounded-lg py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
               >
                 {t('tasks.addSupply')}
               </button>
@@ -841,18 +850,19 @@ function TasksMain() {
                 <p className="text-sm font-semibold">{t('tasks.maintenance.newTicket')}</p>
                 <button onClick={() => setShowMaintenanceAdd(false)}><X className="h-4 w-4 text-muted-foreground" /></button>
               </div>
-              <input value={newMaintenanceTitle} onChange={(event) => setNewMaintenanceTitle(event.target.value)} placeholder={t('tasks.maintenance.titlePlaceholder')} className="w-full rounded-lg bg-muted/50 px-3 py-2 text-sm" />
-              <textarea value={newMaintenanceDescription} onChange={(event) => setNewMaintenanceDescription(event.target.value)} placeholder={t('tasks.maintenance.descriptionPlaceholder')} rows={3} className="w-full resize-none rounded-lg bg-muted/50 px-3 py-2 text-sm" />
+              <label className="block space-y-1">
+                <span className="text-xs font-semibold text-muted-foreground">{t('tasks.maintenance.titleLabel')}</span>
+                <input value={newMaintenanceTitle} onChange={(event) => setNewMaintenanceTitle(event.target.value)} placeholder={t('tasks.maintenance.titlePlaceholder')} autoFocus className="w-full rounded-lg bg-muted/50 px-3 py-2 text-sm" />
+              </label>
+              <label className="block space-y-1">
+                <span className="text-xs font-semibold text-muted-foreground">{t('tasks.maintenance.descriptionLabel')}</span>
+                <textarea value={newMaintenanceDescription} onChange={(event) => setNewMaintenanceDescription(event.target.value)} placeholder={t('tasks.maintenance.descriptionPlaceholder')} rows={3} className="w-full resize-none rounded-lg bg-muted/50 px-3 py-2 text-sm" />
+              </label>
               <div className="grid grid-cols-2 gap-2">
-                <select value={newMaintenancePriority} onChange={(event) => setNewMaintenancePriority(event.target.value as MaintenancePriority)} className="rounded-lg bg-muted/50 px-3 py-2 text-sm">
-                  {(['LOW', 'MEDIUM', 'HIGH', 'URGENT'] as const).map((priority) => <option key={priority} value={priority}>{t(`tasks.maintenance.priorities.${priority}`)}</option>)}
-                </select>
-                <select value={newMaintenanceAssignee} onChange={(event) => setNewMaintenanceAssignee(event.target.value)} className="rounded-lg bg-muted/50 px-3 py-2 text-sm">
-                  <option value="">{t('tasks.maintenance.unassigned')}</option>
-                  {memberOptions.map((member) => <option key={member} value={member}>{member}</option>)}
-                </select>
-                <input type="date" value={newMaintenanceDue} onChange={(event) => setNewMaintenanceDue(event.target.value)} className="rounded-lg bg-muted/50 px-3 py-2 text-sm" />
-                <input type="number" min="0" value={newMaintenanceCost} onChange={(event) => setNewMaintenanceCost(event.target.value)} placeholder={t('tasks.maintenance.costPlaceholder')} className="rounded-lg bg-muted/50 px-3 py-2 text-sm" />
+                <label className="space-y-1"><span className="text-xs font-semibold text-muted-foreground">{t('tasks.maintenance.priorityLabel')}</span><select value={newMaintenancePriority} onChange={(event) => setNewMaintenancePriority(event.target.value as MaintenancePriority)} className="w-full rounded-lg bg-muted/50 px-3 py-2 text-sm">{(['LOW', 'MEDIUM', 'HIGH', 'URGENT'] as const).map((priority) => <option key={priority} value={priority}>{t(`tasks.maintenance.priorities.${priority}`)}</option>)}</select></label>
+                <label className="space-y-1"><span className="text-xs font-semibold text-muted-foreground">{t('tasks.maintenance.assigneeLabel')}</span><select value={newMaintenanceAssignee} onChange={(event) => setNewMaintenanceAssignee(event.target.value)} className="w-full rounded-lg bg-muted/50 px-3 py-2 text-sm"><option value="">{t('tasks.maintenance.unassigned')}</option>{memberOptions.map((member) => <option key={member} value={member}>{member}</option>)}</select></label>
+                <label className="space-y-1"><span className="text-xs font-semibold text-muted-foreground">{t('tasks.maintenance.dueDateLabel')}</span><input type="date" value={newMaintenanceDue} onChange={(event) => setNewMaintenanceDue(event.target.value)} className="w-full rounded-lg bg-muted/50 px-3 py-2 text-sm" /></label>
+                <label className="space-y-1"><span className="text-xs font-semibold text-muted-foreground">{t('tasks.maintenance.costLabel')}</span><input type="number" min="0" value={newMaintenanceCost} onChange={(event) => setNewMaintenanceCost(event.target.value)} placeholder={t('tasks.maintenance.costPlaceholder')} className="w-full rounded-lg bg-muted/50 px-3 py-2 text-sm" /></label>
               </div>
               {Number(newMaintenanceCost) > 0 && (
                 <div>

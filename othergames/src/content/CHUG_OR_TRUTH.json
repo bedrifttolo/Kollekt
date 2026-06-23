@@ -4,6 +4,7 @@
   "shortTitle": "Chug",
   "description": "Velg et tall, ta utfordringen, eller drikk.",
   "mode": "number-board",
+  "promptsPerSession": 25,
   "sourceFile": "backend/src/main/resources/drinking-games/CHUG_OR_TRUTH.json",
   "rules": [
     "Si et tall fra 1-105",
