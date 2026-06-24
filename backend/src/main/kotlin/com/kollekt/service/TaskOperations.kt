@@ -6,9 +6,11 @@ import com.kollekt.api.dto.TaskFeedbackDto
 import com.kollekt.domain.MemberStatus
 import com.kollekt.domain.TaskCategory
 import com.kollekt.domain.TaskFeedback
+import com.kollekt.domain.TaskHistoryEntry
 import com.kollekt.domain.TaskItem
 import com.kollekt.repository.MemberRepository
 import com.kollekt.repository.TaskFeedbackRepository
+import com.kollekt.repository.TaskHistoryRepository
 import com.kollekt.repository.TaskRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -25,6 +27,7 @@ class TaskOperations(
     private val realtimeUpdateService: RealtimeUpdateService,
     private val notificationService: NotificationService,
     private val collectiveAccessService: CollectiveAccessService,
+    private val taskHistoryRepository: TaskHistoryRepository,
 ) {
     fun notifyUpcomingTaskDeadlines(reminderDaysBeforeDue: Long = 1L) {
         val reminderDate = LocalDate.now().plusDays(reminderDaysBeforeDue)
@@ -52,17 +55,36 @@ class TaskOperations(
         }
     }
 
+    @Transactional
     fun deleteExpiredTasks() {
         val thresholdDate = LocalDate.now().minusDays(5)
         val expiredTasks =
             taskRepository
                 .findAll()
-                .filter { !it.completed && it.dueDate.isBefore(thresholdDate) }
+                .filter { it.dueDate.isBefore(thresholdDate) }
 
         if (expiredTasks.isNotEmpty()) {
+            // Archive stat-relevant facts before pruning the row so XP, achievements and
+            // fairness keep their history. Member.xp already holds lifetime XP and is untouched.
+            taskHistoryRepository.saveAll(expiredTasks.map { it.toHistoryEntry() })
             taskRepository.deleteAll(expiredTasks)
         }
     }
+
+    private fun TaskItem.toHistoryEntry() =
+        TaskHistoryEntry(
+            collectiveCode = collectiveCode,
+            assignee = assignee,
+            completedBy = completedBy,
+            dueDate = dueDate,
+            category = category,
+            completed = completed,
+            completedAt = completedAt,
+            xp = xp,
+            penaltyXp = penaltyXp,
+            recurrenceRule = recurrenceRule,
+            originalTaskId = id,
+        )
 
     fun getTasks(memberName: String): List<TaskDto> {
         val collectiveCode = collectiveAccessService.requireCollectiveCodeByMemberName(memberName)

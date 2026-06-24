@@ -13,6 +13,7 @@ import MexicanGame from '../../games/MexicanGame';
 import KingsCupGame from '../../games/KingsCupGame';
 import CategoriesGame from '../../games/CategoriesGame';
 import CharadesGame from '../../games/CharadesGame';
+import SnusboksenGame from '../../games/SnusboksenGame';
 import DiceGame from '../../games/DiceGame';
 import LiarsDiceGame from '../../games/LiarsDiceGame';
 
@@ -151,6 +152,7 @@ export default function GamesPanel() {
       {activeGame === 'kings-cup' && <KingsCupGame players={sessionPlayers} onClose={() => setActiveGame(null)} />}
       {activeGame === 'categories' && <CategoriesGame players={sessionPlayers} onClose={() => setActiveGame(null)} />}
       {activeGame === 'charades' && <CharadesGame players={sessionPlayers} onClose={() => setActiveGame(null)} />}
+      {activeGame === 'snusboksen' && <SnusboksenGame players={sessionPlayers} onClose={() => setActiveGame(null)} />}
       {activeGame === 'dice' && <DiceGame onClose={() => setActiveGame(null)} />}
       {activeGame === 'liars-dice' && <LiarsDiceGame onClose={() => setActiveGame(null)} />}
       {setupGame && (

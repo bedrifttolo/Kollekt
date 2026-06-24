@@ -19,6 +19,7 @@ import {
   Wallet,
   ArrowLeft,
   ScrollText,
+  AlertTriangle,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
@@ -64,6 +65,8 @@ const NOTIFICATION_TYPES = [
   "HOUSE_RULES_UPDATED",
   "GUEST_NOTICE_CREATED",
   "GUEST_QUIET_HOURS_OVERLAP",
+  "QUIET_HOURS_VIOLATION",
+  "HOUSE_RULE_VIOLATION",
 ] as const;
 
 export default function ProfilePage() {
@@ -116,8 +119,22 @@ export default function ProfilePage() {
   const [rulesSaving, setRulesSaving] = useState(false);
   const [receivedKudos, setReceivedKudos] = useState(0);
   const [quietHours, setQuietHours] = useState<QuietHours | null>(null);
+  const [editingQuietHours, setEditingQuietHours] = useState(false);
+  const [quietHoursBackup, setQuietHoursBackup] = useState<QuietHours | null>(null);
+  const [rulesExpanded, setRulesExpanded] = useState(false);
+  const [violationType, setViolationType] = useState<"QUIET_HOURS" | "HOUSE_RULE">("QUIET_HOURS");
+  const [violationRecipient, setViolationRecipient] = useState("ALL");
+  const [violationNote, setViolationNote] = useState("");
+  const [violationSaving, setViolationSaving] = useState(false);
 
   const name = currentUser?.name ?? "";
+
+  const houseRuleLines = houseRules?.content
+    ? houseRules.content
+        .split("\n")
+        .map((line) => line.replace(/^\s*[-*•]\s*/, "").trim())
+        .filter((line) => line.length > 0)
+    : [];
 
   const loadHouseRules = useCallback(async () => {
     if (!currentUser?.id) return;
@@ -136,6 +153,7 @@ export default function ProfilePage() {
         startTime: quietHours.startTime,
         endTime: quietHours.endTime,
       }));
+      setEditingQuietHours(false);
       setFeedback({ type: "success", text: t("profile.feedback.quietHoursSaved") });
     } catch (error: unknown) {
       setFeedback({ type: "error", text: getUserMessage(error, t("profile.errors.quietHoursFailed")) });
@@ -272,6 +290,10 @@ export default function ProfilePage() {
 
   const handleInvite = async () => {
     if (!inviteEmail.trim() || !currentUser?.collectiveCode || inviteSaving) return;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(inviteEmail.trim())) {
+      setFeedback({ type: "error", text: t("profile.errors.invalidEmail") });
+      return;
+    }
     setInviteSaving(true);
     setFeedback(null);
     try {
@@ -287,6 +309,30 @@ export default function ProfilePage() {
       setFeedback({ type: "error", text: getUserMessage(error, t("profile.errors.invitationFailed")) });
     } finally {
       setInviteSaving(false);
+    }
+  };
+
+  const handleReportViolation = async () => {
+    if (!collectiveId || violationSaving) return;
+    const note = violationNote.trim();
+    const typeLabel = t(`profile.violations.types.${violationType}`);
+    const message = note
+      ? t("profile.violations.chatMessageWithNote", { type: typeLabel, note })
+      : t("profile.violations.chatMessage", { type: typeLabel });
+    setViolationSaving(true);
+    setFeedback(null);
+    try {
+      await api.post(`/collectives/${collectiveId}/violations`, {
+        violationType,
+        recipient: violationRecipient === "ALL" ? null : violationRecipient,
+        message,
+      });
+      setViolationNote("");
+      setFeedback({ type: "success", text: t("profile.violations.sent") });
+    } catch (error: unknown) {
+      setFeedback({ type: "error", text: getUserMessage(error, t("profile.violations.failed")) });
+    } finally {
+      setViolationSaving(false);
     }
   };
 
@@ -602,19 +648,28 @@ export default function ProfilePage() {
               </button>
             )}
           </div>
-          {houseRules.content && (
-            <ul className="space-y-1.5">
-              {houseRules.content
-                .split("\n")
-                .map((line) => line.replace(/^\s*[-*•]\s*/, "").trim())
-                .filter((line) => line.length > 0)
-                .map((line, i) => (
+          {houseRuleLines.length > 0 && (
+            <>
+              <ul className="space-y-1.5">
+                {(rulesExpanded ? houseRuleLines : houseRuleLines.slice(0, 3)).map((line, i) => (
                   <li key={i} className="flex gap-2 text-sm leading-relaxed">
                     <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-primary/60" />
                     <span>{line}</span>
                   </li>
                 ))}
-            </ul>
+              </ul>
+              {houseRuleLines.length > 3 && (
+                <button
+                  onClick={() => setRulesExpanded((value) => !value)}
+                  className="flex items-center gap-1 text-xs font-bold text-primary"
+                >
+                  {rulesExpanded
+                    ? t("profile.houseRules.showLess")
+                    : t("profile.houseRules.showMore", { count: houseRuleLines.length - 3 })}
+                  <ChevronDown className={`h-3.5 w-3.5 transition-transform ${rulesExpanded ? "rotate-180" : ""}`} />
+                </button>
+              )}
+            </>
           )}
           {houseRules.version > 0 && !houseRules.acknowledged && (
             <div className="rounded-xl border border-secondary/40 bg-secondary/10 p-3">
@@ -639,20 +694,102 @@ export default function ProfilePage() {
                 {quietHours.enabled ? t("quietHours.window", { start: quietHours.startTime, end: quietHours.endTime }) : t("quietHours.disabled")}
               </p>
             </div>
-            {quietHours.canEdit && (
-              <input type="checkbox" checked={quietHours.enabled} onChange={(event) => setQuietHours({ ...quietHours, enabled: event.target.checked })} />
+            {quietHours.canEdit && !editingQuietHours && (
+              <button
+                onClick={() => {
+                  setQuietHoursBackup(quietHours);
+                  setEditingQuietHours(true);
+                }}
+                className="rounded-full border border-border px-3 py-1.5 text-xs font-bold"
+              >
+                {t("quietHours.edit")}
+              </button>
             )}
           </div>
-          {quietHours.canEdit && quietHours.enabled && (
-            <div className="grid grid-cols-2 gap-2">
-              <input type="time" value={quietHours.startTime} onChange={(event) => setQuietHours({ ...quietHours, startTime: event.target.value })} className="rounded-xl border border-border bg-background px-3 py-2 text-sm" />
-              <input type="time" value={quietHours.endTime} onChange={(event) => setQuietHours({ ...quietHours, endTime: event.target.value })} className="rounded-xl border border-border bg-background px-3 py-2 text-sm" />
-              <button onClick={() => void saveQuietHours()} className="col-span-2 rounded-xl bg-primary py-2 text-sm font-bold text-primary-foreground">{t("quietHours.save")}</button>
+          {quietHours.canEdit && editingQuietHours && (
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={quietHours.enabled}
+                  onChange={(event) => setQuietHours({ ...quietHours, enabled: event.target.checked })}
+                />
+                {t("quietHours.enabledLabel")}
+              </label>
+              {quietHours.enabled && (
+                <div className="grid grid-cols-2 gap-2">
+                  <input type="time" value={quietHours.startTime} onChange={(event) => setQuietHours({ ...quietHours, startTime: event.target.value })} className="rounded-xl border border-border bg-background px-3 py-2 text-sm" />
+                  <input type="time" value={quietHours.endTime} onChange={(event) => setQuietHours({ ...quietHours, endTime: event.target.value })} className="rounded-xl border border-border bg-background px-3 py-2 text-sm" />
+                </div>
+              )}
+              <div className="flex gap-2">
+                <button onClick={() => void saveQuietHours()} className="flex-1 rounded-xl bg-primary py-2 text-sm font-bold text-primary-foreground">{t("quietHours.save")}</button>
+                <button
+                  onClick={() => {
+                    if (quietHoursBackup) setQuietHours(quietHoursBackup);
+                    setEditingQuietHours(false);
+                  }}
+                  className="flex-1 rounded-xl border border-border py-2 text-sm font-bold"
+                >
+                  {t("quietHours.cancel")}
+                </button>
+              </div>
             </div>
           )}
-          {quietHours.canEdit && !quietHours.enabled && (
-            <button onClick={() => void saveQuietHours()} className="rounded-xl bg-primary/10 py-2 text-xs font-bold text-primary">{t("quietHours.save")}</button>
-          )}
+        </div>
+      )}
+
+      {collectiveId && houseRules && (
+        <div className="card space-y-3">
+          <div className="flex items-center gap-3">
+            <div className="grid h-9 w-9 place-items-center rounded-xl bg-destructive/15">
+              <AlertTriangle className="h-4 w-4 text-destructive" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold">{t("profile.violations.title")}</p>
+              <p className="text-[10px] text-muted-foreground">{t("profile.violations.subtitle")}</p>
+            </div>
+          </div>
+          <div className="seg !p-1" role="group" aria-label={t("profile.violations.title")}>
+            {(["QUIET_HOURS", "HOUSE_RULE"] as const).map((option) => (
+              <button
+                key={option}
+                onClick={() => setViolationType(option)}
+                className={`flex-1 rounded-lg px-2 py-1.5 text-[11px] font-bold ${violationType === option ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+              >
+                {t(`profile.violations.types.${option}`)}
+              </button>
+            ))}
+          </div>
+          <select
+            value={violationRecipient}
+            onChange={(event) => setViolationRecipient(event.target.value)}
+            className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm"
+            aria-label={t("profile.violations.recipientLabel")}
+          >
+            <option value="ALL">{t("profile.violations.wholeHousehold")}</option>
+            {householdMembers
+              .filter((member) => member.name !== name)
+              .map((member) => (
+                <option key={member.id} value={member.name}>
+                  {member.name}
+                </option>
+              ))}
+          </select>
+          <textarea
+            value={violationNote}
+            onChange={(event) => setViolationNote(event.target.value)}
+            placeholder={t("profile.violations.notePlaceholder")}
+            rows={2}
+            className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm"
+          />
+          <button
+            onClick={() => void handleReportViolation()}
+            disabled={violationSaving}
+            className="w-full rounded-xl bg-primary py-2 text-sm font-bold text-primary-foreground disabled:opacity-50"
+          >
+            {violationSaving ? t("profile.violations.sending") : t("profile.violations.send")}
+          </button>
         </div>
       )}
 

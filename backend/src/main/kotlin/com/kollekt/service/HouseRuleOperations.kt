@@ -1,6 +1,8 @@
 package com.kollekt.service
 
 import com.kollekt.api.dto.HouseRulesDto
+import com.kollekt.api.dto.ReportViolationRequest
+import com.kollekt.api.dto.ViolationReportDto
 import com.kollekt.domain.HouseRule
 import com.kollekt.domain.HouseRuleAck
 import com.kollekt.domain.MemberStatus
@@ -20,6 +22,7 @@ class HouseRuleOperations(
     private val memberRepository: MemberRepository,
     private val notificationService: NotificationService,
     private val realtimeUpdateService: RealtimeUpdateService,
+    private val chatOperations: ChatOperations,
 ) {
     fun getLatest(
         collectiveId: Long,
@@ -92,6 +95,47 @@ class HouseRuleOperations(
             ackRepository.save(HouseRuleAck(ruleId = latest.id, memberName = actorName))
         }
         return latest.toDto(actorName, collective.ownerMemberId)
+    }
+
+    // Reports a quiet-hours or house-rule violation either to a single household member or to
+    // the whole household. Sends targeted violation notifications and posts one household-visible
+    // chat message (its text is composed and localized by the caller).
+    @Transactional
+    fun reportViolation(
+        collectiveId: Long,
+        request: ReportViolationRequest,
+        actorName: String,
+    ): ViolationReportDto {
+        val collective = requireCollectiveMember(collectiveId, actorName)
+        val notificationType =
+            when (request.violationType.uppercase()) {
+                "QUIET_HOURS" -> "QUIET_HOURS_VIOLATION"
+                "HOUSE_RULE" -> "HOUSE_RULE_VIOLATION"
+                else -> throw IllegalArgumentException("Unknown violation type '${request.violationType}'")
+            }
+        val message = request.message.trim()
+        require(message.isNotBlank()) { "Violation message is required" }
+        require(message.length <= 1500) { "Violation message is too long (max 1500 characters)" }
+
+        val activeMembers =
+            memberRepository.findAllByCollectiveCode(collective.joinCode)
+                .filter { it.status == MemberStatus.ACTIVE }
+        val recipients =
+            request.recipient?.trim()?.takeIf { it.isNotBlank() }?.let { target ->
+                val recipient =
+                    activeMembers.firstOrNull { it.name == target }
+                        ?: throw IllegalArgumentException("Recipient '$target' is not an active household member")
+                listOf(recipient.name)
+            } ?: activeMembers.map { it.name }.filter { it != actorName }
+
+        notificationService.createParameterizedGroupNotification(
+            userNames = recipients,
+            type = notificationType,
+            params = mapOf("reporter" to actorName),
+        )
+        val chatMessage = chatOperations.postHouseholdNotice(collective.joinCode, actorName, message)
+
+        return ViolationReportDto(recipients = recipients, chatMessageId = chatMessage.id)
     }
 
     private fun requireCollectiveMember(
