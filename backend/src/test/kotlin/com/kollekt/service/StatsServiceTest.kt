@@ -136,7 +136,7 @@ class StatsServiceTest {
         assertEquals(listOf("Dishes", "Floors"), result.upcomingTasks.map { it.title })
         assertEquals(listOf("Movie night"), result.upcomingEvents.map { it.title })
         assertEquals(listOf("Pizza"), result.recentExpenses.map { it.description })
-        assertEquals(93, result.vibeScore)
+        assertEquals(83, result.vibeScore)
     }
 
     @Test

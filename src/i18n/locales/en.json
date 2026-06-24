@@ -17,6 +17,8 @@
     "steps": {
       "home": { "title": "Your home base", "body": "See your household at a glance — balances, chores and the vibe of the week." },
       "tasks": { "title": "Chores, kept fair", "body": "Tasks rotate evenly every week. Finishing them earns you XP." },
+      "calendar": { "title": "Plan together", "body": "A shared calendar for house events, guests and quiet hours — sync it with your own calendar too." },
+      "chat": { "title": "Talk it out", "body": "Group chat for the house: polls, reactions, photos and a friendly thank-you with kudos." },
       "economy": { "title": "Split & settle up", "body": "Track shared expenses and pay each other back via Vipps, MobilePay, PayPal or bank." },
       "social": { "title": "Compete & play", "body": "Climb the leaderboard and start game nights together." },
       "profile": { "title": "You & your settings", "body": "Tap here for your profile, payment methods, invites and household options." }
