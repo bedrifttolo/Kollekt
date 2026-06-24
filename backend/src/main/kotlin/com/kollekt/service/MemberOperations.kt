@@ -119,15 +119,35 @@ class MemberOperations(
     fun updateMemberStatus(
         memberName: String,
         newStatus: MemberStatus,
+        awayUntil: java.time.LocalDate? = null,
     ) {
         val member =
             memberRepository.findByName(memberName)
                 ?: throw IllegalArgumentException("User '$memberName' not found")
 
-        memberRepository.save(member.copy(status = newStatus))
+        val resolvedAwayUntil = if (newStatus == MemberStatus.AWAY) awayUntil else null
+        require(resolvedAwayUntil == null || !resolvedAwayUntil.isBefore(java.time.LocalDate.now())) {
+            "Away date must be today or later"
+        }
+        memberRepository.save(member.copy(status = newStatus, awayUntil = resolvedAwayUntil))
 
         if (member.collectiveCode != null && member.status != newStatus) {
             taskOperations.regenerateRecurringTasksForCollective(member.collectiveCode)
+        }
+    }
+
+    // #8 Away mode: members whose away period has elapsed are returned to ACTIVE so they
+    // re-enter chore rotation automatically. Runs from the daily maintenance schedule.
+    @Transactional
+    fun resumeExpiredAwayMembers() {
+        val today = java.time.LocalDate.now()
+        val resumed =
+            memberRepository
+                .findAll()
+                .filter { it.status == MemberStatus.AWAY && it.awayUntil != null && it.awayUntil.isBefore(today) }
+                .map { memberRepository.save(it.copy(status = MemberStatus.ACTIVE, awayUntil = null)) }
+        resumed.mapNotNull { it.collectiveCode }.distinct().forEach {
+            taskOperations.regenerateRecurringTasksForCollective(it)
         }
     }
 

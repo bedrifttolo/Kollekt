@@ -188,6 +188,57 @@ class MemberOperationsTest {
         verify(friendshipRepository).deleteByMemberIdAndFriendId(1, 2)
     }
 
+    @Test
+    fun `away with a date stores awayUntil and regenerates rotation`() {
+        val kasper = member("Kasper", "kasper@example.com").copy(status = MemberStatus.ACTIVE)
+        whenever(memberRepository.findByName("Kasper")).thenReturn(kasper)
+        val until = LocalDate.now().plusDays(7)
+
+        operations.updateMemberStatus("Kasper", MemberStatus.AWAY, until)
+
+        verify(memberRepository).save(kasper.copy(status = MemberStatus.AWAY, awayUntil = until))
+        verify(taskOperations).regenerateRecurringTasksForCollective("ABC123")
+    }
+
+    @Test
+    fun `returning active clears any away date`() {
+        val away = member("Kasper", "kasper@example.com").copy(status = MemberStatus.AWAY, awayUntil = LocalDate.now().plusDays(2))
+        whenever(memberRepository.findByName("Kasper")).thenReturn(away)
+
+        operations.updateMemberStatus("Kasper", MemberStatus.ACTIVE)
+
+        verify(memberRepository).save(away.copy(status = MemberStatus.ACTIVE, awayUntil = null))
+    }
+
+    @Test
+    fun `away date in the past is rejected`() {
+        val kasper = member("Kasper", "kasper@example.com")
+        whenever(memberRepository.findByName("Kasper")).thenReturn(kasper)
+
+        assertThrows(IllegalArgumentException::class.java) {
+            operations.updateMemberStatus("Kasper", MemberStatus.AWAY, LocalDate.now().minusDays(1))
+        }
+        verify(memberRepository, never()).save(any())
+    }
+
+    @Test
+    fun `resume expired away members reactivates only those past their date`() {
+        val expired =
+            member("Kasper", "kasper@example.com")
+                .copy(status = MemberStatus.AWAY, awayUntil = LocalDate.now().minusDays(1))
+        val stillAway =
+            member("Emma", "emma@example.com", id = 2)
+                .copy(status = MemberStatus.AWAY, awayUntil = LocalDate.now().plusDays(3))
+        whenever(memberRepository.findAll()).thenReturn(listOf(expired, stillAway))
+        whenever(memberRepository.save(any<Member>())).thenAnswer { it.arguments[0] as Member }
+
+        operations.resumeExpiredAwayMembers()
+
+        verify(memberRepository).save(expired.copy(status = MemberStatus.ACTIVE, awayUntil = null))
+        verify(memberRepository, never()).save(stillAway.copy(status = MemberStatus.ACTIVE, awayUntil = null))
+        verify(taskOperations).regenerateRecurringTasksForCollective("ABC123")
+    }
+
     private fun member(
         name: String,
         email: String,

@@ -602,7 +602,20 @@ export default function ProfilePage() {
               </button>
             )}
           </div>
-          {houseRules.content && <p className="whitespace-pre-wrap text-sm leading-relaxed">{houseRules.content}</p>}
+          {houseRules.content && (
+            <ul className="space-y-1.5">
+              {houseRules.content
+                .split("\n")
+                .map((line) => line.replace(/^\s*[-*•]\s*/, "").trim())
+                .filter((line) => line.length > 0)
+                .map((line, i) => (
+                  <li key={i} className="flex gap-2 text-sm leading-relaxed">
+                    <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-primary/60" />
+                    <span>{line}</span>
+                  </li>
+                ))}
+            </ul>
+          )}
           {houseRules.version > 0 && !houseRules.acknowledged && (
             <div className="rounded-xl border border-secondary/40 bg-secondary/10 p-3">
               <p className="text-xs font-semibold">{t("profile.houseRules.ackBanner")}</p>
@@ -630,12 +643,15 @@ export default function ProfilePage() {
               <input type="checkbox" checked={quietHours.enabled} onChange={(event) => setQuietHours({ ...quietHours, enabled: event.target.checked })} />
             )}
           </div>
-          {quietHours.canEdit && (
+          {quietHours.canEdit && quietHours.enabled && (
             <div className="grid grid-cols-2 gap-2">
               <input type="time" value={quietHours.startTime} onChange={(event) => setQuietHours({ ...quietHours, startTime: event.target.value })} className="rounded-xl border border-border bg-background px-3 py-2 text-sm" />
               <input type="time" value={quietHours.endTime} onChange={(event) => setQuietHours({ ...quietHours, endTime: event.target.value })} className="rounded-xl border border-border bg-background px-3 py-2 text-sm" />
               <button onClick={() => void saveQuietHours()} className="col-span-2 rounded-xl bg-primary py-2 text-sm font-bold text-primary-foreground">{t("quietHours.save")}</button>
             </div>
+          )}
+          {quietHours.canEdit && !quietHours.enabled && (
+            <button onClick={() => void saveQuietHours()} className="rounded-xl bg-primary/10 py-2 text-xs font-bold text-primary">{t("quietHours.save")}</button>
           )}
         </div>
       )}

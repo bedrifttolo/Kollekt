@@ -51,4 +51,6 @@ data class TaskItem(
     @Column(nullable = true, length = 512) val assignmentReason: String? = null,
     @Column(nullable = true, length = 1024) val assignmentFeedback: String? = null,
     @Column(nullable = true, length = 512) val assignmentScore: String? = null,
+    @Column(name = "completion_image_data", nullable = true, columnDefinition = "TEXT") val completionImageData: String? = null,
+    @Column(name = "completion_image_mime", nullable = true, length = 120) val completionImageMime: String? = null,
 )

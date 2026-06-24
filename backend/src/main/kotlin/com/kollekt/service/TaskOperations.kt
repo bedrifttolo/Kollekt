@@ -250,6 +250,8 @@ class TaskOperations(
     fun toggleTask(
         taskId: Long,
         memberName: String,
+        completionImageData: String? = null,
+        completionImageMime: String? = null,
     ): TaskDto {
         val collectiveCode = collectiveAccessService.requireCollectiveCodeByMemberName(memberName)
         val task =
@@ -277,6 +279,8 @@ class TaskOperations(
                         xpAwarded = true,
                         completedBy = memberName,
                         completedAt = LocalDateTime.now(),
+                        completionImageData = completionImageData ?: task.completionImageData,
+                        completionImageMime = completionImageMime ?: task.completionImageMime,
                     ),
                 )
             } else {
@@ -286,6 +290,8 @@ class TaskOperations(
                         completedBy = null,
                         completedAt = null,
                         xpAwarded = task.xpAwarded,
+                        completionImageData = null,
+                        completionImageMime = null,
                     ),
                 )
             }
@@ -531,6 +537,28 @@ class TaskOperations(
         rebalanceFutureRecurringTasks(collectiveCode)
     }
 
+    // #6 Gentle nudge: a light, private reminder to a task's assignee. No public shaming —
+    // only the assignee is notified, and you cannot nudge yourself or a completed task.
+    @Transactional
+    fun nudgeTask(
+        taskId: Long,
+        actorName: String,
+    ): TaskDto {
+        val collectiveCode = collectiveAccessService.requireCollectiveCodeByMemberName(actorName)
+        val task =
+            taskRepository.findByIdAndCollectiveCode(taskId, collectiveCode)
+                ?: throw IllegalArgumentException("Task $taskId not found")
+        require(!task.completed) { "Task is already done" }
+        require(task.assignee != actorName) { "You cannot nudge yourself" }
+
+        notificationService.createParameterizedNotification(
+            userName = task.assignee,
+            type = "TASK_NUDGE",
+            params = mapOf("sender" to actorName, "title" to task.title),
+        )
+        return task.toDto(taskFeedbackRepository.findAllByTaskId(task.id))
+    }
+
     private fun calculateCompletionAwardXp(task: TaskItem): Int =
         if (task.dueDate.isBefore(LocalDate.now())) {
             calculateLateCompletionXp(task.xp)
@@ -661,5 +689,7 @@ class TaskOperations(
                         createdAt = fb.createdAt,
                     )
                 },
+            completionImageData = completionImageData,
+            completionImageMime = completionImageMime,
         )
 }

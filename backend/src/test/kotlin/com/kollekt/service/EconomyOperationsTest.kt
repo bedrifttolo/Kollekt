@@ -580,8 +580,18 @@ class EconomyOperationsTest {
         val blankDescription = CreateExpenseRequest("   ", 100, "Ignored", "Food", LocalDate.parse("2026-03-01"))
         val nonpositiveAmount = CreateExpenseRequest("Pizza", 0, "Ignored", "Food", LocalDate.parse("2026-03-01"))
 
-        assertEquals("Expense description is required", assertThrows<IllegalArgumentException> { operations.createExpense(blankDescription, "Kasper") }.message)
-        assertEquals("Expense amount must be greater than zero", assertThrows<IllegalArgumentException> { operations.createExpense(nonpositiveAmount, "Kasper") }.message)
+        assertEquals(
+            "Expense description is required",
+            assertThrows<IllegalArgumentException> {
+                operations.createExpense(blankDescription, "Kasper")
+            }.message,
+        )
+        assertEquals(
+            "Expense amount must be greater than zero",
+            assertThrows<IllegalArgumentException> {
+                operations.createExpense(nonpositiveAmount, "Kasper")
+            }.message,
+        )
     }
 
     @Test
@@ -696,6 +706,86 @@ class EconomyOperationsTest {
         }
 
         verify(pantEntryRepository, never()).save(any())
+    }
+
+    @Test
+    fun `create recurring expense stores the recurrence day`() {
+        whenever(memberRepository.findAllByCollectiveCode("ABC123")).thenReturn(
+            listOf(member("Kasper", "kasper@example.com"), member("Emma", "emma@example.com", id = 2)),
+        )
+        whenever(expenseRepository.save(any<Expense>())).thenAnswer { it.arguments[0] as Expense }
+
+        val result =
+            operations.createExpense(
+                CreateExpenseRequest(
+                    description = "Rent",
+                    amount = 1000,
+                    paidBy = "Ignored",
+                    category = "Housing",
+                    date = LocalDate.parse("2026-03-05"),
+                    participantNames = listOf("Kasper", "Emma"),
+                    recurring = true,
+                    recurrenceDayOfMonth = 5,
+                ),
+                "Kasper",
+            )
+
+        assertTrue(result.recurring)
+        assertEquals(5, result.recurrenceDayOfMonth)
+    }
+
+    @Test
+    fun `create recurring expense rejects a day after the 28th`() {
+        whenever(memberRepository.findAllByCollectiveCode("ABC123")).thenReturn(
+            listOf(member("Kasper", "kasper@example.com")),
+        )
+
+        assertThrows<IllegalArgumentException> {
+            operations.createExpense(
+                CreateExpenseRequest(
+                    description = "Rent",
+                    amount = 1000,
+                    paidBy = "Ignored",
+                    category = "Housing",
+                    date = LocalDate.now(),
+                    participantNames = listOf("Kasper"),
+                    recurring = true,
+                    recurrenceDayOfMonth = 31,
+                ),
+                "Kasper",
+            )
+        }
+    }
+
+    @Test
+    fun `generate recurring expense instances creates this month's expense`() {
+        val today = LocalDate.now()
+        val template =
+            Expense(
+                id = 1,
+                description = "Rent",
+                amount = 1000,
+                paidBy = "Kasper",
+                collectiveCode = "ABC123",
+                category = "Housing",
+                date = today.minusMonths(2),
+                participantNames = setOf("Kasper", "Emma"),
+                recurring = true,
+                recurrenceDayOfMonth = today.dayOfMonth.coerceAtMost(today.lengthOfMonth()),
+            )
+        whenever(expenseRepository.findAll()).thenReturn(listOf(template))
+        whenever(expenseRepository.findAllByCollectiveCode("ABC123")).thenReturn(listOf(template))
+        whenever(expenseRepository.save(any<Expense>())).thenAnswer { it.arguments[0] as Expense }
+
+        operations.generateRecurringExpenseInstances()
+
+        val captor = argumentCaptor<Expense>()
+        verify(expenseRepository).save(captor.capture())
+        val saved = captor.firstValue
+        assertEquals("Rent", saved.description)
+        assertEquals(false, saved.recurring)
+        assertEquals(today, saved.date)
+        verify(realtimeUpdateService).publish(eq("ABC123"), eq("EXPENSE_CREATED"), any())
     }
 
     private fun member(

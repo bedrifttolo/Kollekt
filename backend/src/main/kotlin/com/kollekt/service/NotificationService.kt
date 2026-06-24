@@ -14,6 +14,8 @@ val ALL_NOTIFICATION_TYPES =
         "TASK_ASSIGNED",
         "TASK_DEADLINE_SOON",
         "TASK_OVERDUE",
+        "TASK_NUDGE",
+        "WEEKLY_RECAP",
         "TASK_SWAP_REQUESTED",
         "TASK_SWAP_ACCEPTED",
         "TASK_SWAP_DECLINED",

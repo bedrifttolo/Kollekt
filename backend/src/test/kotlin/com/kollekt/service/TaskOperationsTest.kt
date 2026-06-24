@@ -128,8 +128,16 @@ class TaskOperationsTest {
         val invalidXp =
             CreateTaskRequest("Sink", "Emma", LocalDate.parse("2026-04-20"), TaskCategory.SMALL_CLEANING, 0)
 
-        assertEquals("Task title is required", assertThrows<IllegalArgumentException> { operations.createTask(blankTitle, "Kasper") }.message)
-        assertEquals("Task XP must be between 1 and 1000", assertThrows<IllegalArgumentException> { operations.createTask(invalidXp, "Kasper") }.message)
+        assertEquals(
+            "Task title is required",
+            assertThrows<IllegalArgumentException> { operations.createTask(blankTitle, "Kasper") }.message,
+        )
+        assertEquals(
+            "Task XP must be between 1 and 1000",
+            assertThrows<IllegalArgumentException> {
+                operations.createTask(invalidXp, "Kasper")
+            }.message,
+        )
     }
 
     @Test
@@ -908,6 +916,93 @@ class TaskOperationsTest {
         recurrenceSeriesId = seriesId,
         recurring = true,
     )
+
+    @Test
+    fun `nudge notifies the assignee privately`() {
+        whenever(taskRepository.findByIdAndCollectiveCode(20, "ABC123")).thenReturn(
+            TaskItem(
+                id = 20,
+                title = "Dishes",
+                assignee = "Emma",
+                collectiveCode = "ABC123",
+                dueDate = LocalDate.now(),
+                category = TaskCategory.OTHER,
+                completed = false,
+            ),
+        )
+        whenever(taskFeedbackRepository.findAllByTaskId(20)).thenReturn(emptyList())
+
+        operations.nudgeTask(20, "Kasper")
+
+        verify(notificationService).createParameterizedNotification(
+            eq("Emma"),
+            eq("TASK_NUDGE"),
+            check {
+                assertEquals("Kasper", it["sender"])
+                assertEquals("Dishes", it["title"])
+            },
+        )
+    }
+
+    @Test
+    fun `nudge rejects nudging yourself`() {
+        whenever(taskRepository.findByIdAndCollectiveCode(21, "ABC123")).thenReturn(
+            TaskItem(
+                id = 21,
+                title = "Trash",
+                assignee = "Kasper",
+                collectiveCode = "ABC123",
+                dueDate = LocalDate.now(),
+                category = TaskCategory.OTHER,
+                completed = false,
+            ),
+        )
+
+        assertThrows<IllegalArgumentException> { operations.nudgeTask(21, "Kasper") }
+    }
+
+    @Test
+    fun `nudge rejects an already completed task`() {
+        whenever(taskRepository.findByIdAndCollectiveCode(22, "ABC123")).thenReturn(
+            TaskItem(
+                id = 22,
+                title = "Done",
+                assignee = "Emma",
+                collectiveCode = "ABC123",
+                dueDate = LocalDate.now(),
+                category = TaskCategory.OTHER,
+                completed = true,
+            ),
+        )
+
+        assertThrows<IllegalArgumentException> { operations.nudgeTask(22, "Kasper") }
+    }
+
+    @Test
+    fun `completing a task stores the proof photo`() {
+        whenever(taskRepository.findByIdAndCollectiveCodeForUpdate(30, "ABC123")).thenReturn(
+            TaskItem(
+                id = 30,
+                title = "Bathroom",
+                assignee = "Kasper",
+                collectiveCode = "ABC123",
+                dueDate = LocalDate.now(),
+                category = TaskCategory.OTHER,
+                completed = false,
+                xpAwarded = false,
+                xp = 10,
+            ),
+        )
+        whenever(memberRepository.findByNameAndCollectiveCode("Kasper", "ABC123"))
+            .thenReturn(member("Kasper", "kasper@example.com"))
+        whenever(memberRepository.save(any<Member>())).thenAnswer { it.arguments[0] as Member }
+        whenever(taskRepository.save(any<TaskItem>())).thenAnswer { it.arguments[0] as TaskItem }
+
+        val done = operations.toggleTask(30, "Kasper", "BASE64DATA", "image/png")
+
+        assertEquals("BASE64DATA", done.completionImageData)
+        assertEquals("image/png", done.completionImageMime)
+    }
 
     private fun member(
         name: String,

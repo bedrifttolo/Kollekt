@@ -100,10 +100,21 @@ class TaskController(
     fun toggleTask(
         @PathVariable taskId: Long,
         @RequestParam memberName: String,
+        @RequestBody(required = false) request: com.kollekt.api.dto.CompleteTaskRequest?,
         @AuthenticationPrincipal jwt: Jwt,
     ): TaskDto {
         requireTokenSubject(jwt, memberName)
-        return taskOperations.toggleTask(taskId, memberName)
+        return taskOperations.toggleTask(taskId, memberName, request?.imageData, request?.imageMimeType)
+    }
+
+    @PostMapping("/{taskId}/nudge")
+    fun nudgeTask(
+        @PathVariable taskId: Long,
+        @RequestParam memberName: String,
+        @AuthenticationPrincipal jwt: Jwt,
+    ): TaskDto {
+        requireTokenSubject(jwt, memberName)
+        return taskOperations.nudgeTask(taskId, memberName)
     }
 
     @DeleteMapping("/{taskId}")

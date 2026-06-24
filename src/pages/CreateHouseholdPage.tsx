@@ -214,11 +214,10 @@ export default function CreateHouseholdPage() {
                         <label className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
                           <span>{t('createHousehold.cleaningTimeLabel')}:</span>
                           <input
-                            type="number"
-                            min={1}
-                            max={240}
+                            type="text"
+                            inputMode="numeric"
                             value={room.minutes}
-                            onChange={(e) => updateRoom(room.id, { minutes: e.target.value })}
+                            onChange={(e) => updateRoom(room.id, { minutes: e.target.value.replace(/\D/g, '').slice(0, 3) })}
                             className="w-12 rounded-md border border-border bg-background px-1.5 py-0.5 text-center text-sm font-bold tabular-nums text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
                             aria-label={t('createHousehold.minLabel')}
                           />

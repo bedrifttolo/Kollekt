@@ -17,4 +17,5 @@ data class ShoppingItem(
     @Column(nullable = true) val collectiveCode: String? = null,
     @Column(nullable = false) val completed: Boolean = false,
     @Column(nullable = true) val completedAt: LocalDateTime? = null,
+    @Column(nullable = false) val staple: Boolean = false,
 )

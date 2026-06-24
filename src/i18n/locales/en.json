@@ -17,6 +17,8 @@
     "steps": {
       "home": { "title": "Your home base", "body": "See your household at a glance — balances, chores and the vibe of the week." },
       "tasks": { "title": "Chores, kept fair", "body": "Tasks rotate evenly every week. Finishing them earns you XP." },
+      "calendar": { "title": "Plan together", "body": "A shared calendar for house events, guests and quiet hours — sync it with your own calendar too." },
+      "chat": { "title": "Talk it out", "body": "Group chat for the house: polls, reactions, photos and a friendly thank-you with kudos." },
       "economy": { "title": "Split & settle up", "body": "Track shared expenses and pay each other back via Vipps, MobilePay, PayPal or bank." },
       "social": { "title": "Compete & play", "body": "Climb the leaderboard and start game nights together." },
       "profile": { "title": "You & your settings", "body": "Tap here for your profile, payment methods, invites and household options." }
@@ -1011,6 +1013,8 @@
         "TASK_DEADLINE_SOON": "Your task '{{title}}' is due in {{days}} day(s).",
         "TASK_OVERDUE": "Your task '{{title}}' is overdue! A penalty has been applied.",
         "TASK_OVERDUE_GROUP": "Task '{{title}}' assigned to {{assignee}} is overdue and not completed.",
+        "TASK_NUDGE": "👋 {{sender}} gave your task '{{title}}' a friendly nudge.",
+        "WEEKLY_RECAP": "📊 This week: {{tasksCompleted}} tasks done. Top helper: {{topContributor}}.",
         "TASK_FEEDBACK": "{{author}} left feedback on your task '{{title}}'.",
         "TASK_COMPLETED_LATE": "You completed '{{title}}' late. XP has been reduced.",
         "TASK_SWAP_REQUESTED": "{{fromUser}} asked you to take '{{title}}'.",
@@ -1032,6 +1036,8 @@
         "TASK_ASSIGNED": "Task assigned to me",
         "TASK_DEADLINE_SOON": "Task due tomorrow",
         "TASK_OVERDUE": "Task deadline expired",
+        "TASK_NUDGE": "Nudges on my tasks",
+        "WEEKLY_RECAP": "Weekly house recap",
         "TASK_SWAP_REQUESTED": "Task swap requests",
         "TASK_SWAP_ACCEPTED": "Accepted task swaps",
         "TASK_SWAP_DECLINED": "Declined task swaps",
