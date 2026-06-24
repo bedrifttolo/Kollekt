@@ -1,18 +1,21 @@
 import { useEffect, useLayoutEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
+import { useLocation, useNavigate } from 'react-router-dom';
 
-export type TourStep = { selector: string; titleKey: string; bodyKey: string };
+export type TourStep = { route?: string; selector: string; titleKey: string; bodyKey: string };
 
 const PAD = 8;
 
 export default function TourOverlay({ steps, storageKey }: { steps: TourStep[]; storageKey: string }) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [active, setActive] = useState(false);
   const [index, setIndex] = useState(0);
   const [rect, setRect] = useState<DOMRect | null>(null);
 
-  // Show the guide only the very first time this page is reached, then never again.
+  // Show the guide only the very first time this user reaches the app, then never again.
   useEffect(() => {
     if (localStorage.getItem(storageKey)) return;
     const id = window.setTimeout(() => {
@@ -23,6 +26,15 @@ export default function TourOverlay({ steps, storageKey }: { steps: TourStep[]; 
   }, [storageKey]);
 
   const step = steps[index];
+
+  // Walk the user through the real pages: navigate to the step's route as the step changes.
+  // Steps without a route (e.g. the single-page onboarding tour) stay where they are.
+  useEffect(() => {
+    if (!active || !step?.route) return;
+    if (location.pathname !== step.route) {
+      navigate(step.route);
+    }
+  }, [active, step, location.pathname, navigate]);
 
   // Bring the target into view, then keep the highlight aligned through scroll/resize.
   useLayoutEffect(() => {

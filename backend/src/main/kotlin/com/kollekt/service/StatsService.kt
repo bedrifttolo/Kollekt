@@ -18,12 +18,14 @@ import com.kollekt.domain.CustomAchievement
 import com.kollekt.domain.CustomAchievementMetric
 import com.kollekt.domain.Expense
 import com.kollekt.domain.Member
+import com.kollekt.domain.TaskHistoryEntry
 import com.kollekt.domain.TaskItem
 import com.kollekt.repository.CollectiveRepository
 import com.kollekt.repository.CustomAchievementRepository
 import com.kollekt.repository.EventRepository
 import com.kollekt.repository.ExpenseRepository
 import com.kollekt.repository.MemberRepository
+import com.kollekt.repository.TaskHistoryRepository
 import com.kollekt.repository.TaskRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -127,6 +129,7 @@ class StatsService(
     private val collectiveRepository: CollectiveRepository,
     private val customAchievementRepository: CustomAchievementRepository,
     private val taskRepository: TaskRepository,
+    private val taskHistoryRepository: TaskHistoryRepository,
     private val eventRepository: EventRepository,
     private val expenseRepository: ExpenseRepository,
     private val realtimeUpdateService: RealtimeUpdateService,
@@ -142,7 +145,7 @@ class StatsService(
             collectiveRepository.findByJoinCode(collectiveCode)
                 ?: throw IllegalArgumentException("Collective not found")
 
-        val allTasks = taskRepository.findAllByCollectiveCode(collectiveCode)
+        val allTasks = tasksWithHistory(collectiveCode)
         val now = LocalDateTime.now()
         val completedTasks =
             when (period) {
@@ -161,7 +164,16 @@ class StatsService(
                 }
             }
 
-        val members = memberRepository.findAllByCollectiveCode(collectiveCode).sortedByDescending { it.xp }
+        // Period XP is the base XP of the member's tasks completed within the selected period,
+        // so Total/Year/Month rankings reflect their period. Lifetime XP stays in member.xp.
+        val periodXpByMember =
+            memberRepository
+                .findAllByCollectiveCode(collectiveCode)
+                .associateWith { member -> completedTasks.filter { it.assignee == member.name }.sumOf { it.xp } }
+        val members =
+            periodXpByMember.keys.sortedWith(
+                compareByDescending<Member> { periodXpByMember.getValue(it) }.thenBy { it.name },
+            )
 
         val players =
             members.mapIndexed { index, member ->
@@ -171,7 +183,7 @@ class StatsService(
                     rank = index + 1,
                     name = member.name,
                     level = member.level,
-                    xp = member.xp,
+                    xp = periodXpByMember.getValue(member),
                     tasksCompleted = memberTasks.size,
                     streak = streak,
                     badges = buildBadges(index + 1, streak, member.level, memberTasks.size),
@@ -218,7 +230,7 @@ class StatsService(
                 ?: throw IllegalArgumentException("Collective not found")
         val enabledKeys = collective.enabledAchievementKeys.ifEmpty { DEFAULT_ENABLED_KEYS }
 
-        val memberTasks = taskRepository.findAllByCollectiveCode(collectiveCode).filter { it.assignee == memberName }
+        val memberTasks = tasksWithHistory(collectiveCode).filter { it.assignee == memberName }
         val streak = computeStreak(memberTasks)
 
         val builtInAchievements =
@@ -305,7 +317,7 @@ class StatsService(
                 ),
             )
         realtimeUpdateService.publish(collectiveCode, "ACHIEVEMENT_CONFIG_UPDATED")
-        val memberTasks = taskRepository.findAllByCollectiveCode(collectiveCode).filter { it.assignee == memberName }
+        val memberTasks = tasksWithHistory(collectiveCode).filter { it.assignee == memberName }
         return saved.toDto(memberTasks, member, computeStreak(memberTasks))
     }
 
@@ -331,7 +343,7 @@ class StatsService(
             memberRepository.findByName(targetName)
                 ?: throw IllegalArgumentException("Member not found")
 
-        val allTasks = taskRepository.findAllByCollectiveCode(collectiveCode)
+        val allTasks = tasksWithHistory(collectiveCode)
         val memberTasks = allTasks.filter { it.assignee == targetName }
         val streak = computeStreak(memberTasks)
         val tasksCompleted = memberTasks.count { it.completed }
@@ -372,8 +384,7 @@ class StatsService(
                 .map { it.name }
                 .sorted()
         val completedRecently =
-            taskRepository
-                .findAllByCollectiveCode(collectiveCode)
+            tasksWithHistory(collectiveCode)
                 .filter { it.completed && it.completedAt != null && !it.completedAt.toLocalDate().isBefore(since) }
         val counts = activeMembers.associateWith { name -> completedRecently.count { it.completedBy == name } }
         val total = counts.values.sum()
@@ -404,7 +415,7 @@ class StatsService(
     fun buildWeeklyRecap(collectiveCode: String): com.kollekt.api.dto.WeeklyRecapDto {
         val today = LocalDate.now()
         val weekStart = today.minusDays(6)
-        val allTasks = taskRepository.findAllByCollectiveCode(collectiveCode)
+        val allTasks = tasksWithHistory(collectiveCode)
         val completedThisWeek =
             allTasks.filter {
                 it.completed && it.completedAt != null && it.completedAt.toLocalDate() in weekStart..today
@@ -443,7 +454,8 @@ class StatsService(
 
         val balances = economyOperations.getBalances(memberName)
         val userBalance = balances.firstOrNull { it.name == user.name }?.amount ?: 0
-        val allTasks = taskRepository.findAllByCollectiveCode(collectiveCode)
+        val liveTasks = taskRepository.findAllByCollectiveCode(collectiveCode)
+        val allTasks = liveTasks + taskHistoryRepository.findAllByCollectiveCode(collectiveCode).map { it.toTaskItem() }
         val today = LocalDate.now()
         val weekStart = today.minusDays(6)
         val weekTasks = allTasks.filter { it.dueDate in weekStart..today }
@@ -492,7 +504,7 @@ class StatsService(
                     allTasks
                         .count { it.completed && it.assignee == user.name },
                 upcomingTasks =
-                    allTasks
+                    liveTasks
                         .filter { !it.completed }
                         .sortedBy { it.dueDate }
                         .take(3)
@@ -521,6 +533,30 @@ class StatsService(
 
         return response
     }
+
+    // Live task rows plus archived snapshots of pruned tasks, so every history-dependent
+    // stat (leaderboard periods, achievements, fairness) sees the full record even after
+    // tasks are deleted 5 days past their due date. Archived entries are detached, read-only
+    // TaskItem instances (negative ids) and are never persisted.
+    private fun tasksWithHistory(collectiveCode: String): List<TaskItem> =
+        taskRepository.findAllByCollectiveCode(collectiveCode) +
+            taskHistoryRepository.findAllByCollectiveCode(collectiveCode).map { it.toTaskItem() }
+
+    private fun TaskHistoryEntry.toTaskItem(): TaskItem =
+        TaskItem(
+            id = -id,
+            title = "",
+            assignee = assignee,
+            collectiveCode = collectiveCode,
+            dueDate = dueDate,
+            category = category,
+            completed = completed,
+            completedBy = completedBy,
+            completedAt = completedAt,
+            xp = xp,
+            penaltyXp = penaltyXp,
+            recurrenceRule = recurrenceRule,
+        )
 
     private fun buildPeriodStats(
         players: List<LeaderboardPlayerDto>,

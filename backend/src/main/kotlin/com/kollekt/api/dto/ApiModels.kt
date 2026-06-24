@@ -123,6 +123,17 @@ data class HouseRulesDto(
     val canEdit: Boolean,
 )
 
+data class ReportViolationRequest(
+    val violationType: String,
+    val recipient: String? = null,
+    val message: String,
+)
+
+data class ViolationReportDto(
+    val recipients: List<String>,
+    val chatMessageId: Long,
+)
+
 data class CreateGuestNoticeRequest(
     val guestName: String,
     val date: LocalDate,

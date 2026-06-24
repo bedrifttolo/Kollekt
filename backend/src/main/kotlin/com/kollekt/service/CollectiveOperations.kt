@@ -33,6 +33,7 @@ class CollectiveOperations(
     private val userProfileService: UserProfileService,
     private val invitationRealtimeService: InvitationRealtimeService,
     private val googleCalendarService: GoogleCalendarService,
+    private val invitationMailer: InvitationMailer,
 ) {
     private val joinCodeChars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
 
@@ -134,6 +135,7 @@ class CollectiveOperations(
             invitationRealtimeService.publish(invitation.email, "INVITATION_CREATED", invitation)
         } catch (_: Exception) {
         }
+        invitationMailer.sendInvitation(invitation)
     }
 
     @Transactional

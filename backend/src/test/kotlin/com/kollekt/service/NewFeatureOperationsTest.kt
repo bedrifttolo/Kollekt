@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test
 import org.mockito.kotlin.*
 import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.LocalTime
 import java.util.Optional
 
@@ -92,7 +93,8 @@ class NewFeatureOperationsTest {
         val members = mock<MemberRepository>()
         val notifications = mock<NotificationService>()
         val realtime = mock<RealtimeUpdateService>()
-        val service = HouseRuleOperations(rules, acknowledgements, collectives, members, notifications, realtime)
+        val chat = mock<ChatOperations>()
+        val service = HouseRuleOperations(rules, acknowledgements, collectives, members, notifications, realtime, chat)
         val collective = collective()
         val owner = member(1, "Alex")
         val rule = HouseRule(10, "HOME", 1, "Be kind", "Alex")
@@ -110,6 +112,43 @@ class NewFeatureOperationsTest {
         whenever(rules.findByIdForUpdate(10)).thenReturn(rule)
         assertTrue(service.acknowledge(1, 1, "Alex").acknowledged.not())
         verify(acknowledgements).save(any<HouseRuleAck>())
+    }
+
+    @Test
+    fun `report violation notifies recipients and posts a household chat message`() {
+        val rules = mock<HouseRuleRepository>()
+        val acknowledgements = mock<HouseRuleAckRepository>()
+        val collectives = mock<CollectiveRepository>()
+        val members = mock<MemberRepository>()
+        val notifications = mock<NotificationService>()
+        val realtime = mock<RealtimeUpdateService>()
+        val chat = mock<ChatOperations>()
+        val service = HouseRuleOperations(rules, acknowledgements, collectives, members, notifications, realtime, chat)
+        whenever(collectives.findById(1)).thenReturn(Optional.of(collective()))
+        whenever(members.findByName("Alex")).thenReturn(member(1, "Alex"))
+        whenever(members.findAllByCollectiveCode("HOME")).thenReturn(listOf(member(1, "Alex"), member(2, "Bea")))
+        whenever(chat.postHouseholdNotice(eq("HOME"), eq("Alex"), any())).thenReturn(
+            MessageDto(id = 55, sender = "Alex", text = "Quiet please", timestamp = LocalDateTime.now()),
+        )
+
+        // Whole household: notifies every active member except the reporter.
+        val household = service.reportViolation(1, ReportViolationRequest("QUIET_HOURS", null, " Quiet please "), "Alex")
+        assertEquals(listOf("Bea"), household.recipients)
+        assertEquals(55L, household.chatMessageId)
+        verify(notifications).createParameterizedGroupNotification(listOf("Bea"), "QUIET_HOURS_VIOLATION", mapOf("reporter" to "Alex"))
+
+        // Single recipient.
+        val single = service.reportViolation(1, ReportViolationRequest("HOUSE_RULE", "Bea", "Rule broken"), "Alex")
+        assertEquals(listOf("Bea"), single.recipients)
+        verify(notifications).createParameterizedGroupNotification(listOf("Bea"), "HOUSE_RULE_VIOLATION", mapOf("reporter" to "Alex"))
+
+        // Unknown violation type and unknown recipient are rejected.
+        assertThrows(IllegalArgumentException::class.java) {
+            service.reportViolation(1, ReportViolationRequest("WHATEVER", null, "x"), "Alex")
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            service.reportViolation(1, ReportViolationRequest("HOUSE_RULE", "Ghost", "x"), "Alex")
+        }
     }
 
     @Test

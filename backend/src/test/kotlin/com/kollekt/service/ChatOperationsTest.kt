@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.mock.web.MockMultipartFile
@@ -242,6 +243,21 @@ class ChatOperationsTest {
 
         assertEquals(false, result.pinned)
         verify(chatMessageRepository).save(pinned.copy(pinned = false))
+    }
+
+    @Test
+    fun `post household notice saves message and publishes without notifying members`() {
+        whenever(chatMessageRepository.save(any<ChatMessage>())).thenAnswer {
+            (it.arguments[0] as ChatMessage).copy(id = 21)
+        }
+
+        val result = operations.postHouseholdNotice("ABC123", "Kasper", "Quiet hours please")
+
+        assertEquals(21L, result.id)
+        assertEquals("Kasper", result.sender)
+        assertEquals("Quiet hours please", result.text)
+        verify(realtimeUpdateService).publish(eq("ABC123"), eq("MESSAGE_CREATED"), any())
+        verify(notificationService, never()).createParameterizedGroupNotification(any(), any(), any())
     }
 
     private fun member(

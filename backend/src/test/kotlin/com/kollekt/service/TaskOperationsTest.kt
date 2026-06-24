@@ -5,10 +5,12 @@ import com.kollekt.domain.Member
 import com.kollekt.domain.MemberStatus
 import com.kollekt.domain.TaskCategory
 import com.kollekt.domain.TaskFeedback
+import com.kollekt.domain.TaskHistoryEntry
 import com.kollekt.domain.TaskItem
 import com.kollekt.repository.CollectiveRepository
 import com.kollekt.repository.MemberRepository
 import com.kollekt.repository.TaskFeedbackRepository
+import com.kollekt.repository.TaskHistoryRepository
 import com.kollekt.repository.TaskRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -35,6 +37,7 @@ class TaskOperationsTest {
     private lateinit var notificationService: NotificationService
     private lateinit var collectiveAccessService: CollectiveAccessService
     private lateinit var taskFeedbackRepository: TaskFeedbackRepository
+    private lateinit var taskHistoryRepository: TaskHistoryRepository
     private lateinit var operations: TaskOperations
 
     @BeforeEach
@@ -45,6 +48,7 @@ class TaskOperationsTest {
         realtimeUpdateService = mock()
         notificationService = mock()
         taskFeedbackRepository = mock()
+        taskHistoryRepository = mock()
         collectiveAccessService = CollectiveAccessService(memberRepository, collectiveRepository)
         operations =
             TaskOperations(
@@ -54,6 +58,7 @@ class TaskOperationsTest {
                 realtimeUpdateService = realtimeUpdateService,
                 notificationService = notificationService,
                 collectiveAccessService = collectiveAccessService,
+                taskHistoryRepository = taskHistoryRepository,
             )
         whenever(memberRepository.findByName("Kasper")).thenReturn(member("Kasper", "kasper@example.com"))
     }
@@ -356,7 +361,7 @@ class TaskOperationsTest {
     }
 
     @Test
-    fun `delete expired tasks removes incomplete tasks older than five days`() {
+    fun `delete expired tasks archives and removes completed and incomplete tasks older than five days`() {
         val expiredTask =
             TaskItem(
                 id = 6,
@@ -372,7 +377,8 @@ class TaskOperationsTest {
 
         operations.deleteExpiredTasks()
 
-        verify(taskRepository).deleteAll(listOf(expiredTask))
+        verify(taskHistoryRepository).saveAll(any<List<TaskHistoryEntry>>())
+        verify(taskRepository).deleteAll(listOf(expiredTask, completedTask))
     }
 
     @Test
