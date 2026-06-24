@@ -17,6 +17,8 @@
     "steps": {
       "home": { "title": "Dit udgangspunkt", "body": "Se kollektivet med ét blik — saldi, opgaver og stemningen for ugen." },
       "tasks": { "title": "Retfærdig fordeling", "body": "Opgaverne roterer jævnt hver uge. Fuldfører du dem, får du XP." },
+      "calendar": { "title": "Planlæg sammen", "body": "En delt kalender til husets begivenheder, gæster og stilletid — synkroniser den med din egen kalender også." },
+      "chat": { "title": "Tal sammen", "body": "Gruppechat for kollektivet: afstemninger, reaktioner, billeder og en venlig tak med kudos." },
       "economy": { "title": "Del og gør op", "body": "Hold styr på fælles udgifter og betal hinanden via Vipps, MobilePay, PayPal eller bank." },
       "social": { "title": "Konkurrer og spil", "body": "Klatr op ad ranglisten og start spilaftener sammen." },
       "profile": { "title": "Dig og indstillingerne", "body": "Tryk her for profil, betalingsmetoder, invitationer og valg for kollektivet." }

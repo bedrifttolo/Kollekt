@@ -17,6 +17,8 @@
     "steps": {
       "home": { "title": "Din utgångspunkt", "body": "Se kollektivet med en blick — saldon, uppgifter och stämningen för veckan." },
       "tasks": { "title": "Rättvis fördelning", "body": "Uppgifterna roterar jämnt varje vecka. Slutför du dem får du XP." },
+      "calendar": { "title": "Planera tillsammans", "body": "En delad kalender för husets händelser, gäster och tysta timmar — synka den med din egen kalender också." },
+      "chat": { "title": "Prata ihop er", "body": "Gruppchatt för kollektivet: omröstningar, reaktioner, bilder och ett vänligt tack med kudos." },
       "economy": { "title": "Dela och gör upp", "body": "Håll koll på gemensamma utgifter och betala varandra via Vipps, MobilePay, PayPal eller bank." },
       "social": { "title": "Tävla och spela", "body": "Klättra på topplistan och starta spelkvällar tillsammans." },
       "profile": { "title": "Du och inställningarna", "body": "Tryck här för profil, betalningsmetoder, inbjudningar och val för kollektivet." }

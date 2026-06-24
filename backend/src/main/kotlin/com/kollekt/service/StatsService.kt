@@ -452,19 +452,33 @@ class StatsService(
         val dueTasks = weekTasks.filter { !it.dueDate.isAfter(today) }
         val onTrackRate =
             if (dueTasks.isEmpty()) 1.0 else dueTasks.count { it.completed }.toDouble() / dueTasks.size
+        // The vibe is a positive, encouraging signal — most inputs add to it, and the only
+        // negative (money imbalance) is small and capped so it can never dominate the score.
         // Positive reinforcement: completing chores this week lifts the vibe.
         val activityBonus =
             allTasks.count { it.completedAt?.toLocalDate()?.let { date -> date in weekStart..today } == true }
-                .coerceAtMost(8)
+                .coerceAtMost(10)
+        // Planning life together (shared events, guest nights) is a healthy-household signal.
+        val planningBonus =
+            eventRepository
+                .findAllByCollectiveCode(collectiveCode)
+                .count { it.date in weekStart..today.plusWeeks(1) }
+                .coerceAtMost(6)
+        // Sharing costs as a group shows the household is actively cooperating.
+        val togethernessBonus =
+            expenseRepository
+                .findAllByCollectiveCode(collectiveCode)
+                .count { it.date in weekStart..today }
+                .coerceAtMost(4)
         // A gentle nudge toward settling up — capped low so money imbalance never dominates.
         val balanceSpread =
             (balances.maxOfOrNull { it.amount } ?: 0) - (balances.minOfOrNull { it.amount } ?: 0)
-        val balancePenalty = (balanceSpread / 200).coerceIn(0, 10)
-        // Encouraging baseline with a floor, so the household never feels punished into the ground.
+        val balancePenalty = (balanceSpread / 300).coerceIn(0, 6)
+        // Encouraging baseline with a generous floor, so the household never feels punished.
         val vibeScore =
-            (62 + onTrackRate * 30 + activityBonus - balancePenalty)
+            (58 + onTrackRate * 22 + activityBonus + planningBonus + togethernessBonus - balancePenalty)
                 .toInt()
-                .coerceIn(35, 100)
+                .coerceIn(50, 100)
 
         val response =
             DashboardResponse(

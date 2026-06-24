@@ -387,68 +387,65 @@ export default function CalendarPage() {
         </div>
       </div>
 
-      {/* Google Calendar sync */}
-      <button
-        onClick={handleGoogleSync}
-        className={`flex w-full items-center gap-3 rounded-[1.1rem] border bg-card p-3 transition-colors hover:bg-muted/30 ${googleConnected ? "border-primary/40" : "border-border"}`}
-      >
-        <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
-          <ExternalLink className="h-4 w-4 text-muted-foreground" />
-        </div>
-        <div className="flex-1 text-left">
-          <p className="text-sm font-medium">
-            {t("calendar.syncGoogleCalendar")}
-          </p>
-          <p className="text-[10px] text-muted-foreground">
-            {googleConnected
-              ? t("calendar.syncConnected")
-              : t("calendar.syncDisconnected")}
-          </p>
-        </div>
-        {googleConnected && (
-          <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/20 text-primary font-medium">
-            {t("common.connected")}
-          </span>
-        )}
-      </button>
-
-      {/* Subscribe in any calendar app (Apple, Google, Android, Outlook) via an .ics feed */}
-      <div className="rounded-[1.1rem] border border-border bg-card p-3">
-        <div className="flex items-center gap-3">
+      {/* Calendar connections: Google two-way sync + read-only .ics subscribe, in one compact card */}
+      <div className={`overflow-hidden rounded-[1.1rem] border bg-card divide-y divide-border ${googleConnected ? "border-primary/40" : "border-border"}`}>
+        <button
+          onClick={handleGoogleSync}
+          className="flex w-full items-center gap-3 p-2.5 text-left transition-colors hover:bg-muted/30"
+        >
           <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
-            <CalendarPlus className="h-4 w-4 text-muted-foreground" />
+            <ExternalLink className="h-4 w-4 text-muted-foreground" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium">{t("calendar.subscribeTitle")}</p>
-            <p className="text-[10px] text-muted-foreground">{t("calendar.subscribeSubtitle")}</p>
+            <p className="text-sm font-medium">{t("calendar.syncGoogleCalendar")}</p>
+            <p className="text-[10px] leading-snug text-muted-foreground">
+              {googleConnected ? t("calendar.syncConnected") : t("calendar.syncDisconnected")}
+            </p>
           </div>
-        </div>
-        {feedUrl && (
-          <div className="mt-3 space-y-2">
-            <div className="flex gap-2">
+          {googleConnected && (
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/20 text-primary font-medium shrink-0">
+              {t("common.connected")}
+            </span>
+          )}
+        </button>
+
+        <div className="p-2.5">
+          <div className="flex items-center gap-3">
+            <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
+              <CalendarPlus className="h-4 w-4 text-muted-foreground" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium">{t("calendar.subscribeTitle")}</p>
+              <p className="text-[10px] leading-snug text-muted-foreground">{t("calendar.subscribeSubtitle")}</p>
+            </div>
+            {feedUrl && (
+              <a
+                href={feedUrl.replace(/^https?:\/\//, "webcal://")}
+                className="flex items-center gap-1.5 gradient-primary rounded-lg px-3 py-1.5 text-xs font-semibold text-primary-foreground shrink-0"
+              >
+                <CalendarPlus className="h-4 w-4" /> {t("calendar.subscribeButton")}
+              </a>
+            )}
+          </div>
+          {feedUrl && (
+            <div className="mt-2 flex gap-2">
               <input
                 readOnly
                 value={feedUrl}
                 onFocus={(event) => event.currentTarget.select()}
-                className="min-w-0 flex-1 bg-muted/50 rounded-lg px-3 py-2 text-xs text-muted-foreground focus:outline-none"
+                className="min-w-0 flex-1 bg-muted/50 rounded-lg px-3 py-1.5 text-xs text-muted-foreground focus:outline-none"
                 aria-label={t("calendar.subscribeUrlLabel")}
               />
               <button
                 onClick={() => void copyFeedUrl()}
-                className="h-9 w-9 shrink-0 rounded-lg glass flex items-center justify-center"
+                className="h-8 w-8 shrink-0 rounded-lg glass flex items-center justify-center"
                 aria-label={t("common.copy")}
               >
                 {feedCopied ? <Check className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4 text-muted-foreground" />}
               </button>
             </div>
-            <a
-              href={feedUrl.replace(/^https?:\/\//, "webcal://")}
-              className="flex w-full items-center justify-center gap-1.5 gradient-primary rounded-lg py-2 text-sm font-semibold text-primary-foreground"
-            >
-              <CalendarPlus className="h-4 w-4" /> {t("calendar.subscribeButton")}
-            </a>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {/* Events for selected day */}
