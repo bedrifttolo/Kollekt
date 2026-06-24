@@ -300,6 +300,29 @@ class ChatOperations(
         return dto
     }
 
+    // A system-style notice posted into the household chat (e.g. a violation report). Saved and
+    // broadcast like a normal message, but without NEW_MESSAGE notifications because the caller
+    // sends its own targeted notifications for the event.
+    @Transactional
+    fun postHouseholdNotice(
+        collectiveCode: String,
+        sender: String,
+        text: String,
+    ): MessageDto {
+        val saved =
+            chatMessageRepository.save(
+                ChatMessage(
+                    sender = sender,
+                    collectiveCode = collectiveCode,
+                    text = text,
+                    timestamp = LocalDateTime.now(),
+                ),
+            )
+        val dto = saved.toDto()
+        realtimeUpdateService.publish(collectiveCode, "MESSAGE_CREATED", dto)
+        return dto
+    }
+
     private fun notifyOtherMembers(
         collectiveCode: String,
         sender: String,

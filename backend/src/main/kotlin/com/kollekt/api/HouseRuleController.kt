@@ -1,7 +1,9 @@
 package com.kollekt.api
 
 import com.kollekt.api.dto.HouseRulesDto
+import com.kollekt.api.dto.ReportViolationRequest
 import com.kollekt.api.dto.UpdateHouseRulesRequest
+import com.kollekt.api.dto.ViolationReportDto
 import com.kollekt.service.HouseRuleOperations
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.oauth2.jwt.Jwt
@@ -35,4 +37,11 @@ class HouseRuleController(
         @PathVariable version: Int,
         @AuthenticationPrincipal jwt: Jwt,
     ): HouseRulesDto = operations.acknowledge(collectiveId, version, jwt.subject)
+
+    @PostMapping("/api/collectives/{collectiveId}/violations")
+    fun reportViolation(
+        @PathVariable collectiveId: Long,
+        @RequestBody request: ReportViolationRequest,
+        @AuthenticationPrincipal jwt: Jwt,
+    ): ViolationReportDto = operations.reportViolation(collectiveId, request, jwt.subject)
 }

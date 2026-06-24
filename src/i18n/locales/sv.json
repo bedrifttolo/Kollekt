@@ -443,7 +443,7 @@
     "notThisTime": "Inte den här gången",
     "types": { "WHITES": "Vitt", "COLORS": "Kulört", "DELICATES": "Fintvätt", "WOOL": "Ylle", "SPORTS": "Träningskläder", "TOWELS": "Handdukar" }
   },
-  "quietHours": { "title": "Tyst tid", "window": "{{start}}–{{end}}", "disabled": "Tyst tid är av", "save": "Spara tyst tid" },
+  "quietHours": { "title": "Tyst tid", "window": "{{start}}–{{end}}", "disabled": "Tyst tid är av", "save": "Spara tyst tid", "edit": "Redigera", "cancel": "Avbryt", "enabledLabel": "Aktivera tyst tid" },
   "calendar": {
     "eyebrow": "Tillsammans",
     "title": "Huskalender",
@@ -597,7 +597,8 @@
         "mexican": "Mexikanare",
         "kingsCup": "Kings Cup",
         "categories": "Kategorier",
-        "charades": "Charader"
+        "charades": "Charader",
+        "snusboksen": "Snusboksen"
       },
       "descriptions": {
         "dice": "Kasta en virtuell tärning och skicka turen vidare.",
