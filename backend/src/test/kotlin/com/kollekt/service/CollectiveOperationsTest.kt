@@ -42,6 +42,7 @@ class CollectiveOperationsTest {
     private lateinit var invitationRealtimeService: InvitationRealtimeService
     private lateinit var googleCalendarService: GoogleCalendarService
     private lateinit var userProfileService: UserProfileService
+    private lateinit var invitationMailer: InvitationMailer
     private lateinit var operations: CollectiveOperations
 
     @BeforeEach
@@ -55,6 +56,7 @@ class CollectiveOperationsTest {
         invitationRealtimeService = mock()
         googleCalendarService = mock()
         userProfileService = UserProfileService(memberRepository, mock<FriendshipRepository>())
+        invitationMailer = mock()
         operations =
             CollectiveOperations(
                 memberRepository = memberRepository,
@@ -66,6 +68,7 @@ class CollectiveOperationsTest {
                 userProfileService = userProfileService,
                 invitationRealtimeService = invitationRealtimeService,
                 googleCalendarService = googleCalendarService,
+                invitationMailer = invitationMailer,
             )
     }
 
@@ -155,6 +158,7 @@ class CollectiveOperationsTest {
             eq("INVITATION_CREATED"),
             check<Invitation> { assertEquals("Emma", it.invitedBy) },
         )
+        verify(invitationMailer).sendInvitation(check { assertEquals("kasper@example.com", it.email) })
     }
 
     @Test

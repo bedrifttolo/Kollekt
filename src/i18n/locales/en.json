@@ -443,7 +443,7 @@
     "notThisTime": "Not this time",
     "types": { "WHITES": "Whites", "COLORS": "Colors", "DELICATES": "Delicates", "WOOL": "Wool", "SPORTS": "Sportswear", "TOWELS": "Towels" }
   },
-  "quietHours": { "title": "Quiet hours", "window": "{{start}}–{{end}}", "disabled": "Quiet hours are off", "save": "Save quiet hours" },
+  "quietHours": { "title": "Quiet hours", "window": "{{start}}–{{end}}", "disabled": "Quiet hours are off", "save": "Save quiet hours", "edit": "Edit", "cancel": "Cancel", "enabledLabel": "Enable quiet hours" },
   "calendar": {
     "eyebrow": "Together",
     "title": "House calendar",
@@ -597,7 +597,8 @@
         "mexican": "Mexican",
         "kingsCup": "Kings Cup",
         "categories": "Categories",
-        "charades": "Charades"
+        "charades": "Charades",
+        "snusboksen": "Snusboksen"
       },
       "descriptions": {
         "dice": "Roll a virtual die and pass the turn.",
@@ -611,7 +612,8 @@
         "mexican": "Roll in turn and beat the previous player's hidden result.",
         "kingsCup": "Draw cards and follow the rule tied to each rank.",
         "categories": "Name something in the category before time runs out.",
-        "charades": "Act out the word while the others race to guess it."
+        "charades": "Act out the word while the others race to guess it.",
+        "snusboksen": "Pass the can around and do whatever the card says."
       },
       "dice": {
         "roll": "Roll the die",
@@ -688,6 +690,121 @@
         "correct": "Correct",
         "nextPlayer": "Time is up – next player",
         "prompts": { "vacuum": "Vacuuming", "penguin": "Penguin", "superhero": "Superhero", "pizza": "Making pizza", "washingMachine": "Washing machine", "cat": "Cat", "football": "Playing football", "alarmClock": "Alarm clock", "hairdresser": "Hairdresser", "airplane": "Airplane", "ghost": "Ghost", "chef": "Chef", "robot": "Robot", "fishing": "Fishing", "selfie": "Taking a selfie", "banana": "Peeling a banana", "snowman": "Building a snowman", "guitar": "Playing guitar", "trafficJam": "Traffic jam", "movingDay": "Moving day" }
+      },
+      "snusboksen": {
+        "pickDeck": "Pick a deck",
+        "deckNames": { "mild": "Mild", "medium": "Medium", "droy": "Drøy" },
+        "deckDescriptions": {
+          "mild": "Easy-going prompts to warm up the room.",
+          "medium": "Spicier questions and sillier dares.",
+          "droy": "The boldest, most revealing cards. No mercy."
+        },
+        "progress": "Card {{current}} of {{total}}",
+        "pass": "Pass the can to {{player}}",
+        "reveal": "Reveal the card",
+        "next": "Pass it on",
+        "done": "Box empty!",
+        "doneSubtitle": "You went through all the cards.",
+        "playAgain": "Reshuffle and play again",
+        "changeDeck": "Change deck",
+        "decks": {
+          "mild": [
+            "Tell the group one thing you're genuinely good at.",
+            "Do your best impression of another player.",
+            "Show the last photo in your camera roll (your choice).",
+            "Say something nice about the person on your left.",
+            "Teach everyone a word in another language.",
+            "Do 10 jumping jacks right now.",
+            "Talk in an accent until your next turn.",
+            "Name a hidden talent nobody here knows about.",
+            "Share the best meal you've cooked this month.",
+            "Do your happy dance for 10 seconds.",
+            "Give the group your honest weather forecast for tomorrow.",
+            "Swap one item of clothing with the player on your right.",
+            "Tell us your go-to karaoke song.",
+            "Pay a genuine compliment to everyone in the room.",
+            "Describe your dream weekend in one sentence.",
+            "Do your best slow-motion celebration.",
+            "Tell the funniest clean joke you know.",
+            "Hold a plank until your next turn.",
+            "Share one thing on your bucket list.",
+            "Speak only in questions until your next turn.",
+            "Show off your best dance move.",
+            "Tell the group your earliest happy memory.",
+            "Do an impression of your favourite animal.",
+            "Give a 10-second motivational speech.",
+            "Name three things you're grateful for today.",
+            "Let the player on your left pick a silly voice for you to use.",
+            "Sing the chorus of the last song you listened to.",
+            "Tell us your most-used emoji and why.",
+            "Do your best robot walk across the room.",
+            "Share a small win from this week."
+          ],
+          "medium": [
+            "Reveal the most-used app on your phone right now.",
+            "Who in this room would survive longest in a zombie apocalypse, and why?",
+            "Read your last sent text message out loud.",
+            "Do an impression of someone famous until it's guessed.",
+            "Tell the group an unpopular opinion you actually hold.",
+            "Let the group give you a new nickname for the rest of the game.",
+            "Name the most embarrassing thing in your search history (you choose).",
+            "Rank everyone here by how messy they are. Be honest.",
+            "Confess a small lie you've told this week.",
+            "Show the group your screen time for today.",
+            "Do your best catwalk strut across the room.",
+            "Tell us about your worst fashion phase.",
+            "Who here is most likely to become famous? Defend your answer.",
+            "Reveal a habit of yours that annoys other people.",
+            "Describe your last embarrassing moment in detail.",
+            "Admit which household chore you secretly never do.",
+            "Do an impression of how you look first thing in the morning.",
+            "Tell the group your most irrational fear.",
+            "Reveal the contact name you have saved for the person on your left.",
+            "Share the cringiest thing you did to impress a crush.",
+            "Who here gives the best advice, and who gives the worst?",
+            "Do your best fake cry for 10 seconds.",
+            "Tell us the weirdest thing you've ever eaten.",
+            "Confess the last thing you lied to a roommate about.",
+            "Reveal how many unread notifications you have right now.",
+            "Act out your most dramatic reaction to losing your keys.",
+            "Share an opinion you know will start an argument here.",
+            "Let the group decide a small dare for you.",
+            "Tell us the last thing you Googled at 2am.",
+            "Reveal which roommate you'd call first in an emergency."
+          ],
+          "droy": [
+            "Reveal the most recent person you looked up on social media.",
+            "Read your most recent message out loud (you may hide names).",
+            "Whose chat do you open the most? Show the proof.",
+            "Confess your biggest ick, no names required.",
+            "Reveal a secret you've never told anyone here.",
+            "Who here have you talked about behind their back? Be honest.",
+            "Show the last five people you texted and explain each.",
+            "Admit the pettiest reason you've ever judged someone.",
+            "Reveal your phone's most embarrassing autocorrect fail.",
+            "Rank everyone here from most to least likely to ghost you.",
+            "Confess the thing you've most exaggerated to look good.",
+            "Who in this room would you swap lives with for a week, and why?",
+            "Reveal the last thing you regret sending.",
+            "Tell the group your most controversial dating opinion.",
+            "Show your 'recently watched' or 'for you' feed to the group.",
+            "Admit which person here you misjudged when you first met them.",
+            "Reveal the screenshot you'd least want someone to find.",
+            "Confess a grudge you're still holding, and against whom.",
+            "Who here is the biggest oversharer? Roast them lovingly.",
+            "Reveal the cringiest message sitting in your drafts.",
+            "Tell us the wildest rumour you've ever heard about yourself.",
+            "Admit the most embarrassing thing you've done for attention.",
+            "Reveal your most-replayed song that you'd be embarrassed to admit.",
+            "Confess the last white lie you told to get out of plans.",
+            "Who here would you trust with your unlocked phone, and who absolutely not?",
+            "Reveal the most dramatic thing you've ever done over text.",
+            "Tell the group the pettiest reason you've drifted from a friend.",
+            "Admit which roommate habit drives you genuinely insane.",
+            "Reveal the boldest thing you've ever said to a crush.",
+            "Confess the secret you'd least want posted in the house chat."
+          ]
+        }
       },
       "spin": {
         "spinButton": "Spin",
@@ -1026,7 +1143,9 @@
         "KUDOS_RECEIVED": "💛 {{sender}} gave you kudos: {{context}}",
         "HOUSE_RULES_UPDATED": "House rules were updated to version {{version}}.",
         "GUEST_NOTICE_CREATED": "{{host}} is having {{guest}} over on {{date}}.",
-        "GUEST_QUIET_HOURS_OVERLAP": "{{guest}}'s visit overlaps quiet hours from {{start}}."
+        "GUEST_QUIET_HOURS_OVERLAP": "{{guest}}'s visit overlaps quiet hours from {{start}}.",
+        "QUIET_HOURS_VIOLATION": "⚠️ {{reporter}} reported a quiet-hours violation.",
+        "HOUSE_RULE_VIOLATION": "⚠️ {{reporter}} reported a house-rule violation."
       }
     },
     "notificationPreferences": {
@@ -1049,7 +1168,9 @@
         "EVENT_ADDED": "New calendar event",
         "HOUSE_RULES_UPDATED": "House rule updates",
         "GUEST_NOTICE_CREATED": "Guest notices",
-        "GUEST_QUIET_HOURS_OVERLAP": "Quiet-hour guest reminders"
+        "GUEST_QUIET_HOURS_OVERLAP": "Quiet-hour guest reminders",
+        "QUIET_HOURS_VIOLATION": "Quiet-hours violation reports",
+        "HOUSE_RULE_VIOLATION": "House-rule violation reports"
       }
     },
     "paymentMethods": {
@@ -1079,7 +1200,26 @@
       "acknowledge": "Acknowledge",
       "editorTitle": "Edit House Rules",
       "placeholder": "Write the shared expectations for your household...",
-      "publish": "Publish new version"
+      "publish": "Publish new version",
+      "showMore": "Show {{count}} more",
+      "showLess": "Show less"
+    },
+    "violations": {
+      "title": "Report a violation",
+      "subtitle": "Flag a quiet-hours or house-rule breach to a roommate or the whole household",
+      "types": {
+        "QUIET_HOURS": "Quiet hours",
+        "HOUSE_RULE": "House rule"
+      },
+      "recipientLabel": "Who should be notified",
+      "wholeHousehold": "Whole household",
+      "notePlaceholder": "Add a short note (optional)",
+      "send": "Send report",
+      "sending": "Sending...",
+      "sent": "Violation reported",
+      "failed": "Could not send the report",
+      "chatMessage": "⚠️ A {{type}} violation was reported.",
+      "chatMessageWithNote": "⚠️ A {{type}} violation was reported: {{note}}"
     },
     "inviteRoommates": {
       "title": "Invite Roommates",
@@ -1134,7 +1274,8 @@
       "copyFailed": "Could not copy household code",
       "quietHoursFailed": "Couldn't save quiet hours",
       "leaveFailed": "Could not leave the household",
-      "partialLoadFailed": "Some profile information could not be loaded."
+      "partialLoadFailed": "Some profile information could not be loaded.",
+      "invalidEmail": "Enter a valid email address"
     }
   }
 }

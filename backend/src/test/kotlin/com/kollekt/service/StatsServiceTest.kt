@@ -9,6 +9,7 @@ import com.kollekt.domain.EventType
 import com.kollekt.domain.Expense
 import com.kollekt.domain.Member
 import com.kollekt.domain.TaskCategory
+import com.kollekt.domain.TaskHistoryEntry
 import com.kollekt.domain.TaskItem
 import com.kollekt.repository.CollectiveRepository
 import com.kollekt.repository.CustomAchievementRepository
@@ -16,6 +17,7 @@ import com.kollekt.repository.EventRepository
 import com.kollekt.repository.ExpenseRepository
 import com.kollekt.repository.MemberRepository
 import com.kollekt.repository.ShoppingItemRepository
+import com.kollekt.repository.TaskHistoryRepository
 import com.kollekt.repository.TaskRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -42,6 +44,7 @@ class StatsServiceTest {
     private lateinit var realtimeUpdateService: RealtimeUpdateService
     private lateinit var economyOperations: EconomyOperations
     private lateinit var shoppingItemRepository: ShoppingItemRepository
+    private lateinit var taskHistoryRepository: TaskHistoryRepository
     private lateinit var service: StatsService
 
     @BeforeEach
@@ -56,6 +59,7 @@ class StatsServiceTest {
         realtimeUpdateService = mock()
         economyOperations = mock()
         shoppingItemRepository = mock()
+        taskHistoryRepository = mock()
         service =
             StatsService(
                 collectiveAccessService = collectiveAccessService,
@@ -63,6 +67,7 @@ class StatsServiceTest {
                 collectiveRepository = collectiveRepository,
                 customAchievementRepository = customAchievementRepository,
                 taskRepository = taskRepository,
+                taskHistoryRepository = taskHistoryRepository,
                 eventRepository = eventRepository,
                 expenseRepository = expenseRepository,
                 realtimeUpdateService = realtimeUpdateService,
@@ -266,6 +271,41 @@ class StatsServiceTest {
         assertEquals(150, result.xp)
         assertEquals(1, result.tasksCompleted)
         assertEquals(1, result.skippedTasks)
+    }
+
+    @Test
+    fun `stats include archived task history alongside live tasks`() {
+        whenever(memberRepository.findByName("Emma")).thenReturn(member("Emma", "emma@example.com", id = 2, xp = 150, level = 1))
+        whenever(taskRepository.findAllByCollectiveCode("ABC123")).thenReturn(
+            listOf(
+                task(id = 1, title = "Trash", assignee = "Emma", completed = true, completedAt = LocalDateTime.now().minusDays(1), xp = 20),
+            ),
+        )
+        whenever(taskHistoryRepository.findAllByCollectiveCode("ABC123")).thenReturn(
+            listOf(
+                TaskHistoryEntry(
+                    id = 9,
+                    collectiveCode = "ABC123",
+                    assignee = "Emma",
+                    completed = true,
+                    completedAt = LocalDateTime.now().minusDays(30),
+                    dueDate = LocalDate.now().minusDays(31),
+                    category = TaskCategory.CLEANING,
+                    xp = 15,
+                ),
+            ),
+        )
+        whenever(memberRepository.findAllByCollectiveCode("ABC123")).thenReturn(
+            listOf(
+                member("Kasper", "kasper@example.com", xp = 250, level = 2),
+                member("Emma", "emma@example.com", id = 2, xp = 150, level = 1),
+            ),
+        )
+
+        val result = service.getMemberStats(viewerName = "Kasper", targetName = "Emma")
+
+        // One live completed task plus one archived completed task.
+        assertEquals(2, result.tasksCompleted)
     }
 
     @Test

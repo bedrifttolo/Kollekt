@@ -36,6 +36,7 @@ export const GAME_CATALOG: GameEntry[] = [
   { id: 'kings-cup', titleKey: 'kingsCup', descriptionKey: 'kingsCup', emoji: '🃏', category: 'cards', difficulty: 'medium', minPlayers: 2, minutes: 30, playable: true },
   { id: 'categories', titleKey: 'categories', descriptionKey: 'categories', emoji: '💭', category: 'party', difficulty: 'easy', minPlayers: 2, minutes: 15, playable: true },
   { id: 'charades', titleKey: 'charades', descriptionKey: 'charades', emoji: '🕺', category: 'party', difficulty: 'party', minPlayers: 2, minutes: 20, playable: true },
+  { id: 'snusboksen', titleKey: 'snusboksen', descriptionKey: 'snusboksen', emoji: '🥫', category: 'party', difficulty: 'party', minPlayers: 2, minutes: 15, playable: true },
 ];
 
 export const GAME_CATEGORIES: Array<{ id: GameCategoryFilter; emoji?: string }> = [
