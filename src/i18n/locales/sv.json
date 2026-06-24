@@ -17,6 +17,8 @@
     "steps": {
       "home": { "title": "Din utgångspunkt", "body": "Se kollektivet med en blick — saldon, uppgifter och stämningen för veckan." },
       "tasks": { "title": "Rättvis fördelning", "body": "Uppgifterna roterar jämnt varje vecka. Slutför du dem får du XP." },
+      "calendar": { "title": "Planera tillsammans", "body": "En delad kalender för husets händelser, gäster och tysta timmar — synka den med din egen kalender också." },
+      "chat": { "title": "Prata ihop er", "body": "Gruppchatt för kollektivet: omröstningar, reaktioner, bilder och ett vänligt tack med kudos." },
       "economy": { "title": "Dela och gör upp", "body": "Håll koll på gemensamma utgifter och betala varandra via Vipps, MobilePay, PayPal eller bank." },
       "social": { "title": "Tävla och spela", "body": "Klättra på topplistan och starta spelkvällar tillsammans." },
       "profile": { "title": "Du och inställningarna", "body": "Tryck här för profil, betalningsmetoder, inbjudningar och val för kollektivet." }
@@ -1011,6 +1013,8 @@
         "TASK_DEADLINE_SOON": "Uppgiften '{{title}}' förfaller om {{days}} dag(ar).",
         "TASK_OVERDUE": "Uppgiften '{{title}}' är försenad! Ett straff har tillämpats.",
         "TASK_OVERDUE_GROUP": "Uppgiften '{{title}}' tilldelad {{assignee}} är försenad och ej slutförd.",
+        "TASK_NUDGE": "👋 {{sender}} gav uppgiften '{{title}}' en vänlig knuff.",
+        "WEEKLY_RECAP": "📊 Den här veckan: {{tasksCompleted}} uppgifter klara. Toppbidragare: {{topContributor}}.",
         "TASK_FEEDBACK": "{{author}} gav feedback på din uppgift '{{title}}'.",
         "TASK_COMPLETED_LATE": "Du slutförde '{{title}}' för sent. XP har minskats.",
         "TASK_SWAP_REQUESTED": "{{fromUser}} frågade om du kan ta '{{title}}'.",
@@ -1032,6 +1036,8 @@
         "TASK_ASSIGNED": "Uppgift tilldelad mig",
         "TASK_DEADLINE_SOON": "Uppgift förfaller imorgon",
         "TASK_OVERDUE": "Uppgiftsfristen har gått ut",
+        "TASK_NUDGE": "Knuffar på mina uppgifter",
+        "WEEKLY_RECAP": "Veckans sammanfattning",
         "TASK_SWAP_REQUESTED": "Förfrågningar om uppgiftsbyte",
         "TASK_SWAP_ACCEPTED": "Accepterade uppgiftsbyten",
         "TASK_SWAP_DECLINED": "Avböjda uppgiftsbyten",

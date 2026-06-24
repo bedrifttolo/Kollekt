@@ -77,9 +77,10 @@ class ShoppingOperationsTest {
 
     @Test
     fun `create shopping item rejects blank input`() {
-        val error = assertThrows<IllegalArgumentException> {
-            operations.createShoppingItem(CreateShoppingItemRequest("   ", "Ignored"), "Kasper")
-        }
+        val error =
+            assertThrows<IllegalArgumentException> {
+                operations.createShoppingItem(CreateShoppingItemRequest("   ", "Ignored"), "Kasper")
+            }
 
         assertEquals("Shopping item is required", error.message)
     }
@@ -166,6 +167,19 @@ class ShoppingOperationsTest {
         verify(shoppingItemRepository).deleteById(1)
         verify(shoppingItemRepository, never()).deleteById(2)
         verify(shoppingItemRepository, never()).deleteById(3)
+    }
+
+    @Test
+    fun `create shopping item flags communal staple`() {
+        whenever(shoppingItemRepository.save(any<ShoppingItem>())).thenAnswer { it.arguments[0] as ShoppingItem }
+
+        val result =
+            operations.createShoppingItem(
+                request = CreateShoppingItemRequest(item = "Toilet paper", addedBy = "Ignored", staple = true),
+                actorName = "Kasper",
+            )
+
+        assertTrue(result.staple)
     }
 
     private fun member(

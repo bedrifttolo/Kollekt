@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
+import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
@@ -190,6 +191,57 @@ class ChatOperationsTest {
                 .users,
         )
         verify(realtimeUpdateService).publish("ABC123", "MESSAGE_POLL_UPDATED", result)
+    }
+
+    @Test
+    fun `pinning a message unpins any previously pinned message`() {
+        val target =
+            ChatMessage(
+                id = 50,
+                sender = "Emma",
+                collectiveCode = "ABC123",
+                text = "Landlord visit Friday",
+                timestamp = LocalDateTime.now(),
+            )
+        val previouslyPinned =
+            ChatMessage(
+                id = 49,
+                sender = "Ola",
+                collectiveCode = "ABC123",
+                text = "Old notice",
+                timestamp = LocalDateTime.now(),
+                pinned = true,
+            )
+        whenever(chatMessageRepository.findById(50)).thenReturn(Optional.of(target))
+        whenever(chatMessageRepository.findAllByCollectiveCode("ABC123")).thenReturn(listOf(target, previouslyPinned))
+        whenever(chatMessageRepository.save(any<ChatMessage>())).thenAnswer { it.arguments[0] as ChatMessage }
+
+        val result = operations.togglePin(50, "Kasper")
+
+        assertTrue(result.pinned)
+        verify(chatMessageRepository).save(previouslyPinned.copy(pinned = false))
+        verify(chatMessageRepository).save(target.copy(pinned = true))
+        verify(realtimeUpdateService).publish(eq("ABC123"), eq("MESSAGE_PINNED"), any())
+    }
+
+    @Test
+    fun `pinning an already pinned message unpins it`() {
+        val pinned =
+            ChatMessage(
+                id = 51,
+                sender = "Emma",
+                collectiveCode = "ABC123",
+                text = "Notice",
+                timestamp = LocalDateTime.now(),
+                pinned = true,
+            )
+        whenever(chatMessageRepository.findById(51)).thenReturn(Optional.of(pinned))
+        whenever(chatMessageRepository.save(any<ChatMessage>())).thenAnswer { it.arguments[0] as ChatMessage }
+
+        val result = operations.togglePin(51, "Kasper")
+
+        assertEquals(false, result.pinned)
+        verify(chatMessageRepository).save(pinned.copy(pinned = false))
     }
 
     private fun member(

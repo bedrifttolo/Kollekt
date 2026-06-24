@@ -31,6 +31,7 @@ class MemberController(
     data class StatusUpdateRequest(
         val memberName: String,
         val status: String,
+        val awayUntil: String? = null,
     )
 
     data class ColorUpdateRequest(
@@ -69,7 +70,15 @@ class MemberController(
             } catch (e: Exception) {
                 throw IllegalArgumentException("Invalid status")
             }
-        memberOperations.updateMemberStatus(req.memberName, newStatus)
+        val awayUntil =
+            req.awayUntil?.takeIf { it.isNotBlank() }?.let {
+                try {
+                    java.time.LocalDate.parse(it)
+                } catch (e: Exception) {
+                    throw IllegalArgumentException("Invalid away date")
+                }
+            }
+        memberOperations.updateMemberStatus(req.memberName, newStatus, awayUntil)
     }
 
     @PatchMapping("/color")

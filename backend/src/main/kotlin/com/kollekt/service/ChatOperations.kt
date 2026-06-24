@@ -273,6 +273,33 @@ class ChatOperations(
         return dto
     }
 
+    // #7 Pinned announcement: at most one message is pinned per collective, so important
+    // notices (landlord visit, bills due) don't scroll away. Pinning replaces any prior pin.
+    @Transactional
+    fun togglePin(
+        messageId: Long,
+        actorName: String,
+    ): MessageDto {
+        val collectiveCode = collectiveAccessService.requireCollectiveCodeByMemberName(actorName)
+        val message =
+            chatMessageRepository
+                .findById(messageId)
+                .orElseThrow { IllegalArgumentException("Message not found") }
+        require(message.collectiveCode == collectiveCode) { "Message not found" }
+
+        val nowPinned = !message.pinned
+        if (nowPinned) {
+            chatMessageRepository
+                .findAllByCollectiveCode(collectiveCode)
+                .filter { it.pinned && it.id != messageId }
+                .forEach { chatMessageRepository.save(it.copy(pinned = false)) }
+        }
+        val updated = chatMessageRepository.save(message.copy(pinned = nowPinned))
+        val dto = updated.toDto()
+        realtimeUpdateService.publish(collectiveCode, "MESSAGE_PINNED", dto)
+        return dto
+    }
+
     private fun notifyOtherMembers(
         collectiveCode: String,
         sender: String,
@@ -349,5 +376,6 @@ class ChatOperations(
                                 .map { PollOptionDto(id = it.id, text = it.text, users = it.users.sorted()) },
                     )
                 },
+            pinned = pinned,
         )
 }
