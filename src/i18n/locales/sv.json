@@ -284,6 +284,8 @@
     },
     "onlineRoommates_one": "{{count}} rumskompis online",
     "onlineRoommates_other": "{{count}} rumskompisar online",
+    "promosTitle": "Vad händer denna vecka",
+    "promoGoTo": "Gå till kampanj {{index}}",
     "upcomingTasks": "Kommande uppgifter",
     "noUpcomingTasks": "Inga kommande uppgifter",
     "upcomingEvents": "Kommande händelser",
@@ -612,7 +614,8 @@
         "mexican": "Kasta i tur och slå föregående spelares dolda resultat.",
         "kingsCup": "Dra kort och följ regeln som hör till kortets valör.",
         "categories": "Nämn något i kategorin innan tiden tar slut.",
-        "charades": "Spela upp ordet medan de andra försöker gissa det."
+        "charades": "Spela upp ordet medan de andra försöker gissa det.",
+        "snusboksen": "Skicka burken runt och gör det kortet säger."
       },
       "dice": {
         "roll": "Kasta tärningen",
@@ -689,6 +692,121 @@
         "correct": "Rätt",
         "nextPlayer": "Tiden är ute – nästa spelare",
         "prompts": { "vacuum": "Dammsuga", "penguin": "Pingvin", "superhero": "Superhjälte", "pizza": "Göra pizza", "washingMachine": "Tvättmaskin", "cat": "Katt", "football": "Spela fotboll", "alarmClock": "Väckarklocka", "hairdresser": "Frisör", "airplane": "Flygplan", "ghost": "Spöke", "chef": "Kock", "robot": "Robot", "fishing": "Fiska", "selfie": "Ta en selfie", "banana": "Skala en banan", "snowman": "Bygga snögubbe", "guitar": "Spela gitarr", "trafficJam": "Trafikstockning", "movingDay": "Flyttdag" }
+      },
+      "snusboksen": {
+        "pickDeck": "Välj en kortlek",
+        "deckNames": { "mild": "Mild", "medium": "Medium", "droy": "Drøy" },
+        "deckDescriptions": {
+          "mild": "Lugna uppgifter för att värma upp.",
+          "medium": "Vassare frågor och fånigare utmaningar.",
+          "droy": "De djärvaste, mest avslöjande korten. Ingen nåd."
+        },
+        "progress": "Kort {{current}} av {{total}}",
+        "pass": "Skicka burken till {{player}}",
+        "reveal": "Visa kortet",
+        "next": "Skicka vidare",
+        "done": "Burken är tom!",
+        "doneSubtitle": "Ni gick igenom alla kort.",
+        "playAgain": "Blanda och spela igen",
+        "changeDeck": "Byt kortlek",
+        "decks": {
+          "mild": [
+            "Berätta en sak du verkligen är bra på.",
+            "Gör din bästa imitation av en annan spelare.",
+            "Visa den senaste bilden i din kamerarulle (du väljer själv).",
+            "Säg något snällt om personen till vänster om dig.",
+            "Lär ut ett ord på ett annat språk.",
+            "Gör 10 jumping jacks nu.",
+            "Prata med brytning tills det blir din tur igen.",
+            "Nämn en dold talang ingen här känner till.",
+            "Berätta om den bästa måltiden du lagat den här månaden.",
+            "Gör din glädjedans i 10 sekunder.",
+            "Ge gruppen din ärliga väderprognos för imorgon.",
+            "Byt ett klädesplagg med spelaren till höger om dig.",
+            "Berätta vilken låt du alltid sjunger på karaoke.",
+            "Ge en äkta komplimang till alla i rummet.",
+            "Beskriv din drömhelg med en mening.",
+            "Gör ditt bästa firande i slow motion.",
+            "Berätta det roligaste rena skämtet du kan.",
+            "Håll plankan tills det blir din tur igen.",
+            "Dela en sak från din bucket-lista.",
+            "Prata bara i frågor tills det blir din tur igen.",
+            "Visa upp ditt bästa danssteg.",
+            "Berätta ditt tidigaste lyckliga minne.",
+            "Gör en imitation av ditt favoritdjur.",
+            "Håll ett 10 sekunders peppande tal.",
+            "Nämn tre saker du är tacksam för idag.",
+            "Låt spelaren till vänster välja en fånig röst du måste använda.",
+            "Sjung refrängen på den senaste låten du lyssnade på.",
+            "Berätta vilken emoji du använder mest, och varför.",
+            "Gör din bästa robotgång över golvet.",
+            "Dela en liten seger från den här veckan."
+          ],
+          "medium": [
+            "Visa vilken app du använt mest på telefonen idag.",
+            "Vem i rummet skulle överleva längst i en zombieapokalyps, och varför?",
+            "Läs högt det senaste meddelandet du skickade.",
+            "Gör en imitation av en kändis tills den gissas.",
+            "Berätta en impopulär åsikt du faktiskt har.",
+            "Låt gruppen ge dig ett nytt smeknamn resten av spelet.",
+            "Nämn det mest pinsamma i din sökhistorik (du väljer själv).",
+            "Rangordna alla här efter hur stökiga de är. Var ärlig.",
+            "Erkänn en liten lögn du berättat den här veckan.",
+            "Visa gruppen din skärmtid för idag.",
+            "Gå din bästa catwalk över golvet.",
+            "Berätta om din värsta modeperiod.",
+            "Vem här blir mest sannolikt känd? Försvara ditt svar.",
+            "Avslöja en vana hos dig som irriterar andra.",
+            "Beskriv ditt senaste pinsamma ögonblick i detalj.",
+            "Erkänn vilken hushållssyssla du i hemlighet aldrig gör.",
+            "Gör en imitation av hur du ser ut precis när du vaknar.",
+            "Berätta din mest irrationella rädsla.",
+            "Avslöja kontaktnamnet du sparat på personen till vänster.",
+            "Dela det mest pinsamma du gjort för att imponera på en kärlek.",
+            "Vem här ger bäst råd, och vem ger sämst?",
+            "Låtsas gråta i 10 sekunder.",
+            "Berätta det konstigaste du ätit.",
+            "Erkänn det senaste du ljög om för en rumskompis.",
+            "Avslöja hur många olästa notiser du har just nu.",
+            "Spela upp din mest dramatiska reaktion på att tappa nycklarna.",
+            "Dela en åsikt du vet kommer starta ett gräl här.",
+            "Låt gruppen bestämma en liten utmaning åt dig.",
+            "Berätta det senaste du googlade klockan två på natten.",
+            "Avslöja vilken rumskompis du skulle ringa först i en kris."
+          ],
+          "droy": [
+            "Avslöja den senaste personen du smygkollade på sociala medier.",
+            "Läs högt ditt senaste meddelande (du får dölja namn).",
+            "Vilken chatt öppnar du oftast? Visa beviset.",
+            "Erkänn din största ick, utan namn om du måste.",
+            "Avslöja en hemlighet du aldrig berättat för någon här.",
+            "Vem här har du pratat om bakom ryggen? Var ärlig.",
+            "Visa de fem senaste du skickat meddelande till och förklara var och en.",
+            "Erkänn den småaktigaste anledningen till att du dömt någon.",
+            "Avslöja telefonens mest pinsamma autokorrigeringsmiss.",
+            "Rangordna alla här från mest till minst sannolik att ghosta dig.",
+            "Erkänn det du överdrivit mest för att se bra ut.",
+            "Vem i rummet skulle du byta liv med en vecka, och varför?",
+            "Avslöja det senaste du ångrar att du skickade.",
+            "Berätta din mest kontroversiella dejtingåsikt.",
+            "Visa ditt 'senast tittade'- eller 'för dig'-flöde för gruppen.",
+            "Erkänn vem här du missbedömde när ni först träffades.",
+            "Avslöja skärmdumpen du minst vill att någon hittar.",
+            "Erkänn ett agg du fortfarande bär på, och mot vem.",
+            "Vem här delar mest? Roasta dem med kärlek.",
+            "Avslöja det pinsammaste meddelandet i dina utkast.",
+            "Berätta det vildaste ryktet du hört om dig själv.",
+            "Erkänn det mest pinsamma du gjort för uppmärksamhet.",
+            "Avslöja låten du spelar mest men skulle skämmas för att erkänna.",
+            "Erkänn den senaste vita lögnen du sa för att slippa planer.",
+            "Vem här skulle du lita på med olåst telefon, och vem absolut inte?",
+            "Avslöja det mest dramatiska du gjort över meddelande.",
+            "Berätta den småaktigaste anledningen till att du tappat en vän.",
+            "Erkänn vilken rumskompisvana som gör dig galen.",
+            "Avslöja det modigaste du någonsin sagt till en kärlek.",
+            "Erkänn hemligheten du minst vill ha postad i huschatten."
+          ]
+        }
       },
       "spin": {
         "spinButton": "Snurra",
@@ -1027,7 +1145,9 @@
         "KUDOS_RECEIVED": "💛 {{sender}} gav dig kudos: {{context}}",
         "HOUSE_RULES_UPDATED": "Husreglerna uppdaterades till version {{version}}.",
         "GUEST_NOTICE_CREATED": "{{host}} får besök av {{guest}} den {{date}}.",
-        "GUEST_QUIET_HOURS_OVERLAP": "{{guest}}s besök överlappar tyst tid från {{start}}."
+        "GUEST_QUIET_HOURS_OVERLAP": "{{guest}}s besök överlappar tyst tid från {{start}}.",
+        "QUIET_HOURS_VIOLATION": "⚠️ {{reporter}} anmälde en överträdelse av tyst tid.",
+        "HOUSE_RULE_VIOLATION": "⚠️ {{reporter}} anmälde en överträdelse av husreglerna."
       }
     },
     "notificationPreferences": {
@@ -1050,7 +1170,9 @@
         "EVENT_ADDED": "Ny kalenderhändelse",
         "HOUSE_RULES_UPDATED": "Uppdateringar av husregler",
         "GUEST_NOTICE_CREATED": "Gästmeddelanden",
-        "GUEST_QUIET_HOURS_OVERLAP": "Påminnelser om tyst tid"
+        "GUEST_QUIET_HOURS_OVERLAP": "Påminnelser om tyst tid",
+        "QUIET_HOURS_VIOLATION": "Anmälningar om tyst tid",
+        "HOUSE_RULE_VIOLATION": "Anmälningar om husregler"
       }
     },
     "paymentMethods": {
@@ -1080,7 +1202,27 @@
       "acknowledge": "Bekräfta",
       "editorTitle": "Redigera husregler",
       "placeholder": "Skriv hushållets gemensamma förväntningar...",
-      "publish": "Publicera ny version"
+      "publish": "Publicera ny version",
+      "showMore": "Visa {{count}} till",
+      "showLess": "Visa mindre"
+    },
+    "violations": {
+      "title": "Anmäl en överträdelse",
+      "subtitle": "Anmäl en överträdelse av tyst tid eller husregler till en rumskompis eller hela kollektivet",
+      "types": {
+        "QUIET_HOURS": "Tyst tid",
+        "HOUSE_RULE": "Husregel"
+      },
+      "recipientLabel": "Vem ska meddelas",
+      "wholeHousehold": "Hela kollektivet",
+      "notePlaceholder": "Lägg till en kort kommentar (valfritt)",
+      "send": "Skicka anmälan",
+      "sending": "Skickar …",
+      "sent": "Överträdelse anmäld",
+      "failed": "Kunde inte skicka anmälan",
+      "chatMessage": "⚠️ En överträdelse av {{type}} har anmälts.",
+      "chatMessageWithNote": "⚠️ En överträdelse av {{type}} har anmälts: {{note}}",
+      "anonymous": "Skicka anonymt (publiceras som en bot)"
     },
     "inviteRoommates": {
       "title": "Bjud in rumskompisar",
@@ -1135,7 +1277,8 @@
       "copyFailed": "Kunde inte kopiera kollektivkoden",
       "quietHoursFailed": "Kunde inte spara tyst tid",
       "leaveFailed": "Kunde inte lämna kollektivet",
-      "partialLoadFailed": "En del profilinformation kunde inte laddas."
+      "partialLoadFailed": "En del profilinformation kunde inte laddas.",
+      "invalidEmail": "Ange en giltig e-postadress"
     }
   }
 }

@@ -435,3 +435,14 @@ export interface PartyGameRoom {
   myQuestions: PartyGameQuestion[];
   questions: PartyGameQuestion[];
 }
+
+export interface Promotion {
+  id: string;
+  category: string;
+  dateLabel?: string | null;
+  title: string;
+  body: string;
+  location?: string | null;
+  ctaLabel?: string | null;
+  ctaUrl?: string | null;
+}

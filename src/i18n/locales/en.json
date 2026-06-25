@@ -284,6 +284,8 @@
     },
     "onlineRoommates_one": "{{count}} roommate online",
     "onlineRoommates_other": "{{count}} roommates online",
+    "promosTitle": "What's happening this week",
+    "promoGoTo": "Go to promotion {{index}}",
     "upcomingTasks": "Upcoming Tasks",
     "noUpcomingTasks": "No upcoming tasks",
     "upcomingEvents": "Upcoming Events",
@@ -1219,7 +1221,8 @@
       "sent": "Violation reported",
       "failed": "Could not send the report",
       "chatMessage": "⚠️ A {{type}} violation was reported.",
-      "chatMessageWithNote": "⚠️ A {{type}} violation was reported: {{note}}"
+      "chatMessageWithNote": "⚠️ A {{type}} violation was reported: {{note}}",
+      "anonymous": "Send anonymously (posts as a bot)"
     },
     "inviteRoommates": {
       "title": "Invite Roommates",

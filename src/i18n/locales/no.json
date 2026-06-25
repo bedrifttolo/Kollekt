@@ -284,6 +284,8 @@
     },
     "onlineRoommates_one": "{{count}} romkamerat pålogget",
     "onlineRoommates_other": "{{count}} romkamerater pålogget",
+    "promosTitle": "Hva skjer denne uka",
+    "promoGoTo": "Gå til kampanje {{index}}",
     "upcomingTasks": "Kommende oppgaver",
     "noUpcomingTasks": "Ingen kommende oppgaver",
     "upcomingEvents": "Kommende hendelser",
@@ -1219,7 +1221,8 @@
       "sent": "Brudd meldt",
       "failed": "Kunne ikke sende meldingen",
       "chatMessage": "⚠️ Det ble meldt om brudd på {{type}}.",
-      "chatMessageWithNote": "⚠️ Det ble meldt om brudd på {{type}}: {{note}}"
+      "chatMessageWithNote": "⚠️ Det ble meldt om brudd på {{type}}: {{note}}",
+      "anonymous": "Send anonymt (legges ut som en bot)"
     },
     "inviteRoommates": {
       "title": "Inviter romkamerater",
