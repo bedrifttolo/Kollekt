@@ -125,6 +125,7 @@ export default function ProfilePage() {
   const [violationType, setViolationType] = useState<"QUIET_HOURS" | "HOUSE_RULE">("QUIET_HOURS");
   const [violationRecipient, setViolationRecipient] = useState("ALL");
   const [violationNote, setViolationNote] = useState("");
+  const [violationAnonymous, setViolationAnonymous] = useState(false);
   const [violationSaving, setViolationSaving] = useState(false);
 
   const name = currentUser?.name ?? "";
@@ -326,6 +327,7 @@ export default function ProfilePage() {
         violationType,
         recipient: violationRecipient === "ALL" ? null : violationRecipient,
         message,
+        anonymous: violationAnonymous,
       });
       setViolationNote("");
       setFeedback({ type: "success", text: t("profile.violations.sent") });
@@ -783,6 +785,14 @@ export default function ProfilePage() {
             rows={2}
             className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm"
           />
+          <label className="flex items-center gap-2 text-xs text-muted-foreground">
+            <input
+              type="checkbox"
+              checked={violationAnonymous}
+              onChange={(event) => setViolationAnonymous(event.target.checked)}
+            />
+            {t("profile.violations.anonymous")}
+          </label>
           <button
             onClick={() => void handleReportViolation()}
             disabled={violationSaving}

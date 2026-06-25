@@ -128,12 +128,13 @@ class HouseRuleOperations(
                 listOf(recipient.name)
             } ?: activeMembers.map { it.name }.filter { it != actorName }
 
+        val reporterLabel = if (request.anonymous) BOT_SENDER else actorName
         notificationService.createParameterizedGroupNotification(
             userNames = recipients,
             type = notificationType,
-            params = mapOf("reporter" to actorName),
+            params = mapOf("reporter" to reporterLabel),
         )
-        val chatMessage = chatOperations.postHouseholdNotice(collective.joinCode, actorName, message)
+        val chatMessage = chatOperations.postHouseholdNotice(collective.joinCode, reporterLabel, message)
 
         return ViolationReportDto(recipients = recipients, chatMessageId = chatMessage.id)
     }
@@ -162,4 +163,10 @@ class HouseRuleOperations(
         acknowledged = ackRepository.existsByRuleIdAndMemberName(id, actorName),
         canEdit = memberRepository.findByName(actorName)?.id == ownerMemberId,
     )
+
+    companion object {
+        // Display name used as the chat sender (and notification reporter) when a violation is
+        // reported anonymously, so it reads as an automated household notice rather than a person.
+        private const val BOT_SENDER = "Kollekt Bot 🤖"
+    }
 }

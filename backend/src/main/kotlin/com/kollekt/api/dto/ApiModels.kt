@@ -127,11 +127,24 @@ data class ReportViolationRequest(
     val violationType: String,
     val recipient: String? = null,
     val message: String,
+    val anonymous: Boolean = false,
 )
 
 data class ViolationReportDto(
     val recipients: List<String>,
     val chatMessageId: Long,
+)
+
+// A single promoted/sponsored card shown in the dashboard slider (Route A: self-served content).
+data class PromotionDto(
+    val id: String,
+    val category: String,
+    val dateLabel: String? = null,
+    val title: String,
+    val body: String,
+    val location: String? = null,
+    val ctaLabel: String? = null,
+    val ctaUrl: String? = null,
 )
 
 data class CreateGuestNoticeRequest(
