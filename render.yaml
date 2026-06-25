@@ -1,0 +1,44 @@
+# Render Blueprint — deploys the Kotlin/Spring Boot backend as a Docker web service.
+# It builds backend/Dockerfile straight from GitHub and serves it over HTTPS.
+# The database is the existing external Supabase Postgres (no DB is provisioned here).
+#
+# Secrets (sync: false) are NOT stored in this file — set them in the Render dashboard
+# (or "Add from .env") on first deploy. Values shown inline are non-secret defaults.
+services:
+  - type: web
+    name: kollekt-backend
+    runtime: docker
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    plan: free
+    region: frankfurt
+    autoDeploy: true
+    envVars:
+      # --- Database (Supabase) — set these from your .env in the dashboard ---
+      - key: SPRING_DATASOURCE_URL
+        sync: false
+      - key: SPRING_DATASOURCE_USERNAME
+        sync: false
+      - key: SPRING_DATASOURCE_PASSWORD
+        sync: false
+      # --- Security ---
+      - key: APP_SECURITY_JWT_SECRET
+        sync: false
+      # --- Google OAuth / Calendar (set secret values in dashboard) ---
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      # GOOGLE_REDIRECT_URI must match this service's public URL once known, e.g.
+      # https://kollekt-backend.onrender.com/api/google-calendar/callback
+      - key: GOOGLE_REDIRECT_URI
+        sync: false
+      # --- Non-secret config ---
+      - key: SPRING_FLYWAY_ENABLED
+        value: "true"
+      # Origins allowed to call the API. Capacitor iOS uses capacitor://localhost,
+      # Android uses http://localhost. Add your web origin if you host the SPA too.
+      - key: APP_CORS_ALLOWED_ORIGINS
+        value: "capacitor://localhost,http://localhost"
+      - key: SOCIAL_APPLE_CLIENT_IDS
+        value: "no.kollekt.app"

@@ -198,6 +198,12 @@ select {
   appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--muted-foreground) 50%), linear-gradient(135deg, var(--muted-foreground) 50%, transparent 50%);
   background-position: calc(100% - 16px) 50%, calc(100% - 11px) 50%; background-size: 5px 5px; background-repeat: no-repeat; padding-right: 2.25rem;
 }
+/* Mobile touch targets: give real action buttons a comfortable ~44px minimum tap
+   height. Scoped to full-width CTAs/list-rows and segmented toggles so inline text
+   links ("See all"), chips and compact icon/emoji buttons stay visually intact. */
+.seg button { min-height: 2.75rem; display: inline-flex; align-items: center; justify-content: center; }
+button.w-full { min-height: 2.75rem; }
+button.w-full:not(.flex):not(.grid):not(.inline-flex) { display: flex; align-items: center; justify-content: center; }
 button:not(:disabled) { cursor: pointer; transition: filter 150ms ease, transform 150ms ease; }
 @media (hover: hover) and (pointer: fine) { button:not(:disabled):hover { filter: brightness(1.04); transform: translateY(-1px); } }
 button:not(:disabled):active { transform: scale(.97); }

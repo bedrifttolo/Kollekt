@@ -10,6 +10,9 @@ import { connectCollectiveRealtime } from '../lib/realtime';
 import type { DashboardResponse, HouseCheckin } from '../lib/types';
 import { AvatarStack, Eyebrow, VibeRing } from '../components/ui-kit';
 import { colorForMember } from '../lib/memberColors';
+import PromoSlider from '../components/PromoSlider';
+
+const PROMO_SLIDER_ENABLED = import.meta.env.VITE_ENABLE_PROMO_SLIDER !== 'false';
 
 const container = {
   hidden: {},
@@ -215,6 +218,13 @@ export default function DashboardPage() {
           {translate('common.live')} • {onlineCount > 0 ? translate('dashboard.onlineRoommates', { count: onlineCount }) : translate('common.connecting')}
         </p>
       </motion.div>
+
+      {/* Promo / info slider */}
+      {PROMO_SLIDER_ENABLED && (
+        <motion.div variants={item}>
+          <PromoSlider />
+        </motion.div>
+      )}
 
       {/* Upcoming tasks */}
       <motion.div variants={item}>
