@@ -578,18 +578,22 @@ export default function ChatPage() {
         <div className="flex gap-2 rounded-[1.35rem] border border-border bg-card p-2 shadow-sm">
           <input ref={fileInputRef} type="file" accept="image/*"
             className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) sendImage(f); }} />
-          <button onClick={() => fileInputRef.current?.click()} className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-muted" aria-label={t('chat.sendImage')}>
-            <ImageIcon className="h-4 w-4 text-muted-foreground" />
-          </button>
-          <button onClick={() => setShowPollForm((v) => !v)} className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-muted" aria-label={t('chat.togglePollForm')}>
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
-          </button>
-          <button onClick={() => setShowLaundryForm((v) => !v)} className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-muted" aria-label={t('laundry.title')}>
-            <WashingMachine className="h-4 w-4 text-accent" />
-          </button>
-          <button onClick={() => setShowKudosForm((value) => !value)} className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-muted" aria-label={t('kudos.sendTitle')}>
-            <HeartHandshake className="h-4 w-4 text-primary" />
-          </button>
+          {!input.trim() && (
+            <>
+              <button onClick={() => fileInputRef.current?.click()} className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-muted" aria-label={t('chat.sendImage')}>
+                <ImageIcon className="h-4 w-4 text-muted-foreground" />
+              </button>
+              <button onClick={() => setShowPollForm((v) => !v)} className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-muted" aria-label={t('chat.togglePollForm')}>
+                <BarChart3 className="h-4 w-4 text-muted-foreground" />
+              </button>
+              <button onClick={() => setShowLaundryForm((v) => !v)} className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-muted" aria-label={t('laundry.title')}>
+                <WashingMachine className="h-4 w-4 text-accent" />
+              </button>
+              <button onClick={() => setShowKudosForm((value) => !value)} className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-muted" aria-label={t('kudos.sendTitle')}>
+                <HeartHandshake className="h-4 w-4 text-primary" />
+              </button>
+            </>
+          )}
           <input
             ref={messageInputRef}
             value={input}
