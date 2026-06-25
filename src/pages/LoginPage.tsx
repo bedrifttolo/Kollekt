@@ -116,9 +116,19 @@ export default function LoginPage() {
               <>{t('auth.headingLead')} <span className="mark">{t('auth.headingMark')}</span></>
             )}
           </h1>
-          <p className="mt-3 text-base text-muted-foreground">
-            {isForgot ? t('auth.forgot.subtitle') : t('auth.tagline')}
-          </p>
+          {isForgot ? (
+            <p className="mt-3 text-base text-muted-foreground">{t('auth.forgot.subtitle')}</p>
+          ) : (
+            <div className="mt-3">
+              <p className="font-display text-xl font-extrabold tracking-[-.02em] text-foreground">
+                {t('auth.tagline')}
+                <sup className="ml-0.5 align-top text-[0.55em] font-bold text-primary dark:text-secondary">™</sup>
+              </p>
+              <p className="mt-1.5 text-[0.7rem] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+                {t('auth.taglineSub')}
+              </p>
+            </div>
+          )}
         </div>
 
         {!isForgot && (
