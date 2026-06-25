@@ -284,6 +284,8 @@
     },
     "onlineRoommates_one": "{{count}} bofælle online",
     "onlineRoommates_other": "{{count}} bofæller online",
+    "promosTitle": "Hvad sker der i denne uge",
+    "promoGoTo": "Gå til kampagne {{index}}",
     "upcomingTasks": "Kommende opgaver",
     "noUpcomingTasks": "Ingen kommende opgaver",
     "upcomingEvents": "Kommende begivenheder",
@@ -443,7 +445,7 @@
     "notThisTime": "Ikke denne gang",
     "types": { "WHITES": "Hvidt", "COLORS": "Kulørt", "DELICATES": "Finvask", "WOOL": "Uld", "SPORTS": "Sportstøj", "TOWELS": "Håndklæder" }
   },
-  "quietHours": { "title": "Stilletid", "window": "{{start}}–{{end}}", "disabled": "Stilletid er slået fra", "save": "Gem stilletid" },
+  "quietHours": { "title": "Stilletid", "window": "{{start}}–{{end}}", "disabled": "Stilletid er slået fra", "save": "Gem stilletid", "edit": "Rediger", "cancel": "Annuller", "enabledLabel": "Slå stilletid til" },
   "calendar": {
     "eyebrow": "Sammen",
     "title": "Huskalender",
@@ -597,7 +599,8 @@
         "mexican": "Mexicaner",
         "kingsCup": "Kings Cup",
         "categories": "Kategorier",
-        "charades": "Charader"
+        "charades": "Charader",
+        "snusboksen": "Snusboksen"
       },
       "descriptions": {
         "dice": "Kast en virtuel terning, og send turen videre.",
@@ -611,7 +614,8 @@
         "mexican": "Kast på skift, og slå den forrige spillers skjulte resultat.",
         "kingsCup": "Træk kort, og følg reglen for kortets værdi.",
         "categories": "Nævn noget i kategorien, før tiden løber ud.",
-        "charades": "Vis ordet uden at tale, mens de andre prøver at gætte det."
+        "charades": "Vis ordet uden at tale, mens de andre prøver at gætte det.",
+        "snusboksen": "Send dåsen rundt og gør det, kortet siger."
       },
       "dice": {
         "roll": "Kast terningen",
@@ -688,6 +692,121 @@
         "correct": "Rigtigt",
         "nextPlayer": "Tiden er gået – næste spiller",
         "prompts": { "vacuum": "Støvsuge", "penguin": "Pingvin", "superhero": "Superhelt", "pizza": "Lave pizza", "washingMachine": "Vaskemaskine", "cat": "Kat", "football": "Spille fodbold", "alarmClock": "Vækkeur", "hairdresser": "Frisør", "airplane": "Fly", "ghost": "Spøgelse", "chef": "Kok", "robot": "Robot", "fishing": "Fiske", "selfie": "Tage en selfie", "banana": "Skrælle en banan", "snowman": "Bygge snemand", "guitar": "Spille guitar", "trafficJam": "Trafikprop", "movingDay": "Flyttedag" }
+      },
+      "snusboksen": {
+        "pickDeck": "Vælg en kortbunke",
+        "deckNames": { "mild": "Mild", "medium": "Medium", "droy": "Drøy" },
+        "deckDescriptions": {
+          "mild": "Rolige opgaver til at varme op.",
+          "medium": "Skarpere spørgsmål og fjollede udfordringer.",
+          "droy": "De frækkeste, mest afslørende kort. Ingen nåde."
+        },
+        "progress": "Kort {{current}} af {{total}}",
+        "pass": "Send dåsen til {{player}}",
+        "reveal": "Vis kortet",
+        "next": "Send videre",
+        "done": "Dåsen er tom!",
+        "doneSubtitle": "I kom igennem alle kortene.",
+        "playAgain": "Bland og spil igen",
+        "changeDeck": "Skift kortbunke",
+        "decks": {
+          "mild": [
+            "Fortæl gruppen én ting, du virkelig er god til.",
+            "Lav din bedste imitation af en anden spiller.",
+            "Vis det seneste billede i din kamerarulle (du vælger selv).",
+            "Sig noget pænt om personen til venstre for dig.",
+            "Lær de andre et ord på et andet sprog.",
+            "Lav 10 jumping jacks nu.",
+            "Tal med accent, indtil det bliver din tur igen.",
+            "Nævn et skjult talent, ingen her kender til.",
+            "Fortæl om det bedste måltid, du har lavet denne måned.",
+            "Lav din glædesdans i 10 sekunder.",
+            "Giv gruppen din ærlige vejrudsigt for i morgen.",
+            "Byt et stykke tøj med spilleren til højre for dig.",
+            "Fortæl, hvilken sang du altid synger til karaoke.",
+            "Giv en ægte kompliment til alle i rummet.",
+            "Beskriv din drømmeweekend med én sætning.",
+            "Lav din bedste fejring i slowmotion.",
+            "Fortæl den sjoveste pæne vits, du kender.",
+            "Hold planken, indtil det bliver din tur igen.",
+            "Del én ting fra din bucket-liste.",
+            "Tal kun i spørgsmål, indtil det bliver din tur igen.",
+            "Vis dit bedste dansetrin.",
+            "Fortæl gruppen dit tidligste lykkelige minde.",
+            "Lav en imitation af dit yndlingsdyr.",
+            "Hold en 10 sekunders peptale.",
+            "Nævn tre ting, du er taknemmelig for i dag.",
+            "Lad spilleren til venstre vælge en fjollet stemme, du skal bruge.",
+            "Syng omkvædet på den seneste sang, du hørte.",
+            "Fortæl, hvilken emoji du bruger mest, og hvorfor.",
+            "Lav din bedste robotgang over gulvet.",
+            "Del en lille sejr fra denne uge."
+          ],
+          "medium": [
+            "Vis, hvilken app du har brugt mest på telefonen i dag.",
+            "Hvem i rummet ville overleve længst i en zombieapokalypse, og hvorfor?",
+            "Læs den seneste besked, du sendte, højt.",
+            "Lav en imitation af en kendis, indtil den gættes.",
+            "Fortæl gruppen en upopulær mening, du faktisk har.",
+            "Lad gruppen give dig et nyt kælenavn resten af spillet.",
+            "Nævn det mest pinlige i din søgehistorik (du vælger selv).",
+            "Ranger alle her efter, hvor rodede de er. Vær ærlig.",
+            "Tilstå en lille løgn, du har fortalt denne uge.",
+            "Vis gruppen din skærmtid for i dag.",
+            "Gå din bedste catwalk over gulvet.",
+            "Fortæl om din værste modeperiode.",
+            "Hvem her bliver mest sandsynligt berømt? Forsvar dit svar.",
+            "Afslør en vane hos dig, der irriterer andre.",
+            "Beskriv dit seneste pinlige øjeblik i detaljer.",
+            "Tilstå, hvilken husopgave du i hemmelighed aldrig laver.",
+            "Lav en imitation af, hvordan du ser ud, lige når du vågner.",
+            "Fortæl gruppen din mest irrationelle frygt.",
+            "Afslør det kontaktnavn, du har gemt for personen til venstre.",
+            "Del det mest pinlige, du har gjort for at imponere en forelskelse.",
+            "Hvem her giver de bedste råd, og hvem giver de værste?",
+            "Lad som om du græder i 10 sekunder.",
+            "Fortæl os det mærkeligste, du har spist.",
+            "Tilstå det seneste, du løj om over for en bofælle.",
+            "Afslør, hvor mange ulæste notifikationer du har lige nu.",
+            "Spil din mest dramatiske reaktion på at miste nøglerne.",
+            "Del en mening, du ved vil starte et skænderi her.",
+            "Lad gruppen bestemme en lille udfordring til dig.",
+            "Fortæl det seneste, du googlede klokken to om natten.",
+            "Afslør, hvilken bofælle du ville ringe til først i en krise."
+          ],
+          "droy": [
+            "Afslør den seneste person, du kiggede på i sociale medier.",
+            "Læs din seneste besked højt (du må skjule navne).",
+            "Hvilken chat åbner du oftest? Vis beviset.",
+            "Tilstå din største ick, uden navne hvis du må.",
+            "Afslør en hemmelighed, du aldrig har fortalt nogen her.",
+            "Hvem her har du talt om bag ryggen? Vær ærlig.",
+            "Vis de fem seneste, du har sendt besked til, og forklar hver enkelt.",
+            "Tilstå den mest smålige grund til, at du har dømt nogen.",
+            "Afslør telefonens mest pinlige autokorrektur-brøler.",
+            "Ranger alle her fra mest til mindst sandsynlig til at ghoste dig.",
+            "Tilstå det, du har overdrevet mest for at se godt ud.",
+            "Hvem i rummet ville du bytte liv med en uge, og hvorfor?",
+            "Afslør det seneste, du fortryder at have sendt.",
+            "Fortæl gruppen din mest kontroversielle datingmening.",
+            "Vis dit 'senest sete'- eller 'til dig'-feed til gruppen.",
+            "Tilstå, hvem her du fejlbedømte, da I først mødtes.",
+            "Afslør det skærmbillede, du mindst vil have, nogen finder.",
+            "Tilstå et nag, du stadig bærer på, og mod hvem.",
+            "Hvem her deler mest? Roast dem med kærlighed.",
+            "Afslør den mest pinlige besked i dine kladder.",
+            "Fortæl os det vildeste rygte, du har hørt om dig selv.",
+            "Tilstå det mest pinlige, du har gjort for opmærksomhed.",
+            "Afslør den sang, du afspiller mest, men ville skamme dig over at indrømme.",
+            "Tilstå den seneste hvide løgn, du fortalte for at slippe for planer.",
+            "Hvem her ville du stole på med en ulåst telefon, og hvem absolut ikke?",
+            "Afslør det mest dramatiske, du har gjort over besked.",
+            "Fortæl gruppen den mest smålige grund til, at du mistede en ven.",
+            "Tilstå, hvilken bofælle-vane der gør dig helt vanvittig.",
+            "Afslør det modigste, du nogensinde har sagt til en forelskelse.",
+            "Tilstå den hemmelighed, du mindst vil have postet i hus-chatten."
+          ]
+        }
       },
       "spin": {
         "spinButton": "Drej",
@@ -1026,7 +1145,9 @@
         "KUDOS_RECEIVED": "💛 {{sender}} gav dig kudos: {{context}}",
         "HOUSE_RULES_UPDATED": "Husreglerne blev opdateret til version {{version}}.",
         "GUEST_NOTICE_CREATED": "{{host}} får besøg af {{guest}} den {{date}}.",
-        "GUEST_QUIET_HOURS_OVERLAP": "{{guest}}s besøg overlapper stilleperioden fra {{start}}."
+        "GUEST_QUIET_HOURS_OVERLAP": "{{guest}}s besøg overlapper stilleperioden fra {{start}}.",
+        "QUIET_HOURS_VIOLATION": "⚠️ {{reporter}} anmeldte en overtrædelse af stilletiden.",
+        "HOUSE_RULE_VIOLATION": "⚠️ {{reporter}} anmeldte en overtrædelse af husreglerne."
       }
     },
     "notificationPreferences": {
@@ -1049,7 +1170,9 @@
         "EVENT_ADDED": "Ny kalenderbegivenhed",
         "HOUSE_RULES_UPDATED": "Opdateringer af husregler",
         "GUEST_NOTICE_CREATED": "Gæstebeskeder",
-        "GUEST_QUIET_HOURS_OVERLAP": "Påmindelser om stilleperioden"
+        "GUEST_QUIET_HOURS_OVERLAP": "Påmindelser om stilleperioden",
+        "QUIET_HOURS_VIOLATION": "Anmeldelser om stilletid",
+        "HOUSE_RULE_VIOLATION": "Anmeldelser om husregler"
       }
     },
     "paymentMethods": {
@@ -1079,7 +1202,27 @@
       "acknowledge": "Bekræft",
       "editorTitle": "Rediger husregler",
       "placeholder": "Skriv hjemmets fælles forventninger...",
-      "publish": "Udgiv ny version"
+      "publish": "Udgiv ny version",
+      "showMore": "Vis {{count}} mere",
+      "showLess": "Vis mindre"
+    },
+    "violations": {
+      "title": "Anmeld en overtrædelse",
+      "subtitle": "Anmeld en overtrædelse af stilletid eller husregler til en bofælle eller hele kollektivet",
+      "types": {
+        "QUIET_HOURS": "Stilletid",
+        "HOUSE_RULE": "Husregel"
+      },
+      "recipientLabel": "Hvem skal underrettes",
+      "wholeHousehold": "Hele kollektivet",
+      "notePlaceholder": "Tilføj en kort kommentar (valgfrit)",
+      "send": "Send anmeldelse",
+      "sending": "Sender …",
+      "sent": "Overtrædelse anmeldt",
+      "failed": "Kunne ikke sende anmeldelsen",
+      "chatMessage": "⚠️ Der blev anmeldt en overtrædelse af {{type}}.",
+      "chatMessageWithNote": "⚠️ Der blev anmeldt en overtrædelse af {{type}}: {{note}}",
+      "anonymous": "Send anonymt (vises som en bot)"
     },
     "inviteRoommates": {
       "title": "Inviter bofæller",
@@ -1134,7 +1277,8 @@
       "copyFailed": "Kunne ikke kopiere kollektivkoden",
       "quietHoursFailed": "Kunne ikke gemme stilletid",
       "leaveFailed": "Kunne ikke forlade kollektivet",
-      "partialLoadFailed": "Nogle profiloplysninger kunne ikke indlæses."
+      "partialLoadFailed": "Nogle profiloplysninger kunne ikke indlæses.",
+      "invalidEmail": "Indtast en gyldig e-mailadresse"
     }
   }
 }
