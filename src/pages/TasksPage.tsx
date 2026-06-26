@@ -173,6 +173,7 @@ function TasksMain() {
   const [newShoppingName, setNewShoppingName] = useState('');
   const [showMaintenanceAdd, setShowMaintenanceAdd] = useState(false);
   const [maintenanceFilter, setMaintenanceFilter] = useState<'ALL' | MaintenanceStatus>('ALL');
+  const [shoppingFilter, setShoppingFilter] = useState<'ALL' | 'TO_BUY' | 'BOUGHT'>('ALL');
   const [newMaintenanceTitle, setNewMaintenanceTitle] = useState('');
   const [newMaintenanceDescription, setNewMaintenanceDescription] = useState('');
   const [newMaintenancePriority, setNewMaintenancePriority] = useState<MaintenancePriority>('MEDIUM');
@@ -758,6 +759,18 @@ function TasksMain() {
   const completedCount = tasks.filter((task) => task.completed).length;
   const completionPercent = tasks.length === 0 ? 0 : (completedCount / tasks.length) * 100;
 
+  const shoppingToBuy = shopping.filter((item) => !item.completed).length;
+  const shoppingBought = shopping.length - shoppingToBuy;
+  const shoppingPercent = shopping.length === 0 ? 0 : (shoppingBought / shopping.length) * 100;
+  const filteredShopping = shopping.filter((item) =>
+    shoppingFilter === 'ALL' ? true : shoppingFilter === 'TO_BUY' ? !item.completed : item.completed,
+  );
+
+  const maintenanceOpen = maintenanceTickets.filter((ticket) => ticket.status !== 'DONE').length;
+  const maintenanceDone = maintenanceTickets.length - maintenanceOpen;
+  const maintenanceOverdue = maintenanceTickets.filter((ticket) => ticket.overdue).length;
+  const maintenancePercent = maintenanceTickets.length === 0 ? 0 : (maintenanceDone / maintenanceTickets.length) * 100;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
@@ -1306,45 +1319,57 @@ function TasksMain() {
         </>
       ) : tab === 'shopping' ? (
         <div className="space-y-3">
-          <div className="glass rounded-2xl p-4 flex items-center gap-4">
-            <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-secondary/40 to-secondary/10 flex items-center justify-center shrink-0">
-              <Package className="h-6 w-6 text-foreground" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold">{t('tasks.restockTitle')}</p>
-              <p className="text-[10px] text-muted-foreground">{t('tasks.restockSubtitle')}</p>
-            </div>
-            {shopping.filter((i) => !i.completed).length > 0 && (
-              <span className="shrink-0 px-2.5 py-1 rounded-full gradient-primary text-[11px] font-bold text-primary-foreground">
-                {shopping.filter((i) => !i.completed).length}
-              </span>
-            )}
+          <div className="househero">
+            <p className="text-xs font-bold uppercase tracking-[.15em] text-white/65">{t('tasks.restockTitle')}</p>
+            <p className="bignum mt-3">{shoppingToBuy} <span className="text-2xl tracking-normal">{t('tasks.shopping.toBuyUnit')}</span></p>
+            <p className="mt-2 text-sm text-white/70">{t('tasks.shopping.boughtCount', { count: shoppingBought })}</p>
+            <ProgressBar value={shoppingPercent} className="mt-4 bg-white/20" />
           </div>
 
-          {shopping.length === 0 && (
+          <div className="flex gap-2 flex-wrap">
+            {(['ALL', 'TO_BUY', 'BOUGHT'] as const).map((value) => (
+              <button
+                key={value}
+                onClick={() => setShoppingFilter(value)}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                  value === shoppingFilter
+                    ? 'gradient-primary text-primary-foreground'
+                    : 'glass text-muted-foreground'
+                }`}
+              >
+                {t(`tasks.shopping.filters.${value}`)}
+              </button>
+            ))}
+          </div>
+
+          {shopping.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-6">
               {t('tasks.noItemsYet')}
             </p>
-          )}
+          ) : filteredShopping.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center py-6">
+              {t('tasks.shopping.noneInFilter')}
+            </p>
+          ) : null}
 
           <div className="space-y-2">
-            {shopping.map((item, index) => (
+            {filteredShopping.map((item, index) => (
               <motion.div
                 key={item.id}
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.04 }}
-                className={`glass rounded-xl p-3.5 ${item.completed ? 'opacity-50' : ''}`}
+                className={`glass rounded-2xl p-4 ${item.completed ? 'opacity-50' : ''}`}
               >
                 <div className="flex items-center gap-3">
-                  <div className="h-9 w-9 rounded-lg bg-muted flex items-center justify-center shrink-0">
-                    <Package className="h-4 w-4 text-muted-foreground" />
+                  <div className="h-11 w-11 rounded-xl bg-muted flex items-center justify-center shrink-0">
+                    <Package className="h-5 w-5 text-muted-foreground" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className={`text-sm font-medium ${item.completed ? 'line-through' : ''}`}>
+                    <p className={`text-sm font-semibold ${item.completed ? 'line-through' : ''}`}>
                       {item.item}
                     </p>
-                    <p className="text-[10px] text-muted-foreground">
+                    <p className="text-xs text-muted-foreground">
                       {t('tasks.addedBy', { name: item.addedBy })}
                     </p>
                   </div>
@@ -1514,18 +1539,16 @@ function TasksMain() {
         </div>
       ) : (
         <div className="space-y-3">
-          <div className="glass flex items-center gap-4 rounded-2xl p-4">
-            <div className="grid h-12 w-12 place-items-center rounded-xl bg-primary/15"><Wrench className="h-6 w-6 text-primary" /></div>
-            <div className="flex-1">
-              <p className="text-sm font-semibold">{t('tasks.maintenance.boardTitle')}</p>
-              <p className="text-[10px] text-muted-foreground">{t('tasks.maintenance.boardSubtitle')}</p>
-            </div>
-            <span className="rounded-full bg-primary px-2.5 py-1 text-[11px] font-bold text-primary-foreground">{maintenanceTickets.filter((ticket) => ticket.status !== 'DONE').length}</span>
+          <div className="househero">
+            <p className="text-xs font-bold uppercase tracking-[.15em] text-white/65">{t('tasks.maintenance.boardTitle')}</p>
+            <p className="bignum mt-3">{maintenanceOpen} <span className="text-2xl tracking-normal">{t('tasks.maintenance.openUnit')}</span></p>
+            <p className="mt-2 text-sm text-white/70">{t('tasks.maintenance.heroSubtitle', { overdue: maintenanceOverdue, done: maintenanceDone })}</p>
+            <ProgressBar value={maintenancePercent} className="mt-4 bg-white/20" />
           </div>
 
           <div className="flex flex-wrap gap-2">
             {(['ALL', 'OPEN', 'IN_PROGRESS', 'BLOCKED', 'DONE'] as const).map((status) => (
-              <button key={status} onClick={() => setMaintenanceFilter(status)} className={`rounded-full px-3 py-1.5 text-xs font-medium ${maintenanceFilter === status ? 'bg-primary text-primary-foreground' : 'glass text-muted-foreground'}`}>
+              <button key={status} onClick={() => setMaintenanceFilter(status)} className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${maintenanceFilter === status ? 'gradient-primary text-primary-foreground' : 'glass text-muted-foreground'}`}>
                 {status === 'ALL' ? t('tasks.maintenance.all') : t(`tasks.maintenance.statuses.${status}`)}
               </button>
             ))}
@@ -1576,14 +1599,14 @@ function TasksMain() {
                   </div>
                 </div>
                 <div className="mt-3 grid grid-cols-3 gap-2">
-                  <select value={ticket.status} onChange={(event) => handleMaintenanceStatusChange(ticket, event.target.value as MaintenanceStatus)} className="rounded-lg border border-border bg-background px-2 py-2 text-xs">
+                  <select value={ticket.status} onChange={(event) => handleMaintenanceStatusChange(ticket, event.target.value as MaintenanceStatus)} className="rounded-lg border border-border bg-background px-2.5 py-2.5 text-xs">
                     {(['OPEN', 'IN_PROGRESS', 'BLOCKED', 'DONE'] as const).map((status) => <option key={status} value={status}>{t(`tasks.maintenance.statuses.${status}`)}</option>)}
                   </select>
-                  <select value={ticket.assignee ?? ''} onChange={(event) => void updateMaintenanceTicket(ticket.id, { assignee: event.target.value })} className="rounded-lg border border-border bg-background px-2 py-2 text-xs">
+                  <select value={ticket.assignee ?? ''} onChange={(event) => void updateMaintenanceTicket(ticket.id, { assignee: event.target.value })} className="rounded-lg border border-border bg-background px-2.5 py-2.5 text-xs">
                     <option value="">{t('tasks.maintenance.unassigned')}</option>
                     {memberOptions.map((member) => <option key={member} value={member}>{member}</option>)}
                   </select>
-                  <select value={ticket.priority} onChange={(event) => void updateMaintenanceTicket(ticket.id, { priority: event.target.value as MaintenancePriority })} className="rounded-lg border border-border bg-background px-2 py-2 text-xs">
+                  <select value={ticket.priority} onChange={(event) => void updateMaintenanceTicket(ticket.id, { priority: event.target.value as MaintenancePriority })} className="rounded-lg border border-border bg-background px-2.5 py-2.5 text-xs">
                     {(['LOW', 'MEDIUM', 'HIGH', 'URGENT'] as const).map((priority) => <option key={priority} value={priority}>{t(`tasks.maintenance.priorities.${priority}`)}</option>)}
                   </select>
                 </div>

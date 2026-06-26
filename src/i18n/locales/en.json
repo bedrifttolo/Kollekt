@@ -374,11 +374,17 @@
       "splitWith": "Split with",
       "purchaseDate": "Purchase date",
       "logPurchase": "Log",
-      "closePurchaseForm": "Close purchase form"
+      "closePurchaseForm": "Close purchase form",
+      "toBuyUnit": "to buy",
+      "boughtCount": "{{count}} bought",
+      "noneInFilter": "Nothing here.",
+      "filters": { "ALL": "All", "TO_BUY": "To buy", "BOUGHT": "Bought" }
     },
     "maintenance": {
       "boardTitle": "Maintenance board",
       "boardSubtitle": "Track household repairs from report to completion",
+      "openUnit": "open",
+      "heroSubtitle": "{{overdue}} overdue · {{done}} done",
       "addTicket": "Add ticket",
       "newTicket": "New maintenance ticket",
       "titleLabel": "Issue",

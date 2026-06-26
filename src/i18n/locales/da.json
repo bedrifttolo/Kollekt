@@ -374,11 +374,17 @@
       "splitWith": "Del med",
       "purchaseDate": "Købsdato",
       "logPurchase": "Registrér",
-      "closePurchaseForm": "Luk købsformular"
+      "closePurchaseForm": "Luk købsformular",
+      "toBuyUnit": "at købe",
+      "boughtCount": "{{count}} købt",
+      "noneInFilter": "Intet her.",
+      "filters": { "ALL": "Alle", "TO_BUY": "At købe", "BOUGHT": "Købt" }
     },
     "maintenance": {
       "boardTitle": "Vedligeholdelsestavle",
       "boardSubtitle": "Følg reparationer fra melding til færdig",
+      "openUnit": "åbne",
+      "heroSubtitle": "{{overdue}} forfaldne · {{done}} færdige",
       "addTicket": "Tilføj sag",
       "newTicket": "Ny vedligeholdelsessag",
       "titleLabel": "Problem",
