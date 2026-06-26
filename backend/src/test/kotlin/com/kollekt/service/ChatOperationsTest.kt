@@ -260,6 +260,102 @@ class ChatOperationsTest {
         verify(notificationService, never()).createParameterizedGroupNotification(any(), any(), any())
     }
 
+    @Test
+    fun `get messages returns only household messages`() {
+        whenever(chatMessageRepository.findAllByCollectiveCodeAndRecipientIsNull("ABC123")).thenReturn(
+            listOf(ChatMessage(id = 1, sender = "Emma", collectiveCode = "ABC123", text = "Hi all", timestamp = LocalDateTime.now())),
+        )
+
+        val result = operations.getMessages("Kasper")
+
+        assertEquals(1, result.size)
+        assertEquals("Hi all", result.single().text)
+        assertNull(result.single().recipient)
+    }
+
+    @Test
+    fun `create direct message targets only the two participants and never the household`() {
+        whenever(memberRepository.findByNameAndCollectiveCode("Emma", "ABC123")).thenReturn(member("Emma", "emma@example.com"))
+        whenever(chatMessageRepository.save(any<ChatMessage>())).thenAnswer {
+            (it.arguments[0] as ChatMessage).copy(id = 30)
+        }
+
+        val result = operations.createDirectMessage("Emma", "  psst  ", "Kasper")
+
+        assertEquals("psst", result.text)
+        assertEquals("Emma", result.recipient)
+        verify(realtimeUpdateService).publishToMembers("ABC123", setOf("Kasper", "Emma"), "DIRECT_MESSAGE_CREATED", result)
+        verify(realtimeUpdateService, never()).publish(any(), any(), any())
+        verify(notificationService).createParameterizedGroupNotification(eq(listOf("Emma")), eq("NEW_MESSAGE"), any())
+    }
+
+    @Test
+    fun `create direct message rejects a recipient outside the collective`() {
+        whenever(memberRepository.findByNameAndCollectiveCode("Stranger", "ABC123")).thenReturn(null)
+
+        val error =
+            assertThrows(IllegalArgumentException::class.java) {
+                operations.createDirectMessage("Stranger", "hi", "Kasper")
+            }
+
+        assertEquals("Member 'Stranger' is not in your collective", error.message)
+        verify(chatMessageRepository, never()).save(any<ChatMessage>())
+    }
+
+    @Test
+    fun `create direct message rejects sending to yourself`() {
+        assertThrows(IllegalArgumentException::class.java) {
+            operations.createDirectMessage("Kasper", "note to self", "Kasper")
+        }
+    }
+
+    @Test
+    fun `create direct message rejects blank text`() {
+        assertThrows(IllegalArgumentException::class.java) {
+            operations.createDirectMessage("Emma", "   ", "Kasper")
+        }
+    }
+
+    @Test
+    fun `get direct messages returns the pair thread`() {
+        whenever(memberRepository.findByNameAndCollectiveCode("Emma", "ABC123")).thenReturn(member("Emma", "emma@example.com"))
+        whenever(chatMessageRepository.findDirectThread("ABC123", "Kasper", "Emma")).thenReturn(
+            listOf(
+                ChatMessage(id = 40, sender = "Emma", recipient = "Kasper", collectiveCode = "ABC123", text = "private", timestamp = LocalDateTime.now()),
+            ),
+        )
+
+        val result = operations.getDirectMessages("Kasper", "Emma")
+
+        assertEquals(1, result.size)
+        assertEquals("private", result.single().text)
+        assertEquals("Kasper", result.single().recipient)
+    }
+
+    @Test
+    fun `get direct messages rejects opening a thread with yourself`() {
+        assertThrows(IllegalArgumentException::class.java) {
+            operations.getDirectMessages("Kasper", "Kasper")
+        }
+    }
+
+    @Test
+    fun `reactions are blocked on direct messages so they never broadcast`() {
+        whenever(chatMessageRepository.findById(60)).thenReturn(
+            Optional.of(
+                ChatMessage(id = 60, sender = "Emma", recipient = "Kasper", collectiveCode = "ABC123", text = "dm", timestamp = LocalDateTime.now()),
+            ),
+        )
+
+        val error =
+            assertThrows(IllegalArgumentException::class.java) {
+                operations.addReaction(60, "🔥", "Kasper")
+            }
+
+        assertEquals("Message not found", error.message)
+        verify(realtimeUpdateService, never()).publish(any(), any(), any())
+    }
+
     private fun member(
         name: String,
         email: String,
