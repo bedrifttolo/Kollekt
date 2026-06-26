@@ -71,6 +71,35 @@ class RealtimeUpdateServiceTest {
     }
 
     @Test
+    fun `publishToMembers delivers only to named members`() {
+        whenever(session.isOpen).thenReturn(true)
+        whenever(session.attributes).thenReturn(mutableMapOf<String, Any>("memberName" to "Kasper"))
+        service.register("ABC", session)
+
+        service.publishToMembers("ABC", setOf("Kasper"), "DIRECT_MESSAGE_CREATED")
+
+        verify(session).sendMessage(any<TextMessage>())
+    }
+
+    @Test
+    fun `publishToMembers skips sessions whose member is not a recipient`() {
+        whenever(session.isOpen).thenReturn(true)
+        whenever(session.attributes).thenReturn(mutableMapOf<String, Any>("memberName" to "Emma"))
+        service.register("ABC", session)
+
+        service.publishToMembers("ABC", setOf("Kasper"), "DIRECT_MESSAGE_CREATED")
+
+        verify(session, never()).sendMessage(any<TextMessage>())
+    }
+
+    @Test
+    fun `publishToMembers does nothing for an empty recipient set`() {
+        service.register("ABC", session)
+        assertDoesNotThrow { service.publishToMembers("ABC", emptySet(), "DIRECT_MESSAGE_CREATED") }
+        verify(session, never()).sendMessage(any<TextMessage>())
+    }
+
+    @Test
     fun `publish includes type and collectiveCode in message`() {
         whenever(session.isOpen).thenReturn(true)
         service.register("XYZ", session)
