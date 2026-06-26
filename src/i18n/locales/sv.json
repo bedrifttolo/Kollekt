@@ -374,11 +374,17 @@
       "splitWith": "Dela med",
       "purchaseDate": "Inköpsdatum",
       "logPurchase": "Logga",
-      "closePurchaseForm": "Stäng köpformulär"
+      "closePurchaseForm": "Stäng köpformulär",
+      "toBuyUnit": "att köpa",
+      "boughtCount": "{{count}} köpta",
+      "noneInFilter": "Inget här.",
+      "filters": { "ALL": "Alla", "TO_BUY": "Att köpa", "BOUGHT": "Köpta" }
     },
     "maintenance": {
       "boardTitle": "Underhållstavla",
       "boardSubtitle": "Följ reparationer från rapport till klart",
+      "openUnit": "öppna",
+      "heroSubtitle": "{{overdue}} försenade · {{done}} klara",
       "addTicket": "Lägg till ärende",
       "newTicket": "Nytt underhållsärende",
       "titleLabel": "Problem",
