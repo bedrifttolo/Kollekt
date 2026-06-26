@@ -1,5 +1,5 @@
 import type { ButtonHTMLAttributes, CSSProperties, InputHTMLAttributes, ReactNode } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, X } from 'lucide-react';
 import { cn } from '../ui/utils';
 import { colorForMember } from '../../lib/memberColors';
 
@@ -40,17 +40,31 @@ export function Eyebrow({ children }: { children: ReactNode }) {
   return <p className="eyebrow">{children}</p>;
 }
 
+export function AddSheet({ title, onClose, children, className }: { title: string; onClose: () => void; children: ReactNode; className?: string }) {
+  return (
+    <div className={cn('glass space-y-3 rounded-xl p-4', className)}>
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-sm font-semibold">{title}</p>
+        <button onClick={onClose} className="grid h-11 w-11 shrink-0 place-items-center rounded-full" aria-label={title}>
+          <X className="h-4 w-4 text-muted-foreground" />
+        </button>
+      </div>
+      {children}
+    </div>
+  );
+}
+
 export function Avatar({ name, color, className }: { name: string; color?: string | null; className?: string }) {
   return <span style={{ backgroundColor: colorForMember(name, color) }} className={cn('grid h-9 w-9 shrink-0 place-items-center rounded-full font-bold text-white', className)}>{name[0]?.toUpperCase()}</span>;
 }
 
-export function AvatarStack({ names, max = 4 }: { names: string[]; max?: number }) {
-  const shown = names.slice(0, max);
-  const extra = names.length - shown.length;
+export function AvatarStack({ members, max = 4 }: { members: Array<{ name: string; color?: string | null }>; max?: number }) {
+  const shown = members.slice(0, max);
+  const extra = members.length - shown.length;
   return (
     <div className="flex -space-x-2">
-      {shown.map((name) => (
-        <Avatar key={name} name={name} className="border-2 border-card" />
+      {shown.map((member) => (
+        <Avatar key={member.name} name={member.name} color={member.color} className="border-2 border-card" />
       ))}
       {extra > 0 && (
         <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border-2 border-card bg-secondary text-xs font-bold text-secondary-foreground">
@@ -66,5 +80,5 @@ export function ProgressBar({ value, className }: { value: number; className?: s
 }
 
 export function Fab({ label, className, ...props }: ButtonHTMLAttributes<HTMLButtonElement> & { label: string }) {
-  return <button aria-label={label} className={cn('fixed bottom-24 right-5 z-30 grid h-14 w-14 place-items-center rounded-full bg-secondary text-secondary-foreground shadow-[0_12px_28px_rgba(16,32,25,.24)]', className)} {...props}><Plus className="h-6 w-6" /></button>;
+  return <button aria-label={label} style={{ bottom: 'calc(env(safe-area-inset-bottom) + 6.5rem)' }} className={cn('fixed right-5 z-30 grid h-14 w-14 place-items-center rounded-full bg-secondary text-secondary-foreground shadow-[0_12px_28px_rgba(16,32,25,.24)]', className)} {...props}><Plus className="h-6 w-6" /></button>;
 }

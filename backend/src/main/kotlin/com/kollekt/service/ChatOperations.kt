@@ -38,9 +38,67 @@ class ChatOperations(
     fun getMessages(memberName: String): List<MessageDto> {
         val collectiveCode = collectiveAccessService.requireCollectiveCodeByMemberName(memberName)
         return chatMessageRepository
-            .findAllByCollectiveCode(collectiveCode)
+            .findAllByCollectiveCodeAndRecipientIsNull(collectiveCode)
             .sortedBy { it.timestamp }
             .map { it.toDto() }
+    }
+
+    /** The private 1:1 thread between the caller and another member of the same collective. */
+    fun getDirectMessages(
+        memberName: String,
+        otherName: String,
+    ): List<MessageDto> {
+        val collectiveCode = collectiveAccessService.requireCollectiveCodeByMemberName(memberName)
+        require(memberName != otherName) { "Cannot open a direct thread with yourself" }
+        requireNotNull(memberRepository.findByNameAndCollectiveCode(otherName, collectiveCode)) {
+            "Member '$otherName' is not in your collective"
+        }
+        return chatMessageRepository
+            .findDirectThread(collectiveCode, memberName, otherName)
+            .sortedBy { it.timestamp }
+            .map { it.toDto() }
+    }
+
+    @Transactional
+    fun createDirectMessage(
+        recipient: String,
+        text: String,
+        actorName: String,
+    ): MessageDto {
+        val collectiveCode = collectiveAccessService.requireCollectiveCodeByMemberName(actorName)
+        val normalizedText = text.trim()
+        require(normalizedText.isNotBlank()) { "Message text is required" }
+        require(recipient != actorName) { "Cannot send a direct message to yourself" }
+        val recipientMember =
+            memberRepository.findByNameAndCollectiveCode(recipient, collectiveCode)
+                ?: throw IllegalArgumentException("Member '$recipient' is not in your collective")
+
+        val saved =
+            chatMessageRepository.save(
+                ChatMessage(
+                    sender = actorName,
+                    collectiveCode = collectiveCode,
+                    recipient = recipientMember.name,
+                    text = normalizedText,
+                    timestamp = LocalDateTime.now(),
+                ),
+            )
+
+        val dto = saved.toDto()
+        // Targeted: only the two participants ever receive a direct message — never the household.
+        realtimeUpdateService.publishToMembers(
+            collectiveCode,
+            setOf(actorName, recipientMember.name),
+            "DIRECT_MESSAGE_CREATED",
+            dto,
+        )
+        val preview = if (normalizedText.length > 60) normalizedText.take(60) + "..." else normalizedText
+        notificationService.createParameterizedGroupNotification(
+            userNames = listOf(recipientMember.name),
+            type = "NEW_MESSAGE",
+            params = mapOf("sender" to actorName, "preview" to preview),
+        )
+        return dto
     }
 
     @Transactional
@@ -58,6 +116,7 @@ class ChatOperations(
                         .findById(referencedMessageId)
                         .orElseThrow { IllegalArgumentException("Referenced message not found") }
                 require(referencedMessage.collectiveCode == collectiveCode) { "Referenced message not found" }
+                require(referencedMessage.recipient == null) { "Referenced message not found" }
                 require(!chatMessageRepository.existsByReplyToMessageId(referencedMessage.id)) { "Message already has a reply" }
                 referencedMessage.id
             }
@@ -132,6 +191,7 @@ class ChatOperations(
 
         val collectiveCode = collectiveAccessService.requireCollectiveCodeByMemberName(actorName)
         require(message.collectiveCode == collectiveCode) { "Message not found" }
+        require(message.recipient == null) { "Message not found" }
 
         val reactions =
             message
@@ -170,6 +230,7 @@ class ChatOperations(
 
         val collectiveCode = collectiveAccessService.requireCollectiveCodeByMemberName(actorName)
         require(message.collectiveCode == collectiveCode) { "Message not found" }
+        require(message.recipient == null) { "Message not found" }
 
         val reactions = message.reactionMap().toMutableMap()
         val users = reactions[emoji]?.toMutableSet() ?: mutableSetOf()
@@ -247,6 +308,7 @@ class ChatOperations(
 
         val collectiveCode = collectiveAccessService.requireCollectiveCodeByMemberName(actorName)
         require(message.collectiveCode == collectiveCode) { "Message not found" }
+        require(message.recipient == null) { "Message not found" }
 
         val poll = message.pollPayload() ?: throw IllegalArgumentException("Message is not a poll")
         require(poll.options.any { it.id == optionId }) { "Invalid poll option" }
@@ -286,6 +348,7 @@ class ChatOperations(
                 .findById(messageId)
                 .orElseThrow { IllegalArgumentException("Message not found") }
         require(message.collectiveCode == collectiveCode) { "Message not found" }
+        require(message.recipient == null) { "Message not found" }
 
         val nowPinned = !message.pinned
         if (nowPinned) {
@@ -379,6 +442,7 @@ class ChatOperations(
         MessageDto(
             id = id,
             sender = sender,
+            recipient = recipient,
             text = text,
             imageData = imageData,
             imageMimeType = imageMimeType,

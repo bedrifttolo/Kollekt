@@ -447,7 +447,7 @@
     "typeLabel": "Wash type",
     "tempLabel": "Temperature",
     "send": "Announce in chat",
-    "message": "🧺 I'm doing a {{temp}}°C wash ({{type}}) — join in to save power!",
+    "message": "Doing a {{temp}}°C wash ({{type}}). Join in?",
     "join": "I want to join",
     "notThisTime": "Not this time",
     "types": { "WHITES": "Whites", "COLORS": "Colors", "DELICATES": "Delicates", "WOOL": "Wool", "SPORTS": "Sportswear", "TOWELS": "Towels" }
@@ -484,6 +484,8 @@
   },
   "chat": {
     "threadTitle": "The Kollektiv",
+    "householdThread": "Household",
+    "directSubtitle": "Private — only the two of you",
     "onlineCount": "{{count}} online",
     "memberCount_one": "{{count}} member",
     "memberCount_other": "{{count}} members",
@@ -498,6 +500,8 @@
     "replyingTo": "Replying to {{name}}",
     "cancelReply": "Cancel",
     "sendImage": "Send image",
+    "sendGif": "Send GIF",
+    "gifPickerTitle": "Starter GIFs",
     "togglePollForm": "Toggle poll form",
     "imageAlt": "Shared image",
     "closeImage": "Close image"
@@ -577,11 +581,23 @@
       "tonightsPick": "Tonight's pick",
       "singlePlayer": "Single player",
       "startGame": "Start game",
+      "howToPlay": "How to play",
       "minutes": "{{min}} min",
       "playersShort": "{{count}}+",
       "playersLong": "{{count}}+ players",
       "comingSoon": "That game is coming soon",
       "soon": "Soon",
+      "premium": "Premium",
+      "unlock": "Unlock",
+      "paywall": {
+        "title": "Unlock all games",
+        "body": "Subscribe to unlock the full game hub. Kollekt, 100 Questions, Dice and Spin the Wheel stay free.",
+        "subscribe": "Subscribe",
+        "restore": "Restore purchases",
+        "disclosure": "Auto-renewing subscription billed through your App Store account. Cancel anytime in Settings. Terms and Privacy Policy apply.",
+        "unavailable": "Subscriptions aren't available yet — check back soon.",
+        "nothingToRestore": "No previous purchase found."
+      },
       "categories": {
         "all": "All",
         "classic": "Classic",
@@ -623,6 +639,21 @@
         "categories": "Name something in the category before time runs out.",
         "charades": "Act out the word while the others race to guess it.",
         "snusboksen": "Pass the can around and do whatever the card says."
+      },
+      "ruleText": {
+        "dice": "Tap roll, read the result, and pass the turn if you are using it as a group decider. Use it for quick choices, penalties, or tie breakers.",
+        "liarsDice": "Each player rolls privately, then claims what dice are on the table. Raise the claim or challenge the previous player. If the challenge is right, the claimant loses a die; otherwise the challenger does.",
+        "kollekt": "Start the Kollekt game and play through household-based rounds. The app uses your shared stats to create prompts, points, and small challenges for the group.",
+        "spinTheWheel": "Add the people or options you want on the wheel, then spin. Whoever or whatever the wheel lands on is chosen for the next task, turn, or challenge.",
+        "promptRelay": "Join the same room, answer prompts one by one, and pass the turn around the group. Keep going until everyone has answered or the room is done.",
+        "hundredQuestions": "Read each question and point to the person who fits it best. Count votes out loud, discuss the result, then move to the next card.",
+        "truthOrChug": "Pick a numbered card. Either answer honestly or take the challenge instead. The group decides how strict the penalties are before starting.",
+        "neverHaveIEver": "Read the statement aloud. Anyone who has done it takes the agreed penalty. After the reactions settle, continue to the next card.",
+        "mexican": "Roll secretly and announce a result higher than the previous player. The next player can believe you and roll, or challenge. A wrong challenge loses.",
+        "kingsCup": "Draw cards in turn. Each card rank has a rule. Follow the rule, keep the pace moving, and agree before starting what happens when the final king appears.",
+        "categories": "A category appears and players answer in turn before time runs out. Repeats, wrong answers, or silence knock a player out. Last player remaining wins.",
+        "charades": "One player acts without speaking while the others guess. Score the round when someone guesses correctly, then pass the acting turn to the next player.",
+        "snusboksen": "Pass the can around. When it is your turn, draw or reveal a card and do what it says before passing the can on."
       },
       "dice": {
         "roll": "Roll the die",

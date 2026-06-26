@@ -390,6 +390,8 @@ export type NotificationPreferences = Record<string, boolean>;
 export interface ChatMessage {
   id: number;
   sender: string;
+  /** NULL = household message; otherwise the member this private message was sent to. */
+  recipient?: string | null;
   text: string;
   imageData?: string | null;
   imageMimeType?: string | null;

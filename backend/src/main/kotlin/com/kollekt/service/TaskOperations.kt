@@ -31,6 +31,10 @@ class TaskOperations(
     private val collectiveAccessService: CollectiveAccessService,
     private val taskHistoryRepository: TaskHistoryRepository,
 ) {
+    private companion object {
+        const val XP_PER_LEVEL = 200
+    }
+
     // Arbitrary Monday used as the zero point for the weekly task rotation. Only week-to-week
     // differences matter; this anchor keeps every collective rotating in lockstep.
     private val rotationEpoch: LocalDate = LocalDate.of(2024, 1, 1)
@@ -295,7 +299,7 @@ class TaskOperations(
                     ?: throw IllegalArgumentException("Task assignee '${task.assignee}' not found in collective")
 
             val updatedXp = assignee.xp + awardedXp
-            val updatedLevel = updatedXp / 200 + 1
+            val updatedLevel = levelForXp(updatedXp)
             memberRepository.save(assignee.copy(xp = updatedXp, level = updatedLevel))
         }
 
@@ -373,7 +377,7 @@ class TaskOperations(
                     ?: throw IllegalArgumentException("User '$memberName' not found in collective")
 
             val updatedXp = member.xp + awardedXp
-            val updatedLevel = updatedXp / 200 + 1
+            val updatedLevel = levelForXp(updatedXp)
             memberRepository.save(member.copy(xp = updatedXp, level = updatedLevel))
         }
 
@@ -595,6 +599,8 @@ class TaskOperations(
         }
 
     private fun calculateLateCompletionXp(baseXp: Int): Int = (baseXp / 2).coerceAtLeast(1)
+
+    private fun levelForXp(xp: Int): Int = xp / XP_PER_LEVEL + 1
 
     private fun calculatePenaltyXp(task: TaskItem): Int = -kotlin.math.abs(task.xp)
 

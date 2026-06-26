@@ -447,7 +447,7 @@
     "typeLabel": "Vasketype",
     "tempLabel": "Temperatur",
     "send": "Annonser i chatten",
-    "message": "🧺 Jeg kjører en vask på {{temp}}°C ({{type}}) — bli med for å spare strøm!",
+    "message": "Jeg kjører en vask på {{temp}}°C ({{type}}). Bli med?",
     "join": "Jeg vil bli med",
     "notThisTime": "Ikke denne gangen",
     "types": { "WHITES": "Hvitt", "COLORS": "Farget", "DELICATES": "Finvask", "WOOL": "Ull", "SPORTS": "Sportsklær", "TOWELS": "Håndklær" }
@@ -484,6 +484,8 @@
   },
   "chat": {
     "threadTitle": "Kollektivet",
+    "householdThread": "Kollektivet",
+    "directSubtitle": "Privat – bare dere to",
     "onlineCount": "{{count}} pålogget",
     "memberCount_one": "{{count}} medlem",
     "memberCount_other": "{{count}} medlemmer",
@@ -498,6 +500,8 @@
     "replyingTo": "Svarer til {{name}}",
     "cancelReply": "Avbryt",
     "sendImage": "Send bilde",
+    "sendGif": "Send GIF",
+    "gifPickerTitle": "Start-GIFer",
     "togglePollForm": "Vis eller skjul avstemning",
     "imageAlt": "Delt bilde",
     "closeImage": "Lukk bilde"
@@ -577,11 +581,23 @@
       "tonightsPick": "Kveldens valg",
       "singlePlayer": "Én spiller",
       "startGame": "Start spill",
+      "howToPlay": "Slik spiller dere",
       "minutes": "{{min}} min",
       "playersShort": "{{count}}+",
       "playersLong": "{{count}}+ spillere",
       "comingSoon": "Det spillet kommer snart",
       "soon": "Snart",
+      "premium": "Premium",
+      "unlock": "Lås opp",
+      "paywall": {
+        "title": "Lås opp alle spill",
+        "body": "Abonner for å låse opp hele spillsamlingen. Kollekt, 100 spørsmål, Terning og Lykkehjulet er alltid gratis.",
+        "subscribe": "Abonner",
+        "restore": "Gjenopprett kjøp",
+        "disclosure": "Fornyes automatisk og belastes App Store-kontoen din. Avbryt når som helst i Innstillinger. Vilkår og personvern gjelder.",
+        "unavailable": "Abonnement er ikke tilgjengelig ennå – kom tilbake snart.",
+        "nothingToRestore": "Fant ingen tidligere kjøp."
+      },
       "categories": {
         "all": "Alle",
         "classic": "Klassisk",
@@ -623,6 +639,21 @@
         "categories": "Nevn noe i kategorien før tiden går ut.",
         "charades": "Mime ordet mens de andre prøver å gjette det.",
         "snusboksen": "Send boksen rundt og gjør det kortet sier."
+      },
+      "ruleText": {
+        "dice": "Trykk kast, les resultatet og send turen videre hvis dere bruker den som gruppeavgjørelse. Bruk terningen til valg, straffer eller tiebreaks.",
+        "liarsDice": "Alle kaster skjult og melder hva de tror finnes på bordet. Høyn budet eller utfordre forrige spiller. Har utfordreren rett, mister den som bød en terning; ellers mister utfordreren en.",
+        "kollekt": "Start Kollekt-spillet og spill runder basert på kollektivet deres. Appen bruker delt statistikk til å lage spørsmål, poeng og små utfordringer.",
+        "spinTheWheel": "Legg inn personer eller valg på hjulet, og snurr. Den eller det hjulet lander på, blir valgt til neste oppgave, tur eller utfordring.",
+        "promptRelay": "Bli med i samme rom, svar på spørsmål etter tur og send stafetten videre. Fortsett til alle har svart eller rommet er ferdig.",
+        "hundredQuestions": "Les spørsmålet høyt og pek på personen som passer best. Tell stemmene høyt, snakk om resultatet og gå videre til neste kort.",
+        "truthOrChug": "Velg et nummerert kort. Svar ærlig eller gjør utfordringen i stedet. Gruppen bestemmer hvor strenge straffene er før dere starter.",
+        "neverHaveIEver": "Les påstanden høyt. Alle som har gjort det, tar den avtalte straffen. Når reaksjonene har landet, går dere videre til neste kort.",
+        "mexican": "Kast skjult og annonser et resultat som slår forrige spiller. Neste spiller kan tro deg og kaste videre, eller utfordre. Feil utfordring taper.",
+        "kingsCup": "Trekk kort etter tur. Hver kortverdi har en regel. Følg regelen, hold tempoet oppe og avtal før start hva som skjer når siste konge trekkes.",
+        "categories": "En kategori vises, og spillerne svarer etter tur før tiden går ut. Gjentakelser, feil svar eller stillhet slår en spiller ut. Siste spiller igjen vinner.",
+        "charades": "Én spiller mimer uten å snakke mens de andre gjetter. Gi poeng når noen gjetter riktig, og send mimeturen videre.",
+        "snusboksen": "Send boksen rundt. Når det er din tur, trekker eller viser du et kort og gjør det som står der før boksen sendes videre."
       },
       "dice": {
         "roll": "Kast terningen",

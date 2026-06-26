@@ -3,6 +3,7 @@
 package com.kollekt.api
 
 import com.kollekt.api.dto.AddReactionRequest
+import com.kollekt.api.dto.CreateDirectMessageRequest
 import com.kollekt.api.dto.CreateMessageRequest
 import com.kollekt.api.dto.CreatePollRequest
 import com.kollekt.api.dto.MessageDto
@@ -35,6 +36,23 @@ class ChatController(
         @RequestBody request: CreateMessageRequest,
         @AuthenticationPrincipal jwt: Jwt,
     ): MessageDto = chatOperations.createMessage(request, jwt.subject)
+
+    @GetMapping("/direct")
+    fun getDirectMessages(
+        @RequestParam memberName: String,
+        @RequestParam otherName: String,
+        @AuthenticationPrincipal jwt: Jwt,
+    ): List<MessageDto> {
+        requireTokenSubject(jwt, memberName)
+        return chatOperations.getDirectMessages(memberName, otherName)
+    }
+
+    @PostMapping("/direct")
+    @ResponseStatus(HttpStatus.CREATED)
+    fun createDirectMessage(
+        @RequestBody request: CreateDirectMessageRequest,
+        @AuthenticationPrincipal jwt: Jwt,
+    ): MessageDto = chatOperations.createDirectMessage(request.recipient, request.text, jwt.subject)
 
     @PostMapping("/images")
     @ResponseStatus(HttpStatus.CREATED)

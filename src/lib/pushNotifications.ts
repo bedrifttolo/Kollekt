@@ -7,6 +7,7 @@ import { api } from './api';
 // Actual push delivery requires APNs/FCM credentials configured separately.
 let registeredToken: string | null = null;
 let listenersBound = false;
+const pushDebug = import.meta.env.VITE_DEBUG_PUSH === 'true';
 
 export async function registerPushNotifications(): Promise<void> {
   if (!Capacitor.isNativePlatform()) return;
@@ -21,15 +22,25 @@ export async function registerPushNotifications(): Promise<void> {
       listenersBound = true;
       await PushNotifications.addListener('registration', (token) => {
         registeredToken = token.value;
+        if (pushDebug) console.info('[push] registered device token', token.value);
         void api
           .post('/push/device-token', {
             token: token.value,
             platform: Capacitor.getPlatform(),
           })
-          .catch(() => undefined);
+          .then(() => {
+            if (pushDebug) console.info('[push] device token saved');
+          })
+          .catch((error) => {
+            if (pushDebug) console.warn('[push] device token save failed', error);
+          });
+      });
+      await PushNotifications.addListener('registrationError', (error) => {
+        if (pushDebug) console.warn('[push] registration failed', error);
       });
       await PushNotifications.addListener('pushNotificationActionPerformed', (action) => {
         const route = action.notification.data?.route;
+        if (pushDebug) console.info('[push] notification tapped', action.notification.data);
         if (typeof route === 'string' && route.startsWith('/')) {
           window.location.assign(route);
         }
@@ -37,7 +48,8 @@ export async function registerPushNotifications(): Promise<void> {
     }
 
     await PushNotifications.register();
-  } catch {
+  } catch (error) {
+    if (pushDebug) console.warn('[push] unavailable', error);
     // Push unavailable on this build (e.g. missing Firebase config); continue without it.
   }
 }

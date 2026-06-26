@@ -7,9 +7,10 @@ import { api } from '../lib/api';
 import { useUser } from '../context/UserContext';
 import { formatCurrency, formatDate, formatTime, translateKey } from '../i18n/helpers';
 import { connectCollectiveRealtime } from '../lib/realtime';
-import type { DashboardResponse, HouseCheckin } from '../lib/types';
+import type { AppUser, DashboardResponse, HouseCheckin } from '../lib/types';
 import { AvatarStack, Eyebrow, VibeRing } from '../components/ui-kit';
 import { colorForMember } from '../lib/memberColors';
+import { showHomeBanner, hideHomeBanner } from '../lib/ads';
 import PromoSlider from '../components/PromoSlider';
 
 const PROMO_SLIDER_ENABLED = import.meta.env.VITE_ENABLE_PROMO_SLIDER !== 'false';
@@ -41,7 +42,7 @@ export default function DashboardPage() {
   const { t: translate } = useTranslation();
   const { currentUser } = useUser();
   const [data, setData] = useState<DashboardResponse | null>(null);
-  const [members, setMembers] = useState<string[]>([]);
+  const [members, setMembers] = useState<AppUser[]>([]);
   const [onlineCount, setOnlineCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [checkin, setCheckin] = useState<HouseCheckin | null>(null);
@@ -49,6 +50,12 @@ export default function DashboardPage() {
   const [issue, setIssue] = useState('');
   const [improvement, setImprovement] = useState('');
   const [anonymous, setAnonymous] = useState(false);
+
+  // Home-screen AdMob banner (no-op until ads are enabled in src/lib/ads.ts).
+  useEffect(() => {
+    void showHomeBanner();
+    return () => { void hideHomeBanner(); };
+  }, []);
 
   const fetchDashboard = () => {
     if (!currentUser) return;
@@ -69,8 +76,8 @@ export default function DashboardPage() {
     fetchDashboard();
     void fetchCheckin();
     if (currentUser) {
-      api.get<{ name: string }[]>(`/members/collective?memberName=${encodeURIComponent(currentUser.name)}`)
-        .then((list) => setMembers(list.map((m) => m.name)))
+      api.get<AppUser[]>(`/members/collective?memberName=${encodeURIComponent(currentUser.name)}`)
+        .then(setMembers)
         .catch(() => {});
     }
   }, [currentUser]);
@@ -131,7 +138,7 @@ export default function DashboardPage() {
         </h3>
         {members.length > 0 && (
           <div className="mb-3 mt-2">
-            <AvatarStack names={members} />
+            <AvatarStack members={members} />
           </div>
         )}
         <div className="flex items-center gap-3 mb-3">
@@ -230,14 +237,14 @@ export default function DashboardPage() {
       <motion.div variants={item}>
         <div className="flex items-center justify-between mb-2">
           <h3 className="font-semibold text-sm text-muted-foreground">{translate('dashboard.upcomingTasks')}</h3>
-          <button onClick={() => navigate('/tasks')} className="text-xs text-primary font-medium">{translate('common.seeAll')}</button>
+          <button onClick={() => navigate('/tasks')} className="-mr-2 min-h-11 px-2 text-xs text-primary font-medium">{translate('common.seeAll')}</button>
         </div>
         <div className="space-y-2">
           {data.upcomingTasks.length === 0 && (
             <p className="text-sm text-muted-foreground text-center py-3">{translate('dashboard.noUpcomingTasks')} 🎉</p>
           )}
           {data.upcomingTasks.slice(0, 5).map((task) => (
-            <button key={task.id} onClick={() => navigate('/tasks')} className="card !rounded-[1.1rem] !p-3 flex items-center gap-3 w-full text-left">
+            <button key={task.id} onClick={() => navigate('/tasks')} className="card !rounded-[1.1rem] !p-4 flex min-h-14 items-center gap-3 w-full text-left">
               <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
                 <CheckSquare className="h-4 w-4 text-muted-foreground" />
               </div>
@@ -255,14 +262,14 @@ export default function DashboardPage() {
       <motion.div variants={item}>
         <div className="flex items-center justify-between mb-2">
           <h3 className="font-semibold text-sm text-muted-foreground">{translate('dashboard.shoppingList')}</h3>
-          <button onClick={() => navigate('/tasks?tab=shopping')} className="text-xs text-primary font-medium">{translate('common.seeAll')}</button>
+          <button onClick={() => navigate('/tasks?tab=shopping')} className="-mr-2 min-h-11 px-2 text-xs text-primary font-medium">{translate('common.seeAll')}</button>
         </div>
         <div className="space-y-2">
           {data.pendingShoppingItems.length === 0 && (
             <p className="text-sm text-muted-foreground text-center py-3">{translate('dashboard.noShoppingItems')}</p>
           )}
           {data.pendingShoppingItems.slice(0, 3).map((s) => (
-            <button key={s.id} onClick={() => navigate('/tasks?tab=shopping')} className="card !rounded-[1.1rem] !p-3 flex items-center gap-3 w-full text-left">
+            <button key={s.id} onClick={() => navigate('/tasks?tab=shopping')} className="card !rounded-[1.1rem] !p-4 flex min-h-14 items-center gap-3 w-full text-left">
               <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
                 <ShoppingCart className="h-4 w-4 text-muted-foreground" />
               </div>
@@ -279,14 +286,14 @@ export default function DashboardPage() {
       <motion.div variants={item}>
         <div className="flex items-center justify-between mb-2">
           <h3 className="font-semibold text-sm text-muted-foreground">{translate('dashboard.upcomingEvents')}</h3>
-          <button onClick={() => navigate('/calendar')} className="text-xs text-primary font-medium">{translate('common.seeAll')}</button>
+          <button onClick={() => navigate('/calendar')} className="-mr-2 min-h-11 px-2 text-xs text-primary font-medium">{translate('common.seeAll')}</button>
         </div>
         <div className="space-y-2">
           {data.upcomingEvents.length === 0 && (
             <p className="text-sm text-muted-foreground text-center py-3">{translate('dashboard.noUpcomingEvents')}</p>
           )}
           {data.upcomingEvents.slice(0, 3).map((e) => (
-            <button key={e.id} onClick={() => navigate('/calendar')} className="card !rounded-[1.1rem] !p-3 flex items-center gap-3 w-full text-left">
+            <button key={e.id} onClick={() => navigate('/calendar')} className="card !rounded-[1.1rem] !p-4 flex min-h-14 items-center gap-3 w-full text-left">
               <div className="h-8 w-8 rounded-lg bg-accent/20 flex items-center justify-center shrink-0">
                 <Calendar className="h-4 w-4 text-accent" />
               </div>
@@ -304,14 +311,14 @@ export default function DashboardPage() {
       <motion.div variants={item}>
         <div className="flex items-center justify-between mb-2">
           <h3 className="font-semibold text-sm text-muted-foreground">{translate('dashboard.recentExpenses')}</h3>
-          <button onClick={() => navigate('/economy')} className="text-xs text-primary font-medium">{translate('common.seeAll')}</button>
+          <button onClick={() => navigate('/economy')} className="-mr-2 min-h-11 px-2 text-xs text-primary font-medium">{translate('common.seeAll')}</button>
         </div>
         <div className="space-y-2">
           {data.recentExpenses.length === 0 && (
             <p className="text-sm text-muted-foreground text-center py-3">{translate('dashboard.noRecentExpenses')}</p>
           )}
           {data.recentExpenses.slice(0, 3).map((e) => (
-            <button key={e.id} onClick={() => navigate('/economy')} className="card !rounded-[1.1rem] !p-3 flex items-center gap-3 w-full text-left">
+            <button key={e.id} onClick={() => navigate('/economy')} className="card !rounded-[1.1rem] !p-4 flex min-h-14 items-center gap-3 w-full text-left">
               <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
                 <Wallet className="h-4 w-4 text-muted-foreground" />
               </div>

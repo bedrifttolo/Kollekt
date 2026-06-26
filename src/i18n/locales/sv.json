@@ -447,7 +447,7 @@
     "typeLabel": "Tvättyp",
     "tempLabel": "Temperatur",
     "send": "Meddela i chatten",
-    "message": "🧺 Jag kör en tvätt på {{temp}}°C ({{type}}) — häng på för att spara el!",
+    "message": "Jag kör en tvätt på {{temp}}°C ({{type}}). Häng på?",
     "join": "Jag vill vara med",
     "notThisTime": "Inte den här gången",
     "types": { "WHITES": "Vitt", "COLORS": "Kulört", "DELICATES": "Fintvätt", "WOOL": "Ylle", "SPORTS": "Träningskläder", "TOWELS": "Handdukar" }
@@ -484,6 +484,8 @@
   },
   "chat": {
     "threadTitle": "Kollektivet",
+    "householdThread": "Kollektivet",
+    "directSubtitle": "Privat – bara ni två",
     "onlineCount": "{{count}} online",
     "memberCount_one": "{{count}} medlem",
     "memberCount_other": "{{count}} medlemmar",
@@ -498,6 +500,8 @@
     "replyingTo": "Svarar till {{name}}",
     "cancelReply": "Avbryt",
     "sendImage": "Skicka bild",
+    "sendGif": "Skicka GIF",
+    "gifPickerTitle": "Start-GIFar",
     "togglePollForm": "Visa eller dölj omröstning",
     "imageAlt": "Delad bild",
     "closeImage": "Stäng bild"
@@ -577,11 +581,23 @@
       "tonightsPick": "Kvällens val",
       "singlePlayer": "En spelare",
       "startGame": "Starta spel",
+      "howToPlay": "Så här spelar ni",
       "minutes": "{{min}} min",
       "playersShort": "{{count}}+",
       "playersLong": "{{count}}+ spelare",
       "comingSoon": "Det spelet kommer snart",
       "soon": "Snart",
+      "premium": "Premium",
+      "unlock": "Lås upp",
+      "paywall": {
+        "title": "Lås upp alla spel",
+        "body": "Prenumerera för att låsa upp hela spelsamlingen. Kollekt, 100 frågor, Tärning och Lyckohjulet är alltid gratis.",
+        "subscribe": "Prenumerera",
+        "restore": "Återställ köp",
+        "disclosure": "Förnyas automatiskt och debiteras via ditt App Store-konto. Avbryt när som helst i Inställningar. Villkor och integritetspolicy gäller.",
+        "unavailable": "Prenumeration är inte tillgänglig ännu – kom tillbaka snart.",
+        "nothingToRestore": "Inget tidigare köp hittades."
+      },
       "categories": {
         "all": "Alla",
         "classic": "Klassiskt",
@@ -623,6 +639,21 @@
         "categories": "Nämn något i kategorin innan tiden tar slut.",
         "charades": "Spela upp ordet medan de andra försöker gissa det.",
         "snusboksen": "Skicka burken runt och gör det kortet säger."
+      },
+      "ruleText": {
+        "dice": "Tryck kasta, läs resultatet och skicka turen vidare om ni använder tärningen som gruppbeslut. Använd den för val, straff eller tiebreaks.",
+        "liarsDice": "Alla kastar dolt och säger vad de tror finns på bordet. Höj budet eller utmana föregående spelare. Har utmanaren rätt tappar budgivaren en tärning; annars tappar utmanaren en.",
+        "kollekt": "Starta Kollekt-spelet och spela rundor baserade på ert hushåll. Appen använder gemensam statistik för att skapa frågor, poäng och små utmaningar.",
+        "spinTheWheel": "Lägg in personer eller val på hjulet och snurra. Den eller det hjulet landar på väljs för nästa uppgift, tur eller utmaning.",
+        "promptRelay": "Gå med i samma rum, svara på frågor i turordning och skicka stafetten vidare. Fortsätt tills alla har svarat eller rummet är klart.",
+        "hundredQuestions": "Läs frågan högt och peka på personen som passar bäst. Räkna rösterna högt, prata om resultatet och gå vidare till nästa kort.",
+        "truthOrChug": "Välj ett numrerat kort. Svara ärligt eller gör utmaningen i stället. Gruppen bestämmer hur hårda straffen är innan ni börjar.",
+        "neverHaveIEver": "Läs påståendet högt. Alla som har gjort det tar det överenskomna straffet. När reaktionerna lagt sig går ni vidare till nästa kort.",
+        "mexican": "Kasta dolt och annonsera ett resultat som slår föregående spelare. Nästa spelare kan tro dig och kasta vidare, eller utmana. En felaktig utmaning förlorar.",
+        "kingsCup": "Dra kort i turordning. Varje kortvärde har en regel. Följ regeln, håll tempot uppe och kom överens före start om vad som händer när sista kungen dras.",
+        "categories": "En kategori visas och spelarna svarar i turordning innan tiden tar slut. Upprepningar, fel svar eller tystnad slår ut en spelare. Sista spelaren kvar vinner.",
+        "charades": "En spelare mimar utan att prata medan de andra gissar. Ge poäng när någon gissar rätt och skicka mimturen vidare.",
+        "snusboksen": "Skicka burken runt. När det är din tur drar eller visar du ett kort och gör det som står innan burken skickas vidare."
       },
       "dice": {
         "roll": "Kasta tärningen",
