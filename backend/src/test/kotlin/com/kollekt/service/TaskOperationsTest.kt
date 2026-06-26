@@ -13,6 +13,7 @@ import com.kollekt.repository.TaskFeedbackRepository
 import com.kollekt.repository.TaskHistoryRepository
 import com.kollekt.repository.TaskRepository
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -22,7 +23,6 @@ import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.check
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
-import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import java.time.LocalDate
@@ -670,32 +670,24 @@ class TaskOperationsTest {
 
         operations.regenerateRecurringTasksForCollective("ABC123")
 
-        val savedTasks = argumentCaptor<TaskItem>()
-        verify(taskRepository, times(4)).save(savedTasks.capture())
-        assertTrue(
-            savedTasks.allValues.any {
-                it.title == "Kitchen" &&
-                    it.assignee == "Kasper" &&
-                    it.dueDate == LocalDate.now().plusDays(6)
-            },
-        )
-        assertTrue(
-            savedTasks.allValues.any {
-                it.title == "Trash" &&
-                    it.assignee == "Emma" &&
-                    it.dueDate == LocalDate.now().plusDays(6)
-            },
-        )
+        // Round-robin gives full, fair coverage: the two weekly chores land on the two different
+        // members, so over a cycle everyone carries the same load. The exact pairing depends on the
+        // week index, so we assert the invariant (complete, distinct coverage) rather than fixed names.
+        val rotated = storedTasks.filter { it.dueDate == LocalDate.now().plusDays(6) }
+        assertEquals(2, rotated.size)
+        assertEquals(setOf("Kitchen", "Trash"), rotated.map { it.title }.toSet())
+        assertEquals(setOf("Emma", "Kasper"), rotated.map { it.assignee }.toSet())
     }
 
     @Test
-    fun `regenerate recurring tasks picks a different assignee when task count differs from member count`() {
+    fun `regenerate rotates a weekly series to a different member each week`() {
         whenever(memberRepository.findAllByCollectiveCode("ABC123")).thenReturn(
             listOf(
                 member("Emma", "emma@example.com", id = 2),
                 member("Kasper", "kasper@example.com", id = 1),
             ),
         )
+        // Two consecutive weekly occurrences of the same chore, both currently on Emma.
         val storedTasks =
             mutableListOf(
                 TaskItem(
@@ -703,17 +695,30 @@ class TaskOperationsTest {
                     title = "Kitchen",
                     assignee = "Emma",
                     collectiveCode = "ABC123",
-                    dueDate = LocalDate.now().minusDays(1),
+                    dueDate = LocalDate.now().plusDays(6),
                     category = TaskCategory.CLEANING,
                     xp = 20,
                     recurrenceRule = "WEEKLY",
+                    recurrenceSeriesId = "series-kitchen",
+                    recurring = true,
+                ),
+                TaskItem(
+                    id = 2,
+                    title = "Kitchen",
+                    assignee = "Emma",
+                    collectiveCode = "ABC123",
+                    dueDate = LocalDate.now().plusDays(13),
+                    category = TaskCategory.CLEANING,
+                    xp = 20,
+                    recurrenceRule = "WEEKLY",
+                    recurrenceSeriesId = "series-kitchen",
                     recurring = true,
                 ),
             )
         whenever(taskRepository.findAllByCollectiveCode("ABC123")).thenAnswer { storedTasks.toList() }
         whenever(taskRepository.save(any<TaskItem>())).thenAnswer {
             val task = it.arguments[0] as TaskItem
-            val saved = if (task.id == 0L) task.copy(id = 2L) else task
+            val saved = if (task.id == 0L) task.copy(id = (storedTasks.maxOfOrNull(TaskItem::id) ?: 0L) + 1L) else task
             storedTasks.removeAll { existing -> existing.id == saved.id }
             storedTasks += saved
             saved
@@ -721,12 +726,12 @@ class TaskOperationsTest {
 
         operations.regenerateRecurringTasksForCollective("ABC123")
 
-        val savedTasks = argumentCaptor<TaskItem>()
-        verify(taskRepository, times(2)).save(savedTasks.capture())
-        val balancedTask = savedTasks.lastValue
-        assertEquals("Kitchen", balancedTask.title)
-        assertEquals("Kasper", balancedTask.assignee)
-        assertEquals(LocalDate.now().plusDays(6), balancedTask.dueDate)
+        // The rotation advances exactly one seat per week, so the same chore must move to the other
+        // member the following week — guaranteeing equal contribution over a full cycle.
+        val week1 = storedTasks.first { it.dueDate == LocalDate.now().plusDays(6) }.assignee
+        val week2 = storedTasks.first { it.dueDate == LocalDate.now().plusDays(13) }.assignee
+        assertNotEquals(week1, week2)
+        assertEquals(setOf("Emma", "Kasper"), setOf(week1, week2))
     }
 
     @Test

@@ -2,19 +2,23 @@ package com.kollekt.service
 
 import com.kollekt.api.dto.CreateCustomAchievementRequest
 import com.kollekt.domain.CalendarEvent
+import com.kollekt.domain.CheckinResponse
 import com.kollekt.domain.Collective
 import com.kollekt.domain.CustomAchievement
 import com.kollekt.domain.CustomAchievementMetric
 import com.kollekt.domain.EventType
 import com.kollekt.domain.Expense
+import com.kollekt.domain.HouseCheckin
 import com.kollekt.domain.Member
 import com.kollekt.domain.TaskCategory
 import com.kollekt.domain.TaskHistoryEntry
 import com.kollekt.domain.TaskItem
+import com.kollekt.repository.CheckinResponseRepository
 import com.kollekt.repository.CollectiveRepository
 import com.kollekt.repository.CustomAchievementRepository
 import com.kollekt.repository.EventRepository
 import com.kollekt.repository.ExpenseRepository
+import com.kollekt.repository.HouseCheckinRepository
 import com.kollekt.repository.MemberRepository
 import com.kollekt.repository.ShoppingItemRepository
 import com.kollekt.repository.TaskHistoryRepository
@@ -29,9 +33,11 @@ import org.mockito.kotlin.isNull
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.temporal.TemporalAdjusters
 
 class StatsServiceTest {
     private lateinit var memberRepository: MemberRepository
@@ -45,6 +51,8 @@ class StatsServiceTest {
     private lateinit var economyOperations: EconomyOperations
     private lateinit var shoppingItemRepository: ShoppingItemRepository
     private lateinit var taskHistoryRepository: TaskHistoryRepository
+    private lateinit var checkinRepository: HouseCheckinRepository
+    private lateinit var checkinResponseRepository: CheckinResponseRepository
     private lateinit var service: StatsService
 
     @BeforeEach
@@ -60,6 +68,8 @@ class StatsServiceTest {
         economyOperations = mock()
         shoppingItemRepository = mock()
         taskHistoryRepository = mock()
+        checkinRepository = mock()
+        checkinResponseRepository = mock()
         service =
             StatsService(
                 collectiveAccessService = collectiveAccessService,
@@ -73,6 +83,8 @@ class StatsServiceTest {
                 realtimeUpdateService = realtimeUpdateService,
                 economyOperations = economyOperations,
                 shoppingItemRepository = shoppingItemRepository,
+                checkinRepository = checkinRepository,
+                checkinResponseRepository = checkinResponseRepository,
             )
         whenever(memberRepository.findByName("Kasper")).thenReturn(member("Kasper", "kasper@example.com", xp = 250, level = 2))
         whenever(collectiveRepository.findByJoinCode("ABC123")).thenReturn(
@@ -142,6 +154,73 @@ class StatsServiceTest {
         assertEquals(listOf("Movie night"), result.upcomingEvents.map { it.title })
         assertEquals(listOf("Pizza"), result.recentExpenses.map { it.description })
         assertEquals(83, result.vibeScore)
+    }
+
+    @Test
+    fun `get dashboard lifts the vibe when the weekly mood is high`() {
+        whenever(taskRepository.findAllByCollectiveCode("ABC123")).thenReturn(
+            listOf(
+                task(
+                    id = 1,
+                    title = "Trash",
+                    assignee = "Kasper",
+                    completed = true,
+                    completedAt = LocalDateTime.now().minusDays(1),
+                    xp = 20,
+                ),
+                task(id = 2, title = "Dishes", assignee = "Emma", dueDate = LocalDate.now().plusDays(1), xp = 15),
+                task(id = 3, title = "Floors", assignee = "Kasper", dueDate = LocalDate.now().plusDays(2), xp = 25),
+            ),
+        )
+        whenever(memberRepository.findAllByCollectiveCode("ABC123")).thenReturn(
+            listOf(
+                member("Kasper", "kasper@example.com", xp = 250, level = 2),
+                member("Emma", "emma@example.com", id = 2, xp = 150, level = 1),
+            ),
+        )
+        whenever(eventRepository.findAllByCollectiveCode("ABC123")).thenReturn(
+            listOf(
+                CalendarEvent(
+                    id = 5,
+                    title = "Movie night",
+                    collectiveCode = "ABC123",
+                    date = LocalDate.now().plusDays(1),
+                    time = LocalTime.NOON,
+                    type = EventType.MOVIE,
+                    organizer = "Kasper",
+                    attendees = 4,
+                    description = "Snacks",
+                ),
+            ),
+        )
+        whenever(expenseRepository.findAllByCollectiveCode("ABC123")).thenReturn(
+            listOf(
+                Expense(
+                    id = 7,
+                    description = "Pizza",
+                    amount = 200,
+                    paidBy = "Kasper",
+                    collectiveCode = "ABC123",
+                    category = "Food",
+                    date = LocalDate.now(),
+                    participantNames = setOf("Kasper", "Emma"),
+                ),
+            ),
+        )
+        val weekStart = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+        whenever(checkinRepository.findByCollectiveCodeAndWeekStart("ABC123", weekStart))
+            .thenReturn(HouseCheckin(id = 3, collectiveCode = "ABC123", weekStart = weekStart))
+        whenever(checkinResponseRepository.findAllByCheckinIdOrderById(3)).thenReturn(
+            listOf(
+                CheckinResponse(id = 1, checkinId = 3, memberName = "Kasper", mood = 5, issue = "ok", improvement = "none"),
+                CheckinResponse(id = 2, checkinId = 3, memberName = "Emma", mood = 5, issue = "ok", improvement = "none"),
+            ),
+        )
+
+        val result = service.getDashboard("Kasper")
+
+        // The same data scores 83 with a neutral mood; an average mood of 5/5 adds the capped +4 lift.
+        assertEquals(87, result.vibeScore)
     }
 
     @Test
@@ -238,7 +317,42 @@ class StatsServiceTest {
 
         assertEquals("Kitchen legend", result.title)
         assertEquals("CUSTOM_9", result.key)
+        assertEquals("sparkles", result.icon)
         verify(realtimeUpdateService).publish(eq("ABC123"), eq("ACHIEVEMENT_CONFIG_UPDATED"), isNull())
+    }
+
+    @Test
+    fun `create custom achievement keeps a chosen icon and rejects an unknown one`() {
+        whenever(customAchievementRepository.save(any<CustomAchievement>())).thenAnswer {
+            (it.arguments[0] as CustomAchievement).copy(id = 11)
+        }
+        whenever(taskRepository.findAllByCollectiveCode("ABC123")).thenReturn(emptyList())
+
+        val withChosenIcon =
+            service.createCustomAchievement(
+                "Kasper",
+                CreateCustomAchievementRequest(
+                    title = "Trophy hunter",
+                    description = "Finish the week strong",
+                    metric = CustomAchievementMetric.XP_EARNED,
+                    target = 100,
+                    icon = "trophy",
+                ),
+            )
+        val withUnknownIcon =
+            service.createCustomAchievement(
+                "Kasper",
+                CreateCustomAchievementRequest(
+                    title = "Mystery goal",
+                    description = "Pick a random metric",
+                    metric = CustomAchievementMetric.XP_EARNED,
+                    target = 100,
+                    icon = "not-a-real-icon",
+                ),
+            )
+
+        assertEquals("trophy", withChosenIcon.icon)
+        assertEquals("sparkles", withUnknownIcon.icon)
     }
 
     @Test

@@ -15,8 +15,10 @@ import com.kollekt.repository.TaskRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.nio.charset.StandardCharsets.UTF_8
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 import java.util.UUID
 
 @Service
@@ -29,6 +31,10 @@ class TaskOperations(
     private val collectiveAccessService: CollectiveAccessService,
     private val taskHistoryRepository: TaskHistoryRepository,
 ) {
+    // Arbitrary Monday used as the zero point for the weekly task rotation. Only week-to-week
+    // differences matter; this anchor keeps every collective rotating in lockstep.
+    private val rotationEpoch: LocalDate = LocalDate.of(2024, 1, 1)
+
     fun notifyUpcomingTaskDeadlines(reminderDaysBeforeDue: Long = 1L) {
         val reminderDate = LocalDate.now().plusDays(reminderDaysBeforeDue)
         val tasksDueSoon =
@@ -603,11 +609,6 @@ class TaskOperations(
             else -> anchorDate.plusWeeks(occurrence)
         }
 
-    private data class AssignmentLoad(
-        val count: Int = 0,
-        val xp: Int = 0,
-    )
-
     private fun rebalanceFutureRecurringTasks(collectiveCode: String): List<TaskItem> {
         val memberNames =
             memberRepository
@@ -625,40 +626,37 @@ class TaskOperations(
         val futureTasks =
             recurringTasks
                 .filter { !it.completed && !it.dueDate.isBefore(today) }
-                .sortedWith(compareBy<TaskItem> { it.dueDate }.thenByDescending { it.xp }.thenBy { recurrenceSeriesKey(it) })
+                .sortedWith(compareBy<TaskItem> { it.dueDate }.thenBy { recurrenceSeriesKey(it) })
 
-        val historicalLoad =
-            memberNames.associateWith { memberName ->
-                val assigned = recurringTasks.filter { it.assignee == memberName && it.dueDate.isBefore(today) }
-                AssignmentLoad(assigned.size, assigned.sumOf { it.xp })
-            }
-        val plannedLoad = memberNames.associateWith { AssignmentLoad() }.toMutableMap()
+        // Deterministic round-robin: every recurrence series owns a stable slot, and each week the
+        // whole household shifts one seat (the week index). Over one full cycle — whose length is
+        // the number of active members — each member serves every task exactly once, then the
+        // pattern repeats identically. When membership changes (someone joins, leaves, or toggles
+        // away/home) the seating is re-derived immediately, so a newcomer is folded into the
+        // rotation straight away and the load stays even for everyone.
+        val seriesSlot =
+            futureTasks
+                .map { recurrenceSeriesKey(it) }
+                .distinct()
+                .sorted()
+                .withIndex()
+                .associate { (index, key) -> key to index }
         val savedTasks = mutableListOf<TaskItem>()
 
         for (task in futureTasks) {
-            val previousAssignee =
-                recurringTasks
-                    .asSequence()
-                    .filter { recurrenceSeriesKey(it) == recurrenceSeriesKey(task) && it.dueDate.isBefore(task.dueDate) }
-                    .maxByOrNull { it.dueDate }
-                    ?.assignee
-            val assignee =
-                memberNames.minWithOrNull(
-                    compareBy<String> { plannedLoad.getValue(it).count }
-                        .thenBy { plannedLoad.getValue(it).xp }
-                        .thenBy { it == previousAssignee }
-                        .thenBy { historicalLoad.getValue(it).count }
-                        .thenBy { historicalLoad.getValue(it).xp }
-                        .thenBy { it },
-                ) ?: memberNames.first()
-
-            val currentLoad = plannedLoad.getValue(assignee)
-            plannedLoad[assignee] = AssignmentLoad(currentLoad.count + 1, currentLoad.xp + task.xp)
+            val slot = seriesSlot.getValue(recurrenceSeriesKey(task))
+            val seat = Math.floorMod(slot + rotationWeekIndex(task.dueDate), memberNames.size)
+            val assignee = memberNames[seat]
             savedTasks += if (task.assignee == assignee) task else taskRepository.save(task.copy(assignee = assignee))
         }
 
         return savedTasks
     }
+
+    // Stable, ever-increasing week counter so the rotation advances exactly one seat every Monday
+    // and lands on the same arrangement again after a full cycle. The epoch is an arbitrary Monday;
+    // only the number of weeks between two dates matters.
+    private fun rotationWeekIndex(dueDate: LocalDate): Long = ChronoUnit.WEEKS.between(rotationEpoch, dueDate.with(DayOfWeek.MONDAY))
 
     private fun recurrenceSeriesKey(task: TaskItem): String =
         task.recurrenceSeriesId

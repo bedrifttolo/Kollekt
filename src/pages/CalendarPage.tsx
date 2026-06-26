@@ -5,11 +5,8 @@ import {
   ChevronRight,
   X,
   Trash2,
-  ExternalLink,
   Pencil,
   CalendarPlus,
-  Copy,
-  Check,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { api, API_BASE } from "../lib/api";
@@ -24,12 +21,6 @@ import {
   translateKey,
 } from "../i18n/helpers";
 import { connectCollectiveRealtime } from "../lib/realtime";
-import {
-  GOOGLE_CALENDAR_MOBILE_RETURN_URL,
-  isNativeGoogleCalendarOAuth,
-  listenForGoogleCalendarReturn,
-  openNativeGoogleCalendarOAuth,
-} from "../lib/googleCalendarOAuth";
 import type { CalendarEvent, EventType, GuestNotice, HouseCheckin } from "../lib/types";
 import { Eyebrow, Fab } from "../components/ui-kit";
 
@@ -86,9 +77,7 @@ export default function CalendarPage() {
   const [editTime, setEditTime] = useState("");
   const [editEndTime, setEditEndTime] = useState("");
   const [editType, setEditType] = useState<EventType>("OTHER");
-  const [googleConnected, setGoogleConnected] = useState(false);
   const [feedUrl, setFeedUrl] = useState("");
-  const [feedCopied, setFeedCopied] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const name = currentUser?.name ?? "";
@@ -114,23 +103,12 @@ export default function CalendarPage() {
         .catch(() => {});
     }
     api
-      .get<{ connected: boolean }>(
-        `/google-calendar/status?memberName=${encodeURIComponent(name)}`,
-      )
-      .then((r) => setGoogleConnected(r.connected))
-      .catch(() => {});
-    api
       .get<{ path: string }>(
         `/events/calendar-feed?memberName=${encodeURIComponent(name)}`,
       )
       .then((r) => setFeedUrl(`${API_BASE}${r.path}`))
       .catch(() => {});
   }, [name]);
-
-  useEffect(
-    () => listenForGoogleCalendarReturn(() => setGoogleConnected(true)),
-    [],
-  );
 
   useEffect(() => {
     if (!name) return;
@@ -186,7 +164,6 @@ export default function CalendarPage() {
       type: newType,
       organizer: name,
       attendees: 1,
-      syncToGoogle: true,
     });
     setEvents((prev) => [...prev, created]);
     void addEventToDeviceCalendar({
@@ -230,46 +207,6 @@ export default function CalendarPage() {
     setEditingEvent(null);
   };
 
-  const handleGoogleSync = async () => {
-    if (!name) return;
-    if (googleConnected) {
-      await api.delete(
-        `/google-calendar/disconnect?memberName=${encodeURIComponent(name)}`,
-      );
-      setGoogleConnected(false);
-    } else {
-      if (isNativeGoogleCalendarOAuth()) {
-        const res = await api.get<{ url: string }>(
-          `/google-calendar/auth-url?memberName=${encodeURIComponent(name)}&returnUrl=${encodeURIComponent(GOOGLE_CALENDAR_MOBILE_RETURN_URL)}`,
-        );
-        await openNativeGoogleCalendarOAuth(res.url);
-        return;
-      }
-
-      const authWindow = window.open("", "_blank");
-      try {
-        const res = await api.get<{ url: string }>(
-          `/google-calendar/auth-url?memberName=${encodeURIComponent(name)}`,
-        );
-        if (authWindow) {
-          authWindow.location.href = res.url;
-        } else {
-          window.location.href = res.url;
-        }
-      } catch {
-        authWindow?.close();
-      }
-    }
-  };
-
-  const copyFeedUrl = async () => {
-    if (!feedUrl) return;
-    try {
-      await navigator.clipboard.writeText(feedUrl);
-      setFeedCopied(true);
-      window.setTimeout(() => setFeedCopied(false), 1500);
-    } catch {}
-  };
 
   const today =
     now.getFullYear() === year && now.getMonth() === month ? now.getDate() : -1;
@@ -387,66 +324,24 @@ export default function CalendarPage() {
         </div>
       </div>
 
-      {/* Calendar connections: Google two-way sync + read-only .ics subscribe, in one compact card */}
-      <div className={`overflow-hidden rounded-[1.1rem] border bg-card divide-y divide-border ${googleConnected ? "border-primary/40" : "border-border"}`}>
-        <button
-          onClick={handleGoogleSync}
-          className="flex w-full items-center gap-3 p-2.5 text-left transition-colors hover:bg-muted/30"
+      {/* One tap subscribes the phone's own calendar (iOS/Android) to the household feed, read-only. */}
+      {feedUrl && (
+        <a
+          href={feedUrl.replace(/^https?:\/\//, "webcal://")}
+          className="flex items-center gap-3 rounded-[1.1rem] border border-border bg-card p-2.5 transition-colors hover:bg-muted/30"
         >
-          <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
-            <ExternalLink className="h-4 w-4 text-muted-foreground" />
+          <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-primary/15">
+            <CalendarPlus className="h-4 w-4 text-primary" />
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium">{t("calendar.syncGoogleCalendar")}</p>
-            <p className="text-[10px] leading-snug text-muted-foreground">
-              {googleConnected ? t("calendar.syncConnected") : t("calendar.syncDisconnected")}
-            </p>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-medium">{t("calendar.subscribeTitle")}</p>
+            <p className="text-[10px] leading-snug text-muted-foreground">{t("calendar.subscribeSubtitle")}</p>
           </div>
-          {googleConnected && (
-            <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/20 text-primary font-medium shrink-0">
-              {t("common.connected")}
-            </span>
-          )}
-        </button>
-
-        <div className="p-2.5">
-          <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
-              <CalendarPlus className="h-4 w-4 text-muted-foreground" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium">{t("calendar.subscribeTitle")}</p>
-              <p className="text-[10px] leading-snug text-muted-foreground">{t("calendar.subscribeSubtitle")}</p>
-            </div>
-            {feedUrl && (
-              <a
-                href={feedUrl.replace(/^https?:\/\//, "webcal://")}
-                className="flex items-center gap-1.5 gradient-primary rounded-lg px-3 py-1.5 text-xs font-semibold text-primary-foreground shrink-0"
-              >
-                <CalendarPlus className="h-4 w-4" /> {t("calendar.subscribeButton")}
-              </a>
-            )}
-          </div>
-          {feedUrl && (
-            <div className="mt-2 flex gap-2">
-              <input
-                readOnly
-                value={feedUrl}
-                onFocus={(event) => event.currentTarget.select()}
-                className="min-w-0 flex-1 bg-muted/50 rounded-lg px-3 py-1.5 text-xs text-muted-foreground focus:outline-none"
-                aria-label={t("calendar.subscribeUrlLabel")}
-              />
-              <button
-                onClick={() => void copyFeedUrl()}
-                className="h-8 w-8 shrink-0 rounded-lg glass flex items-center justify-center"
-                aria-label={t("common.copy")}
-              >
-                {feedCopied ? <Check className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4 text-muted-foreground" />}
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
+          <span className="shrink-0 rounded-lg gradient-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground">
+            {t("calendar.subscribeButton")}
+          </span>
+        </a>
+      )}
 
       {/* Events for selected day */}
       <div className="space-y-2">

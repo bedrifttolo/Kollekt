@@ -20,17 +20,21 @@ import com.kollekt.domain.Expense
 import com.kollekt.domain.Member
 import com.kollekt.domain.TaskHistoryEntry
 import com.kollekt.domain.TaskItem
+import com.kollekt.repository.CheckinResponseRepository
 import com.kollekt.repository.CollectiveRepository
 import com.kollekt.repository.CustomAchievementRepository
 import com.kollekt.repository.EventRepository
 import com.kollekt.repository.ExpenseRepository
+import com.kollekt.repository.HouseCheckinRepository
 import com.kollekt.repository.MemberRepository
 import com.kollekt.repository.TaskHistoryRepository
 import com.kollekt.repository.TaskRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.temporal.TemporalAdjusters
 import kotlin.math.roundToInt
 
 private data class AchievementDefinition(
@@ -41,6 +45,11 @@ private data class AchievementDefinition(
     val total: Int,
     val compute: (tasks: List<TaskItem>, member: Member, streak: Int) -> Int,
 )
+
+// Icons a member may pick for a custom house goal. Kept in sync with the picker in RanksPanel.tsx;
+// anything else falls back to the default so the stored value always maps to a known frontend icon.
+private val CUSTOM_ACHIEVEMENT_ICONS: Set<String> =
+    setOf("sparkles", "trophy", "star", "flame", "zap", "heart", "crown", "medal", "target", "rocket", "leaf", "sun")
 
 private val ACHIEVEMENT_DEFINITIONS: List<AchievementDefinition> =
     listOf(
@@ -135,6 +144,8 @@ class StatsService(
     private val realtimeUpdateService: RealtimeUpdateService,
     private val economyOperations: EconomyOperations,
     private val shoppingItemRepository: com.kollekt.repository.ShoppingItemRepository,
+    private val checkinRepository: HouseCheckinRepository,
+    private val checkinResponseRepository: CheckinResponseRepository,
 ) {
     fun getLeaderboard(
         memberName: String,
@@ -304,6 +315,7 @@ class StatsService(
             "Task category is required for category achievements"
         }
 
+        val icon = request.icon.takeIf { it in CUSTOM_ACHIEVEMENT_ICONS } ?: "sparkles"
         val saved =
             customAchievementRepository.save(
                 CustomAchievement(
@@ -312,6 +324,7 @@ class StatsService(
                     title = title,
                     description = description,
                     metric = request.metric,
+                    icon = icon,
                     target = request.target,
                     taskCategory = request.taskCategory,
                 ),
@@ -486,9 +499,22 @@ class StatsService(
         val balanceSpread =
             (balances.maxOfOrNull { it.amount } ?: 0) - (balances.minOfOrNull { it.amount } ?: 0)
         val balancePenalty = (balanceSpread / 300).coerceIn(0, 6)
+        // A gentle lift or dip from how the house has felt in this week's check-in. Centered on a
+        // neutral mood of 3/5 and capped at a few points, so it nudges the vibe without dominating
+        // it — and the score floor below means a low mood can never make the household feel punished.
+        val weekMonday = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+        val weeklyAverageMood =
+            checkinRepository
+                .findByCollectiveCodeAndWeekStart(collectiveCode, weekMonday)
+                ?.let { checkinResponseRepository.findAllByCheckinIdOrderById(it.id) }
+                ?.map { it.mood }
+                ?.takeIf { it.isNotEmpty() }
+                ?.average()
+        val moodAdjustment =
+            weeklyAverageMood?.let { (((it - 3.0) / 2.0) * 4.0).roundToInt().coerceIn(-4, 4) } ?: 0
         // Encouraging baseline with a generous floor, so the household never feels punished.
         val vibeScore =
-            (58 + onTrackRate * 22 + activityBonus + planningBonus + togethernessBonus - balancePenalty)
+            (58 + onTrackRate * 22 + activityBonus + planningBonus + togethernessBonus + moodAdjustment - balancePenalty)
                 .toInt()
                 .coerceIn(50, 100)
 
@@ -673,7 +699,7 @@ class StatsService(
             key = "CUSTOM_$id",
             title = title,
             description = description,
-            icon = "sparkles",
+            icon = icon,
             unlocked = progress >= target,
             progress = progress,
             total = target,
