@@ -33,7 +33,7 @@ import { connectCollectiveRealtime } from '../lib/realtime';
 import { tapFeedback } from '../lib/haptics';
 import { formatDate, formatDateTime, translateKey } from '../i18n/helpers';
 import type { Task, ShoppingItem, TaskCategory, TaskSwapRequest, MaintenanceTicket, MaintenancePriority, MaintenanceStatus } from '../lib/types';
-import { Eyebrow, Fab, ProgressBar } from '../components/ui-kit';
+import { AddSheet, Eyebrow, Fab, ProgressBar } from '../components/ui-kit';
 
 const CATEGORIES: TaskCategory[] = ['CLEANING', 'SMALL_CLEANING', 'VACUUMING', 'MOPPING', 'BATHROOM', 'KITCHEN', 'LAUNDRY', 'DISHES', 'TRASH', 'DUSTING', 'WINDOWS', 'OTHER'];
 const RECURRENCE_OPTIONS = ['NONE', 'DAILY', 'WEEKLY', 'MONTHLY'] as const;
@@ -86,13 +86,7 @@ function TaskEditor({
   const canSave = newTitle.trim().length > 0 && Number.isInteger(xp) && xp >= 1 && xp <= 1000;
 
   return (
-    <div className="glass rounded-xl p-4 space-y-3">
-      <div className="flex items-center justify-between">
-        <p className="text-sm font-semibold">{title}</p>
-        <button onClick={onClose} aria-label={t('common.back')}>
-          <X className="h-4 w-4 text-muted-foreground" />
-        </button>
-      </div>
+    <AddSheet title={title} onClose={onClose}>
       <label className="block space-y-1">
         <span className="text-xs font-semibold text-muted-foreground">{t('tasks.taskTitleLabel')}</span>
         <input
@@ -149,7 +143,7 @@ function TaskEditor({
       >
         {saveLabel}
       </button>
-    </div>
+    </AddSheet>
   );
 }
 
@@ -830,13 +824,7 @@ function TasksMain() {
             exit={{ opacity: 0, height: 0 }}
             className="overflow-hidden"
           >
-            <div className="glass rounded-xl p-4 space-y-3">
-              <div className="flex items-center justify-between">
-                <p className="text-sm font-semibold">{t('tasks.addSupply')}</p>
-                <button onClick={() => setShowShoppingAdd(false)} aria-label={t('common.back')}>
-                  <X className="h-4 w-4 text-muted-foreground" />
-                </button>
-              </div>
+            <AddSheet title={t('tasks.addSupply')} onClose={() => setShowShoppingAdd(false)}>
               <input
                 value={newShoppingName}
                 onChange={(e) => setNewShoppingName(e.target.value)}
@@ -867,7 +855,7 @@ function TasksMain() {
               >
                 {t('tasks.addSupply')}
               </button>
-            </div>
+            </AddSheet>
           </motion.div>
         )}
       </AnimatePresence>
@@ -875,11 +863,7 @@ function TasksMain() {
       <AnimatePresence>
         {showMaintenanceAdd && tab === 'maintenance' && (
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
-            <div className="glass space-y-3 rounded-xl p-4">
-              <div className="flex items-center justify-between">
-                <p className="text-sm font-semibold">{t('tasks.maintenance.newTicket')}</p>
-                <button onClick={() => setShowMaintenanceAdd(false)}><X className="h-4 w-4 text-muted-foreground" /></button>
-              </div>
+            <AddSheet title={t('tasks.maintenance.newTicket')} onClose={() => setShowMaintenanceAdd(false)}>
               <label className="block space-y-1">
                 <span className="text-xs font-semibold text-muted-foreground">{t('tasks.maintenance.titleLabel')}</span>
                 <input value={newMaintenanceTitle} onChange={(event) => setNewMaintenanceTitle(event.target.value)} placeholder={t('tasks.maintenance.titlePlaceholder')} autoFocus className="w-full rounded-lg bg-muted/50 px-3 py-2 text-sm" />
@@ -915,7 +899,7 @@ function TasksMain() {
                 </div>
               )}
               <button onClick={() => void handleMaintenanceAdd()} disabled={!newMaintenanceTitle.trim()} className="w-full rounded-lg bg-primary py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50">{t('tasks.maintenance.addTicket')}</button>
-            </div>
+            </AddSheet>
           </motion.div>
         )}
       </AnimatePresence>

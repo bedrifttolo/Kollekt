@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Image as ImageIcon, BarChart3, X, Smile, Reply, HeartHandshake, ChevronDown, WashingMachine } from 'lucide-react';
+import { Send, Image as ImageIcon, BarChart3, X, Smile, Reply, HeartHandshake, ChevronDown, WashingMachine, Film } from 'lucide-react';
 
 type LaundryType = 'WHITES' | 'COLORS' | 'DELICATES' | 'WOOL' | 'SPORTS' | 'TOWELS';
 const LAUNDRY_TYPES: LaundryType[] = ['WHITES', 'COLORS', 'DELICATES', 'WOOL', 'SPORTS', 'TOWELS'];
@@ -11,10 +11,11 @@ import { capturePhotoFile, nativeCameraAvailable } from '../lib/camera';
 import { useUser } from '../context/UserContext';
 import { formatDateTime, formatTime } from '../i18n/helpers';
 import { connectCollectiveRealtime } from '../lib/realtime';
-import type { ChatMessage, CheckinSummary, HouseCheckin, Kudo, KudoType, Task } from '../lib/types';
+import { tapFeedback } from '../lib/haptics';
+import type { AppUser, ChatMessage, CheckinSummary, HouseCheckin, Kudo, KudoType, Task } from '../lib/types';
 
 const KUDO_TYPES: KudoType[] = ['THANK_YOU', 'CLEANEST', 'MOST_HELPFUL', 'PEACEMAKER'];
-import { AvatarStack } from '../components/ui-kit';
+import { AddSheet, AvatarStack } from '../components/ui-kit';
 import { colorForMember } from '../lib/memberColors';
 
 const REACTION_EMOJIS = [
@@ -22,17 +23,43 @@ const REACTION_EMOJIS = [
   '👏', '🙌', '💯', '👎', '🤔', '😍', '🥰', '😭',
   '🤯', '😎', '🫶', '✅', '👀', '🤝', '💀', '🙏',
 ];
-const COMMON_REACTION_EMOJIS = ['👍', '❤️', '😂', '🎉', '😮', '😢'];
-const MORE_REACTION_EMOJIS = REACTION_EMOJIS.filter((emoji) => !COMMON_REACTION_EMOJIS.includes(emoji));
 
+const STARTER_GIFS = [
+  { id: 'cheers', emoji: '🥂', bg: '#2F6F5E', fg: '#FFF8D7' },
+  { id: 'laugh', emoji: '😂', bg: '#F7C948', fg: '#18332C' },
+  { id: 'party', emoji: '🎉', bg: '#E65A7A', fg: '#FFF8D7' },
+  { id: 'fire', emoji: '🔥', bg: '#F97316', fg: '#FFF8D7' },
+  { id: 'yes', emoji: '✅', bg: '#4F9D69', fg: '#FFF8D7' },
+  { id: 'eyes', emoji: '👀', bg: '#5B7CFA', fg: '#FFF8D7' },
+  { id: 'mindBlown', emoji: '🤯', bg: '#8B5CF6', fg: '#FFF8D7' },
+  { id: 'love', emoji: '❤️', bg: '#BE3455', fg: '#FFF8D7' },
+  { id: 'nope', emoji: '🙅', bg: '#56616B', fg: '#FFF8D7' },
+  { id: 'clean', emoji: '🧽', bg: '#00A6A6', fg: '#FFF8D7' },
+];
+
+function starterGifDataUrl({ emoji, bg, fg }: (typeof STARTER_GIFS)[number]) {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="320" height="220" viewBox="0 0 320 220">
+    <rect width="320" height="220" rx="32" fill="${bg}"/>
+    <circle cx="160" cy="110" r="72" fill="${fg}" opacity=".18">
+      <animate attributeName="r" values="56;78;56" dur="1.15s" repeatCount="indefinite"/>
+    </circle>
+    <text x="160" y="132" text-anchor="middle" font-size="86">
+      <animateTransform attributeName="transform" type="scale" values="1;1.16;1" dur="1.15s" additive="sum" repeatCount="indefinite"/>
+      ${emoji}
+    </text>
+  </svg>`;
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+}
 export default function ChatPage() {
   const { t } = useTranslation();
   const { currentUser } = useUser();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [members, setMembers] = useState<string[]>([]);
+  const [members, setMembers] = useState<AppUser[]>([]);
   const [input, setInput] = useState('');
+  const [inputFocused, setInputFocused] = useState(false);
   const [showPollForm, setShowPollForm] = useState(false);
   const [showLaundryForm, setShowLaundryForm] = useState(false);
+  const [showGifPicker, setShowGifPicker] = useState(false);
   const [laundryType, setLaundryType] = useState<LaundryType>('COLORS');
   const [laundryTemp, setLaundryTemp] = useState(40);
   const [showKudosForm, setShowKudosForm] = useState(false);
@@ -43,8 +70,8 @@ export default function ChatPage() {
   const [householdTasks, setHouseholdTasks] = useState<Task[]>([]);
   const [pollQuestion, setPollQuestion] = useState('');
   const [pollOptions, setPollOptions] = useState(['', '']);
-  const [reactingId, setReactingId] = useState<number | null>(null);
   const [expandedReactionId, setExpandedReactionId] = useState<number | null>(null);
+  const [actionMenuMessageId, setActionMenuMessageId] = useState<number | null>(null);
   const [replyingToId, setReplyingToId] = useState<number | null>(null);
   const [expandedImage, setExpandedImage] = useState<{ src: string; alt: string } | null>(null);
   const [onlineCount, setOnlineCount] = useState<number | null>(null);
@@ -52,6 +79,10 @@ export default function ChatPage() {
   const [checkinSummary, setCheckinSummary] = useState<CheckinSummary | null>(null);
   const [checkinExpanded, setCheckinExpanded] = useState(false);
   const [mention, setMention] = useState<{ query: string; start: number } | null>(null);
+  // null = the household thread; otherwise the member name of the 1:1 private thread.
+  const [activeThread, setActiveThread] = useState<string | null>(null);
+  const activeThreadRef = useRef<string | null>(null);
+  const isDirect = activeThread != null;
 
   // Show whole averages as "5", fractional ones as "4.3".
   const formatMood = (value?: number | null) =>
@@ -59,14 +90,28 @@ export default function ChatPage() {
   const bottomRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messageInputRef = useRef<HTMLInputElement>(null);
+  const inputBlurTimeoutRef = useRef<number | null>(null);
+  const longPressRef = useRef<{ timer: number | null; messageId: number | null; startX: number; startY: number }>({
+    timer: null,
+    messageId: null,
+    startX: 0,
+    startY: 0,
+  });
 
   const name = currentUser?.name ?? '';
   const messageById = new Map(messages.map((message) => [message.id, message]));
+  const memberNames = members.map((member) => member.name);
+  const memberColorMap = new Map(members.map((member) => [member.name, member.color]));
   const participants = Array.from(new Set(messages.map((message) => message.sender)));
-  const headerMembers = members.length > 0 ? members : participants.length > 0 ? participants : [name];
+  const headerMembers =
+    members.length > 0
+      ? members
+      : (participants.length > 0 ? participants : [name]).map((memberName) => ({ name: memberName }));
   const mentionCandidates = mention
-    ? members.filter((m) => m !== name && m.toLowerCase().includes(mention.query.toLowerCase())).slice(0, 6)
+    ? memberNames.filter((m) => m !== name && m.toLowerCase().includes(mention.query.toLowerCase())).slice(0, 6)
     : [];
+  const actionMenuMessage = actionMenuMessageId != null ? messageById.get(actionMenuMessageId) : undefined;
+  const reactionPickerMessage = expandedReactionId != null ? messageById.get(expandedReactionId) : undefined;
   const formatMessageTimestamp = (value: string) => {
     const messageDate = new Date(value);
     const now = new Date();
@@ -77,11 +122,28 @@ export default function ChatPage() {
     return isToday ? formatTime(value) : formatDateTime(value);
   };
 
-  const fetchMessages = async () => {
+  const fetchMessages = async (thread: string | null = activeThreadRef.current) => {
     if (!name) return;
-    const res = await api.get<ChatMessage[]>(`/chat/messages?memberName=${encodeURIComponent(name)}`);
+    const url = thread
+      ? `/chat/direct?memberName=${encodeURIComponent(name)}&otherName=${encodeURIComponent(thread)}`
+      : `/chat/messages?memberName=${encodeURIComponent(name)}`;
+    const res = await api.get<ChatMessage[]>(url);
     setMessages(res);
     setLoading(false);
+  };
+
+  const selectThread = (thread: string | null) => {
+    if (thread === activeThreadRef.current) return;
+    activeThreadRef.current = thread;
+    setActiveThread(thread);
+    setMessages([]);
+    setLoading(true);
+    setReplyingToId(null);
+    setActionMenuMessageId(null);
+    setExpandedReactionId(null);
+    setInput('');
+    setMention(null);
+    void fetchMessages(thread);
   };
 
   const fetchCheckinSummary = async () => {
@@ -95,8 +157,8 @@ export default function ChatPage() {
     fetchMessages();
     void fetchCheckinSummary();
     if (name) {
-      api.get<{ name: string }[]>(`/members/collective?memberName=${encodeURIComponent(name)}`)
-        .then((response) => setMembers(response.map((member) => member.name)))
+      api.get<AppUser[]>(`/members/collective?memberName=${encodeURIComponent(name)}`)
+        .then(setMembers)
         .catch(() => {});
       api.get<Task[]>(`/tasks?memberName=${encodeURIComponent(name)}`).then(setHouseholdTasks).catch(() => {});
     }
@@ -108,7 +170,13 @@ export default function ChatPage() {
       name,
       (event) => {
         if (['MESSAGE_CREATED', 'MESSAGE_REACTION_UPDATED', 'MESSAGE_POLL_UPDATED'].includes(event.type)) {
-          fetchMessages();
+          // Household events only matter while the household thread is open.
+          if (activeThreadRef.current == null) void fetchMessages(null);
+        }
+        if (event.type === 'DIRECT_MESSAGE_CREATED') {
+          const dm = event.payload as { sender?: string; recipient?: string } | undefined;
+          const other = dm?.sender === name ? dm?.recipient : dm?.sender;
+          if (other && other === activeThreadRef.current) void fetchMessages(other);
         }
         if (event.type === 'CHECKIN_UPDATED') void fetchCheckinSummary();
         if (event.type === 'MEMBER_ONLINE' || event.type === 'MEMBER_OFFLINE') {
@@ -124,15 +192,27 @@ export default function ChatPage() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  useEffect(() => {
+    return () => {
+      clearLongPress();
+      if (inputBlurTimeoutRef.current != null) window.clearTimeout(inputBlurTimeoutRef.current);
+    };
+  }, []);
+
   const sendMessage = async () => {
     if (!input.trim()) return;
     const text = input;
     const replyToMessageId = replyingToId;
+    const thread = activeThreadRef.current;
     setInput('');
     setMention(null);
     setReplyingToId(null);
-    await api.post('/chat/messages', { sender: name, text, replyToMessageId });
-    fetchMessages();
+    if (thread) {
+      await api.post('/chat/direct', { recipient: thread, text });
+    } else {
+      await api.post('/chat/messages', { sender: name, text, replyToMessageId });
+    }
+    fetchMessages(thread);
   };
 
   // Detect an in-progress "@name" token immediately before the caret.
@@ -168,6 +248,60 @@ export default function ChatPage() {
         el.setSelectionRange(caret, caret);
       }
     });
+  };
+
+  const clearLongPress = () => {
+    if (longPressRef.current.timer != null) window.clearTimeout(longPressRef.current.timer);
+    longPressRef.current.timer = null;
+    longPressRef.current.messageId = null;
+  };
+
+  const startMessagePress = (messageId: number, event: React.PointerEvent<HTMLElement>) => {
+    // Private 1:1 threads are text-only (no reactions/replies/polls), so skip the action menu.
+    if (isDirect) return;
+    if ((event.target as HTMLElement).closest('button, img')) return;
+    clearLongPress();
+    longPressRef.current = {
+      timer: window.setTimeout(() => {
+        longPressRef.current.timer = null;
+        setActionMenuMessageId(messageId);
+        void tapFeedback();
+      }, 450),
+      messageId,
+      startX: event.clientX,
+      startY: event.clientY,
+    };
+  };
+
+  const moveMessagePress = (event: React.PointerEvent<HTMLElement>) => {
+    const press = longPressRef.current;
+    if (press.timer == null) return;
+    const moved = Math.hypot(event.clientX - press.startX, event.clientY - press.startY);
+    if (moved > 10) clearLongPress();
+  };
+
+  const replyToMessage = (messageId: number) => {
+    setReplyingToId(messageId);
+    setActionMenuMessageId(null);
+    setExpandedReactionId(null);
+  };
+
+  const openReactionPicker = (messageId: number) => {
+    setExpandedReactionId(messageId);
+    setActionMenuMessageId(null);
+  };
+
+  const chooseReaction = (messageId: number, emoji: string) => {
+    toggleReaction(messageId, emoji);
+    setExpandedReactionId(null);
+  };
+
+  const sendStarterGif = async (gif: (typeof STARTER_GIFS)[number]) => {
+    const response = await fetch(starterGifDataUrl(gif));
+    const blob = await response.blob();
+    const file = new File([blob], `${gif.id}.svg`, { type: 'image/svg+xml' });
+    setShowGifPicker(false);
+    await sendImage(file);
   };
 
   const sendLaundry = async () => {
@@ -220,7 +354,6 @@ export default function ChatPage() {
     } else {
       await api.post(`/chat/messages/${messageId}/reactions`, { emoji });
     }
-    setReactingId(null);
     setExpandedReactionId(null);
     fetchMessages();
   };
@@ -256,17 +389,51 @@ export default function ChatPage() {
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="app-screen relative flex flex-col overflow-hidden">
       <div className="flex items-center gap-3 border-b border-border py-4">
-        <AvatarStack names={headerMembers} max={3} />
+        {isDirect ? (
+          <span style={{ backgroundColor: colorForMember(activeThread!, memberColorMap.get(activeThread!)) }} className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-sm font-bold text-white">
+            {activeThread![0]?.toUpperCase()}
+          </span>
+        ) : (
+          <AvatarStack members={headerMembers} max={3} />
+        )}
         <div className="min-w-0 flex-1">
-          <h2 className="truncate font-display text-xl font-extrabold">{t('chat.threadTitle')}</h2>
+          <h2 className="truncate font-display text-xl font-extrabold">{isDirect ? activeThread : t('chat.threadTitle')}</h2>
           <p className="text-xs text-muted-foreground">
-            <span className="font-semibold text-primary">● {onlineCount === null ? t('common.connecting') : t('chat.onlineCount', { count: onlineCount })}</span>
-            {members.length > 0 && <> · {t('chat.memberCount', { count: members.length })}</>}
+            {isDirect ? (
+              <span className="font-semibold text-primary">{t('chat.directSubtitle')}</span>
+            ) : (
+              <>
+                <span className="font-semibold text-primary">● {onlineCount === null ? t('common.connecting') : t('chat.onlineCount', { count: onlineCount })}</span>
+                {members.length > 0 && <> · {t('chat.memberCount', { count: members.length })}</>}
+              </>
+            )}
           </p>
         </div>
       </div>
 
-      {checkinSummary && checkinSummary.responseCount > 0 && (
+      {/* Thread switcher: household + a private 1:1 thread per housemate. */}
+      <div className="flex gap-2 overflow-x-auto py-2 -mx-1 px-1">
+        <button
+          onClick={() => selectThread(null)}
+          className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${!isDirect ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}
+        >
+          {t('chat.householdThread')}
+        </button>
+        {members.filter((member) => member.name !== name).map((member) => (
+          <button
+            key={member.name}
+            onClick={() => selectThread(member.name)}
+            className={`flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1.5 text-xs font-semibold transition-colors ${activeThread === member.name ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}
+          >
+            <span style={{ backgroundColor: colorForMember(member.name, member.color) }} className="grid h-5 w-5 place-items-center rounded-full text-[10px] font-bold text-white">
+              {member.name[0]?.toUpperCase()}
+            </span>
+            {member.name}
+          </button>
+        ))}
+      </div>
+
+      {!isDirect && checkinSummary && checkinSummary.responseCount > 0 && (
         <div className="mt-3 rounded-[1.35rem] border border-primary/25 bg-primary/5">
           <button
             onClick={() => setCheckinExpanded((v) => !v)}
@@ -303,6 +470,7 @@ export default function ChatPage() {
       <div className="min-h-0 flex-1 space-y-4 overflow-y-auto py-4 pr-1">
         {messages.map((message, i) => {
           const isSelf = message.sender === name;
+          const senderColor = colorForMember(message.sender, memberColorMap.get(message.sender));
           const replyTarget = message.replyToMessageId != null ? messageById.get(message.replyToMessageId) : undefined;
           return (
             <motion.div
@@ -313,7 +481,7 @@ export default function ChatPage() {
               className={`flex ${isSelf ? 'justify-end' : 'justify-start'}`}
             >
               <div className="max-w-[82%] space-y-1">
-                {!isSelf && <p className="px-1 text-xs font-bold text-destructive">{message.sender}</p>}
+                {!isSelf && <p className="px-1 text-xs font-bold" style={{ color: senderColor }}>{message.sender}</p>}
                 {replyTarget && (
                   <div
                     className={`mx-1 rounded-lg px-2.5 py-1.5 text-[10px] leading-tight border ${
@@ -330,17 +498,19 @@ export default function ChatPage() {
                     <p className="truncate">{replyTarget.text || t('chat.imageAlt')}</p>
                   </div>
                 )}
-                <div
-                  className={`px-4 py-3 ${
-                    isSelf
-                      ? 'rounded-[1.35rem] rounded-br-md bg-primary text-primary-foreground'
-                      : 'rounded-[1.35rem] rounded-bl-md border border-border bg-card'
-                  }`}
-                  onClick={() => {
-                    setReactingId(reactingId === message.id ? null : message.id);
-                    setExpandedReactionId(null);
-                  }}
-                >
+	                <div
+	                  className={`select-none px-4 py-3 ${
+	                    isSelf
+	                      ? 'rounded-[1.35rem] rounded-br-md bg-primary text-primary-foreground'
+	                      : 'rounded-[1.35rem] rounded-bl-md border border-border bg-card'
+	                  }`}
+	                  style={!isSelf ? { borderLeftColor: senderColor, borderLeftWidth: 3 } : undefined}
+	                  onPointerDown={(event) => startMessagePress(message.id, event)}
+	                  onPointerMove={moveMessagePress}
+	                  onPointerUp={clearLongPress}
+	                  onPointerCancel={clearLongPress}
+	                  onPointerLeave={clearLongPress}
+	                >
                   {message.text && !message.poll && <p className="text-[15px] leading-relaxed">{message.text}</p>}
                   {message.imageData && (
                     <img
@@ -381,73 +551,20 @@ export default function ChatPage() {
                   </p>
                 </div>
 
-                <div className={`px-1 flex gap-1 ${isSelf ? 'justify-end' : 'justify-start'}`}>
-                  <button
-                    onClick={() => setReplyingToId(message.id)}
-                    className="h-6 w-6 rounded-full glass flex items-center justify-center"
-                    aria-label={t('chat.replyToMessage')}
-                  >
-                    <Reply className="h-3.5 w-3.5 text-muted-foreground" />
-                  </button>
-                  <button
-                    onClick={() => {
-                      setReactingId(reactingId === message.id ? null : message.id);
-                      setExpandedReactionId(null);
-                    }}
-                    className="h-6 w-6 rounded-full glass flex items-center justify-center"
-                    aria-label={t('chat.reactToMessage')}
-                  >
-                    <Smile className="h-3.5 w-3.5 text-muted-foreground" />
-                  </button>
-                </div>
-
-                {message.reactions.length > 0 && (
-                  <div className={`px-1 flex gap-1 flex-wrap ${isSelf ? 'justify-end' : 'justify-start'}`}>
-                    {message.reactions.map((r) => {
-                      const reacted = r.users.includes(name);
-                      return (
-                        <button key={r.emoji} onClick={() => toggleReaction(message.id, r.emoji)}
-                          className={`rounded-full border px-2 py-1 text-xs ${reacted ? 'border-primary/40 bg-primary/20' : 'border-border bg-card'}`}>
-                          {r.emoji} {r.users.length}
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-
-                <AnimatePresence>
-                  {reactingId === message.id && (
-                    <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}
-                      className={`rounded-2xl border border-border bg-card p-2 shadow-sm ${isSelf ? 'ml-auto' : 'mr-auto'}`}>
-                      <div className="flex items-center gap-1">
-                        {COMMON_REACTION_EMOJIS.map((emoji) => (
-                          <button key={emoji} onClick={() => toggleReaction(message.id, emoji)}
-                            className="grid h-8 w-8 place-items-center rounded-lg text-lg transition-transform hover:scale-110 hover:bg-muted">
-                            {emoji}
-                          </button>
-                        ))}
-                        <button
-                          onClick={() => setExpandedReactionId(expandedReactionId === message.id ? null : message.id)}
-                          className="grid h-8 w-8 place-items-center rounded-lg hover:bg-muted"
-                          aria-label={t('chat.reactToMessage')}
-                        >
-                          <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${expandedReactionId === message.id ? 'rotate-180' : ''}`} />
-                        </button>
-                      </div>
-                      {expandedReactionId === message.id && (
-                        <div className="mt-1 grid grid-cols-6 gap-1 border-t border-border pt-1">
-                          {MORE_REACTION_EMOJIS.map((emoji) => (
-                            <button key={emoji} onClick={() => toggleReaction(message.id, emoji)}
-                              className="grid h-8 w-8 place-items-center rounded-lg text-lg transition-transform hover:scale-110 hover:bg-muted">
-                              {emoji}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
+	                {message.reactions.length > 0 && (
+	                  <div className={`px-1 flex gap-1 flex-wrap ${isSelf ? 'justify-end' : 'justify-start'}`}>
+	                    {message.reactions.map((r) => {
+	                      const reacted = r.users.includes(name);
+	                      return (
+	                        <button key={r.emoji} onClick={() => chooseReaction(message.id, r.emoji)}
+	                          className={`min-h-11 rounded-full border px-3 py-2 text-xs ${reacted ? 'border-primary/40 bg-primary/20' : 'border-border bg-card'}`}>
+	                          {r.emoji} {r.users.length}
+	                        </button>
+	                      );
+	                    })}
+	                  </div>
+	                )}
+	              </div>
             </motion.div>
           );
         })}
@@ -458,14 +575,10 @@ export default function ChatPage() {
       <AnimatePresence>
         {showKudosForm && (
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
-            <div className="glass mb-2 space-y-2 rounded-xl p-3">
-              <div className="flex items-center justify-between">
-                <p className="text-xs font-semibold">{t('kudos.sendTitle')}</p>
-                <button onClick={() => setShowKudosForm(false)}><X className="h-3.5 w-3.5 text-muted-foreground" /></button>
-              </div>
+            <AddSheet title={t('kudos.sendTitle')} onClose={() => setShowKudosForm(false)} className="mb-2 p-3">
               <select value={kudosReceiver} onChange={(event) => setKudosReceiver(event.target.value)} className="w-full rounded-lg bg-muted/50 px-3 py-2 text-xs">
                 <option value="">{t('kudos.chooseRoommate')}</option>
-                {members.filter((member) => member !== name).map((member) => <option key={member} value={member}>{member}</option>)}
+                {memberNames.filter((member) => member !== name).map((member) => <option key={member} value={member}>{member}</option>)}
               </select>
               <div>
                 <p className="mb-1 text-[10px] font-semibold text-muted-foreground">{t('kudos.typeLabel')}</p>
@@ -488,7 +601,28 @@ export default function ChatPage() {
               <input value={kudosContext} onChange={(event) => setKudosContext(event.target.value)} maxLength={500} placeholder={t('kudos.contextPlaceholder')} className="w-full rounded-lg bg-muted/50 px-3 py-2 text-xs" />
               <button onClick={() => void sendKudos()} disabled={!kudosReceiver} className="w-full rounded-lg bg-primary py-2 text-xs font-bold text-primary-foreground disabled:opacity-50">{t('kudos.send')}</button>
               <p className="text-[9px] text-muted-foreground">{t('kudos.privateNote')}</p>
-            </div>
+            </AddSheet>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showGifPicker && (
+          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
+            <AddSheet title={t('chat.gifPickerTitle')} onClose={() => setShowGifPicker(false)} className="mb-2 p-3">
+              <div className="grid grid-cols-5 gap-2">
+                {STARTER_GIFS.map((gif) => (
+                  <button
+                    key={gif.id}
+                    onClick={() => void sendStarterGif(gif)}
+                    className="grid aspect-square min-h-11 place-items-center overflow-hidden rounded-xl border border-border bg-card"
+                    aria-label={t('chat.sendGif')}
+                  >
+                    <img src={starterGifDataUrl(gif)} alt="" className="h-full w-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            </AddSheet>
           </motion.div>
         )}
       </AnimatePresence>
@@ -496,11 +630,7 @@ export default function ChatPage() {
       <AnimatePresence>
         {showLaundryForm && (
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
-            <div className="glass mb-2 space-y-2 rounded-xl p-3">
-              <div className="flex items-center justify-between">
-                <p className="text-xs font-semibold">{t('laundry.title')}</p>
-                <button onClick={() => setShowLaundryForm(false)}><X className="h-3.5 w-3.5 text-muted-foreground" /></button>
-              </div>
+            <AddSheet title={t('laundry.title')} onClose={() => setShowLaundryForm(false)} className="mb-2 p-3">
               <p className="text-[10px] font-semibold text-muted-foreground">{t('laundry.typeLabel')}</p>
               <div className="flex flex-wrap gap-1.5">
                 {LAUNDRY_TYPES.map((type) => (
@@ -520,7 +650,7 @@ export default function ChatPage() {
                 ))}
               </div>
               <button onClick={() => void sendLaundry()} className="w-full rounded-lg bg-primary py-2 text-xs font-bold text-primary-foreground">{t('laundry.send')}</button>
-            </div>
+            </AddSheet>
           </motion.div>
         )}
       </AnimatePresence>
@@ -528,11 +658,7 @@ export default function ChatPage() {
       <AnimatePresence>
         {showPollForm && (
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
-            <div className="glass rounded-xl p-3 space-y-2 mb-2">
-              <div className="flex items-center justify-between">
-                <p className="text-xs font-semibold">{t('chat.createPoll')}</p>
-                <button onClick={() => setShowPollForm(false)}><X className="h-3.5 w-3.5 text-muted-foreground" /></button>
-              </div>
+            <AddSheet title={t('chat.createPoll')} onClose={() => setShowPollForm(false)} className="mb-2 p-3">
               <input value={pollQuestion} onChange={(e) => setPollQuestion(e.target.value)}
                 placeholder={t('chat.pollQuestionPlaceholder')}
                 className="w-full bg-muted/50 rounded-lg px-3 py-1.5 text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" />
@@ -550,7 +676,7 @@ export default function ChatPage() {
                   {t('chat.sendPoll')}
                 </button>
               </div>
-            </div>
+            </AddSheet>
           </motion.div>
         )}
       </AnimatePresence>
@@ -577,7 +703,7 @@ export default function ChatPage() {
                 onMouseDown={(e) => { e.preventDefault(); insertMention(member); }}
                 className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm hover:bg-muted/60"
               >
-                <span style={{ backgroundColor: colorForMember(member) }} className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-xs font-bold text-white">
+                <span style={{ backgroundColor: colorForMember(member, memberColorMap.get(member)) }} className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-xs font-bold text-white">
                   {member[0].toUpperCase()}
                 </span>
                 <span className="font-medium">{member}</span>
@@ -585,21 +711,24 @@ export default function ChatPage() {
             ))}
           </div>
         )}
-        <div className="flex gap-2 rounded-[1.35rem] border border-border bg-card p-2 shadow-sm">
+        <div className="flex flex-wrap gap-2 rounded-[1.35rem] border border-border bg-card p-2 shadow-sm">
           <input ref={fileInputRef} type="file" accept="image/*"
             className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) sendImage(f); }} />
-          {!input.trim() && (
+          {!isDirect && (inputFocused || !input.trim()) && (
             <>
-              <button onClick={() => void handlePickImage()} className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-muted" aria-label={t('chat.sendImage')}>
+              <button onMouseDown={(e) => e.preventDefault()} onClick={() => void handlePickImage()} className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-muted" aria-label={t('chat.sendImage')}>
                 <ImageIcon className="h-4 w-4 text-muted-foreground" />
               </button>
-              <button onClick={() => setShowPollForm((v) => !v)} className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-muted" aria-label={t('chat.togglePollForm')}>
+              <button onMouseDown={(e) => e.preventDefault()} onClick={() => setShowGifPicker((value) => !value)} className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-muted" aria-label={t('chat.sendGif')}>
+                <Film className="h-4 w-4 text-muted-foreground" />
+              </button>
+              <button onMouseDown={(e) => e.preventDefault()} onClick={() => setShowPollForm((v) => !v)} className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-muted" aria-label={t('chat.togglePollForm')}>
                 <BarChart3 className="h-4 w-4 text-muted-foreground" />
               </button>
-              <button onClick={() => setShowLaundryForm((v) => !v)} className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-muted" aria-label={t('laundry.title')}>
+              <button onMouseDown={(e) => e.preventDefault()} onClick={() => setShowLaundryForm((v) => !v)} className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-muted" aria-label={t('laundry.title')}>
                 <WashingMachine className="h-4 w-4 text-accent" />
               </button>
-              <button onClick={() => setShowKudosForm((value) => !value)} className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-muted" aria-label={t('kudos.sendTitle')}>
+              <button onMouseDown={(e) => e.preventDefault()} onClick={() => setShowKudosForm((value) => !value)} className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-muted" aria-label={t('kudos.sendTitle')}>
                 <HeartHandshake className="h-4 w-4 text-primary" />
               </button>
             </>
@@ -608,6 +737,13 @@ export default function ChatPage() {
             ref={messageInputRef}
             value={input}
             onChange={handleInputChange}
+            onFocus={() => {
+              if (inputBlurTimeoutRef.current != null) window.clearTimeout(inputBlurTimeoutRef.current);
+              setInputFocused(true);
+            }}
+            onBlur={() => {
+              inputBlurTimeoutRef.current = window.setTimeout(() => setInputFocused(false), 140);
+            }}
             onKeyDown={(e) => {
               if (mention && mentionCandidates.length > 0) {
                 if (e.key === 'Enter') { e.preventDefault(); insertMention(mentionCandidates[0]); return; }
@@ -616,13 +752,86 @@ export default function ChatPage() {
               if (e.key === 'Enter' && !e.shiftKey) sendMessage();
             }}
             placeholder={t('chat.messagePlaceholder')}
-            className="min-w-0 flex-1 rounded-full bg-muted px-4 py-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+            className="min-w-36 flex-1 rounded-full bg-muted px-4 py-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
           />
-          <button onClick={sendMessage} className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary" aria-label={t('common.send')}>
+          <button onClick={sendMessage} className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-primary" aria-label={t('common.send')}>
             <Send className="h-4 w-4 text-primary-foreground" />
           </button>
         </div>
       </div>
+
+      <AnimatePresence>
+        {actionMenuMessage && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 z-40 flex items-end bg-black/25 p-4"
+            onClick={() => setActionMenuMessageId(null)}
+          >
+            <motion.div
+              initial={{ y: 24, scale: 0.98 }}
+              animate={{ y: 0, scale: 1 }}
+              exit={{ y: 24, scale: 0.98 }}
+              className="w-full rounded-2xl border border-border bg-card p-2 shadow-xl"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <button
+                onClick={() => replyToMessage(actionMenuMessage.id)}
+                className="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-semibold hover:bg-muted/60"
+              >
+                <Reply className="h-4 w-4 text-muted-foreground" />
+                {t('chat.replyToMessage')}
+              </button>
+              <button
+                onClick={() => openReactionPicker(actionMenuMessage.id)}
+                className="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-semibold hover:bg-muted/60"
+              >
+                <Smile className="h-4 w-4 text-muted-foreground" />
+                {t('chat.reactToMessage')}
+              </button>
+              <button
+                onClick={() => setActionMenuMessageId(null)}
+                className="mt-1 flex min-h-11 w-full items-center justify-center rounded-xl px-3 text-sm font-semibold text-muted-foreground hover:bg-muted/60"
+              >
+                {t('common.cancel')}
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {reactionPickerMessage && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 z-50 flex items-center justify-center bg-black/35 p-4"
+            onClick={() => setExpandedReactionId(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, y: 8 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 8 }}
+              className="w-full max-w-xs rounded-2xl border border-border bg-card p-3 shadow-xl"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <div className="grid grid-cols-6 gap-1">
+                {REACTION_EMOJIS.map((emoji) => (
+                  <button
+                    key={emoji}
+                    onClick={() => chooseReaction(reactionPickerMessage.id, emoji)}
+                    className="grid h-11 w-11 place-items-center rounded-xl text-lg transition-transform hover:scale-110 hover:bg-muted"
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <AnimatePresence>
         {expandedImage && (

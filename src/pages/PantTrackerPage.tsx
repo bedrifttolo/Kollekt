@@ -169,13 +169,13 @@ export default function PantTrackerPage() {
             />
             <button
               onClick={() => void handleEditTotal()}
-              className="h-8 w-8 rounded-lg gradient-primary flex items-center justify-center shrink-0"
+              className="h-11 w-11 rounded-lg gradient-primary flex items-center justify-center shrink-0"
             >
               <Check className="h-3.5 w-3.5 text-primary-foreground" />
             </button>
             <button
               onClick={() => setEditingTotal(false)}
-              className="h-8 w-8 rounded-lg glass flex items-center justify-center shrink-0"
+              className="h-11 w-11 rounded-lg glass flex items-center justify-center shrink-0"
             >
               <X className="h-3.5 w-3.5 text-muted-foreground" />
             </button>
@@ -187,7 +187,7 @@ export default function PantTrackerPage() {
             </p>
             <button
               onClick={() => { setEditTotalValue(String(earned)); setEditingTotal(true); }}
-              className="h-6 w-6 rounded-md glass flex items-center justify-center"
+              className="h-11 w-11 rounded-md glass flex items-center justify-center"
             >
               <Edit3 className="h-3 w-3 text-muted-foreground" />
             </button>
@@ -207,7 +207,7 @@ export default function PantTrackerPage() {
           />
           <button
             onClick={() => void handleAdd()}
-            className="h-9 w-9 rounded-xl gradient-primary flex items-center justify-center shrink-0"
+            className="h-11 w-11 rounded-xl gradient-primary flex items-center justify-center shrink-0"
             aria-label={t('pant.addAmount')}
           >
             <Plus className="h-4 w-4 text-primary-foreground" />
@@ -223,7 +223,7 @@ export default function PantTrackerPage() {
           {!editingGoal && (
             <button
               onClick={() => { setEditGoalValue(String(goal)); setEditingGoal(true); }}
-              className="h-6 w-6 rounded-md glass flex items-center justify-center"
+              className="h-11 w-11 rounded-md glass flex items-center justify-center"
             >
               <Edit3 className="h-3 w-3 text-muted-foreground" />
             </button>
@@ -244,13 +244,13 @@ export default function PantTrackerPage() {
             />
             <button
               onClick={() => void handleEditGoal()}
-              className="h-8 w-8 rounded-lg gradient-primary flex items-center justify-center shrink-0"
+              className="h-11 w-11 rounded-lg gradient-primary flex items-center justify-center shrink-0"
             >
               <Check className="h-3.5 w-3.5 text-primary-foreground" />
             </button>
             <button
               onClick={() => setEditingGoal(false)}
-              className="h-8 w-8 rounded-lg glass flex items-center justify-center shrink-0"
+              className="h-11 w-11 rounded-lg glass flex items-center justify-center shrink-0"
             >
               <X className="h-3.5 w-3.5 text-muted-foreground" />
             </button>
@@ -312,20 +312,20 @@ export default function PantTrackerPage() {
                     <div className="flex flex-col items-end gap-1 shrink-0">
                       <p className="text-sm font-bold text-primary">+{formatCurrency(entry.amount)}</p>
                       <div className="flex items-center gap-2">
-                        <button onClick={() => startEditEntry(entry.id, entry.bottles)} className="text-muted-foreground hover:text-foreground transition-colors">
+                        <button onClick={() => startEditEntry(entry.id, entry.bottles)} className="grid h-11 w-11 place-items-center rounded-full text-muted-foreground transition-colors hover:text-foreground">
                           <Pencil className="h-3.5 w-3.5" />
                         </button>
                         {deletingEntryId === entry.id ? (
                           <>
-                            <button onClick={() => void handleDeleteEntry(entry.id)} className="text-destructive hover:text-destructive/80 transition-colors">
+                            <button onClick={() => void handleDeleteEntry(entry.id)} className="grid h-11 w-11 place-items-center rounded-full text-destructive transition-colors hover:text-destructive/80">
                               <Check className="h-3.5 w-3.5" />
                             </button>
-                            <button onClick={() => setDeletingEntryId(null)} className="text-muted-foreground hover:text-foreground transition-colors">
+                            <button onClick={() => setDeletingEntryId(null)} className="grid h-11 w-11 place-items-center rounded-full text-muted-foreground transition-colors hover:text-foreground">
                               <X className="h-3.5 w-3.5" />
                             </button>
                           </>
                         ) : (
-                          <button onClick={() => { setDeletingEntryId(entry.id); setEditingEntryId(null); }} className="text-muted-foreground hover:text-destructive transition-colors">
+                          <button onClick={() => { setDeletingEntryId(entry.id); setEditingEntryId(null); }} className="grid h-11 w-11 place-items-center rounded-full text-muted-foreground transition-colors hover:text-destructive">
                             <Trash2 className="h-3.5 w-3.5" />
                           </button>
                         )}

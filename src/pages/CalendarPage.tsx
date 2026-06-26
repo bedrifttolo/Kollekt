@@ -22,7 +22,7 @@ import {
 } from "../i18n/helpers";
 import { connectCollectiveRealtime } from "../lib/realtime";
 import type { CalendarEvent, EventType, GuestNotice, HouseCheckin } from "../lib/types";
-import { Eyebrow, Fab } from "../components/ui-kit";
+import { AddSheet, Eyebrow, Fab } from "../components/ui-kit";
 
 const EVENT_TYPES: EventType[] = ["PARTY", "MOVIE", "DINNER", "GAME_NIGHT", "CLEANING", "SPORTS", "BIRTHDAY", "MEETING", "TRIP", "OTHER"];
 
@@ -122,19 +122,19 @@ export default function CalendarPage() {
     return disconnect;
   }, [name]);
 
-  const prevMonth = () => {
-    if (month === 0) {
-      setMonth(11);
-      setYear((y) => y - 1);
-    } else setMonth((m) => m - 1);
-    setSelectedDay(1);
+  const prevWeek = () => {
+    const date = new Date(year, month, selectedDay);
+    date.setDate(date.getDate() - 7);
+    setYear(date.getFullYear());
+    setMonth(date.getMonth());
+    setSelectedDay(date.getDate());
   };
-  const nextMonth = () => {
-    if (month === 11) {
-      setMonth(0);
-      setYear((y) => y + 1);
-    } else setMonth((m) => m + 1);
-    setSelectedDay(1);
+  const nextWeek = () => {
+    const date = new Date(year, month, selectedDay);
+    date.setDate(date.getDate() + 7);
+    setYear(date.getFullYear());
+    setMonth(date.getMonth());
+    setSelectedDay(date.getDate());
   };
 
   const handleAdd = async () => {
@@ -270,16 +270,16 @@ export default function CalendarPage() {
           </h3>
           <div className="flex gap-2">
           <button
-            onClick={prevMonth}
+            onClick={prevWeek}
             aria-label={t("calendar.previousMonth")}
-            className="grid h-8 w-8 place-items-center rounded-full bg-primary/15 text-primary dark:bg-primary/25 dark:text-foreground"
+            className="grid h-11 w-11 place-items-center rounded-full bg-primary/15 text-primary dark:bg-primary/25 dark:text-foreground"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
           <button
-            onClick={nextMonth}
+            onClick={nextWeek}
             aria-label={t("calendar.nextMonth")}
-            className="grid h-8 w-8 place-items-center rounded-full bg-primary/15 text-primary dark:bg-primary/25 dark:text-foreground"
+            className="grid h-11 w-11 place-items-center rounded-full bg-primary/15 text-primary dark:bg-primary/25 dark:text-foreground"
           >
             <ChevronRight className="h-4 w-4" />
           </button>
@@ -359,15 +359,7 @@ export default function CalendarPage() {
               exit={{ opacity: 0, height: 0 }}
               className="overflow-hidden"
             >
-              <div className="glass rounded-xl p-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <p className="text-sm font-semibold">
-                    {t("calendar.newEvent")}
-                  </p>
-                  <button onClick={() => setShowAdd(false)}>
-                    <X className="h-4 w-4 text-muted-foreground" />
-                  </button>
-                </div>
+              <AddSheet title={t("calendar.newEvent")} onClose={() => setShowAdd(false)}>
                 <div className="grid grid-cols-2 gap-1 rounded-xl bg-muted/40 p-1">
                   {(["event", "guest"] as const).map((mode) => (
                     <button key={mode} onClick={() => setAddMode(mode)} className={`rounded-lg py-2 text-xs font-bold ${addMode === mode ? "bg-card text-primary shadow-sm" : "text-muted-foreground"}`}>
@@ -412,12 +404,12 @@ export default function CalendarPage() {
                     {t("calendar.guestOvernight")}
                   </label>
                 )}
-                {addMode === "event" && <div className="flex gap-2">
+                {addMode === "event" && <div className="flex flex-wrap gap-2">
                   {EVENT_TYPES.map((eventType) => (
                     <button
                       key={eventType}
                       onClick={() => setNewType(eventType)}
-                      className={`flex-1 py-1.5 rounded-lg text-[10px] font-medium transition-all ${newType === eventType ? "gradient-primary text-primary-foreground" : "glass text-muted-foreground"}`}
+                      className={`min-h-11 rounded-lg px-3 py-2 text-[10px] font-medium transition-all ${newType === eventType ? "gradient-primary text-primary-foreground" : "glass text-muted-foreground"}`}
                     >
                       {typeEmoji[eventType]}{" "}
                       {translateKey("common.eventTypes", eventType)}
@@ -430,7 +422,7 @@ export default function CalendarPage() {
                 >
                   {t(addMode === "guest" ? "calendar.addGuestNotice" : "calendar.addEvent")}
                 </button>
-              </div>
+              </AddSheet>
             </motion.div>
           )}
         </AnimatePresence>

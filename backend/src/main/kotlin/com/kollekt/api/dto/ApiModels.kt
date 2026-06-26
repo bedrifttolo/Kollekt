@@ -314,6 +314,7 @@ data class UpdateEventRequest(
 data class MessageDto(
     val id: Long,
     val sender: String,
+    val recipient: String? = null,
     val text: String,
     val imageData: String? = null,
     val imageMimeType: String? = null,
@@ -349,6 +350,11 @@ data class CreateMessageRequest(
     val sender: String,
     val text: String,
     val replyToMessageId: Long? = null,
+)
+
+data class CreateDirectMessageRequest(
+    val recipient: String,
+    val text: String,
 )
 
 data class UserDto(

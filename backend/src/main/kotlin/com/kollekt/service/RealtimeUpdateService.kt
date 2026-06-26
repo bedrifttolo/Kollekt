@@ -64,6 +64,37 @@ class RealtimeUpdateService(
         payload: Any? = null,
     ) = publishExcluding(collectiveCode, null, type, payload)
 
+    /**
+     * Sends an event only to the named members' open sessions within a collective. Used for
+     * private 1:1 messages so a direct message is never delivered to the whole household.
+     */
+    fun publishToMembers(
+        collectiveCode: String,
+        memberNames: Set<String>,
+        type: String,
+        payload: Any? = null,
+    ) {
+        if (memberNames.isEmpty()) return
+        val message =
+            objectMapper.writeValueAsString(
+                mapOf(
+                    "type" to type,
+                    "collectiveCode" to collectiveCode,
+                    "timestamp" to Instant.now().toString(),
+                    "payload" to payload,
+                ),
+            )
+        sessionsByCollective[collectiveCode]
+            ?.filter { it.isOpen && (it.attributes["memberName"] as? String) in memberNames }
+            ?.forEach { session ->
+                try {
+                    session.sendMessage(TextMessage(message))
+                } catch (_: Exception) {
+                    unregister(collectiveCode, session)
+                }
+            }
+    }
+
     fun publishExcluding(
         collectiveCode: String,
         exclude: WebSocketSession?,

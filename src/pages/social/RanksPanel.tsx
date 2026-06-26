@@ -218,16 +218,21 @@ export default function RanksPanel() {
         <span className="text-2xl leading-none">🎁</span>
         <div className="min-w-0 flex-1">
           {showPrize ? (
-            <div className="flex gap-2">
+            <div className="space-y-2">
               <input
                 value={prize}
                 onChange={(e) => setPrize(e.target.value)}
                 placeholder={t('leaderboard.monthlyPrizePlaceholder')}
-                className="flex-1 rounded-lg bg-card px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                className="w-full rounded-lg bg-card px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
               />
-              <button onClick={handleSetPrize} className="btn-pine shrink-0 !min-h-0 px-4 py-2 text-sm">
-                {t('leaderboard.savePrize')}
-              </button>
+              <div className="flex gap-2">
+                <button onClick={handleSetPrize} className="btn-pine min-h-11 flex-1 rounded-lg px-4 py-2 text-sm">
+                  {t('leaderboard.savePrize')}
+                </button>
+                <button onClick={() => setShowPrize(false)} className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-card" aria-label={t('common.cancel')}>
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
             </div>
           ) : (
             <>
@@ -240,9 +245,11 @@ export default function RanksPanel() {
             </>
           )}
         </div>
-        <button onClick={() => setShowPrize((v) => !v)} className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-card" aria-label={t('leaderboard.savePrize')}>
-          {showPrize ? <X className="h-4 w-4" /> : <Pencil className="h-3.5 w-3.5 text-muted-foreground" />}
-        </button>
+        {!showPrize && (
+          <button onClick={() => setShowPrize(true)} className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-card" aria-label={t('leaderboard.savePrize')}>
+            <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
+          </button>
+        )}
       </div>
 
       {/* Period filter */}

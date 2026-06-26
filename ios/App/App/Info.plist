@@ -71,5 +71,20 @@
 	<string>Kollekt lets you take photos to share in chat and on task feedback.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Kollekt lets you attach photos from your library to chat and task feedback.</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>Kollekt uses this to show ads that are more relevant to you. You can decline and still use the app.</string>
+	<key>SKAdNetworkItems</key>
+	<array>
+		<dict>
+			<key>SKAdNetworkIdentifier</key>
+			<string>cstr6suwn9.skadnetwork</string>
+		</dict>
+		<dict>
+			<key>SKAdNetworkIdentifier</key>
+			<string>4fzdc2evr5.skadnetwork</string>
+		</dict>
+	</array>
 </dict>
 </plist>
