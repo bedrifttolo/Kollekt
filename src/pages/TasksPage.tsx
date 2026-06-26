@@ -27,6 +27,7 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import { api } from '../lib/api';
+import { capturePhotoFile, nativeCameraAvailable } from '../lib/camera';
 import { useUser } from '../context/UserContext';
 import { connectCollectiveRealtime } from '../lib/realtime';
 import { tapFeedback } from '../lib/haptics';
@@ -613,9 +614,7 @@ function TasksMain() {
     resetForm();
   };
 
-  const handleFeedbackImage = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+  const readFeedbackFile = (file: File) => {
     const reader = new FileReader();
     reader.onload = () => {
       setFeedbackImage({
@@ -624,6 +623,20 @@ function TasksMain() {
       });
     };
     reader.readAsDataURL(file);
+  };
+
+  const handleFeedbackImage = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) readFeedbackFile(file);
+  };
+
+  const pickFeedbackImage = async () => {
+    if (nativeCameraAvailable()) {
+      const file = await capturePhotoFile();
+      if (file) readFeedbackFile(file);
+    } else {
+      feedbackImageRef.current?.click();
+    }
   };
 
   const resetFeedbackComposer = () => {
@@ -757,19 +770,23 @@ function TasksMain() {
       </div>
 
       <div className="seg">
-        {(['tasks', 'shopping', 'maintenance'] as const).map((value) => (
-          <button
-            key={value}
-            onClick={() => { setTab(value); setShowAdd(false); setShowShoppingAdd(false); setShowMaintenanceAdd(false); }}
-            className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all ${
-              tab === value
-                ? 'bg-primary text-primary-foreground'
-                : 'text-muted-foreground'
-            }`}
-          >
-            {t(`tasks.tabs.${value}`)}
-          </button>
-        ))}
+        {(['tasks', 'shopping', 'maintenance'] as const).map((value) => {
+          const TabIcon = value === 'tasks' ? CheckCircle2 : value === 'shopping' ? ShoppingCart : Wrench;
+          return (
+            <button
+              key={value}
+              onClick={() => { setTab(value); setShowAdd(false); setShowShoppingAdd(false); setShowMaintenanceAdd(false); }}
+              className={`flex flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg py-2.5 text-sm font-semibold transition-all ${
+                tab === value
+                  ? 'bg-primary text-primary-foreground shadow-sm'
+                  : 'text-muted-foreground'
+              }`}
+            >
+              <TabIcon className="h-4 w-4 shrink-0" />
+              {t(`tasks.tabs.${value}`)}
+            </button>
+          );
+        })}
       </div>
 
       {tab === 'tasks' && (
@@ -1218,7 +1235,7 @@ function TasksMain() {
                                 : t('tasks.feedbackPublic')}
                             </button>
                             <button
-                              onClick={() => feedbackImageRef.current?.click()}
+                              onClick={() => void pickFeedbackImage()}
                               className={`flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-medium transition-colors ${
                                 feedbackImage
                                   ? 'bg-primary/20 text-primary'
@@ -1337,35 +1354,35 @@ function TasksMain() {
                         onClick={() => {
                           void toggleShopItem(item.id);
                         }}
-                        className="h-8 px-3 rounded-lg glass text-xs font-medium flex items-center gap-1 text-primary"
+                        className="h-10 px-4 rounded-lg glass text-sm font-semibold flex items-center gap-1.5 text-primary"
                       >
-                        <ShoppingCart className="h-3 w-3" />
+                        <ShoppingCart className="h-4 w-4" />
                         {t('common.undo')}
                       </button>
                     ) : (
                       <button
                         onClick={() => openBuyForm(item)}
-                        className="h-8 px-3 rounded-lg glass text-xs font-medium flex items-center gap-1 text-muted-foreground"
+                        className="h-10 px-4 rounded-lg gradient-primary text-sm font-semibold flex items-center gap-1.5 text-primary-foreground shadow-sm"
                       >
-                        <ShoppingCart className="h-3 w-3" />
+                        <ShoppingCart className="h-4 w-4" />
                         {t('tasks.shopping.buy')}
                       </button>
                     )}
                     <button
                       onClick={() => startEditShop(item)}
-                      className="h-8 w-8 rounded-lg glass flex items-center justify-center shrink-0"
+                      className="h-10 w-10 rounded-lg glass flex items-center justify-center shrink-0"
                       aria-label={t('tasks.editShoppingItemAria')}
                     >
-                      <Edit3 className="h-3 w-3 text-muted-foreground" />
+                      <Edit3 className="h-4 w-4 text-muted-foreground" />
                     </button>
                     <button
                       onClick={() => {
                         void deleteShopItem(item.id);
                       }}
-                      className="h-8 w-8 rounded-lg glass flex items-center justify-center shrink-0"
+                      className="h-10 w-10 rounded-lg glass flex items-center justify-center shrink-0"
                       aria-label={t('tasks.deleteShoppingItemAria')}
                     >
-                      <Trash2 className="h-3 w-3 text-destructive" />
+                      <Trash2 className="h-4 w-4 text-destructive" />
                     </button>
                   </div>
                 </div>

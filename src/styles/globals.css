@@ -153,6 +153,14 @@
   .safe-top { padding-top: env(safe-area-inset-top, 0px); }
   .safe-content-bottom { padding-bottom: calc(6.25rem + env(safe-area-inset-bottom, 0px)); }
   .app-viewport { min-height: 100vh; min-height: 100dvh; }
+  /* A page that fills exactly the space between the sticky header (4rem + safe-top) and the fixed
+     bottom nav (4.75rem + safe-bottom), so the page itself never body-scrolls and only its inner
+     scroll area moves. The negative margin cancels the .safe-content-bottom padding on <main>. */
+  .app-screen {
+    height: calc(100vh - 4rem - 0.5rem - 4.75rem - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+    height: calc(100dvh - 4rem - 0.5rem - 4.75rem - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+    margin-bottom: calc(-6.25rem - env(safe-area-inset-bottom, 0px));
+  }
   .mark { position: relative; display: inline; z-index: 0; }
   .mark::after { content: ''; position: absolute; z-index: -1; left: -.04em; right: -.04em; bottom: .03em; height: .34em; background: var(--secondary); }
   .eyebrow { display: flex; align-items: center; gap: .55rem; color: var(--muted-foreground); font-size: .7rem; font-weight: 800; letter-spacing: .15em; text-transform: uppercase; }

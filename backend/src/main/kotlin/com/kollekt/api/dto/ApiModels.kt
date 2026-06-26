@@ -528,6 +528,7 @@ data class CreateCustomAchievementRequest(
     val metric: com.kollekt.domain.CustomAchievementMetric,
     val target: Int,
     val taskCategory: TaskCategory? = null,
+    val icon: String = "sparkles",
 )
 
 data class DashboardResponse(

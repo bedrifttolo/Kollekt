@@ -30,6 +30,7 @@ data class CustomAchievement(
     @Column(nullable = false, length = 240) val description: String,
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 32) val metric: CustomAchievementMetric,
+    @Column(nullable = false, length = 32) val icon: String = "sparkles",
     @Column(nullable = false) val target: Int,
     @Enumerated(EnumType.STRING)
     @Column(nullable = true, length = 32) val taskCategory: TaskCategory? = null,

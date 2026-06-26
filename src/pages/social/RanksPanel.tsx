@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { TrendingUp, Flame, Star, Pencil, X, SlidersHorizontal, Plus, Trash2 } from 'lucide-react';
+import { TrendingUp, Flame, Star, Pencil, X, SlidersHorizontal, Plus, Trash2, Check, StarHalf, Home, Trophy, Zap, Award, Sparkles, Heart, Crown, Medal, Target, Rocket, Leaf, Sun, type LucideIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { api } from '../../lib/api';
 import { connectCollectiveRealtime } from '../../lib/realtime';
@@ -20,6 +20,16 @@ import type {
 const PERIODS: LeaderboardPeriod[] = ['OVERALL', 'YEAR', 'MONTH'];
 const CUSTOM_METRICS: CustomAchievementMetric[] = ['TASKS_COMPLETED', 'XP_EARNED', 'STREAK_DAYS', 'EARLY_COMPLETIONS', 'ON_TIME_COMPLETIONS', 'RECURRING_COMPLETIONS', 'CATEGORY_COMPLETIONS'];
 const TASK_CATEGORIES: TaskCategory[] = ['CLEANING', 'VACUUMING', 'MOPPING', 'BATHROOM', 'KITCHEN', 'LAUNDRY', 'DISHES', 'TRASH', 'DUSTING', 'WINDOWS', 'SHOPPING', 'OTHER'];
+
+// Maps the icon key stored on an achievement (built-in or custom) to its lucide component.
+const ACHIEVEMENT_ICONS: Record<string, LucideIcon> = {
+  check: Check, star: Star, 'star-half': StarHalf, home: Home, trophy: Trophy,
+  flame: Flame, zap: Zap, award: Award, sparkles: Sparkles, heart: Heart,
+  crown: Crown, medal: Medal, target: Target, rocket: Rocket, leaf: Leaf, sun: Sun,
+};
+// Icons a member can pick for their own house goal. Must match CUSTOM_ACHIEVEMENT_ICONS in StatsService.kt.
+const CUSTOM_ICON_CHOICES = ['sparkles', 'trophy', 'star', 'flame', 'zap', 'heart', 'crown', 'medal', 'target', 'rocket', 'leaf', 'sun'];
+const iconFor = (key: string): LucideIcon => ACHIEVEMENT_ICONS[key] ?? Sparkles;
 
 // Podium presentation per finishing place (1st, 2nd, 3rd).
 const barHeight: Record<number, string> = { 1: 'h-48', 2: 'h-36', 3: 'h-28' };
@@ -66,6 +76,7 @@ export default function RanksPanel() {
   const [customDescription, setCustomDescription] = useState('');
   const [customMetric, setCustomMetric] = useState<CustomAchievementMetric>('TASKS_COMPLETED');
   const [customTarget, setCustomTarget] = useState('5');
+  const [customIcon, setCustomIcon] = useState('sparkles');
   const [customCategory, setCustomCategory] = useState<TaskCategory>('CLEANING');
   const [savingAchievement, setSavingAchievement] = useState(false);
 
@@ -146,11 +157,13 @@ export default function RanksPanel() {
         metric: customMetric,
         target,
         taskCategory: customMetric === 'CATEGORY_COMPLETIONS' ? customCategory : null,
+        icon: customIcon,
       });
       setAchievements((current) => [...current, created]);
       setCustomTitle('');
       setCustomDescription('');
       setCustomTarget('5');
+      setCustomIcon('sparkles');
     } finally {
       setSavingAchievement(false);
     }
@@ -310,9 +323,14 @@ export default function RanksPanel() {
             </button>
           </div>
           <div className="space-y-2">
-            {achievements.map((a) => (
+            {achievements.map((a) => {
+              const Icon = iconFor(a.icon);
+              return (
               <div key={a.key} className={`card !p-3 ${a.unlocked ? 'glow-primary' : 'opacity-60'}`}>
                 <div className="flex items-center gap-3 mb-2">
+                  <div className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl ${a.unlocked ? 'gradient-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
+                    <Icon className="h-4 w-4" />
+                  </div>
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-medium">{t(`leaderboard.achievementKeys.${a.key}.title`, { defaultValue: a.title })}</p>
                     <p className="text-[10px] text-muted-foreground">{t(`leaderboard.achievementKeys.${a.key}.description`, { defaultValue: a.description })}</p>
@@ -328,7 +346,8 @@ export default function RanksPanel() {
                   </div>
                 )}
               </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
@@ -423,6 +442,26 @@ export default function RanksPanel() {
                       <div><p className="font-semibold">{t('leaderboard.custom.create')}</p><p className="text-[10px] text-muted-foreground">{t('leaderboard.custom.createHint')}</p></div>
                       <input className="field w-full" maxLength={80} value={customTitle} onChange={(event) => setCustomTitle(event.target.value)} placeholder={t('leaderboard.custom.title')} />
                       <textarea className="field min-h-20 w-full resize-none" maxLength={240} value={customDescription} onChange={(event) => setCustomDescription(event.target.value)} placeholder={t('leaderboard.custom.description')} />
+                      <div>
+                        <p className="mb-1.5 text-[10px] font-semibold text-muted-foreground">{t('leaderboard.custom.iconLabel')}</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {CUSTOM_ICON_CHOICES.map((key) => {
+                            const Icon = iconFor(key);
+                            return (
+                              <button
+                                key={key}
+                                type="button"
+                                onClick={() => setCustomIcon(key)}
+                                aria-label={key}
+                                aria-pressed={customIcon === key}
+                                className={`grid h-9 w-9 place-items-center rounded-xl border transition-colors ${customIcon === key ? 'gradient-primary border-transparent text-primary-foreground' : 'border-border bg-card text-muted-foreground'}`}
+                              >
+                                <Icon className="h-4 w-4" />
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
                       <div className="grid grid-cols-2 gap-2">
                         <select className="field" value={customMetric} onChange={(event) => setCustomMetric(event.target.value as CustomAchievementMetric)}>
                           {CUSTOM_METRICS.map((metric) => <option key={metric} value={metric}>{t(`leaderboard.custom.metrics.${metric}`)}</option>)}

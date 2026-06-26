@@ -52,10 +52,22 @@ const STATUS_OPTIONS: { value: MemberStatus; emoji: string }[] = [
   { value: "AWAY", emoji: "🟡" },
 ];
 
+// Mirrors ALL_NOTIFICATION_TYPES in NotificationService.kt so every notification the backend can
+// send is toggleable here. Keep the two lists in sync when adding a notification type.
 const NOTIFICATION_TYPES = [
   "TASK_ASSIGNED",
   "TASK_DEADLINE_SOON",
   "TASK_OVERDUE",
+  "TASK_NUDGE",
+  "TASK_FEEDBACK",
+  "TASK_COMPLETED_LATE",
+  "TASK_OVERDUE_GROUP",
+  "TASK_PENALTY_APPLIED",
+  "WEEKLY_RECAP",
+  "TASK_SWAP_REQUESTED",
+  "TASK_SWAP_ACCEPTED",
+  "TASK_SWAP_DECLINED",
+  "KUDOS_RECEIVED",
   "NEW_MESSAGE",
   "EXPENSE_OWED",
   "EXPENSE_DEADLINE_SOON",

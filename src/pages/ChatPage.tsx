@@ -7,6 +7,7 @@ const LAUNDRY_TYPES: LaundryType[] = ['WHITES', 'COLORS', 'DELICATES', 'WOOL', '
 const LAUNDRY_TEMPS = [30, 40, 60, 90];
 import { useTranslation } from 'react-i18next';
 import { api } from '../lib/api';
+import { capturePhotoFile, nativeCameraAvailable } from '../lib/camera';
 import { useUser } from '../context/UserContext';
 import { formatDateTime, formatTime } from '../i18n/helpers';
 import { connectCollectiveRealtime } from '../lib/realtime';
@@ -224,6 +225,15 @@ export default function ChatPage() {
     fetchMessages();
   };
 
+  const handlePickImage = async () => {
+    if (nativeCameraAvailable()) {
+      const file = await capturePhotoFile();
+      if (file) await sendImage(file);
+    } else {
+      fileInputRef.current?.click();
+    }
+  };
+
   const sendImage = async (file: File) => {
     const form = new FormData();
     form.append('image', file);
@@ -237,14 +247,14 @@ export default function ChatPage() {
 
   if (loading) {
     return (
-      <div className="flex flex-col h-[calc(100vh-8.5rem)] pt-4 animate-pulse space-y-3">
+      <div className="app-screen flex flex-col pt-4 animate-pulse space-y-3">
         {[...Array(5)].map((_, i) => <div key={i} className={`glass rounded-2xl h-12 ${i % 2 === 0 ? 'w-2/3' : 'w-1/2 ml-auto'}`} />)}
       </div>
     );
   }
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="relative flex h-[calc(100vh-8.5rem)] flex-col">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="app-screen relative flex flex-col overflow-hidden">
       <div className="flex items-center gap-3 border-b border-border py-4">
         <AvatarStack names={headerMembers} max={3} />
         <div className="min-w-0 flex-1">
@@ -290,7 +300,7 @@ export default function ChatPage() {
       )}
 
       {/* Message list */}
-      <div className="flex-1 space-y-4 overflow-y-auto py-4 pr-1">
+      <div className="min-h-0 flex-1 space-y-4 overflow-y-auto py-4 pr-1">
         {messages.map((message, i) => {
           const isSelf = message.sender === name;
           const replyTarget = message.replyToMessageId != null ? messageById.get(message.replyToMessageId) : undefined;
@@ -580,7 +590,7 @@ export default function ChatPage() {
             className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) sendImage(f); }} />
           {!input.trim() && (
             <>
-              <button onClick={() => fileInputRef.current?.click()} className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-muted" aria-label={t('chat.sendImage')}>
+              <button onClick={() => void handlePickImage()} className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-muted" aria-label={t('chat.sendImage')}>
                 <ImageIcon className="h-4 w-4 text-muted-foreground" />
               </button>
               <button onClick={() => setShowPollForm((v) => !v)} className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-muted" aria-label={t('chat.togglePollForm')}>
