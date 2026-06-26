@@ -321,7 +321,14 @@ class ChatOperationsTest {
         whenever(memberRepository.findByNameAndCollectiveCode("Emma", "ABC123")).thenReturn(member("Emma", "emma@example.com"))
         whenever(chatMessageRepository.findDirectThread("ABC123", "Kasper", "Emma")).thenReturn(
             listOf(
-                ChatMessage(id = 40, sender = "Emma", recipient = "Kasper", collectiveCode = "ABC123", text = "private", timestamp = LocalDateTime.now()),
+                ChatMessage(
+                    id = 40,
+                    sender = "Emma",
+                    recipient = "Kasper",
+                    collectiveCode = "ABC123",
+                    text = "private",
+                    timestamp = LocalDateTime.now(),
+                ),
             ),
         )
 
@@ -343,7 +350,14 @@ class ChatOperationsTest {
     fun `reactions are blocked on direct messages so they never broadcast`() {
         whenever(chatMessageRepository.findById(60)).thenReturn(
             Optional.of(
-                ChatMessage(id = 60, sender = "Emma", recipient = "Kasper", collectiveCode = "ABC123", text = "dm", timestamp = LocalDateTime.now()),
+                ChatMessage(
+                    id = 60,
+                    sender = "Emma",
+                    recipient = "Kasper",
+                    collectiveCode = "ABC123",
+                    text = "dm",
+                    timestamp = LocalDateTime.now(),
+                ),
             ),
         )
 
