@@ -157,20 +157,19 @@ export default function GamesPanel() {
             key={game.id}
             className={`group card !p-4 text-left flex flex-col gap-3 ${game.playable ? '' : 'opacity-70'}`}
           >
-            <div className="flex items-start justify-between">
-              <span className="grid h-11 w-11 place-items-center rounded-xl bg-muted text-xl">{game.emoji}</span>
-              <div className="flex items-center gap-1">
+            <div className="flex min-w-0 items-start justify-between gap-2">
+              <span className="min-w-0 truncate rounded-full bg-muted px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
+                {t(`social.games.categories.${game.category}`)}
+              </span>
+              <div className="flex shrink-0 items-center gap-1">
                 {locked && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-secondary/20 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-secondary-foreground">
-                    <Lock className="h-3 w-3" /> {t('social.games.premium')}
+                  <span className="inline-flex max-w-[5rem] items-center gap-1 rounded-full bg-secondary/20 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-secondary-foreground">
+                    <Lock className="h-3 w-3 shrink-0" /> <span className="truncate">{t('social.games.premium')}</span>
                   </span>
                 )}
-                <span className="rounded-full bg-muted px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
-                  {game.playable ? t(`social.games.difficulty.${game.difficulty}`) : t('social.games.soon')}
-                </span>
                 <button
                   onClick={() => setRulesGame(game)}
-                  className="grid h-11 w-11 place-items-center rounded-full text-muted-foreground hover:bg-muted"
+                  className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-muted-foreground hover:bg-muted"
                   aria-label={t('social.games.howToPlay')}
                 >
                   <Info className="h-4 w-4" />
