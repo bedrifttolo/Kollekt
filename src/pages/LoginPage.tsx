@@ -20,6 +20,7 @@ export default function LoginPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [forgotEmail, setForgotEmail] = useState('');
   const [forgotSent, setForgotSent] = useState(false);
   const [error, setError] = useState('');
@@ -35,6 +36,7 @@ export default function LoginPage() {
     setMode(next);
     setError('');
     setForgotSent(false);
+    setConfirmPassword('');
   };
 
   const tryJoinFromInvitation = async (user: AppUser) => {
@@ -67,7 +69,19 @@ export default function LoginPage() {
         const res = await api.post<AuthResponse>('/onboarding/login', { name: loginName, password });
         await completeAuth(res);
       } else if (mode === 'register') {
-        const res = await api.post<AuthResponse>('/onboarding/users', { name, email, password });
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim())) {
+          setError(t('errors.invalidEmail'));
+          return;
+        }
+        if (password.length < 8) {
+          setError(t('errors.passwordTooShort'));
+          return;
+        }
+        if (password !== confirmPassword) {
+          setError(t('errors.passwordsMismatch'));
+          return;
+        }
+        const res = await api.post<AuthResponse>('/onboarding/users', { name, email: email.trim(), password });
         await completeAuth(res);
       } else {
         await api.post('/onboarding/password-reset/request', { email: forgotEmail });
@@ -162,10 +176,10 @@ export default function LoginPage() {
 
           {mode === 'login' && (
             <Field
-              label={t('auth.labels.email')}
+              label={t('auth.labels.usernameOrEmail')}
               value={loginName}
               onChange={(e) => setLoginName(e.target.value)}
-              placeholder={t('auth.placeholders.email')}
+              placeholder={t('auth.placeholders.usernameOrEmail')}
               autoComplete="username"
               required
             />
@@ -205,6 +219,18 @@ export default function LoginPage() {
               autoComplete={mode === 'register' ? 'new-password' : 'current-password'}
               required
               {...(mode === 'register' ? { minLength: 8 } : {})}
+            />
+          )}
+          {mode === 'register' && (
+            <Field
+              label={t('auth.labels.confirmPassword')}
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder={t('auth.placeholders.confirmPassword')}
+              autoComplete="new-password"
+              required
+              minLength={8}
             />
           )}
 

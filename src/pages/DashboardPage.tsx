@@ -185,6 +185,13 @@ export default function DashboardPage() {
         </div>
       </motion.div>
 
+      {/* Promo / info slider — revenue section */}
+      {PROMO_SLIDER_ENABLED && (
+        <motion.div variants={item}>
+          <PromoSlider />
+        </motion.div>
+      )}
+
       {checkin && (
         <motion.div variants={item} className="card space-y-3">
           <div className="flex items-center gap-3">
@@ -226,33 +233,29 @@ export default function DashboardPage() {
         </p>
       </motion.div>
 
-      {/* Promo / info slider */}
-      {PROMO_SLIDER_ENABLED && (
-        <motion.div variants={item}>
-          <PromoSlider />
-        </motion.div>
-      )}
-
       {/* Upcoming tasks */}
       <motion.div variants={item}>
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="font-semibold text-sm text-muted-foreground">{translate('dashboard.upcomingTasks')}</h3>
-          <button onClick={() => navigate('/tasks')} className="-mr-2 min-h-11 px-2 text-xs text-primary font-medium">{translate('common.seeAll')}</button>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="font-display text-base font-bold">{translate('dashboard.upcomingTasks')}</h3>
+          <button onClick={() => navigate('/tasks')} className="-mr-2 min-h-11 px-2 text-xs text-primary font-semibold">{translate('common.seeAll')}</button>
         </div>
         <div className="space-y-2">
           {data.upcomingTasks.length === 0 && (
-            <p className="text-sm text-muted-foreground text-center py-3">{translate('dashboard.noUpcomingTasks')} 🎉</p>
+            <div className="rounded-2xl border border-border bg-card p-4 text-center">
+              <p className="text-2xl mb-1">🎉</p>
+              <p className="text-sm font-medium">{translate('dashboard.noUpcomingTasks')}</p>
+            </div>
           )}
           {data.upcomingTasks.slice(0, 5).map((task) => (
-            <button key={task.id} onClick={() => navigate('/tasks')} className="card !rounded-[1.1rem] !p-4 flex min-h-14 items-center gap-3 w-full text-left">
-              <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
-                <CheckSquare className="h-4 w-4 text-muted-foreground" />
+            <button key={task.id} onClick={() => navigate('/tasks')} className="card !rounded-2xl !p-3.5 flex items-center gap-3 w-full text-left group hover:shadow-md transition-shadow">
+              <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                <CheckSquare className="h-5 w-5 text-primary" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">{task.title}</p>
-                <p className="text-[10px] text-muted-foreground">{task.assignee} • {formatDate(task.dueDate)}</p>
+                <p className="text-sm font-semibold truncate">{task.title}</p>
+                <p className="text-[11px] text-muted-foreground mt-0.5">{task.assignee} · {formatDate(task.dueDate)}</p>
               </div>
-              <span className="text-[10px] font-medium text-primary">{translate('dashboard.xpValue', { xp: task.xp })}</span>
+              <span className="shrink-0 rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-bold text-primary">+{task.xp} XP</span>
             </button>
           ))}
         </div>
@@ -260,22 +263,24 @@ export default function DashboardPage() {
 
       {/* Shopping list */}
       <motion.div variants={item}>
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="font-semibold text-sm text-muted-foreground">{translate('dashboard.shoppingList')}</h3>
-          <button onClick={() => navigate('/tasks?tab=shopping')} className="-mr-2 min-h-11 px-2 text-xs text-primary font-medium">{translate('common.seeAll')}</button>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="font-display text-base font-bold">{translate('dashboard.shoppingList')}</h3>
+          <button onClick={() => navigate('/tasks?tab=shopping')} className="-mr-2 min-h-11 px-2 text-xs text-primary font-semibold">{translate('common.seeAll')}</button>
         </div>
         <div className="space-y-2">
           {data.pendingShoppingItems.length === 0 && (
-            <p className="text-sm text-muted-foreground text-center py-3">{translate('dashboard.noShoppingItems')}</p>
+            <div className="rounded-2xl border border-border bg-card p-4 text-center">
+              <p className="text-sm text-muted-foreground">{translate('dashboard.noShoppingItems')}</p>
+            </div>
           )}
           {data.pendingShoppingItems.slice(0, 3).map((s) => (
-            <button key={s.id} onClick={() => navigate('/tasks?tab=shopping')} className="card !rounded-[1.1rem] !p-4 flex min-h-14 items-center gap-3 w-full text-left">
-              <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
-                <ShoppingCart className="h-4 w-4 text-muted-foreground" />
+            <button key={s.id} onClick={() => navigate('/tasks?tab=shopping')} className="card !rounded-2xl !p-3.5 flex items-center gap-3 w-full text-left hover:shadow-md transition-shadow">
+              <div className="h-10 w-10 rounded-xl bg-accent/15 flex items-center justify-center shrink-0">
+                <ShoppingCart className="h-5 w-5 text-accent" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">{s.item}</p>
-                <p className="text-[10px] text-muted-foreground">{translate('dashboard.addedBy', { name: s.addedBy })}</p>
+                <p className="text-sm font-semibold truncate">{s.item}</p>
+                <p className="text-[11px] text-muted-foreground mt-0.5">{translate('dashboard.addedBy', { name: s.addedBy })}</p>
               </div>
             </button>
           ))}
@@ -284,24 +289,26 @@ export default function DashboardPage() {
 
       {/* Upcoming events */}
       <motion.div variants={item}>
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="font-semibold text-sm text-muted-foreground">{translate('dashboard.upcomingEvents')}</h3>
-          <button onClick={() => navigate('/calendar')} className="-mr-2 min-h-11 px-2 text-xs text-primary font-medium">{translate('common.seeAll')}</button>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="font-display text-base font-bold">{translate('dashboard.upcomingEvents')}</h3>
+          <button onClick={() => navigate('/calendar')} className="-mr-2 min-h-11 px-2 text-xs text-primary font-semibold">{translate('common.seeAll')}</button>
         </div>
         <div className="space-y-2">
           {data.upcomingEvents.length === 0 && (
-            <p className="text-sm text-muted-foreground text-center py-3">{translate('dashboard.noUpcomingEvents')}</p>
+            <div className="rounded-2xl border border-border bg-card p-4 text-center">
+              <p className="text-sm text-muted-foreground">{translate('dashboard.noUpcomingEvents')}</p>
+            </div>
           )}
           {data.upcomingEvents.slice(0, 3).map((e) => (
-            <button key={e.id} onClick={() => navigate('/calendar')} className="card !rounded-[1.1rem] !p-4 flex min-h-14 items-center gap-3 w-full text-left">
-              <div className="h-8 w-8 rounded-lg bg-accent/20 flex items-center justify-center shrink-0">
-                <Calendar className="h-4 w-4 text-accent" />
+            <button key={e.id} onClick={() => navigate('/calendar')} className="card !rounded-2xl !p-3.5 flex items-center gap-3 w-full text-left hover:shadow-md transition-shadow">
+              <div className="h-10 w-10 rounded-xl bg-secondary/20 flex items-center justify-center shrink-0">
+                <Calendar className="h-5 w-5 text-secondary-foreground" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium">{e.title}</p>
-                <p className="text-[10px] text-muted-foreground">{formatDate(e.date)} {formatTime(e.time)}</p>
+                <p className="text-sm font-semibold">{e.title}</p>
+                <p className="text-[11px] text-muted-foreground mt-0.5">{formatDate(e.date)}{e.time ? ` · ${formatTime(e.time)}` : ''}</p>
               </div>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground">{translateKey('common.eventTypes', e.type)}</span>
+              <span className="shrink-0 rounded-full bg-muted px-2.5 py-1 text-[10px] font-bold text-muted-foreground">{translateKey('common.eventTypes', e.type)}</span>
             </button>
           ))}
         </div>
@@ -309,24 +316,26 @@ export default function DashboardPage() {
 
       {/* Recent expenses */}
       <motion.div variants={item}>
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="font-semibold text-sm text-muted-foreground">{translate('dashboard.recentExpenses')}</h3>
-          <button onClick={() => navigate('/economy')} className="-mr-2 min-h-11 px-2 text-xs text-primary font-medium">{translate('common.seeAll')}</button>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="font-display text-base font-bold">{translate('dashboard.recentExpenses')}</h3>
+          <button onClick={() => navigate('/economy')} className="-mr-2 min-h-11 px-2 text-xs text-primary font-semibold">{translate('common.seeAll')}</button>
         </div>
         <div className="space-y-2">
           {data.recentExpenses.length === 0 && (
-            <p className="text-sm text-muted-foreground text-center py-3">{translate('dashboard.noRecentExpenses')}</p>
+            <div className="rounded-2xl border border-border bg-card p-4 text-center">
+              <p className="text-sm text-muted-foreground">{translate('dashboard.noRecentExpenses')}</p>
+            </div>
           )}
           {data.recentExpenses.slice(0, 3).map((e) => (
-            <button key={e.id} onClick={() => navigate('/economy')} className="card !rounded-[1.1rem] !p-4 flex min-h-14 items-center gap-3 w-full text-left">
-              <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
-                <Wallet className="h-4 w-4 text-muted-foreground" />
+            <button key={e.id} onClick={() => navigate('/economy')} className="card !rounded-2xl !p-3.5 flex items-center gap-3 w-full text-left hover:shadow-md transition-shadow">
+              <div className="h-10 w-10 rounded-xl bg-muted flex items-center justify-center shrink-0">
+                <Wallet className="h-5 w-5 text-muted-foreground" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">{e.description}</p>
-                <p className="text-[10px] text-muted-foreground">{translate('dashboard.paidBy', { name: e.paidBy })} • {formatDate(e.date)}</p>
+                <p className="text-sm font-semibold truncate">{e.description}</p>
+                <p className="text-[11px] text-muted-foreground mt-0.5">{translate('dashboard.paidBy', { name: e.paidBy })} · {formatDate(e.date)}</p>
               </div>
-              <p className="text-sm font-bold">{formatCurrency(e.amount)}</p>
+              <p className="shrink-0 text-sm font-bold">{formatCurrency(e.amount)}</p>
             </button>
           ))}
         </div>

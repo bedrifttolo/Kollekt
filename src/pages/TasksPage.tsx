@@ -729,7 +729,12 @@ function TasksMain() {
   const filteredTasks = tasks
     .filter((task) => {
       const today = new Date().toISOString().split('T')[0];
-      if (filter === 'DONE') return task.completed;
+      if (filter === 'DONE') {
+        if (!task.completed) return false;
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+        return task.dueDate >= sevenDaysAgo.toISOString().split('T')[0];
+      }
       if (filter === 'MINE') return task.assignee === name && !task.completed;
       if (filter === 'TODAY') return task.dueDate === today && !task.completed;
       return !task.completed;

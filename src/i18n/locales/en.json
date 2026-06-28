@@ -127,7 +127,10 @@
     "alreadyExists": "This already exists.",
     "alreadyInCollective": "You're already part of a household.",
     "invalidJoinCode": "That code doesn't look right. Check it and try again.",
-    "generic": "Something went wrong. Please try again."
+    "generic": "Something went wrong. Please try again.",
+    "invalidEmail": "Please enter a valid email address.",
+    "passwordTooShort": "Password must be at least 8 characters.",
+    "passwordsMismatch": "Passwords do not match."
   },
   "header": {
     "pageTitles": {
@@ -189,13 +192,17 @@
     "labels": {
       "name": "Name",
       "email": "Email",
-      "password": "Password"
+      "password": "Password",
+      "confirmPassword": "Confirm password",
+      "usernameOrEmail": "Username or Email"
     },
     "placeholders": {
       "name": "Your name",
       "email": "you@email.com",
       "password": "Your password",
-      "newPassword": "Make it good"
+      "newPassword": "Make it good",
+      "confirmPassword": "Repeat your password",
+      "usernameOrEmail": "Username or email"
     },
     "terms": {
       "prefix": "By joining you agree to the house rules &",
@@ -615,7 +622,7 @@
         "liarsDice": "Liar's Dice",
         "kollekt": "Kollekt",
         "spinTheWheel": "Spin the Wheel",
-        "promptRelay": "Prompt Relay",
+        "promptRelay": "Chain Story",
         "hundredQuestions": "100 Questions",
         "truthOrChug": "Truth or Chug",
         "neverHaveIEver": "Never have I ever",
@@ -626,11 +633,11 @@
         "snusboksen": "Snusboksen"
       },
       "descriptions": {
-        "dice": "Roll a virtual die and pass the turn.",
+        "dice": "Roll a virtual die and pass the turn. Great for Opus!",
         "liarsDice": "Make increasingly bold dice claims and catch the bluff.",
         "kollekt": "Compete in personalized rounds based on your household stats.",
         "spinTheWheel": "Add names, spin the wheel, and let chance choose.",
-        "promptRelay": "Join a room and answer prompts together in real time.",
+        "promptRelay": "Build a story together, one prompt at a time.",
         "hundredQuestions": "Point to the person who best matches each question.",
         "truthOrChug": "Pick a number, answer the truth or take the challenge.",
         "neverHaveIEver": "Drink when you have done what the card says.",
@@ -645,7 +652,7 @@
         "liarsDice": "Each player rolls privately, then claims what dice are on the table. Raise the claim or challenge the previous player. If the challenge is right, the claimant loses a die; otherwise the challenger does.",
         "kollekt": "Start the Kollekt game and play through household-based rounds. The app uses your shared stats to create prompts, points, and small challenges for the group.",
         "spinTheWheel": "Add the people or options you want on the wheel, then spin. Whoever or whatever the wheel lands on is chosen for the next task, turn, or challenge.",
-        "promptRelay": "Join the same room, answer prompts one by one, and pass the turn around the group. Keep going until everyone has answered or the room is done.",
+        "promptRelay": "Join the same room and take turns adding to a shared story. Each player reads the previous line and continues it. Keep going until the story is finished.",
         "hundredQuestions": "Read each question and point to the person who fits it best. Count votes out loud, discuss the result, then move to the next card.",
         "truthOrChug": "Pick a numbered card. Either answer honestly or take the challenge instead. The group decides how strict the penalties are before starting.",
         "neverHaveIEver": "Read the statement aloud. Anyone who has done it takes the agreed penalty. After the reactions settle, continue to the next card.",

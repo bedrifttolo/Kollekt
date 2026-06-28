@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Image as ImageIcon, BarChart3, X, Smile, Reply, HeartHandshake, ChevronDown, WashingMachine, Film } from 'lucide-react';
+import { Send, Image as ImageIcon, BarChart3, X, Smile, Reply, HeartHandshake, ChevronDown, WashingMachine, Film, Plus } from 'lucide-react';
 
 type LaundryType = 'WHITES' | 'COLORS' | 'DELICATES' | 'WOOL' | 'SPORTS' | 'TOWELS';
 const LAUNDRY_TYPES: LaundryType[] = ['WHITES', 'COLORS', 'DELICATES', 'WOOL', 'SPORTS', 'TOWELS'];
@@ -57,6 +57,7 @@ export default function ChatPage() {
   const [members, setMembers] = useState<AppUser[]>([]);
   const [input, setInput] = useState('');
   const [inputFocused, setInputFocused] = useState(false);
+  const [showActionBar, setShowActionBar] = useState(false);
   const [showPollForm, setShowPollForm] = useState(false);
   const [showLaundryForm, setShowLaundryForm] = useState(false);
   const [showGifPicker, setShowGifPicker] = useState(false);
@@ -412,7 +413,8 @@ export default function ChatPage() {
       </div>
 
       {/* Thread switcher: household + a private 1:1 thread per housemate. */}
-      <div className="flex gap-2 overflow-x-auto py-2 -mx-1 px-1">
+      <div className="relative -mx-1">
+        <div className="flex gap-2 overflow-x-auto py-2 px-1 scrollbar-none">
         <button
           onClick={() => selectThread(null)}
           className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${!isDirect ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}
@@ -431,6 +433,10 @@ export default function ChatPage() {
             {member.name}
           </button>
         ))}
+        </div>
+        {members.length > 3 && (
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-background to-transparent" />
+        )}
       </div>
 
       {!isDirect && checkinSummary && checkinSummary.responseCount > 0 && (
@@ -711,27 +717,43 @@ export default function ChatPage() {
             ))}
           </div>
         )}
-        <div className="flex flex-wrap gap-2 rounded-[1.35rem] border border-border bg-card p-2 shadow-sm">
+        {/* Action bar — revealed by the + button */}
+        {!isDirect && showActionBar && (
+          <div className="mb-2 flex gap-2 overflow-x-auto rounded-2xl border border-border bg-card px-3 py-2 shadow-sm">
+            <button onMouseDown={(e) => e.preventDefault()} onClick={() => { void handlePickImage(); setShowActionBar(false); }} className="flex min-h-11 shrink-0 flex-col items-center gap-1 rounded-xl px-3 py-2 hover:bg-muted/60" aria-label={t('chat.sendImage')}>
+              <ImageIcon className="h-5 w-5 text-muted-foreground" />
+              <span className="text-[9px] font-medium text-muted-foreground">{t('chat.sendImage')}</span>
+            </button>
+            <button onMouseDown={(e) => e.preventDefault()} onClick={() => { setShowGifPicker((v) => !v); setShowActionBar(false); }} className="flex min-h-11 shrink-0 flex-col items-center gap-1 rounded-xl px-3 py-2 hover:bg-muted/60" aria-label={t('chat.sendGif')}>
+              <Film className="h-5 w-5 text-muted-foreground" />
+              <span className="text-[9px] font-medium text-muted-foreground">GIF</span>
+            </button>
+            <button onMouseDown={(e) => e.preventDefault()} onClick={() => { setShowPollForm((v) => !v); setShowActionBar(false); }} className="flex min-h-11 shrink-0 flex-col items-center gap-1 rounded-xl px-3 py-2 hover:bg-muted/60" aria-label={t('chat.togglePollForm')}>
+              <BarChart3 className="h-5 w-5 text-muted-foreground" />
+              <span className="text-[9px] font-medium text-muted-foreground">{t('chat.createPoll')}</span>
+            </button>
+            <button onMouseDown={(e) => e.preventDefault()} onClick={() => { setShowLaundryForm((v) => !v); setShowActionBar(false); }} className="flex min-h-11 shrink-0 flex-col items-center gap-1 rounded-xl px-3 py-2 hover:bg-muted/60" aria-label={t('laundry.title')}>
+              <WashingMachine className="h-5 w-5 text-accent" />
+              <span className="text-[9px] font-medium text-muted-foreground">{t('laundry.title')}</span>
+            </button>
+            <button onMouseDown={(e) => e.preventDefault()} onClick={() => { setShowKudosForm((v) => !v); setShowActionBar(false); }} className="flex min-h-11 shrink-0 flex-col items-center gap-1 rounded-xl px-3 py-2 hover:bg-muted/60" aria-label={t('kudos.sendTitle')}>
+              <HeartHandshake className="h-5 w-5 text-primary" />
+              <span className="text-[9px] font-medium text-muted-foreground">{t('kudos.sendTitle')}</span>
+            </button>
+          </div>
+        )}
+        <div className="flex gap-2 rounded-[1.35rem] border border-border bg-card p-2 shadow-sm">
           <input ref={fileInputRef} type="file" accept="image/*"
             className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) sendImage(f); }} />
-          {!isDirect && (inputFocused || !input.trim()) && (
-            <>
-              <button onMouseDown={(e) => e.preventDefault()} onClick={() => void handlePickImage()} className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-muted" aria-label={t('chat.sendImage')}>
-                <ImageIcon className="h-4 w-4 text-muted-foreground" />
-              </button>
-              <button onMouseDown={(e) => e.preventDefault()} onClick={() => setShowGifPicker((value) => !value)} className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-muted" aria-label={t('chat.sendGif')}>
-                <Film className="h-4 w-4 text-muted-foreground" />
-              </button>
-              <button onMouseDown={(e) => e.preventDefault()} onClick={() => setShowPollForm((v) => !v)} className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-muted" aria-label={t('chat.togglePollForm')}>
-                <BarChart3 className="h-4 w-4 text-muted-foreground" />
-              </button>
-              <button onMouseDown={(e) => e.preventDefault()} onClick={() => setShowLaundryForm((v) => !v)} className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-muted" aria-label={t('laundry.title')}>
-                <WashingMachine className="h-4 w-4 text-accent" />
-              </button>
-              <button onMouseDown={(e) => e.preventDefault()} onClick={() => setShowKudosForm((value) => !value)} className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-muted" aria-label={t('kudos.sendTitle')}>
-                <HeartHandshake className="h-4 w-4 text-primary" />
-              </button>
-            </>
+          {!isDirect && (
+            <button
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => setShowActionBar((v) => !v)}
+              className={`grid h-11 w-11 shrink-0 place-items-center rounded-full transition-colors ${showActionBar ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}
+              aria-label="Actions"
+            >
+              <Plus className={`h-5 w-5 transition-transform ${showActionBar ? 'rotate-45' : ''}`} />
+            </button>
           )}
           <input
             ref={messageInputRef}
@@ -740,6 +762,7 @@ export default function ChatPage() {
             onFocus={() => {
               if (inputBlurTimeoutRef.current != null) window.clearTimeout(inputBlurTimeoutRef.current);
               setInputFocused(true);
+              setShowActionBar(false);
             }}
             onBlur={() => {
               inputBlurTimeoutRef.current = window.setTimeout(() => setInputFocused(false), 140);
