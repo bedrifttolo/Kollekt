@@ -127,7 +127,10 @@
     "alreadyExists": "Detta finns redan.",
     "alreadyInCollective": "Du är redan med i ett kollektiv.",
     "invalidJoinCode": "Koden ser inte rätt ut. Kontrollera den och försök igen.",
-    "generic": "Något gick fel. Försök igen."
+    "generic": "Något gick fel. Försök igen.",
+    "invalidEmail": "Ange en giltig e-postadress.",
+    "passwordTooShort": "Lösenordet måste vara minst 8 tecken.",
+    "passwordsMismatch": "Lösenorden stämmer inte överens."
   },
   "header": {
     "pageTitles": {
@@ -189,13 +192,17 @@
     "labels": {
       "name": "Namn",
       "email": "E-post",
-      "password": "Lösenord"
+      "password": "Lösenord",
+      "confirmPassword": "Bekräfta lösenord",
+      "usernameOrEmail": "Användarnamn eller e-post"
     },
     "placeholders": {
       "name": "Ditt namn",
       "email": "du@epost.se",
       "password": "Ditt lösenord",
-      "newPassword": "Gör det starkt"
+      "newPassword": "Gör det starkt",
+      "confirmPassword": "Upprepa lösenordet",
+      "usernameOrEmail": "Användarnamn eller e-post"
     },
     "terms": {
       "prefix": "Genom att gå med godkänner du husreglerna och",
@@ -615,7 +622,7 @@
         "liarsDice": "Lögnartärning",
         "kollekt": "Kollekt",
         "spinTheWheel": "Lyckohjulet",
-        "promptRelay": "Frågestafetten",
+        "promptRelay": "Kedjehistoria",
         "hundredQuestions": "100 frågor",
         "truthOrChug": "Truth or Chug",
         "neverHaveIEver": "Jag har aldrig",
@@ -626,11 +633,11 @@
         "snusboksen": "Snusboksen"
       },
       "descriptions": {
-        "dice": "Kasta en virtuell tärning och skicka turen vidare.",
+        "dice": "Kasta en virtuell tärning och skicka turen vidare. Perfekt för Opus!",
         "liarsDice": "Lägg allt högre tärningsbud och avslöja bluffen.",
         "kollekt": "Tävla i personliga rundor baserade på hushållets statistik.",
         "spinTheWheel": "Lägg till namn, snurra hjulet och låt slumpen välja.",
-        "promptRelay": "Gå med i ett rum och svara på frågor tillsammans i realtid.",
+        "promptRelay": "Bygg en berättelse tillsammans, ett inlägg i taget.",
         "hundredQuestions": "Peka på personen som passar bäst till varje fråga.",
         "truthOrChug": "Välj ett nummer, svara ärligt eller gör utmaningen.",
         "neverHaveIEver": "Drick om du har gjort det som står på kortet.",
@@ -645,7 +652,7 @@
         "liarsDice": "Alla kastar dolt och säger vad de tror finns på bordet. Höj budet eller utmana föregående spelare. Har utmanaren rätt tappar budgivaren en tärning; annars tappar utmanaren en.",
         "kollekt": "Starta Kollekt-spelet och spela rundor baserade på ert hushåll. Appen använder gemensam statistik för att skapa frågor, poäng och små utmaningar.",
         "spinTheWheel": "Lägg in personer eller val på hjulet och snurra. Den eller det hjulet landar på väljs för nästa uppgift, tur eller utmaning.",
-        "promptRelay": "Gå med i samma rum, svara på frågor i turordning och skicka stafetten vidare. Fortsätt tills alla har svarat eller rummet är klart.",
+        "promptRelay": "Gå med i samma rum och fortsätt berättelsen i tur och ordning. Varje spelare läser föregående rad och bygger vidare. Fortsätt tills berättelsen är klar.",
         "hundredQuestions": "Läs frågan högt och peka på personen som passar bäst. Räkna rösterna högt, prata om resultatet och gå vidare till nästa kort.",
         "truthOrChug": "Välj ett numrerat kort. Svara ärligt eller gör utmaningen i stället. Gruppen bestämmer hur hårda straffen är innan ni börjar.",
         "neverHaveIEver": "Läs påståendet högt. Alla som har gjort det tar det överenskomna straffet. När reaktionerna lagt sig går ni vidare till nästa kort.",

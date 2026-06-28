@@ -934,67 +934,23 @@ export default function ProfilePage() {
         </AnimatePresence>
       </div>
 
-      <div className="glass rounded-2xl overflow-hidden">
-        <button
-          onClick={() => setExpandNotifPrefs((value) => !value)}
-          className="w-full flex items-center gap-3 p-4"
-        >
-          <div className="h-9 w-9 rounded-xl bg-primary/20 flex items-center justify-center shrink-0">
-            <Settings className="h-4 w-4 text-primary" />
-          </div>
-          <div className="flex-1 text-left">
-            <p className="text-sm font-semibold">
-              {t("profile.notificationPreferences.title")}
-            </p>
-            <p className="text-[10px] text-muted-foreground">
-              {t("profile.notificationPreferences.subtitle")}
-            </p>
-          </div>
-          <ChevronDown
-            className={`h-4 w-4 text-muted-foreground transition-transform ${expandNotifPrefs ? "rotate-180" : ""}`}
-          />
-        </button>
-
-        <AnimatePresence>
-          {expandNotifPrefs && (
-            <motion.div
-              initial={{ height: 0 }}
-              animate={{ height: "auto" }}
-              exit={{ height: 0 }}
-              className="overflow-hidden"
-            >
-              <div className="px-4 pb-4 space-y-1">
-                {NOTIFICATION_TYPES.map((type) => {
-                  const enabled = notifPrefs[type] !== false;
-                  return (
-                    <button
-                      key={type}
-                      onClick={() => void handleToggleNotifPref(type, !enabled)}
-                      disabled={notifSaving !== null}
-                      className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-muted/30 transition-colors disabled:opacity-60"
-                    >
-                      <span className="text-sm text-left">
-                        {translateKey("profile.notificationPreferences.types", type)}
-                      </span>
-                      <div
-                        className={`h-5 w-9 rounded-full transition-colors flex items-center px-0.5 shrink-0 ${
-                          enabled ? "bg-primary" : "bg-muted"
-                        }`}
-                      >
-                        <div
-                          className={`h-4 w-4 rounded-full bg-white shadow transition-transform ${
-                            enabled ? "translate-x-4" : "translate-x-0"
-                          }`}
-                        />
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+      <button
+        onClick={() => window.open('app-settings:', '_system')}
+        className="glass rounded-2xl w-full flex items-center gap-3 p-4"
+      >
+        <div className="h-9 w-9 rounded-xl bg-primary/20 flex items-center justify-center shrink-0">
+          <Settings className="h-4 w-4 text-primary" />
+        </div>
+        <div className="flex-1 text-left">
+          <p className="text-sm font-semibold">
+            {t("profile.notificationPreferences.title")}
+          </p>
+          <p className="text-[10px] text-muted-foreground">
+            {t("profile.notificationPreferences.subtitle")}
+          </p>
+        </div>
+        <ChevronDown className="h-4 w-4 -rotate-90 text-muted-foreground" />
+      </button>
 
       <div className="glass rounded-2xl overflow-hidden">
         <button

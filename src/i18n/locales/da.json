@@ -127,7 +127,10 @@
     "alreadyExists": "Dette findes allerede.",
     "alreadyInCollective": "Du er allerede med i et kollektiv.",
     "invalidJoinCode": "Koden ser ikke rigtig ud. Tjek den og prøv igen.",
-    "generic": "Noget gik galt. Prøv igen."
+    "generic": "Noget gik galt. Prøv igen.",
+    "invalidEmail": "Angiv en gyldig e-mailadresse.",
+    "passwordTooShort": "Adgangskoden skal være mindst 8 tegn.",
+    "passwordsMismatch": "Adgangskoderne stemmer ikke overens."
   },
   "header": {
     "pageTitles": {
@@ -189,13 +192,17 @@
     "labels": {
       "name": "Navn",
       "email": "E-mail",
-      "password": "Adgangskode"
+      "password": "Adgangskode",
+      "confirmPassword": "Bekræft adgangskode",
+      "usernameOrEmail": "Brugernavn eller e-mail"
     },
     "placeholders": {
       "name": "Dit navn",
       "email": "dig@epost.dk",
       "password": "Din adgangskode",
-      "newPassword": "Gør den stærk"
+      "newPassword": "Gør den stærk",
+      "confirmPassword": "Gentag adgangskoden",
+      "usernameOrEmail": "Brugernavn eller e-mail"
     },
     "terms": {
       "prefix": "Ved at blive medlem accepterer du husreglerne og",
@@ -615,7 +622,7 @@
         "liarsDice": "Løgneterning",
         "kollekt": "Kollekt",
         "spinTheWheel": "Lykkehjulet",
-        "promptRelay": "Spørgsmålsstafetten",
+        "promptRelay": "Kædehistorie",
         "hundredQuestions": "100 spørgsmål",
         "truthOrChug": "Truth or Chug",
         "neverHaveIEver": "Jeg har aldrig",
@@ -626,11 +633,11 @@
         "snusboksen": "Snusboksen"
       },
       "descriptions": {
-        "dice": "Kast en virtuel terning, og send turen videre.",
+        "dice": "Kast en virtuel terning, og send turen videre. Perfekt til Opus!",
         "liarsDice": "Afgiv stadig højere terningbud, og afslør bluffet.",
         "kollekt": "Konkurrér i personlige runder baseret på husstandens statistik.",
         "spinTheWheel": "Tilføj navne, drej hjulet, og lad tilfældet vælge.",
-        "promptRelay": "Deltag i et rum, og besvar spørgsmål sammen i realtid.",
+        "promptRelay": "Byg en historie sammen, ét indspark ad gangen.",
         "hundredQuestions": "Peg på den person, der passer bedst til hvert spørgsmål.",
         "truthOrChug": "Vælg et nummer, svar ærligt, eller tag udfordringen.",
         "neverHaveIEver": "Drik, hvis du har gjort det, der står på kortet.",
@@ -645,7 +652,7 @@
         "liarsDice": "Alle kaster skjult og melder, hvad de tror findes på bordet. Hæv buddet eller udfordr forrige spiller. Har udfordreren ret, mister budgiveren en terning; ellers mister udfordreren en.",
         "kollekt": "Start Kollekt-spillet, og spil runder baseret på jeres husstand. Appen bruger fælles statistik til at lave spørgsmål, point og små udfordringer.",
         "spinTheWheel": "Tilføj personer eller valg på hjulet, og drej. Den eller det, hjulet lander på, vælges til næste opgave, tur eller udfordring.",
-        "promptRelay": "Deltag i samme rum, svar på spørgsmål efter tur, og send stafetten videre. Fortsæt, til alle har svaret, eller rummet er færdigt.",
+        "promptRelay": "Deltag i samme rum og fortsæt historien på skift. Hver spiller læser den forrige linje og bygger videre. Fortsæt, til historien er færdig.",
         "hundredQuestions": "Læs spørgsmålet højt, og peg på den person, der passer bedst. Tæl stemmerne højt, tal om resultatet, og gå videre til næste kort.",
         "truthOrChug": "Vælg et nummereret kort. Svar ærligt, eller tag udfordringen i stedet. Gruppen aftaler, hvor strenge straffene er, før I starter.",
         "neverHaveIEver": "Læs udsagnet højt. Alle, der har gjort det, tager den aftalte straf. Når reaktionerne har lagt sig, fortsætter I til næste kort.",
