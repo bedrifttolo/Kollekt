@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { Capacitor } from '@capacitor/core';
 import { StatusBar, Style } from '@capacitor/status-bar';
 
 export type Theme = 'light' | 'dark' | 'pink';
@@ -25,6 +26,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     root.classList.toggle('dark', theme === 'dark');
     root.classList.toggle('pink', theme === 'pink');
     localStorage.setItem('kollekt-theme', theme);
+    if (!Capacitor.isNativePlatform()) return;
     void StatusBar.setStyle({ style: theme === 'dark' ? Style.Light : Style.Dark }).catch(() => {});
     void StatusBar.setBackgroundColor({ color: STATUS_BAR_COLOR[theme] }).catch(() => {});
   }, [theme]);

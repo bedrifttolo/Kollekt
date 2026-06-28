@@ -98,6 +98,7 @@ export default function ChatPage() {
     startX: 0,
     startY: 0,
   });
+  const swipeStartRef = useRef<{ x: number; y: number } | null>(null);
 
   const name = currentUser?.name ?? '';
   const messageById = new Map(messages.map((message) => [message.id, message]));
@@ -249,6 +250,22 @@ export default function ChatPage() {
         el.setSelectionRange(caret, caret);
       }
     });
+  };
+
+  const handleSwipeStart = (e: React.TouchEvent) => {
+    swipeStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  };
+
+  const handleSwipeEnd = (e: React.TouchEvent) => {
+    if (!swipeStartRef.current) return;
+    const dx = e.changedTouches[0].clientX - swipeStartRef.current.x;
+    const dy = e.changedTouches[0].clientY - swipeStartRef.current.y;
+    swipeStartRef.current = null;
+    if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+    const allThreads: Array<string | null> = [null, ...members.filter((m) => m.name !== name).map((m) => m.name)];
+    const currentIndex = allThreads.findIndex((t) => t === activeThread);
+    const nextIndex = dx < 0 ? currentIndex + 1 : currentIndex - 1;
+    if (nextIndex >= 0 && nextIndex < allThreads.length) selectThread(allThreads[nextIndex]);
   };
 
   const clearLongPress = () => {
@@ -473,7 +490,7 @@ export default function ChatPage() {
       )}
 
       {/* Message list */}
-      <div className="min-h-0 flex-1 space-y-4 overflow-y-auto py-4 pr-1">
+      <div className="min-h-0 flex-1 space-y-4 overflow-y-auto py-4 pr-1" onTouchStart={handleSwipeStart} onTouchEnd={handleSwipeEnd}>
         {messages.map((message, i) => {
           const isSelf = message.sender === name;
           const senderColor = colorForMember(message.sender, memberColorMap.get(message.sender));

@@ -12,10 +12,7 @@ const pushDebug = import.meta.env.VITE_DEBUG_PUSH === 'true';
 export async function registerPushNotifications(): Promise<void> {
   if (!Capacitor.isNativePlatform()) return;
   try {
-    let permission = await PushNotifications.checkPermissions();
-    if (permission.receive === 'prompt' || permission.receive === 'prompt-with-rationale') {
-      permission = await PushNotifications.requestPermissions();
-    }
+    const permission = await PushNotifications.checkPermissions();
     if (permission.receive !== 'granted') return;
 
     if (!listenersBound) {

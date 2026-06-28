@@ -57,8 +57,13 @@ export function UserProvider({ children }: { children: ReactNode }) {
       }
     };
 
-    void initializeSession();
-    return () => { cancelled = true; };
+    const frame = window.requestAnimationFrame(() => {
+      void initializeSession();
+    });
+    return () => {
+      cancelled = true;
+      window.cancelAnimationFrame(frame);
+    };
   }, []);
 
   const fetchNotifications = useCallback((name: string) => {
@@ -76,7 +81,10 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!currentUser?.name) return;
-    void registerPushNotifications();
+    const frame = window.requestAnimationFrame(() => {
+      void registerPushNotifications();
+    });
+    return () => window.cancelAnimationFrame(frame);
   }, [currentUser?.name]);
 
   useEffect(() => {
