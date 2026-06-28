@@ -177,6 +177,7 @@ export default function GamesPanel() {
               </div>
             </div>
             <div>
+              <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-xl bg-muted text-2xl">{game.emoji}</div>
               <p className="font-display font-extrabold leading-tight">{t(`social.games.catalog.${game.titleKey}`)}</p>
               <p className="mt-1 text-xs leading-snug text-muted-foreground">{t(`social.games.descriptions.${game.descriptionKey}`)}</p>
               <p className="mt-1 text-xs text-muted-foreground">

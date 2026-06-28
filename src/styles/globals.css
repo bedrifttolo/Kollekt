@@ -1,5 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=Schibsted+Grotesk:wght@400;500;600;700;800&display=swap');
-@import "tailwindcss";
+@import "tailwindcss" source(none);
+@source "../**/*.{ts,tsx}";
+@source "../../index.html";
 
 @custom-variant dark (&:is(.dark *));
 

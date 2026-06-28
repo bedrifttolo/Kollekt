@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
@@ -6,7 +6,7 @@ import { api, getUserMessage, setAccessToken, setRefreshToken } from '../lib/api
 import { useUser } from '../context/UserContext';
 import type { AuthResponse, AppUser, Invitation } from '../lib/types';
 import { BrandMark, Field } from '../components/ui-kit';
-import { getSocialIdentity, getSocialProviders, prepareSocialLogin, type SocialProvider } from '../lib/socialAuth';
+import { getSocialIdentity, getSocialProviders, type SocialProvider } from '../lib/socialAuth';
 
 type Mode = 'login' | 'register' | 'forgot';
 
@@ -27,10 +27,6 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [socialLoading, setSocialLoading] = useState<SocialProvider | null>(null);
   const socialProviders = getSocialProviders();
-
-  useEffect(() => {
-    if (socialProviders.length > 0) prepareSocialLogin();
-  }, [socialProviders.length]);
 
   const switchMode = (next: Mode) => {
     setMode(next);

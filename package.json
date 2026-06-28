@@ -13,7 +13,9 @@
     "mobile:open:ios": "cap open ios",
     "mobile:open:android": "cap open android",
     "mobile:run:ios": "npm run mobile:sync && cap run ios",
-    "mobile:run:android": "npm run mobile:sync && cap run android"
+    "mobile:run:android": "npm run mobile:sync && cap run android",
+    "mobile:live:ios": "cap run ios --livereload",
+    "mobile:live:android": "cap run android --livereload"
   },
   "dependencies": {
     "@aparajita/capacitor-secure-storage": "^8.0.0",
@@ -48,6 +50,7 @@
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.4",
+    "enhanced-resolve": "^5.17.1",
     "typescript": "^5.6.3",
     "vite": "^7.1.12"
   }

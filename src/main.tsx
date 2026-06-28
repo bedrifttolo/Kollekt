@@ -6,8 +6,6 @@ import './styles/globals.css';
 import { initNativeShell } from './lib/nativeBootstrap';
 import { ThemeProvider } from './context/ThemeContext';
 
-void initNativeShell();
-
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <ThemeProvider>
@@ -15,3 +13,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     </ThemeProvider>
   </React.StrictMode>,
 );
+
+window.setTimeout(() => {
+  void initNativeShell();
+}, 0);
