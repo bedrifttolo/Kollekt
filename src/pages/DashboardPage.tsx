@@ -11,9 +11,6 @@ import type { AppUser, DashboardResponse, HouseCheckin } from '../lib/types';
 import { AvatarStack, Eyebrow, VibeRing } from '../components/ui-kit';
 import { colorForMember } from '../lib/memberColors';
 import { showHomeBanner, hideHomeBanner } from '../lib/ads';
-import PromoSlider from '../components/PromoSlider';
-
-const PROMO_SLIDER_ENABLED = import.meta.env.VITE_ENABLE_PROMO_SLIDER !== 'false';
 
 const container = {
   hidden: {},
@@ -184,13 +181,6 @@ export default function DashboardPage() {
           </p>
         </div>
       </motion.div>
-
-      {/* Promo / info slider — revenue section */}
-      {PROMO_SLIDER_ENABLED && (
-        <motion.div variants={item}>
-          <PromoSlider />
-        </motion.div>
-      )}
 
       {checkin && (
         <motion.div variants={item} className="card space-y-3">
