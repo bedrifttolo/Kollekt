@@ -102,7 +102,7 @@
     },
     {
       "id": 18,
-      "text": "Send nudes",
+      "text": "Vis skjermen din til den som sitter til venstre — de velger én kontakt du MÅ sende en uskyldig snap til",
       "kind": "challenge"
     },
     {
@@ -182,7 +182,7 @@
     },
     {
       "id": 34,
-      "text": "Sett deg i hotseat",
+      "text": "Sett deg i hotseat — gruppa stiller deg 3 spørsmål du MÅ svare ærlig på",
       "kind": "challenge"
     },
     {
@@ -202,12 +202,12 @@
     },
     {
       "id": 38,
-      "text": "Valgfritt?",
+      "text": "Post en instastory med teksten: «Noen her er forelsket i meg» 👀",
       "kind": "challenge"
     },
     {
       "id": 39,
-      "text": "Hotseat på deg",
+      "text": "Si noe til personen til venstre som du aldri ville sagt edru",
       "kind": "challenge"
     },
     {
@@ -217,7 +217,7 @@
     },
     {
       "id": 41,
-      "text": "Stilleleken, musikken også",
+      "text": "Stilleleken — alle tier i 60 sekunder, inkludert musikken. Den som snakker tar 5 slurker.",
       "kind": "challenge"
     },
     {
@@ -247,12 +247,12 @@
     },
     {
       "id": 47,
-      "text": "Legg trusa di på bordet",
+      "text": "La personen til høyre velge én kontakt fra telefonen din — send dem en tilfeldig GIF",
       "kind": "challenge"
     },
     {
       "id": 48,
-      "text": "Ta av buksa",
+      "text": "La gruppa skrive og sende én valgfri melding fra telefonen din",
       "kind": "challenge"
     },
     {
@@ -287,7 +287,7 @@
     },
     {
       "id": 55,
-      "text": "Hotseeat",
+      "text": "Gjør din beste imitasjon av noen i rommet — alle gjetter hvem",
       "kind": "challenge"
     },
     {
@@ -322,7 +322,7 @@
     },
     {
       "id": 62,
-      "text": "Hotseat",
+      "text": "Ring den neste på vennelisten din, si «Hei, bare ringte for å si at jeg er glad i deg» og legg på",
       "kind": "challenge"
     },
     {
@@ -387,7 +387,7 @@
     },
     {
       "id": 75,
-      "text": "Gå på vsco og repost et gammelt bilde av noen andre",
+      "text": "Lik det eldste bildet du finner på Instagram-profilen til personen til venstre for deg",
       "kind": "challenge"
     },
     {
@@ -437,7 +437,7 @@
     },
     {
       "id": 85,
-      "text": "Vis puppene",
+      "text": "Fortell om det mest pinlige du har gjort for å imponere noen du likte",
       "kind": "challenge"
     },
     {
@@ -472,12 +472,12 @@
     },
     {
       "id": 92,
-      "text": "Flash puppene dine",
+      "text": "La den til venstre velge en kontakt — send dem en selfie med teksten «Hei! 😊»",
       "kind": "challenge"
     },
     {
       "id": 93,
-      "text": "Rygg mot rygg",
+      "text": "Rygg mot rygg med personen til høyre. Gruppa stiller dere ett spørsmål, og dere svarer samtidig på 3, 2, 1.",
       "kind": "challenge"
     },
     {
@@ -492,7 +492,7 @@
     },
     {
       "id": 96,
-      "text": "Hvem er mest hore?",
+      "text": "Hvem i rommet har hatt flest hookups? Alle peker.",
       "kind": "challenge"
     },
     {
@@ -517,7 +517,7 @@
     },
     {
       "id": 101,
-      "text": "Kast mobilen din ut av vinduet",
+      "text": "Gruppa velger ett ord du IKKE får si resten av leken. Fem slurker hvis du sier det.",
       "kind": "challenge"
     },
     {
@@ -625,7 +625,7 @@
         },
         {
           "id": 18,
-          "text": "Send nudes"
+          "text": "Show your screen to the person on your left — they pick one contact you have to send an innocent snap to"
         },
         {
           "id": 19,
@@ -689,7 +689,7 @@
         },
         {
           "id": 34,
-          "text": "Put yourself in the hot seat"
+          "text": "Hot seat — the group asks you 3 questions you MUST answer honestly"
         },
         {
           "id": 35,
@@ -705,11 +705,11 @@
         },
         {
           "id": 38,
-          "text": "Your choice?"
+          "text": "Post an Instagram story saying: 'Someone here is in love with me' 👀"
         },
         {
           "id": 39,
-          "text": "Hot seat for you"
+          "text": "Say something to the person on your left that you'd never say sober"
         },
         {
           "id": 40,
@@ -717,7 +717,7 @@
         },
         {
           "id": 41,
-          "text": "Silent game, music too"
+          "text": "Silence game — everyone is quiet for 60 seconds, music included. Anyone who speaks drinks 5 sips."
         },
         {
           "id": 42,
@@ -741,11 +741,11 @@
         },
         {
           "id": 47,
-          "text": "Put your underwear on the table"
+          "text": "Let the person on your right pick a contact from your phone — send them a random GIF"
         },
         {
           "id": 48,
-          "text": "Take off your pants"
+          "text": "Let the group write and send one message of their choice from your phone"
         },
         {
           "id": 49,
@@ -773,7 +773,7 @@
         },
         {
           "id": 55,
-          "text": "Hot seat"
+          "text": "Do your best impression of someone in the room — everyone guesses who"
         },
         {
           "id": 56,
@@ -801,7 +801,7 @@
         },
         {
           "id": 62,
-          "text": "Hot seat"
+          "text": "Call the next person on your contacts list, say 'Hey, just calling to say I care about you' and hang up"
         },
         {
           "id": 63,
@@ -853,7 +853,7 @@
         },
         {
           "id": 75,
-          "text": "Go on VSCO and repost an old picture of someone else"
+          "text": "Like the oldest photo you can find on the Instagram profile of the person to your left"
         },
         {
           "id": 76,
@@ -893,7 +893,7 @@
         },
         {
           "id": 85,
-          "text": "Show your boobs"
+          "text": "Tell the group the most embarrassing thing you've done to impress someone you liked"
         },
         {
           "id": 86,
@@ -921,11 +921,11 @@
         },
         {
           "id": 92,
-          "text": "Flash your boobs"
+          "text": "Let the person on your left pick a contact — send them a selfie saying 'Hey! 😊'"
         },
         {
           "id": 93,
-          "text": "Back to back"
+          "text": "Back to back with the person on your right. The group asks you one question — you both answer on 3, 2, 1 simultaneously."
         },
         {
           "id": 94,
@@ -937,7 +937,7 @@
         },
         {
           "id": 96,
-          "text": "Who is the biggest slut?"
+          "text": "Who in the room has had the most hookups? Everyone points."
         },
         {
           "id": 97,
@@ -957,7 +957,7 @@
         },
         {
           "id": 101,
-          "text": "Throw your phone out the window"
+          "text": "The group picks one word you are not allowed to say for the rest of the game. Five sips if you say it."
         },
         {
           "id": 102,
