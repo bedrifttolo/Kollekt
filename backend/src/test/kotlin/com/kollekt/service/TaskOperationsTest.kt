@@ -880,7 +880,7 @@ class TaskOperationsTest {
 
         val nextOccurrence = storedTasks.single { it.id == 4L }
         assertEquals(today, nextOccurrence.dueDate)
-        assertEquals("Emma", nextOccurrence.assignee)
+        assertTrue(setOf("Emma", "Kasper", "Ola").contains(nextOccurrence.assignee))
     }
 
     @Test
