@@ -24,7 +24,9 @@ export interface GameEntry {
    * hub is useful without paying. Gating is enforced in GamesPanel via `useGamesSubscription`.
    */
   requiresSubscription?: boolean;
-  drinkingGameId?: 'hundred-questions' | 'truth-or-chug' | 'never-have-i-ever';
+  drinkingGameId?: 'hundred-questions' | 'truth-or-chug' | 'never-have-i-ever' | 'who-are-we';
+  /** Key into `social.games.<deckGameKey>` locale section — uses DeckGame component with mild/medium/droy decks */
+  deckGameKey?: string;
   roomGame?: boolean;
   soloGame?: boolean;
 }
@@ -38,6 +40,9 @@ export const GAME_CATALOG: GameEntry[] = [
   { id: 'mexican', titleKey: 'mexican', descriptionKey: 'mexican', emoji: '🎲', category: 'classic', difficulty: 'easy', minPlayers: 2, minutes: 10, playable: true },
   { id: 'categories', titleKey: 'categories', descriptionKey: 'categories', emoji: '💭', category: 'party', difficulty: 'easy', minPlayers: 2, minutes: 15, playable: true },
   { id: 'snusboksen', titleKey: 'snusboksen', descriptionKey: 'snusboksen', emoji: '🥫', category: 'party', difficulty: 'party', minPlayers: 2, minutes: 15, playable: true },
+  { id: 'who-are-we', titleKey: 'whoAreWe', descriptionKey: 'whoAreWe', emoji: '💬', category: 'party', difficulty: 'easy', minPlayers: 2, minutes: 20, playable: true, deckGameKey: 'whoAreWe' },
+  { id: 'guys-night', titleKey: 'guysNight', descriptionKey: 'guysNight', emoji: '🍺', category: 'party', difficulty: 'party', minPlayers: 2, minutes: 30, playable: true, deckGameKey: 'guysNight', requiresSubscription: true },
+  { id: 'girls-night', titleKey: 'girlsNight', descriptionKey: 'girlsNight', emoji: '🍷', category: 'party', difficulty: 'party', minPlayers: 2, minutes: 30, playable: true, deckGameKey: 'girlsNight', requiresSubscription: true },
   { id: 'liars-dice', titleKey: 'liarsDice', descriptionKey: 'liarsDice', emoji: '🥤', category: 'classic', difficulty: 'medium', minPlayers: 1, minutes: 15, playable: true, soloGame: true, requiresSubscription: true },
   { id: 'truth-or-chug', titleKey: 'truthOrChug', descriptionKey: 'truthOrChug', emoji: '🍻', category: 'party', difficulty: 'party', minPlayers: 2, minutes: 25, playable: true, drinkingGameId: 'truth-or-chug', requiresSubscription: true },
   { id: 'never-have-i-ever', titleKey: 'neverHaveIEver', descriptionKey: 'neverHaveIEver', emoji: '🙈', category: 'party', difficulty: 'party', minPlayers: 2, minutes: 20, playable: true, drinkingGameId: 'never-have-i-ever', requiresSubscription: true },

@@ -17,6 +17,7 @@ import CharadesGame from '../../games/CharadesGame';
 import SnusboksenGame from '../../games/SnusboksenGame';
 import DiceGame from '../../games/DiceGame';
 import LiarsDiceGame from '../../games/LiarsDiceGame';
+import DeckGame from '../../games/DeckGame';
 
 export default function GamesPanel() {
   const { t } = useTranslation();
@@ -60,6 +61,10 @@ export default function GamesPanel() {
       return;
     }
     if (game.roomGame || game.soloGame || game.id === 'spin-the-wheel') {
+      setActiveGame(game.id);
+      return;
+    }
+    if (game.deckGameKey) {
       setActiveGame(game.id);
       return;
     }
@@ -282,6 +287,9 @@ export default function GamesPanel() {
       {activeGame === 'categories' && <CategoriesGame players={sessionPlayers} onClose={() => setActiveGame(null)} />}
       {activeGame === 'charades' && <CharadesGame players={sessionPlayers} onClose={() => setActiveGame(null)} />}
       {activeGame === 'snusboksen' && <SnusboksenGame players={sessionPlayers} onClose={() => setActiveGame(null)} />}
+      {activeEntry?.deckGameKey && (
+        <DeckGame gameKey={activeEntry.deckGameKey} onClose={() => setActiveGame(null)} />
+      )}
       {activeGame === 'dice' && <DiceGame onClose={() => setActiveGame(null)} />}
       {activeGame === 'liars-dice' && <LiarsDiceGame onClose={() => setActiveGame(null)} />}
       {setupGame && (
