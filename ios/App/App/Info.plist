@@ -73,6 +73,8 @@
 	<string>Kollekt lets you attach photos from your library to chat and task feedback.</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<key>GADApplicationIdentifier</key>
+	<string>$(ADMOB_IOS_APP_ID)</string>
 	<key>NSUserTrackingUsageDescription</key>
 	<string>Kollekt uses this to show ads that are more relevant to you. You can decline and still use the app.</string>
 	<key>SKAdNetworkItems</key>
