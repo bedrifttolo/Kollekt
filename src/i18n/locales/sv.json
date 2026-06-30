@@ -19,7 +19,7 @@
       "tasks": { "title": "Rättvis fördelning", "body": "Uppgifterna roterar jämnt varje vecka. Slutför du dem får du XP." },
       "calendar": { "title": "Planera tillsammans", "body": "En delad kalender för husets händelser, gäster och tysta timmar — synka den med din egen kalender också." },
       "chat": { "title": "Prata ihop er", "body": "Gruppchatt för kollektivet: omröstningar, reaktioner, bilder och ett vänligt tack med kudos." },
-      "economy": { "title": "Dela och gör upp", "body": "Håll koll på gemensamma utgifter och betala varandra via Vipps, MobilePay, PayPal eller bank." },
+      "economy": { "title": "Dela och gör upp", "body": "Håll koll på gemensamma utgifter, spara mottagningsuppgifter och öppna externa betalappar när ni betalar tillbaka varandra." },
       "social": { "title": "Tävla och spela", "body": "Klättra på topplistan och starta spelkvällar tillsammans." },
       "profile": { "title": "Du och inställningarna", "body": "Tryck här för profil, betalningsmetoder, inbjudningar och val för kollektivet." }
     }
@@ -406,7 +406,8 @@
       "splitLabel": "Dela kostnaden med",
       "splitHint": "När ärendet är klart delas kostnaden mellan dessa på ekonomisidan.",
       "completeTitle": "Slutför ärende",
-      "completeSubtitle": "Dela kostnaden på {{amount}} för ”{{title}}” — välj vilka som delar den.",
+      "completeSubtitle": "Ange den slutliga kostnaden för ”{{title}}”. Om det kostade pengar, välj vilka som delar den.",
+      "actualCostLabel": "Slutlig kostnad (kr)",
       "completeConfirm": "Slutför och lägg till i ekonomi",
       "edit": "Redigera ärende",
       "delete": "Ta bort ärende",
@@ -523,7 +524,7 @@
     "othersOweYou": "Andra är skyldiga dig pengar",
     "allSettled": "Allt är uppgjort!",
     "payAmount": "Betala {{amount}}",
-    "payAmountTo": "Betala {{name}} {{amount}}",
+    "payAmountTo": "Gör upp med {{name}} - {{amount}}",
     "payPersonLabel": "Välj vem du vill betala",
     "settleAll": "Gör upp allt",
     "newExpense": "Ny utgift",
@@ -547,14 +548,15 @@
     "editExpense": "Redigera utgift",
     "saveChanges": "Spara ändringar",
     "pay": {
-      "title": "Betala {{name}}",
-      "subtitle": "Du är skyldig {{amount}}",
+      "title": "Betala {{name}} utanför Kollekt",
+      "subtitle": "Du är skyldig {{amount}}. Slutför överföringen i betalappen eller banken innan du markerar som uppgjort.",
       "bankTransfer": "Banköverföring",
-      "open": "Öppna",
+      "open": "Öppna app",
       "copy": "Kopiera",
       "noMethods": "Ingen betalningsmetod är sparad. Betala på ett annat sätt som ni har kommit överens om och bekräfta sedan nedan.",
-      "markSettled": "Jag bekräftar att jag har betalat — markera som uppgjort",
-      "disclaimer": "Kollekt behandlar eller verifierar inte överföringen. Kontrollera mottagare och belopp i betalningsappen innan du skickar och markera först som uppgjort efter betalning."
+      "acknowledge": "Jag har slutfört betalningen utanför Kollekt och förstår att Kollekt inte kan verifiera överföringen.",
+      "markSettled": "Markera som uppgjort i Kollekt",
+      "disclaimer": "Kollekt sparar mottagningsuppgifter och öppnar endast externa betalappar. Kollekt behandlar, startar, förvarar eller verifierar inte penningöverföringar."
     }
   },
   "pant": {
@@ -1566,7 +1568,7 @@
     },
     "paymentMethods": {
       "title": "Betalningsmetoder",
-      "subtitle": "Låt rumskompisarna betala tillbaka direkt",
+      "subtitle": "Spara mottagningsuppgifter för manuella återbetalningar",
       "vippsLabel": "Vipps-nummer för mottagning",
       "mobilepayLabel": "MobilePay-nummer för mottagning",
       "paypalLabel": "PayPal.Me-användarnamn",
@@ -1575,7 +1577,7 @@
       "mobilepayPlaceholder": "MobilePay-nummer",
       "paypalPlaceholder": "PayPal.Me-användarnamn",
       "bankPlaceholder": "Kontonummer / IBAN",
-      "hint": "Bara rumskompisar som är skyldiga dig pengar kan se dessa uppgifter. Lämna ett fält tomt för att ta bort det.",
+      "hint": "Bara rumskompisar som är skyldiga dig pengar kan se dessa mottagningsuppgifter. Kollekt behandlar eller verifierar inte överföringar. Lämna ett fält tomt för att ta bort det.",
       "securityHint": "Ange endast mottagningsuppgifter. Ange aldrig kortnummer, CVC/CVV, PIN-kod, lösenord eller inloggning till betalningsappen.",
       "save": "Spara",
       "saved": "Betalningsmetoder sparade",

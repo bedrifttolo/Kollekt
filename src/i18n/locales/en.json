@@ -19,7 +19,7 @@
       "tasks": { "title": "Chores, kept fair", "body": "Tasks rotate evenly every week. Finishing them earns you XP." },
       "calendar": { "title": "Plan together", "body": "A shared calendar for house events, guests and quiet hours — sync it with your own calendar too." },
       "chat": { "title": "Talk it out", "body": "Group chat for the house: polls, reactions, photos and a friendly thank-you with kudos." },
-      "economy": { "title": "Split & settle up", "body": "Track shared expenses and pay each other back via Vipps, MobilePay, PayPal or bank." },
+      "economy": { "title": "Split & settle up", "body": "Track shared expenses, store receiving details, and open external payment apps when housemates pay each other back." },
       "social": { "title": "Compete & play", "body": "Climb the leaderboard and start game nights together." },
       "profile": { "title": "You & your settings", "body": "Tap here for your profile, payment methods, invites and household options." }
     }
@@ -406,7 +406,8 @@
       "splitLabel": "Split cost with",
       "splitHint": "When the ticket is completed, the cost is split between these people on the economy page.",
       "completeTitle": "Complete ticket",
-      "completeSubtitle": "Split the {{amount}} cost of \"{{title}}\" — choose who shares it.",
+      "completeSubtitle": "Enter the final cost for \"{{title}}\". If it cost money, choose who shares it.",
+      "actualCostLabel": "Final cost (NOK)",
       "completeConfirm": "Complete & add to economy",
       "edit": "Edit ticket",
       "delete": "Delete ticket",
@@ -523,7 +524,7 @@
     "othersOweYou": "Others owe you",
     "allSettled": "All settled!",
     "payAmount": "Pay {{amount}}",
-    "payAmountTo": "Pay {{name}} {{amount}}",
+    "payAmountTo": "Settle with {{name}} - {{amount}}",
     "payPersonLabel": "Choose who to pay",
     "settleAll": "Settle all",
     "newExpense": "New Expense",
@@ -547,14 +548,15 @@
     "editExpense": "Edit Expense",
     "saveChanges": "Save Changes",
     "pay": {
-      "title": "Pay {{name}}",
-      "subtitle": "You owe {{amount}}",
+      "title": "Pay {{name}} outside Kollekt",
+      "subtitle": "You owe {{amount}}. Complete the transfer in the payment app or bank before marking it settled.",
       "bankTransfer": "Bank transfer",
-      "open": "Open",
+      "open": "Open app",
       "copy": "Copy",
       "noMethods": "No payment method is saved. Pay another way agreed with this housemate, then confirm below.",
-      "markSettled": "I confirm I paid — mark settled",
-      "disclaimer": "Kollekt does not process or verify the transfer. Confirm the recipient and amount in the payment app before sending, and only mark this settled after payment."
+      "acknowledge": "I have completed this payment outside Kollekt and understand Kollekt cannot verify the transfer.",
+      "markSettled": "Mark as settled in Kollekt",
+      "disclaimer": "Kollekt stores receiving details and opens external payment apps only. It does not process, initiate, hold, or verify money transfers."
     }
   },
   "pant": {
@@ -1565,7 +1567,7 @@
     },
     "paymentMethods": {
       "title": "Payment Methods",
-      "subtitle": "Let housemates pay you back directly",
+      "subtitle": "Store receiving details for manual roommate repayments",
       "vippsLabel": "Vipps receiving number",
       "mobilepayLabel": "MobilePay receiving number",
       "paypalLabel": "PayPal.Me username",
@@ -1574,7 +1576,7 @@
       "mobilepayPlaceholder": "MobilePay number",
       "paypalPlaceholder": "PayPal.Me username",
       "bankPlaceholder": "Bank account / IBAN",
-      "hint": "Only housemates who owe you can see these details. Leave a field blank to remove it.",
+      "hint": "Only housemates who owe you can see these receiving details. Kollekt does not process or verify transfers. Leave a field blank to remove it.",
       "securityHint": "Only enter receiving details. Never enter a card number, CVV, PIN, password, or payment-app login.",
       "save": "Save",
       "saved": "Payment methods saved",

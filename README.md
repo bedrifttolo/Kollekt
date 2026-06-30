@@ -90,7 +90,7 @@ npm run mobile:run:android   # synk + kjør på Android-emulator/enhet
 - App-ikoner og splash genereres fra `assets/icon.png` og `assets/splash*.png` med `npx capacitor-assets generate`.
 - Haptikk på utvalgte handlinger via `src/lib/haptics.ts`.
 - Push-varsler: klientregistrering og deep-link håndteres i `src/lib/pushNotifications.ts`, og enhetstoken lagres via `POST /api/push/device-token`. Selve leveringen krever APNs/FCM-konfigurasjon (Firebase-prosjekt + `google-services.json` for Android, APNs-nøkkel for iOS) som settes opp separat.
-- Google Calendar OAuth returnerer til appen via URL-skjemaet `no.kollekt.app://google-calendar-connected` (se `src/lib/googleCalendarOAuth.ts`).
+- Google Calendar OAuth returnerer til appen via URL-skjemaet `no.kollekt.app://google-calendar-connected`; flyten håndteres av kalender-siden, `src/lib/deviceCalendar.ts` og backendens Google Calendar-endepunkter.
 
 ### Enhetstesting
 

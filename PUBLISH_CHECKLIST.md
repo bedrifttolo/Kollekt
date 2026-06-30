@@ -197,7 +197,7 @@ Once the above is done, the rest happens outside VS Code:
   complete the store listing, data-safety form, and content rating.
 - **Firebase console:** create the project, download `google-services.json` (Android)
   and register the APNs key (iOS) — only if shipping push.
-- **Store metadata (both):** screenshots, descriptions, privacy policy URL.
+- **Store metadata (both):** screenshots, descriptions, privacy policy URL. Disclose optional payment receiving handles (Vipps/MobilePay phone number, PayPal.Me username, bank account/IBAN) as personal/financial contact data used for roommate reimbursements; Kollekt opens external payment apps only and does not process, initiate, hold, or verify transfers.
 
 ---
 

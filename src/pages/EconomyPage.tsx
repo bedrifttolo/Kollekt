@@ -45,6 +45,7 @@ export default function EconomyPage() {
   const [selectedCreditorName, setSelectedCreditorName] = useState('');
   const [showPaySheet, setShowPaySheet] = useState(false);
   const [copiedValue, setCopiedValue] = useState<string | null>(null);
+  const [settlementAcknowledged, setSettlementAcknowledged] = useState(false);
 
   const name = currentUser?.name ?? '';
   const parsedNewAmount = Number(newAmount);
@@ -132,11 +133,12 @@ export default function EconomyPage() {
   };
 
   const handleMarkSettled = async () => {
-    if (!selectedPayOption) return;
+    if (!selectedPayOption || !settlementAcknowledged) return;
     setSettling(true);
     try {
       await api.post('/economy/settle-with', { creditorName: selectedPayOption.name });
       setShowPaySheet(false);
+      setSettlementAcknowledged(false);
       fetchSummary();
     } catch {}
     setSettling(false);
@@ -144,6 +146,7 @@ export default function EconomyPage() {
 
   const handlePayCreditor = () => {
     if (!selectedPayOption) return;
+    setSettlementAcknowledged(false);
     setShowPaySheet(true);
   };
 
@@ -271,9 +274,19 @@ export default function EconomyPage() {
 
               <p className="text-[10px] text-muted-foreground">{t('economy.pay.disclaimer')}</p>
 
+              <label className="flex items-start gap-2 rounded-xl bg-muted/40 p-3 text-xs text-muted-foreground">
+                <input
+                  type="checkbox"
+                  checked={settlementAcknowledged}
+                  onChange={(event) => setSettlementAcknowledged(event.target.checked)}
+                  className="mt-0.5 h-4 w-4 shrink-0"
+                />
+                <span>{t('economy.pay.acknowledge')}</span>
+              </label>
+
               <button
                 onClick={() => void handleMarkSettled()}
-                disabled={settling}
+                disabled={settling || !settlementAcknowledged}
                 className="w-full gradient-primary rounded-xl py-2.5 text-sm font-semibold text-primary-foreground flex items-center justify-center gap-2 disabled:opacity-60"
               >
                 <Check className="h-4 w-4" /> {t('economy.pay.markSettled')}

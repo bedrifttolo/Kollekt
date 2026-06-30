@@ -19,7 +19,7 @@
       "tasks": { "title": "Retfærdig fordeling", "body": "Opgaverne roterer jævnt hver uge. Fuldfører du dem, får du XP." },
       "calendar": { "title": "Planlæg sammen", "body": "En delt kalender til husets begivenheder, gæster og stilletid — synkroniser den med din egen kalender også." },
       "chat": { "title": "Tal sammen", "body": "Gruppechat for kollektivet: afstemninger, reaktioner, billeder og en venlig tak med kudos." },
-      "economy": { "title": "Del og gør op", "body": "Hold styr på fælles udgifter og betal hinanden via Vipps, MobilePay, PayPal eller bank." },
+      "economy": { "title": "Del og gør op", "body": "Hold styr på fælles udgifter, gem modtageroplysninger og åbn eksterne betalingsapps, når I betaler hinanden tilbage." },
       "social": { "title": "Konkurrer og spil", "body": "Klatr op ad ranglisten og start spilaftener sammen." },
       "profile": { "title": "Dig og indstillingerne", "body": "Tryk her for profil, betalingsmetoder, invitationer og valg for kollektivet." }
     }
@@ -406,7 +406,8 @@
       "splitLabel": "Del udgiften med",
       "splitHint": "Når sagen er fuldført, deles udgiften mellem disse på økonomisiden.",
       "completeTitle": "Fuldfør sag",
-      "completeSubtitle": "Del udgiften på {{amount}} for “{{title}}” — vælg hvem der deler den.",
+      "completeSubtitle": "Indtast den endelige pris for “{{title}}”. Hvis det kostede penge, vælg hvem der deler den.",
+      "actualCostLabel": "Endelig pris (kr)",
       "completeConfirm": "Fuldfør og føj til økonomi",
       "edit": "Rediger sag",
       "delete": "Slet sag",
@@ -523,7 +524,7 @@
     "othersOweYou": "Andre skylder dig penge",
     "allSettled": "Alt er gjort op!",
     "payAmount": "Betal {{amount}}",
-    "payAmountTo": "Betal {{name}} {{amount}}",
+    "payAmountTo": "Gør op med {{name}} - {{amount}}",
     "payPersonLabel": "Vælg hvem du vil betale",
     "settleAll": "Gør alt op",
     "newExpense": "Ny udgift",
@@ -547,14 +548,15 @@
     "editExpense": "Rediger udgift",
     "saveChanges": "Gem ændringer",
     "pay": {
-      "title": "Betal {{name}}",
-      "subtitle": "Du skylder {{amount}}",
+      "title": "Betal {{name}} uden for Kollekt",
+      "subtitle": "Du skylder {{amount}}. Fuldfør overførslen i betalingsappen eller banken, før du markerer den som gjort op.",
       "bankTransfer": "Bankoverførsel",
-      "open": "Åbn",
+      "open": "Åbn app",
       "copy": "Kopiér",
       "noMethods": "Ingen betalingsmetode er gemt. Betal på en anden måde, I har aftalt, og bekræft derefter nedenfor.",
-      "markSettled": "Jeg bekræfter, at jeg har betalt — markér som gjort op",
-      "disclaimer": "Kollekt behandler eller bekræfter ikke overførslen. Kontrollér modtager og beløb i betalingsappen, før du sender, og markér først som gjort op efter betaling."
+      "acknowledge": "Jeg har fuldført betalingen uden for Kollekt og forstår, at Kollekt ikke kan bekræfte overførslen.",
+      "markSettled": "Markér som gjort op i Kollekt",
+      "disclaimer": "Kollekt gemmer modtageroplysninger og åbner kun eksterne betalingsapps. Kollekt behandler, starter, opbevarer eller bekræfter ikke pengeoverførsler."
     }
   },
   "pant": {
@@ -1566,7 +1568,7 @@
     },
     "paymentMethods": {
       "title": "Betalingsmetoder",
-      "subtitle": "Lad bofællerne betale dig tilbage direkte",
+      "subtitle": "Gem modtageroplysninger til manuelle tilbagebetalinger",
       "vippsLabel": "Vipps-nummer til modtagelse",
       "mobilepayLabel": "MobilePay-nummer til modtagelse",
       "paypalLabel": "PayPal.Me-brugernavn",
@@ -1575,7 +1577,7 @@
       "mobilepayPlaceholder": "MobilePay-nummer",
       "paypalPlaceholder": "PayPal.Me-brugernavn",
       "bankPlaceholder": "Kontonummer / IBAN",
-      "hint": "Kun bofæller, der skylder dig penge, kan se disse oplysninger. Lad et felt stå tomt for at fjerne det.",
+      "hint": "Kun bofæller, der skylder dig penge, kan se disse modtageroplysninger. Kollekt behandler eller bekræfter ikke overførsler. Lad et felt stå tomt for at fjerne det.",
       "securityHint": "Indtast kun modtageroplysninger. Indtast aldrig kortnummer, CVC/CVV, PIN-kode, adgangskode eller login til betalingsappen.",
       "save": "Gem",
       "saved": "Betalingsmetoder gemt",

@@ -67,11 +67,18 @@ class TaskOperations(
 
     @Transactional
     fun deleteExpiredTasks() {
-        val thresholdDate = LocalDate.now().minusDays(5)
+        val completedCutoff = LocalDateTime.now().minusDays(7)
+        val fallbackDueDateCutoff = LocalDate.now().minusDays(7)
         val expiredTasks =
             taskRepository
                 .findAll()
-                .filter { it.dueDate.isBefore(thresholdDate) }
+                .filter {
+                    it.completed &&
+                        (
+                            it.completedAt?.isBefore(completedCutoff)
+                                ?: it.dueDate.isBefore(fallbackDueDateCutoff)
+                        )
+                }
 
         if (expiredTasks.isNotEmpty()) {
             // Archive stat-relevant facts before pruning the row so XP, achievements and

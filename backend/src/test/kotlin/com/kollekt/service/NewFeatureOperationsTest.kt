@@ -198,9 +198,12 @@ class NewFeatureOperationsTest {
                 MaintenancePriority.HIGH,
                 assignee = "Bea",
                 dueDate = LocalDate.now().minusDays(1),
+                costEstimate = 500,
+                splitParticipants = "Alex,Bea",
                 createdBy = "Alex",
             )
         whenever(access.requireCollectiveCodeByMemberName("Alex")).thenReturn("HOME")
+        whenever(members.findByNameAndCollectiveCode("Alex", "HOME")).thenReturn(member(1, "Alex"))
         whenever(members.findByNameAndCollectiveCode("Bea", "HOME")).thenReturn(member(2, "Bea"))
         whenever(tickets.save(any<MaintenanceTicket>())).thenAnswer {
             val value = it.arguments[0] as MaintenanceTicket
@@ -221,11 +224,25 @@ class NewFeatureOperationsTest {
         val done =
             service.update(
                 9,
-                UpdateMaintenanceTicketRequest(status = MaintenanceStatus.DONE, priority = MaintenancePriority.URGENT),
+                UpdateMaintenanceTicketRequest(
+                    status = MaintenanceStatus.DONE,
+                    priority = MaintenancePriority.URGENT,
+                    costEstimate = 750,
+                    splitParticipants = listOf("Alex", "Bea"),
+                ),
                 "Alex",
             )
         assertEquals(MaintenanceStatus.DONE, done.status)
+        assertEquals(750, done.costEstimate)
         assertFalse(done.overdue)
+        verify(economy).createExpense(
+            check {
+                assertEquals("🔧 Leak", it.description)
+                assertEquals(750, it.amount)
+                assertEquals(listOf("Alex", "Bea"), it.participantNames)
+            },
+            eq("Alex"),
+        )
     }
 
     @Test
