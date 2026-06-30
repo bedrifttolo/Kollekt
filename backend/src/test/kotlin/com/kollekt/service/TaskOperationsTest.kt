@@ -361,24 +361,34 @@ class TaskOperationsTest {
     }
 
     @Test
-    fun `delete expired tasks archives and removes completed and incomplete tasks older than five days`() {
-        val expiredTask =
+    fun `delete expired tasks archives and removes completed tasks older than seven days only`() {
+        val oldIncompleteTask =
             TaskItem(
                 id = 6,
                 title = "Trash",
                 assignee = "Kasper",
                 collectiveCode = "ABC123",
-                dueDate = LocalDate.now().minusDays(6),
+                dueDate = LocalDate.now().minusDays(30),
                 category = TaskCategory.OTHER,
             )
-        val recentTask = expiredTask.copy(id = 7, dueDate = LocalDate.now().minusDays(5))
-        val completedTask = expiredTask.copy(id = 8, completed = true)
-        whenever(taskRepository.findAll()).thenReturn(listOf(expiredTask, recentTask, completedTask))
+        val recentCompletedTask =
+            oldIncompleteTask.copy(
+                id = 7,
+                completed = true,
+                completedAt = LocalDateTime.now().minusDays(6),
+            )
+        val oldCompletedTask =
+            oldIncompleteTask.copy(
+                id = 8,
+                completed = true,
+                completedAt = LocalDateTime.now().minusDays(8),
+            )
+        whenever(taskRepository.findAll()).thenReturn(listOf(oldIncompleteTask, recentCompletedTask, oldCompletedTask))
 
         operations.deleteExpiredTasks()
 
         verify(taskHistoryRepository).saveAll(any<List<TaskHistoryEntry>>())
-        verify(taskRepository).deleteAll(listOf(expiredTask, completedTask))
+        verify(taskRepository).deleteAll(listOf(oldCompletedTask))
     }
 
     @Test

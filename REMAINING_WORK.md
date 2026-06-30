@@ -10,9 +10,9 @@ Companion to [IMPROVEMENTS_PLAN.md](IMPROVEMENTS_PLAN.md). As of 2026-06-26, **a
 
 | Item | What you must do externally | Then in the repo |
 |------|-----------------------------|------------------|
-| **#11 AdMob** | Create a Google AdMob account; get an **App ID** + **ad-unit IDs**. | `npm i @capacitor-community/admob` → `npx cap sync` → set real `GADApplicationIdentifier` in `ios/App/App/Info.plist` + ad-unit ids in [`src/lib/ads.ts`](src/lib/ads.ts) → set `ADS_ENABLED = true` → uncomment the plugin calls → update `PrivacyInfo.xcprivacy` (see §3). |
+| **#11 AdMob** | Create a Google AdMob account; get an **App ID** + **ad-unit IDs**. | `npx cap sync` → set real `GADApplicationIdentifier` in `ios/App/App/Info.plist` + `VITE_ADMOB_HOME_BANNER_IOS` / `VITE_ADMOB_HOME_BANNER_ANDROID` → set `VITE_ENABLE_ADS=true` → update `PrivacyInfo.xcprivacy` (see §3). |
 | **#12 Game subscription** | App Store Connect: create an **auto-renewable subscription** product (e.g. `kollekt_games_monthly`) + set price. (Recommended: a RevenueCat project.) | `npm i @revenuecat/purchases-capacitor` → implement the 3 stubs in [`src/lib/purchases.ts`](src/lib/purchases.ts) (`fetchEntitlement`/`runPurchase`/`runRestore`) → set `PURCHASES_CONFIGURED = true`. |
-| **#9 Direct pay (Vipps)** | Register a **Vipps MobilePay partner** account; get API/SDK credentials. | Wire the prefilled deep-link in [`src/lib/paymentLinks.ts`](src/lib/paymentLinks.ts) + the pay sheet in [`EconomyPage.tsx`](src/pages/EconomyPage.tsx) + a backend endpoint to mint server-validated payment links. **Not started** — fully blocked on the partner account. |
+| **#9 Direct pay (Vipps/MobilePay)** | Register a **Vipps MobilePay partner** account; get API/SDK credentials. | Current app is legal manual receive-and-settle only: it stores receiving handles, opens external apps, and requires the user to confirm payment happened outside Kollekt. Prefilled/direct payment still needs official partner APIs plus a backend endpoint to mint server-validated payment links. **Blocked on partner account.** |
 | **#6 Push delivery** | APNs **Auth Key (.p8)** in the Apple Developer account; configure the backend/Firebase sender. Add the **Push Notifications** capability + **Background Modes → Remote notifications** in Xcode. | Nothing — client is wired. Validate using [`PUSH_TESTING.md`](PUSH_TESTING.md). |
 
 ### B. Optional refactor (no user-visible change)
@@ -40,14 +40,14 @@ Companion to [IMPROVEMENTS_PLAN.md](IMPROVEMENTS_PLAN.md). As of 2026-06-26, **a
 - If you later add images/reactions to DMs, you must route those events through `publishToMembers` too. **Do not** loosen the guards without replacing them with targeted delivery.
 
 ### Apple / App Store review
-- **ATT prompt**: once `ADS_ENABLED = true`, the app shows the App Tracking Transparency prompt. `NSUserTrackingUsageDescription` is already in `Info.plist`. Without an honest description, review will reject.
+- **ATT prompt**: once `VITE_ENABLE_ADS=true`, the app shows the App Tracking Transparency prompt. `NSUserTrackingUsageDescription` is already in `Info.plist`. Without an honest description, review will reject.
 - **Privacy manifest drift**: today `PrivacyInfo.xcprivacy` declares **no tracking**. The moment ads go live you must set `NSPrivacyTracking=true`, add the tracking domains, and declare `DeviceID` collected *for tracking*. Shipping ads with the current (no-tracking) manifest is a rejection risk.
 - **IAP rules don't mix**: game access (#12) **must** use StoreKit IAP; roommate settle-up (#9) **must not** — it's person-to-person real money handled by Vipps/PSP, outside IAP. Swapping these gets you rejected either way.
 - **Restore Purchases** is required by Apple and is already in the paywall — keep it when wiring RevenueCat.
-- **Privacy Nutrition Labels** in App Store Connect must match the manifest (name, email, user/device id, photos, user content, financial info).
+- **Privacy Nutrition Labels** in App Store Connect must match the manifest and backend data (name, email, user/device id, photos, user content, optional payment receiving handles/financial info).
 
 ### "Inert until configured" flags — don't forget to flip
-- [`src/lib/ads.ts`](src/lib/ads.ts): `ADS_ENABLED = false`
+- [`src/lib/ads.ts`](src/lib/ads.ts): `VITE_ENABLE_ADS = false`
 - [`src/lib/purchases.ts`](src/lib/purchases.ts): `PURCHASES_CONFIGURED = false`
 - While `false`, premium games are **locked for everyone** and the paywall shows an "unavailable" note. That's expected pre-launch — but it means **no one can play the 6 premium games until the subscription is live.** If you want them open until launch, set the entitlement to treat unconfigured as unlocked, or remove the `requiresSubscription` flags temporarily.
 
@@ -67,6 +67,7 @@ Companion to [IMPROVEMENTS_PLAN.md](IMPROVEMENTS_PLAN.md). As of 2026-06-26, **a
 - [ ] **Push**: follow [`PUSH_TESTING.md`](PUSH_TESTING.md) on a real device (push doesn't work in the iOS Simulator for remote APNs).
 - [ ] **Ads** (after enabling): ATT prompt appears once; banner clears the bottom nav; privacy manifest updated; test with AdMob **test** ad-unit ids first.
 - [ ] **Subscription** (after enabling): StoreKit **sandbox** purchase + **restore** flow; paywall disclosure visible; entitlement unlocks the 6 premium games.
+- [ ] **Economy settle-up**: verify on real iOS/Android devices that Vipps/MobilePay/PayPal open externally, bank details copy, the manual-payment acknowledgement gates "mark settled", and no payment is marked settled before the user confirms.
 - [ ] **Migration V54** applied cleanly against a copy of production data.
 - [ ] Full `npm run typecheck` + backend `./gradlew test` green in CI.
 

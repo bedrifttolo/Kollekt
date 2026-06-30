@@ -5,6 +5,10 @@ dist
 .gitignore
 .vscode
 .DS_Store
+.env
+.env.*
+!.env.example
+!.env.mobile.example
 **/build
 **/.gradle
 **/node_modules

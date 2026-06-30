@@ -79,6 +79,11 @@ App Store Connect / TestFlight. (No Push Notifications capability needed — pus
 ## 7. Store metadata (both stores)
 Screenshots, descriptions, privacy policy URL.
 
+Privacy/payment disclosure must say that Economy stores optional payment receiving
+handles (Vipps/MobilePay phone number, PayPal.Me username, bank account/IBAN)
+for roommate reimbursements. Kollekt opens external payment apps only; it does
+not process, initiate, hold, or verify money transfers.
+
 ---
 
 ## Later uploads (every release after the first)

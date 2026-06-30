@@ -176,6 +176,7 @@ function TasksMain() {
   const [newMaintenanceCost, setNewMaintenanceCost] = useState('');
   const [newMaintenanceSplit, setNewMaintenanceSplit] = useState<string[]>([]);
   const [completingTicket, setCompletingTicket] = useState<MaintenanceTicket | null>(null);
+  const [completeCost, setCompleteCost] = useState('');
   const [completeSplit, setCompleteSplit] = useState<string[]>([]);
   const [editingTicketId, setEditingTicketId] = useState<number | null>(null);
   const [editTicketTitle, setEditTicketTitle] = useState('');
@@ -401,9 +402,10 @@ function TasksMain() {
     setShowMaintenanceAdd(false);
   };
 
-  // Completing a paid ticket asks who shares the cost, then files it as an economy expense.
+  // Completing a ticket asks for the final cost, then files any paid amount as an economy expense.
   const handleMaintenanceStatusChange = (ticket: MaintenanceTicket, status: MaintenanceStatus) => {
-    if (status === 'DONE' && ticket.status !== 'DONE' && (ticket.costEstimate ?? 0) > 0) {
+    if (status === 'DONE' && ticket.status !== 'DONE') {
+      setCompleteCost(ticket.costEstimate != null ? String(ticket.costEstimate) : '');
       setCompleteSplit(ticket.splitParticipants.length > 0 ? ticket.splitParticipants : memberOptions);
       setCompletingTicket(ticket);
     } else {
@@ -413,8 +415,15 @@ function TasksMain() {
 
   const confirmCompleteTicket = async () => {
     if (!completingTicket) return;
-    await updateMaintenanceTicket(completingTicket.id, { status: 'DONE', splitParticipants: completeSplit });
+    const actualCost = Math.max(0, Math.round(Number(completeCost) || 0));
+    await updateMaintenanceTicket(completingTicket.id, {
+      status: 'DONE',
+      costEstimate: actualCost,
+      splitParticipants: actualCost > 0 ? completeSplit : [],
+    });
     setCompletingTicket(null);
+    setCompleteCost('');
+    setCompleteSplit([]);
   };
 
   const startEditTicket = (ticket: MaintenanceTicket) => {
@@ -1563,7 +1572,7 @@ function TasksMain() {
                     {ticket.description && <p className="mt-1 text-xs text-muted-foreground">{ticket.description}</p>}
                     <p className="mt-2 text-[10px] text-muted-foreground">
                       {ticket.dueDate ? `${t('tasks.maintenance.due')} ${formatDate(ticket.dueDate)}` : t('tasks.maintenance.noDueDate')}
-                      {ticket.costEstimate != null ? ` · ${ticket.costEstimate} kr` : ''}
+                      {ticket.costEstimate != null && ticket.costEstimate > 0 ? ` · ${ticket.costEstimate} kr` : ''}
                     </p>
                     {ticket.overdue && <p className="mt-1 text-[10px] font-bold text-destructive">{t('tasks.maintenance.overdue')}</p>}
                   </div>
@@ -1639,24 +1648,41 @@ function TasksMain() {
                 <h3 className="font-display text-lg font-bold">{t('tasks.maintenance.completeTitle')}</h3>
                 <button onClick={() => setCompletingTicket(null)} className="grid h-8 w-8 place-items-center rounded-full bg-muted"><X className="h-4 w-4" /></button>
               </div>
-              <p className="text-sm text-muted-foreground">{t('tasks.maintenance.completeSubtitle', { title: completingTicket.title, amount: `${completingTicket.costEstimate} kr` })}</p>
-              <div className="flex flex-wrap gap-1.5">
-                {memberOptions.map((member) => {
-                  const selected = completeSplit.includes(member);
-                  return (
-                    <button
-                      key={member}
-                      onClick={() => setCompleteSplit((prev) => selected ? prev.filter((m) => m !== member) : [...prev, member])}
-                      className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${selected ? 'bg-primary text-primary-foreground' : 'bg-muted/60 text-muted-foreground'}`}
-                    >
-                      {member}
-                    </button>
-                  );
-                })}
-              </div>
+              <p className="text-sm text-muted-foreground">{t('tasks.maintenance.completeSubtitle', { title: completingTicket.title })}</p>
+              <label className="block space-y-1">
+                <span className="text-xs font-semibold text-muted-foreground">{t('tasks.maintenance.actualCostLabel')}</span>
+                <input
+                  type="number"
+                  min="0"
+                  inputMode="decimal"
+                  value={completeCost}
+                  onChange={(event) => setCompleteCost(event.target.value)}
+                  placeholder={t('tasks.maintenance.costPlaceholder')}
+                  className="w-full rounded-lg bg-muted/50 px-3 py-2 text-sm"
+                />
+              </label>
+              {Number(completeCost) > 0 && (
+                <div>
+                  <p className="mb-1.5 text-[11px] font-semibold text-muted-foreground">{t('tasks.maintenance.splitLabel')}</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {memberOptions.map((member) => {
+                      const selected = completeSplit.includes(member);
+                      return (
+                        <button
+                          key={member}
+                          onClick={() => setCompleteSplit((prev) => selected ? prev.filter((m) => m !== member) : [...prev, member])}
+                          className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${selected ? 'bg-primary text-primary-foreground' : 'bg-muted/60 text-muted-foreground'}`}
+                        >
+                          {member}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
               <button
                 onClick={() => void confirmCompleteTicket()}
-                disabled={completeSplit.length === 0}
+                disabled={Number(completeCost) > 0 && completeSplit.length === 0}
                 className="w-full rounded-xl bg-primary py-2.5 text-sm font-bold text-primary-foreground disabled:opacity-50"
               >
                 {t('tasks.maintenance.completeConfirm')}

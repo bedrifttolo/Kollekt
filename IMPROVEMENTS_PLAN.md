@@ -37,8 +37,8 @@ Status snapshot as of 2026-06-26. Completed items are summarized; only **remaini
 
 Everything below is either **external/product setup** (needs accounts or a decision I can't make from the repo) or **needs a scope decision before building**.
 
-### #9 — Direct pay (Vipps MobilePay partner deep-link)  · *external*
-Phase 1 decided: hand off to Vipps with amount + recipient prefilled (funds don't flow through Kollekt). **Blocked on**: registering a Vipps MobilePay **partner account** and adding their SDK/API. Code touch-points when unblocked: link construction in [`paymentLinks.ts:24`](src/lib/paymentLinks.ts#L24), the pay sheet in [`EconomyPage.tsx:145`](src/pages/EconomyPage.tsx#L145), and a backend endpoint to mint server-validated payment links. *Cannot be completed in-repo without the partner credentials.*
+### #9 — Direct pay (Vipps MobilePay partner flow)  · *external*
+Current app is the legal manual receive-and-settle version: housemates can store receiving handles, Kollekt opens external payment apps, and the user must confirm the transfer happened outside Kollekt before balances are marked settled. Prefilled/direct Vipps MobilePay payments remain **blocked on** registering a Vipps MobilePay **partner account** and adding their official SDK/API. Code touch-points when unblocked: link construction in [`paymentLinks.ts:24`](src/lib/paymentLinks.ts#L24), the pay sheet in [`EconomyPage.tsx:145`](src/pages/EconomyPage.tsx#L145), and a backend endpoint to mint server-validated payment links. *Cannot be completed in-repo without the partner credentials.*
 
 ### #18 — Shared `IconButton` primitive  · *optional refactor*
 Goal already met inline (every interactive control is ≥44pt). If desired, add `IconButton` (`min-h-11 min-w-11`) to [`ui-kit/index.tsx`](src/components/ui-kit/index.tsx) and migrate existing icon buttons to prevent future regressions. Low priority — pure cleanup, no user-visible change.
@@ -49,10 +49,10 @@ Goal already met inline (every interactive control is ≥44pt). If desired, add 
 
 ### #11 — AdMob ads  · *code scaffolded, inert until AdMob account*
 Decision: **AdMob programmatic**. Built (inert until enabled):
-- [`src/lib/ads.ts`](src/lib/ads.ts) — `ADS_ENABLED` flag, `initializeAds()` (ATT + SDK init), `showHomeBanner()`/`hideHomeBanner()`. No-ops until `ADS_ENABLED = true`. Plugin import deliberately omitted so the build doesn't depend on an uninstalled package.
+- [`src/lib/ads.ts`](src/lib/ads.ts) — `VITE_ENABLE_ADS` flag, `initializeAds()` (ATT + SDK init), `showHomeBanner()`/`hideHomeBanner()`. No-ops until `VITE_ENABLE_ADS=true` and real ad-unit ids are supplied.
 - Init wired in [`nativeBootstrap.ts`](src/lib/nativeBootstrap.ts); home banner show/hide on the Dashboard ([`DashboardPage.tsx`](src/pages/DashboardPage.tsx)).
 - iOS [`Info.plist`](ios/App/App/Info.plist): `NSUserTrackingUsageDescription` + `SKAdNetworkItems` added (`plutil` valid).
-- **To go live**: `npm i @capacitor-community/admob` → set real `GADApplicationIdentifier` in Info.plist + ad-unit ids in `ads.ts` → set `ADS_ENABLED = true` → uncomment the plugin calls → update `PrivacyInfo.xcprivacy` (`NSPrivacyTracking=true` + DeviceID-for-tracking + tracking domains). A native-ad rendered *inside* the slider is a heavier future option; the shipped placement is a standard adaptive banner above the nav.
+- **To go live**: create the AdMob app/ad units → set real `GADApplicationIdentifier` in Info.plist + `VITE_ADMOB_HOME_BANNER_IOS` / `VITE_ADMOB_HOME_BANNER_ANDROID` in the mobile env → set `VITE_ENABLE_ADS=true` → update `PrivacyInfo.xcprivacy` (`NSPrivacyTracking=true` + DeviceID-for-tracking + tracking domains). A native-ad rendered *inside* the slider is a heavier future option; the shipped placement is a standard adaptive banner above the nav.
 
 ### #12 — Game subscription  · *code done, inert until App Store product*
 Decision: half the games premium; **Kollekt, 100 Questions, Dice, Spin the Wheel free**. Built:
