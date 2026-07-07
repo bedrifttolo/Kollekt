@@ -1,0 +1,7 @@
+CAPACITOR_DEBUG = false
+
+// GoogleMobileAds validates GADApplicationIdentifier at launch and crashes the app
+// if it is empty/invalid — even when ads are disabled and initialize() is never called.
+// Ads are currently off (VITE_ENABLE_ADS=false), so this only satisfies that launch check.
+// Replace with your real AdMob iOS app ID before enabling ads in a production build.
+ADMOB_IOS_APP_ID = ca-app-pub-3940256099942544~1458002511
