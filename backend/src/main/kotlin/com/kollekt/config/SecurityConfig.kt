@@ -22,6 +22,7 @@ import org.springframework.security.oauth2.jwt.JwtValidators
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder
 import org.springframework.security.web.SecurityFilterChain
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
@@ -33,14 +34,29 @@ import javax.crypto.spec.SecretKeySpec
 class SecurityConfig(
     @Value("\${app.security.jwt-secret}") private val jwtSecret: String,
     @Value("\${app.cors.allowed-origins}") private val allowedOrigins: String,
+    @Value("\${app.security.auth-rate-limit-per-minute}") private val authRateLimitPerMinute: Int,
     private val tokenStoreService: TokenStoreService,
 ) {
+    init {
+        // Fail fast rather than sign tokens with a guessable secret. The insecure default in
+        // application.yml is a placeholder for local scaffolding only — production MUST set a
+        // unique random APP_SECURITY_JWT_SECRET, otherwise anyone could forge auth tokens.
+        require(jwtSecret != INSECURE_JWT_SECRET_DEFAULT && jwtSecret.length >= 32) {
+            "APP_SECURITY_JWT_SECRET must be a unique random value of at least 32 characters. " +
+                "Refusing to start with the insecure default — set it in the deployment environment."
+        }
+    }
+
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain =
         http
             .csrf { it.disable() }
             .cors(Customizer.withDefaults())
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
+            .addFilterBefore(
+                AuthRateLimitFilter(authRateLimitPerMinute),
+                UsernamePasswordAuthenticationFilter::class.java,
+            )
             .authorizeHttpRequests {
                 it.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 it
@@ -92,5 +108,9 @@ class SecurityConfig(
         source.registerCorsConfiguration("/api/**", configuration)
         source.registerCorsConfiguration("/ws/**", configuration)
         return source
+    }
+
+    private companion object {
+        const val INSECURE_JWT_SECRET_DEFAULT = "change-me-to-a-long-random-secret-at-least-32-chars"
     }
 }
