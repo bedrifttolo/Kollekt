@@ -3,12 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Recycle, Target, Edit3, Check, X, Plus, Pencil, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "../lib/api";
+import { qk } from "../lib/queryKeys";
 import { connectCollectiveRealtime } from "../lib/realtime";
 import { useUser } from "../context/UserContext";
 import { formatCurrency, formatDate } from "../i18n/helpers";
 import type { PantSummary } from "../lib/types";
-import { Eyebrow, ProgressBar } from "../components/ui-kit";
+import { Eyebrow, OverflowMenu, ProgressBar } from "../components/ui-kit";
 
 export default function PantTrackerPage() {
   const navigate = useNavigate();
@@ -27,19 +29,26 @@ export default function PantTrackerPage() {
   const [deletingEntryId, setDeletingEntryId] = useState<number | null>(null);
 
   const name = currentUser?.name ?? "";
+  const queryClient = useQueryClient();
+
+  // Cached pant load — instant on re-navigation, refreshed in the background.
+  const { data: pantData } = useQuery({
+    queryKey: qk.pant(name),
+    enabled: !!name,
+    queryFn: () => api.get<PantSummary>(`/economy/pant?memberName=${encodeURIComponent(name)}`),
+  });
+
+  useEffect(() => {
+    if (!pantData) return;
+    setPantSummary(pantData);
+    setLoading(false);
+  }, [pantData]);
 
   const fetchPant = async () => {
     if (!name) return;
-    const res = await api.get<PantSummary>(
-      `/economy/pant?memberName=${encodeURIComponent(name)}`,
-    );
-    setPantSummary(res);
-    setLoading(false);
+    void queryClient.invalidateQueries({ queryKey: qk.economy(name) });
+    await queryClient.invalidateQueries({ queryKey: qk.pant(name) });
   };
-
-  useEffect(() => {
-    fetchPant();
-  }, [name]);
 
   useEffect(() => {
     if (!name) return;
@@ -308,30 +317,46 @@ export default function PantTrackerPage() {
                       {formatDate(entry.date)}
                     </p>
                   </div>
-                  {entry.addedBy === name ? (
-                    <div className="flex flex-col items-end gap-1 shrink-0">
-                      <p className="text-sm font-bold text-primary">+{formatCurrency(entry.amount)}</p>
-                      <div className="flex items-center gap-2">
-                        <button onClick={() => startEditEntry(entry.id, entry.bottles)} className="grid h-11 w-11 place-items-center rounded-full text-muted-foreground transition-colors hover:text-foreground">
-                          <Pencil className="h-3.5 w-3.5" />
-                        </button>
-                        {deletingEntryId === entry.id ? (
-                          <>
-                            <button onClick={() => void handleDeleteEntry(entry.id)} className="grid h-11 w-11 place-items-center rounded-full text-destructive transition-colors hover:text-destructive/80">
-                              <Check className="h-3.5 w-3.5" />
-                            </button>
-                            <button onClick={() => setDeletingEntryId(null)} className="grid h-11 w-11 place-items-center rounded-full text-muted-foreground transition-colors hover:text-foreground">
-                              <X className="h-3.5 w-3.5" />
-                            </button>
-                          </>
-                        ) : (
-                          <button onClick={() => { setDeletingEntryId(entry.id); setEditingEntryId(null); }} className="grid h-11 w-11 place-items-center rounded-full text-muted-foreground transition-colors hover:text-destructive">
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  ) : (
+	                  {entry.addedBy === name ? (
+	                    <div className="flex shrink-0 items-center gap-2">
+	                      <p className="text-sm font-bold text-primary">+{formatCurrency(entry.amount)}</p>
+	                      <OverflowMenu
+	                        label={t("common.actions")}
+	                        actions={deletingEntryId === entry.id
+	                          ? [
+	                            {
+	                              label: t("common.done"),
+	                              icon: <Check className="h-4 w-4" />,
+	                              destructive: true,
+	                              onSelect: () => {
+	                                void handleDeleteEntry(entry.id);
+	                              },
+	                            },
+	                            {
+	                              label: t("common.cancel"),
+	                              icon: <X className="h-4 w-4" />,
+	                              onSelect: () => setDeletingEntryId(null),
+	                            },
+	                          ]
+	                          : [
+	                            {
+	                              label: t("pant.editEntry"),
+	                              icon: <Pencil className="h-4 w-4" />,
+	                              onSelect: () => startEditEntry(entry.id, entry.bottles),
+	                            },
+	                            {
+	                              label: t("common.delete"),
+	                              icon: <Trash2 className="h-4 w-4" />,
+	                              destructive: true,
+	                              onSelect: () => {
+	                                setDeletingEntryId(entry.id);
+	                                setEditingEntryId(null);
+	                              },
+	                            },
+	                          ]}
+	                      />
+	                    </div>
+	                  ) : (
                     <p className="text-sm font-bold text-primary shrink-0">+{formatCurrency(entry.amount)}</p>
                   )}
                 </motion.div>

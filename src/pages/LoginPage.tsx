@@ -25,6 +25,7 @@ export default function LoginPage() {
   const [forgotSent, setForgotSent] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [waking, setWaking] = useState(false);
   const [socialLoading, setSocialLoading] = useState<SocialProvider | null>(null);
   const socialProviders = getSocialProviders();
 
@@ -60,6 +61,7 @@ export default function LoginPage() {
     e.preventDefault();
     setError('');
     setLoading(true);
+    const slowTimer = setTimeout(() => setWaking(true), 4000);
     try {
       if (mode === 'login') {
         const res = await api.post<AuthResponse>('/onboarding/login', { name: loginName, password });
@@ -86,6 +88,8 @@ export default function LoginPage() {
     } catch (err: unknown) {
       setError(getUserMessage(err, t('errors.generic')));
     } finally {
+      clearTimeout(slowTimer);
+      setWaking(false);
       setLoading(false);
     }
   };
@@ -93,6 +97,7 @@ export default function LoginPage() {
   const handleSocialLogin = async (provider: SocialProvider) => {
     setError('');
     setSocialLoading(provider);
+    const slowTimer = setTimeout(() => setWaking(true), 4000);
     try {
       const identity = await getSocialIdentity(provider);
       const res = await api.post<AuthResponse>(`/onboarding/oauth/${provider}`, identity);
@@ -100,6 +105,8 @@ export default function LoginPage() {
     } catch (err: unknown) {
       setError(getUserMessage(err, t('errors.generic')));
     } finally {
+      clearTimeout(slowTimer);
+      setWaking(false);
       setSocialLoading(null);
     }
   };
@@ -247,6 +254,12 @@ export default function LoginPage() {
           )}
 
           {error && <p className="text-sm text-destructive text-center">{error}</p>}
+
+          {waking && !error && (
+            <p className="text-sm text-muted-foreground text-center">
+              {t('auth.wakingServer', 'Waking up the server — this can take up to a minute…')}
+            </p>
+          )}
 
           <button
             type="submit"

@@ -9,7 +9,9 @@ import {
   CalendarPlus,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { api, API_BASE } from "../lib/api";
+import { qk } from "../lib/queryKeys";
 import { addEventToDeviceCalendar } from "../lib/deviceCalendar";
 import { useUser } from "../context/UserContext";
 import {
@@ -22,7 +24,7 @@ import {
 } from "../i18n/helpers";
 import { connectCollectiveRealtime } from "../lib/realtime";
 import type { CalendarEvent, EventType, GuestNotice, HouseCheckin } from "../lib/types";
-import { AddSheet, Eyebrow, Fab } from "../components/ui-kit";
+import { AddSheet, Eyebrow, Fab, OverflowMenu } from "../components/ui-kit";
 
 const EVENT_TYPES: EventType[] = ["PARTY", "MOVIE", "DINNER", "GAME_NIGHT", "CLEANING", "SPORTS", "BIRTHDAY", "MEETING", "TRIP", "OTHER"];
 
@@ -81,20 +83,34 @@ export default function CalendarPage() {
   const [loading, setLoading] = useState(true);
 
   const name = currentUser?.name ?? "";
+  const queryClient = useQueryClient();
+
+  // Cached calendar load — instant on re-navigation, refreshed in the background.
+  const { data: calendarBundle } = useQuery({
+    queryKey: qk.calendar(name),
+    enabled: !!name,
+    queryFn: async () => {
+      const [eventResponse, guestResponse] = await Promise.all([
+        api.get<CalendarEvent[]>(`/events?memberName=${encodeURIComponent(name)}`),
+        api.get<GuestNotice[]>("/guest-notices"),
+      ]);
+      return { eventResponse, guestResponse };
+    },
+  });
+
+  useEffect(() => {
+    if (!calendarBundle) return;
+    setEvents(calendarBundle.eventResponse);
+    setGuestNotices(calendarBundle.guestResponse);
+    setLoading(false);
+  }, [calendarBundle]);
 
   const fetchEvents = async () => {
     if (!name) return;
-    const [eventResponse, guestResponse] = await Promise.all([
-      api.get<CalendarEvent[]>(`/events?memberName=${encodeURIComponent(name)}`),
-      api.get<GuestNotice[]>("/guest-notices"),
-    ]);
-    setEvents(eventResponse);
-    setGuestNotices(guestResponse);
-    setLoading(false);
+    await queryClient.invalidateQueries({ queryKey: qk.calendar(name) });
   };
 
   useEffect(() => {
-    fetchEvents();
     if (!name) return;
     if (currentUser) {
       api.get<{ collectiveId: number }>(`/onboarding/collectives/code/${currentUser.id}`)
@@ -374,8 +390,8 @@ export default function CalendarPage() {
                   className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
                   onKeyDown={(e) => e.key === "Enter" && handleAdd()}
                 />
-                <div className="flex gap-2">
-                  <div className="flex-1 space-y-1">
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  <div className="min-w-0 space-y-1">
                     <p className="text-[10px] text-muted-foreground">
                       {t("calendar.startTime")}
                     </p>
@@ -386,7 +402,7 @@ export default function CalendarPage() {
                       className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                     />
                   </div>
-                  <div className="flex-1 space-y-1">
+                  <div className="min-w-0 space-y-1">
                     <p className="text-[10px] text-muted-foreground">
                       {t("calendar.endTimeOptional")}
                     </p>
@@ -404,12 +420,12 @@ export default function CalendarPage() {
                     {t("calendar.guestOvernight")}
                   </label>
                 )}
-                {addMode === "event" && <div className="flex flex-wrap gap-2">
+                {addMode === "event" && <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                   {EVENT_TYPES.map((eventType) => (
                     <button
                       key={eventType}
                       onClick={() => setNewType(eventType)}
-                      className={`min-h-11 rounded-lg px-3 py-2 text-[10px] font-medium transition-all ${newType === eventType ? "gradient-primary text-primary-foreground" : "glass text-muted-foreground"}`}
+                      className={`min-h-11 min-w-0 rounded-lg px-2 py-2 text-[10px] font-medium transition-all ${newType === eventType ? "gradient-primary text-primary-foreground" : "glass text-muted-foreground"}`}
                     >
                       {typeEmoji[eventType]}{" "}
                       {translateKey("common.eventTypes", eventType)}
@@ -470,20 +486,24 @@ export default function CalendarPage() {
                     {e.description || e.organizer}
                   </p>
                 </div>
-                <button
-                  onClick={() => openEdit(e)}
-                  className="grid h-7 w-7 shrink-0 place-items-center rounded-lg text-muted-foreground hover:bg-muted"
-                  aria-label={t("calendar.editEvent")}
-                >
-                  <Pencil className="h-3.5 w-3.5" />
-                </button>
-                <button
-                  onClick={() => handleDelete(e.id)}
-                  className="grid h-7 w-7 shrink-0 place-items-center rounded-lg text-destructive hover:bg-destructive/10"
-                  aria-label={t("calendar.deleteEvent")}
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                </button>
+	                <OverflowMenu
+	                  label={t("common.actions")}
+	                  actions={[
+	                    {
+	                      label: t("calendar.editEvent"),
+	                      icon: <Pencil className="h-4 w-4" />,
+	                      onSelect: () => openEdit(e),
+	                    },
+	                    {
+	                      label: t("calendar.deleteEvent"),
+	                      icon: <Trash2 className="h-4 w-4" />,
+	                      destructive: true,
+	                      onSelect: () => {
+	                        void handleDelete(e.id);
+	                      },
+	                    },
+	                  ]}
+	                />
               </div>
               <div className="mt-2 flex -space-x-2">
                 <span className="grid h-8 w-8 place-items-center rounded-full border-2 border-card bg-primary text-xs font-bold text-primary-foreground">
@@ -531,8 +551,8 @@ export default function CalendarPage() {
                   placeholder={t("calendar.eventTitlePlaceholder")}
                   className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
                 />
-                <div className="flex gap-2">
-                  <div className="flex-1 space-y-1">
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  <div className="min-w-0 space-y-1">
                     <p className="text-[10px] text-muted-foreground">
                       {t("calendar.startTime")}
                     </p>
@@ -543,7 +563,7 @@ export default function CalendarPage() {
                       className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                     />
                   </div>
-                  <div className="flex-1 space-y-1">
+                  <div className="min-w-0 space-y-1">
                     <p className="text-[10px] text-muted-foreground">
                       {t("calendar.endTimeOptional")}
                     </p>
@@ -555,12 +575,12 @@ export default function CalendarPage() {
                     />
                   </div>
                 </div>
-                <div className="flex gap-2">
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                   {EVENT_TYPES.map((eventType) => (
                     <button
                       key={eventType}
                       onClick={() => setEditType(eventType)}
-                      className={`flex-1 py-1.5 rounded-lg text-[10px] font-medium transition-all ${editType === eventType ? "gradient-primary text-primary-foreground" : "glass text-muted-foreground"}`}
+                      className={`min-h-10 min-w-0 rounded-lg px-2 py-1.5 text-[10px] font-medium transition-all ${editType === eventType ? "gradient-primary text-primary-foreground" : "glass text-muted-foreground"}`}
                     >
                       {typeEmoji[eventType]}{" "}
                       {translateKey("common.eventTypes", eventType)}

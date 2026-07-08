@@ -1,5 +1,5 @@
 import type { ButtonHTMLAttributes, CSSProperties, InputHTMLAttributes, ReactNode } from 'react';
-import { Plus, X } from 'lucide-react';
+import { MoreHorizontal, Plus, X } from 'lucide-react';
 import { cn } from '../ui/utils';
 import { colorForMember } from '../../lib/memberColors';
 
@@ -42,7 +42,7 @@ export function Eyebrow({ children }: { children: ReactNode }) {
 
 export function AddSheet({ title, onClose, children, className }: { title: string; onClose: () => void; children: ReactNode; className?: string }) {
   return (
-    <div className={cn('glass space-y-3 rounded-xl p-4', className)}>
+    <div className={cn('glass w-full max-w-full space-y-3 overflow-hidden rounded-xl p-4', className)}>
       <div className="flex items-center justify-between gap-3">
         <p className="text-sm font-semibold">{title}</p>
         <button onClick={onClose} className="grid h-11 w-11 shrink-0 place-items-center rounded-full" aria-label={title}>
@@ -77,6 +77,50 @@ export function AvatarStack({ members, max = 4 }: { members: Array<{ name: strin
 
 export function ProgressBar({ value, className }: { value: number; className?: string }) {
   return <div className={cn('h-2 overflow-hidden rounded-full bg-muted', className)}><div className="h-full rounded-full bg-secondary transition-[width]" style={{ width: `${Math.max(0, Math.min(100, value))}%` }} /></div>;
+}
+
+export function OverflowMenu({
+  label,
+  actions,
+  className,
+}: {
+  label: string;
+  actions: Array<{
+    label: string;
+    icon?: ReactNode;
+    destructive?: boolean;
+    disabled?: boolean;
+    onSelect: () => void;
+  }>;
+  className?: string;
+}) {
+  return (
+    <details className={cn('relative shrink-0', className)}>
+      <summary className="grid h-11 w-11 list-none place-items-center rounded-full border border-border bg-card text-muted-foreground transition-colors hover:text-foreground [&::-webkit-details-marker]:hidden" aria-label={label}>
+        <MoreHorizontal className="h-5 w-5" />
+      </summary>
+      <div className="absolute right-0 top-full z-40 mt-2 w-48 overflow-hidden rounded-xl border border-border bg-popover p-1 shadow-xl">
+        {actions.map((action) => (
+          <button
+            key={action.label}
+            type="button"
+            disabled={action.disabled}
+            onClick={(event) => {
+              event.currentTarget.closest('details')?.removeAttribute('open');
+              action.onSelect();
+            }}
+            className={cn(
+              'flex min-h-11 w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium transition-colors hover:bg-muted/60 disabled:opacity-50',
+              action.destructive ? 'text-destructive' : 'text-foreground',
+            )}
+          >
+            {action.icon}
+            <span className="min-w-0 flex-1 truncate">{action.label}</span>
+          </button>
+        ))}
+      </div>
+    </details>
+  );
 }
 
 export function Fab({ label, className, ...props }: ButtonHTMLAttributes<HTMLButtonElement> & { label: string }) {

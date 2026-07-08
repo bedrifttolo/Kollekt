@@ -1,5 +1,7 @@
 import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { api, getAccessToken, logoutSession, deleteNotification, deleteAllNotifications } from '../lib/api';
+import { prefetchMainData } from '../lib/prefetch';
 import { connectCollectiveRealtime } from '../lib/realtime';
 import { registerPushNotifications, unregisterPushNotifications } from '../lib/pushNotifications';
 import type { AppUser, Notification } from '../lib/types';
@@ -28,6 +30,14 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [notificationsLoading, setNotificationsLoading] = useState(false);
+  const queryClient = useQueryClient();
+
+  // Warm the main tabs' caches as soon as the user is known (fresh login or session
+  // restore), so the first navigation to each tab is instant.
+  useEffect(() => {
+    if (currentUser) prefetchMainData(queryClient, currentUser);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentUser?.id, currentUser?.name, queryClient]);
 
   useEffect(() => {
     let cancelled = false;
