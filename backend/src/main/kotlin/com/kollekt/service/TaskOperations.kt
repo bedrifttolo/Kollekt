@@ -537,9 +537,11 @@ class TaskOperations(
                 occurrence++
                 nextDueDate = recurringDueDate(anchorDate, recurrenceRule, occurrence)
             }
-            while (nextDueDate.isBefore(today)) {
+            var followingDueDate = recurringDueDate(anchorDate, recurrenceRule, occurrence + 1)
+            while (!followingDueDate.isAfter(today)) {
                 occurrence++
-                nextDueDate = recurringDueDate(anchorDate, recurrenceRule, occurrence)
+                nextDueDate = followingDueDate
+                followingDueDate = recurringDueDate(anchorDate, recurrenceRule, occurrence + 1)
             }
 
             tasksToAssign.add(
