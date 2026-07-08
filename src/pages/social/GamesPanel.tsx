@@ -1,8 +1,11 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Play, Users, Clock, Info, X, Lock } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { api } from '../../lib/api';
+import { qk } from '../../lib/queryKeys';
+import type { AppUser } from '../../lib/types';
 import { useUser } from '../../context/UserContext';
 import { useGamesSubscription, isGameLocked } from '../../lib/purchases';
 import { GAME_CATALOG, GAME_CATEGORIES, tonightsPick, type GameCategoryFilter, type GameEntry } from '../../games/catalog';
@@ -23,7 +26,6 @@ export default function GamesPanel() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { currentUser } = useUser();
-  const [members, setMembers] = useState<string[]>([]);
   const [filter, setFilter] = useState<GameCategoryFilter>('all');
   const [activeGame, setActiveGame] = useState<string | null>(null);
   const [setupGame, setSetupGame] = useState<GameEntry | null>(null);
@@ -37,12 +39,13 @@ export default function GamesPanel() {
   const name = currentUser?.name ?? '';
   const pick = useMemo(() => tonightsPick(), []);
 
-  useEffect(() => {
-    if (!name) return;
-    api.get<{ name: string }[]>(`/members/collective?memberName=${encodeURIComponent(name)}`)
-      .then((res) => setMembers(res.map((m) => m.name)))
-      .catch(() => {});
-  }, [name]);
+  // Shares the cached members fetch with the Dashboard/Profile pages.
+  const { data: members = [] } = useQuery({
+    queryKey: qk.members(name),
+    enabled: !!name,
+    queryFn: () => api.get<AppUser[]>(`/members/collective?memberName=${encodeURIComponent(name)}`),
+    select: (users) => users.map((user) => user.name),
+  });
 
   const games = filter === 'all' ? GAME_CATALOG : GAME_CATALOG.filter((g) => g.category === filter);
 

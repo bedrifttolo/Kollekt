@@ -7,7 +7,7 @@ export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 30_000, // treat data as fresh for 30s — revisits render from cache with no spinner
-      gcTime: 5 * 60_000, // keep unused data cached for 5 minutes
+      gcTime: 24 * 60 * 60_000, // keep cached for 24h so it survives to be persisted across app launches
       retry: 1, // one retry on failure; avoids hammering a slow backend
       refetchOnWindowFocus: false, // don't refetch every time the app regains focus
       refetchOnReconnect: true,

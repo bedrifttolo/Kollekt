@@ -54,6 +54,7 @@ class SecurityConfig(
                         "/api/google-calendar/callback",
                     ).permitAll()
                 it.requestMatchers(HttpMethod.GET, "/api/calendar-feed/**").permitAll()
+                it.requestMatchers(HttpMethod.GET, "/api/health").permitAll()
                 it.requestMatchers("/ws/**").permitAll()
                 it.anyRequest().authenticated()
             }.oauth2ResourceServer { it.jwt(Customizer.withDefaults()) }

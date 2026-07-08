@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Bell,
   Mail,
   Key,
   LogOut,
@@ -22,14 +21,16 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   api,
   getNotificationPreferences,
   updateNotificationPreference,
   getUserMessage,
 } from "../lib/api";
+import { qk } from "../lib/queryKeys";
 import { useUser } from "../context/UserContext";
-import { formatDateTime, translateKey } from "../i18n/helpers";
+import { translateKey } from "../i18n/helpers";
 import type {
   AppUser,
   MemberStatus,
@@ -89,11 +90,6 @@ export default function ProfilePage() {
     currentUser,
     setCurrentUser,
     handleLogout,
-    notifications,
-    notificationsLoading,
-    dismissNotification,
-    clearAllNotifications,
-    markAllNotificationsRead,
   } = useUser();
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteSent, setInviteSent] = useState(false);
@@ -102,7 +98,6 @@ export default function ProfilePage() {
   const [pwError, setPwError] = useState("");
   const [pwSuccess, setPwSuccess] = useState(false);
   const [codeCopied, setCodeCopied] = useState(false);
-  const [expandNotifs, setExpandNotifs] = useState(false);
   const [expandNotifPrefs, setExpandNotifPrefs] = useState(false);
   const [notifPrefs, setNotifPrefs] = useState<NotificationPreferences>({});
   const [expandInvite, setExpandInvite] = useState(false);
@@ -141,6 +136,11 @@ export default function ProfilePage() {
   const [violationSaving, setViolationSaving] = useState(false);
 
   const name = currentUser?.name ?? "";
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    setProfileLoadFailed(false);
+  }, [name]);
 
   const houseRuleLines = houseRules?.content
     ? houseRules.content
@@ -149,13 +149,29 @@ export default function ProfilePage() {
         .filter((line) => line.length > 0)
     : [];
 
+  const rulesQuery = useQuery({
+    queryKey: qk.profileRules(name),
+    enabled: !!currentUser?.id,
+    queryFn: async () => {
+      const collective = await api.get<{ collectiveId: number }>(`/onboarding/collectives/code/${currentUser!.id}`);
+      const [rules, quiet] = await Promise.all([
+        api.get<HouseRules>(`/collectives/${collective.collectiveId}/rules`),
+        api.get<QuietHours>(`/collectives/${collective.collectiveId}/quiet-hours`),
+      ]);
+      return { collectiveId: collective.collectiveId, rules, quiet };
+    },
+  });
+
+  useEffect(() => {
+    if (!rulesQuery.data) return;
+    setCollectiveId(rulesQuery.data.collectiveId);
+    setHouseRules(rulesQuery.data.rules);
+    setQuietHours(rulesQuery.data.quiet);
+  }, [rulesQuery.data]);
+
   const loadHouseRules = useCallback(async () => {
-    if (!currentUser?.id) return;
-    const collective = await api.get<{ collectiveId: number }>(`/onboarding/collectives/code/${currentUser.id}`);
-    setCollectiveId(collective.collectiveId);
-    setHouseRules(await api.get<HouseRules>(`/collectives/${collective.collectiveId}/rules`));
-    setQuietHours(await api.get<QuietHours>(`/collectives/${collective.collectiveId}/quiet-hours`));
-  }, [currentUser?.id]);
+    await queryClient.invalidateQueries({ queryKey: qk.profileRules(name) });
+  }, [queryClient, name]);
 
   const saveQuietHours = async () => {
     if (!collectiveId || !quietHours?.canEdit) return;
@@ -173,18 +189,36 @@ export default function ProfilePage() {
     }
   };
 
-  const loadKudos = useCallback(async () => {
-    if (!name) return;
-    const feed = await api.get<Kudo[]>('/kudos/feed');
-    setReceivedKudos(feed.filter((kudo) => kudo.receiver === name).length);
-  }, [name]);
+  const kudosQuery = useQuery({
+    queryKey: qk.profileKudos(name),
+    enabled: !!name,
+    queryFn: () => api.get<Kudo[]>('/kudos/feed'),
+  });
 
-  const loadStatsAndAchievements = useCallback(async () => {
-    if (!name) return;
-    const [leaderboard, achievements] = await Promise.allSettled([
-      api.get<{ players: LeaderboardPlayer[] }>(`/leaderboard?memberName=${encodeURIComponent(name)}&period=OVERALL`),
-      api.get<Achievement[]>(`/achievements?memberName=${encodeURIComponent(name)}`),
-    ]);
+  useEffect(() => {
+    if (!kudosQuery.data) return;
+    setReceivedKudos(kudosQuery.data.filter((kudo) => kudo.receiver === name).length);
+  }, [kudosQuery.data, name]);
+
+  const loadKudos = useCallback(async () => {
+    await queryClient.invalidateQueries({ queryKey: qk.profileKudos(name) });
+  }, [queryClient, name]);
+
+  const statsQuery = useQuery({
+    queryKey: qk.profileStats(name),
+    enabled: !!name,
+    queryFn: async () => {
+      const [leaderboard, achievements] = await Promise.allSettled([
+        api.get<{ players: LeaderboardPlayer[] }>(`/leaderboard?memberName=${encodeURIComponent(name)}&period=OVERALL`),
+        api.get<Achievement[]>(`/achievements?memberName=${encodeURIComponent(name)}`),
+      ]);
+      return { leaderboard, achievements };
+    },
+  });
+
+  useEffect(() => {
+    if (!statsQuery.data) return;
+    const { leaderboard, achievements } = statsQuery.data;
     if (leaderboard.status === "fulfilled") {
       setMyStats(leaderboard.value.players.find((player) => player.name === name) ?? null);
     }
@@ -195,24 +229,43 @@ export default function ProfilePage() {
     if (leaderboard.status === "rejected" || achievements.status === "rejected") {
       setProfileLoadFailed(true);
     }
-  }, [name]);
+  }, [statsQuery.data, name]);
+
+  const loadStatsAndAchievements = useCallback(async () => {
+    await queryClient.invalidateQueries({ queryKey: qk.profileStats(name) });
+  }, [queryClient, name]);
+
+  const notifPrefsQuery = useQuery({
+    queryKey: qk.profileNotifs(name),
+    enabled: !!name,
+    queryFn: () => getNotificationPreferences(name),
+  });
 
   useEffect(() => {
-    if (!name) return;
-    setProfileLoadFailed(false);
-    void getNotificationPreferences(name)
-      .then(setNotifPrefs)
-      .catch(() => setProfileLoadFailed(true));
-    void api.get<AppUser[]>(`/members/collective?memberName=${encodeURIComponent(name)}`)
-      .then(setHouseholdMembers)
-      .catch(() => setProfileLoadFailed(true));
-    void api.get<PaymentHandles>(`/members/payment-handles?memberName=${encodeURIComponent(name)}`)
-      .then(setPaymentHandles)
-      .catch(() => {});
-    void loadStatsAndAchievements();
-    void loadHouseRules().catch(() => setProfileLoadFailed(true));
-    void loadKudos().catch(() => setProfileLoadFailed(true));
-  }, [name, loadStatsAndAchievements, loadHouseRules, loadKudos]);
+    if (notifPrefsQuery.data) setNotifPrefs(notifPrefsQuery.data);
+    if (notifPrefsQuery.isError) setProfileLoadFailed(true);
+  }, [notifPrefsQuery.data, notifPrefsQuery.isError]);
+
+  const householdMembersQuery = useQuery({
+    queryKey: qk.members(name),
+    enabled: !!name,
+    queryFn: () => api.get<AppUser[]>(`/members/collective?memberName=${encodeURIComponent(name)}`),
+  });
+
+  useEffect(() => {
+    if (householdMembersQuery.data) setHouseholdMembers(householdMembersQuery.data);
+    if (householdMembersQuery.isError) setProfileLoadFailed(true);
+  }, [householdMembersQuery.data, householdMembersQuery.isError]);
+
+  const paymentHandlesQuery = useQuery({
+    queryKey: qk.profilePayments(name),
+    enabled: !!name,
+    queryFn: () => api.get<PaymentHandles>(`/members/payment-handles?memberName=${encodeURIComponent(name)}`),
+  });
+
+  useEffect(() => {
+    if (paymentHandlesQuery.data) setPaymentHandles(paymentHandlesQuery.data);
+  }, [paymentHandlesQuery.data]);
 
   useEffect(() => {
     if (!name) return;
@@ -448,8 +501,6 @@ export default function ProfilePage() {
     await handleLogout();
     navigate("/login");
   };
-
-  const unread = notifications.filter((notification) => !notification.read).length;
 
   return (
     <motion.div
@@ -844,94 +895,6 @@ export default function ProfilePage() {
             </button>
           ))}
         </div>
-      </div>
-
-      <div className="glass rounded-2xl overflow-hidden">
-        <button
-          onClick={() => setExpandNotifs((value) => !value)}
-          className="w-full flex items-center gap-3 p-4"
-        >
-          <div className="h-9 w-9 rounded-xl bg-primary/20 flex items-center justify-center relative shrink-0">
-            <Bell className="h-4 w-4 text-primary" />
-            {unread > 0 && (
-              <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-destructive text-[9px] text-destructive-foreground font-bold flex items-center justify-center">
-                {unread}
-              </span>
-            )}
-          </div>
-          <div className="flex-1 text-left">
-            <p className="text-sm font-semibold">{t("profile.notifications.title")}</p>
-            <p className="text-[10px] text-muted-foreground">
-              {notificationsLoading
-                ? t("profile.notifications.loading")
-                : unread > 0
-                  ? t("profile.notifications.unread", { count: unread })
-                  : t("profile.notifications.allCaughtUp")}
-            </p>
-          </div>
-          <ChevronDown
-            className={`h-4 w-4 text-muted-foreground transition-transform ${expandNotifs ? "rotate-180" : ""}`}
-          />
-        </button>
-
-        <AnimatePresence>
-          {expandNotifs && (
-            <motion.div
-              initial={{ height: 0 }}
-              animate={{ height: "auto" }}
-              exit={{ height: 0 }}
-              className="overflow-hidden"
-            >
-              <div className="px-4 pb-4 space-y-2">
-                <div className="flex items-center gap-3">
-                  {unread > 0 && (
-                    <button
-                      onClick={markAllNotificationsRead}
-                      className="text-xs text-primary font-medium"
-                    >
-                      {t("profile.notifications.markAllAsRead")}
-                    </button>
-                  )}
-                  {notifications.length > 0 && (
-                    <button
-                      onClick={clearAllNotifications}
-                      className="text-xs text-muted-foreground hover:text-destructive transition-colors font-medium ml-auto"
-                    >
-                      {t("header.clearAll")}
-                    </button>
-                  )}
-                </div>
-                {notifications.length === 0 && (
-                  <p className="text-xs text-muted-foreground text-center py-2">
-                    {t("profile.notifications.empty")}
-                  </p>
-                )}
-                {notifications.slice(0, 8).map((notification) => (
-                  <div
-                    key={notification.id}
-                    className={`group relative rounded-xl p-2.5 text-xs ${
-                      notification.read
-                        ? "bg-muted/20"
-                        : "bg-primary/10 border border-primary/20"
-                    }`}
-                  >
-                    <button
-                      onClick={() => dismissNotification(notification.id)}
-                      className="absolute top-2 right-2 h-4 w-4 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-muted/60"
-                      aria-label={t("profile.notifications.dismiss")}
-                    >
-                      <X className="h-2.5 w-2.5 text-muted-foreground" />
-                    </button>
-                    <p className="pr-4">{notification.message}</p>
-                    <p className="text-muted-foreground text-[9px] mt-0.5">
-                      {formatDateTime(notification.timestamp)}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </div>
 
       <button

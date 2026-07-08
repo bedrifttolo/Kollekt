@@ -393,6 +393,7 @@ export default function ChatPage() {
       setInput('');
     }
     await api.postForm('/chat/images', form);
+    if (fileInputRef.current) fileInputRef.current.value = '';
     fetchMessages();
   };
 
@@ -406,16 +407,16 @@ export default function ChatPage() {
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="app-screen relative flex flex-col overflow-hidden">
-      <div className="flex items-center gap-3 border-b border-border py-4">
+      <div className="flex items-center gap-2 border-b border-border py-2.5">
         {isDirect ? (
-          <span style={{ backgroundColor: colorForMember(activeThread!, memberColorMap.get(activeThread!)) }} className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-sm font-bold text-white">
+          <span style={{ backgroundColor: colorForMember(activeThread!, memberColorMap.get(activeThread!)) }} className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-xs font-bold text-white">
             {activeThread![0]?.toUpperCase()}
           </span>
         ) : (
           <AvatarStack members={headerMembers} max={3} />
         )}
         <div className="min-w-0 flex-1">
-          <h2 className="truncate font-display text-xl font-extrabold">{isDirect ? activeThread : t('chat.threadTitle')}</h2>
+          <h2 className="truncate font-display text-lg font-extrabold">{isDirect ? activeThread : t('chat.threadTitle')}</h2>
           <p className="text-xs text-muted-foreground">
             {isDirect ? (
               <span className="font-semibold text-primary">{t('chat.directSubtitle')}</span>
@@ -431,7 +432,7 @@ export default function ChatPage() {
 
       {/* Thread switcher: household + a private 1:1 thread per housemate. */}
       <div className="relative -mx-1">
-        <div className="flex gap-2 overflow-x-auto py-2 px-1 scrollbar-none">
+        <div className="flex gap-2 overflow-x-auto py-1.5 px-1 scrollbar-none">
         <button
           onClick={() => selectThread(null)}
           className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${!isDirect ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}
@@ -760,7 +761,7 @@ export default function ChatPage() {
           </div>
         )}
         <div className="flex gap-2 rounded-[1.35rem] border border-border bg-card p-2 shadow-sm">
-          <input ref={fileInputRef} type="file" accept="image/*"
+          <input ref={fileInputRef} type="file" accept="image/*" capture="environment"
             className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) sendImage(f); }} />
           {!isDirect && (
             <button

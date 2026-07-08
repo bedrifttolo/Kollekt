@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { QueryClientProvider } from '@tanstack/react-query';
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
+import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister';
 import App from './App';
 import './i18n';
 import './styles/globals.css';
@@ -8,13 +9,28 @@ import { initNativeShell } from './lib/nativeBootstrap';
 import { ThemeProvider } from './context/ThemeContext';
 import { queryClient } from './lib/queryClient';
 
+// Persist the query cache to localStorage (persisted across app launches in the iOS/Android
+// WebView too). On reopen the last-known data renders instantly, then refreshes in the
+// background — no blank spinner while the slow backend responds.
+const persister = createSyncStoragePersister({
+  storage: window.localStorage,
+  key: 'kollekt-query-cache',
+});
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
+    <PersistQueryClientProvider
+      client={queryClient}
+      persistOptions={{
+        persister,
+        maxAge: 24 * 60 * 60_000, // discard persisted data older than 24h
+        buster: import.meta.env.VITE_APP_VERSION ?? 'v1', // bump to invalidate all persisted caches
+      }}
+    >
       <ThemeProvider>
         <App />
       </ThemeProvider>
-    </QueryClientProvider>
+    </PersistQueryClientProvider>
   </React.StrictMode>,
 );
 

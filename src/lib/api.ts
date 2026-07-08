@@ -18,6 +18,10 @@ if (Capacitor.isNativePlatform() && !configuredApiBase?.startsWith('https://')) 
 
 export const API_BASE = (configuredApiBase || '/api').replace(/\/$/, '');
 
+// Upper bound for any single request. Long enough to survive a free-tier cold start,
+// short enough that a truly dead connection doesn't hang the UI indefinitely.
+const REQUEST_TIMEOUT_MS = 60_000;
+
 export function getAccessToken(): Promise<string | null> {
   return authStorage.getAccessToken();
 }
@@ -189,10 +193,19 @@ async function request<T>(path: string, init?: RequestInit, retryOnAuthFailure =
         });
       } // If it's a string, ignore (rare, not recommended)
     }
-    response = await fetch(`${API_BASE}${path}` , {
-      ...init,
-      headers: mergedHeaders,
-    });
+    // Abort a request that hangs far longer than even a cold backend start, so the UI
+    // never waits forever. Generous (60s) so a genuine cold start still completes.
+    const timeoutController = new AbortController();
+    const timeoutId = setTimeout(() => timeoutController.abort(), REQUEST_TIMEOUT_MS);
+    try {
+      response = await fetch(`${API_BASE}${path}` , {
+        ...init,
+        headers: mergedHeaders,
+        signal: init?.signal ?? timeoutController.signal,
+      });
+    } finally {
+      clearTimeout(timeoutId);
+    }
   } catch (error) {
     throw new Error(getUserMessage(error, t('errors.network', 'Couldn\'t connect right now. Please try again in a moment.')));
   }

@@ -3,12 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowUpRight, ArrowDownLeft, Check, Recycle, ChevronRight, X, Users, Pencil, Trash2, Copy, ExternalLink } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api';
+import { qk } from '../lib/queryKeys';
 import { useUser } from '../context/UserContext';
 import { formatCurrency, formatDate, translateKey } from '../i18n/helpers';
 import { connectCollectiveRealtime } from '../lib/realtime';
 import type { EconomySummary, Expense, PayOption } from '../lib/types';
-import { Eyebrow, Fab } from '../components/ui-kit';
+import { Eyebrow, Fab, OverflowMenu } from '../components/ui-kit';
 import { colorForMember } from '../lib/memberColors';
 import { availableMethods, hasAnyMethod, openPaymentLink } from '../lib/paymentLinks';
 
@@ -51,12 +53,24 @@ export default function EconomyPage() {
   const parsedNewAmount = Number(newAmount);
   const canAddExpense = newTitle.trim().length > 0 && Number.isFinite(parsedNewAmount) && parsedNewAmount >= 1 && (members.length === 0 || newSplit.length > 0);
 
-  const fetchSummary = async () => {
-    if (!name) return;
-    const [res, payOptionsRes] = await Promise.all([
-      api.get<EconomySummary>(`/economy/summary?memberName=${encodeURIComponent(name)}`),
-      api.get<PayOption[]>(`/economy/pay-options?memberName=${encodeURIComponent(name)}`),
-    ]);
+  const queryClient = useQueryClient();
+
+  // Cached economy load — instant on re-navigation, refreshed in the background.
+  const { data: economyBundle } = useQuery({
+    queryKey: qk.economy(name),
+    enabled: !!name,
+    queryFn: async () => {
+      const [res, payOptionsRes] = await Promise.all([
+        api.get<EconomySummary>(`/economy/summary?memberName=${encodeURIComponent(name)}`),
+        api.get<PayOption[]>(`/economy/pay-options?memberName=${encodeURIComponent(name)}`),
+      ]);
+      return { res, payOptionsRes };
+    },
+  });
+
+  useEffect(() => {
+    if (!economyBundle) return;
+    const { res, payOptionsRes } = economyBundle;
     setSummary(res);
     setPayOptions(payOptionsRes);
     setSelectedCreditorName((prev) => {
@@ -64,10 +78,15 @@ export default function EconomyPage() {
       return payOptionsRes.some((option) => option.name === prev) ? prev : payOptionsRes[0].name;
     });
     setLoading(false);
+  }, [economyBundle]);
+
+  const fetchSummary = async () => {
+    if (!name) return;
+    void queryClient.invalidateQueries({ queryKey: qk.dashboard(name) });
+    await queryClient.invalidateQueries({ queryKey: qk.economy(name) });
   };
 
   useEffect(() => {
-    fetchSummary();
     if (!name) return;
     api.get<{ name: string }[]>(`/members/collective?memberName=${encodeURIComponent(name)}`)
       .then((res) => {
@@ -407,30 +426,46 @@ export default function EconomyPage() {
                     </p>
                   )}
                 </div>
-                {e.paidBy === name ? (
-                  <div className="flex flex-col items-end gap-1 shrink-0">
-                    <p className="text-sm font-bold">{formatCurrency(e.amount)}</p>
-                    <div className="flex items-center gap-2">
-                      <button onClick={() => startEdit(e)} className="text-muted-foreground hover:text-foreground transition-colors">
-                        <Pencil className="h-3.5 w-3.5" />
-                      </button>
-                      {deletingExpenseId === e.id ? (
-                        <>
-                          <button onClick={() => handleDeleteExpense(e.id)} className="text-destructive hover:text-destructive/80 transition-colors">
-                            <Check className="h-3.5 w-3.5" />
-                          </button>
-                          <button onClick={() => setDeletingExpenseId(null)} className="text-muted-foreground hover:text-foreground transition-colors">
-                            <X className="h-3.5 w-3.5" />
-                          </button>
-                        </>
-                      ) : (
-                        <button onClick={() => { setDeletingExpenseId(e.id); setEditingExpenseId(null); }} className="text-muted-foreground hover:text-destructive transition-colors">
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                ) : (
+	                {e.paidBy === name ? (
+	                  <div className="flex shrink-0 items-center gap-2">
+	                    <p className="text-sm font-bold">{formatCurrency(e.amount)}</p>
+	                    <OverflowMenu
+	                      label={t('common.actions')}
+	                      actions={deletingExpenseId === e.id
+	                        ? [
+	                          {
+	                            label: t('common.done'),
+	                            icon: <Check className="h-4 w-4" />,
+	                            destructive: true,
+	                            onSelect: () => {
+	                              void handleDeleteExpense(e.id);
+	                            },
+	                          },
+	                          {
+	                            label: t('common.cancel'),
+	                            icon: <X className="h-4 w-4" />,
+	                            onSelect: () => setDeletingExpenseId(null),
+	                          },
+	                        ]
+	                        : [
+	                          {
+	                            label: t('economy.editExpense'),
+	                            icon: <Pencil className="h-4 w-4" />,
+	                            onSelect: () => startEdit(e),
+	                          },
+	                          {
+	                            label: t('common.delete'),
+	                            icon: <Trash2 className="h-4 w-4" />,
+	                            destructive: true,
+	                            onSelect: () => {
+	                              setDeletingExpenseId(e.id);
+	                              setEditingExpenseId(null);
+	                            },
+	                          },
+	                        ]}
+	                    />
+	                  </div>
+	                ) : (
                   <p className="text-sm font-bold shrink-0">{formatCurrency(e.amount)}</p>
                 )}
               </motion.div>

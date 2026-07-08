@@ -2,11 +2,12 @@ import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TrendingUp, Flame, Star, Pencil, X, SlidersHorizontal, Plus, Trash2, Check, StarHalf, Home, Trophy, Zap, Award, Sparkles, Heart, Crown, Medal, Target, Rocket, Leaf, Sun, type LucideIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../lib/api';
 import { connectCollectiveRealtime } from '../../lib/realtime';
 import { useUser } from '../../context/UserContext';
 import { translateKey } from '../../i18n/helpers';
-import { Avatar } from '../../components/ui-kit';
+import { Avatar, OverflowMenu } from '../../components/ui-kit';
 import type {
   LeaderboardResponse,
   Achievement,
@@ -81,27 +82,43 @@ export default function RanksPanel() {
   const [savingAchievement, setSavingAchievement] = useState(false);
 
   const name = currentUser?.name ?? '';
+  const queryClient = useQueryClient();
 
-  const fetchData = async (p: LeaderboardPeriod) => {
-    if (!name) return;
-    setLoading(true);
-    const [lb, ach] = await Promise.all([
-      api.get<LeaderboardResponse>(`/leaderboard?memberName=${encodeURIComponent(name)}&period=${p}`),
-      api.get<Achievement[]>(`/achievements?memberName=${encodeURIComponent(name)}`),
-    ]);
-    setData(lb);
-    setAchievements(ach);
-    setPrize(lb.monthlyPrize ?? '');
-    setLoading(false);
+  // Cached leaderboard + achievements, keyed by period. Switching back to a period you've
+  // already viewed renders from cache instantly and refreshes in the background.
+  const ranksQuery = useQuery({
+    queryKey: ['ranks', name, period],
+    enabled: !!name,
+    queryFn: async () => {
+      const [lb, ach] = await Promise.all([
+        api.get<LeaderboardResponse>(`/leaderboard?memberName=${encodeURIComponent(name)}&period=${period}`),
+        api.get<Achievement[]>(`/achievements?memberName=${encodeURIComponent(name)}`),
+      ]);
+      return { lb, ach };
+    },
+  });
+
+  useEffect(() => {
+    if (!ranksQuery.data) return;
+    setData(ranksQuery.data.lb);
+    setAchievements(ranksQuery.data.ach);
+    setPrize(ranksQuery.data.lb.monthlyPrize ?? '');
+  }, [ranksQuery.data]);
+
+  // Spinner only when there is no cached data yet; cached periods render instantly.
+  useEffect(() => {
+    setLoading(ranksQuery.isPending);
+  }, [ranksQuery.isPending]);
+
+  const fetchData = async (_p: LeaderboardPeriod) => {
+    await queryClient.invalidateQueries({ queryKey: ['ranks', name] });
   };
-
-  useEffect(() => { fetchData(period); }, [name, period]);
 
   useEffect(() => {
     if (!name) return;
     return connectCollectiveRealtime(name, (event) => {
       if (['TASK_UPDATED', 'TASK_CREATED', 'TASK_DELETED', 'EXPENSE_CREATED', 'BALANCES_SETTLED', 'ACHIEVEMENT_CONFIG_UPDATED'].includes(event.type)) {
-        fetchData(period);
+        void fetchData(period);
       }
     });
   }, [name, period]);
@@ -438,7 +455,19 @@ export default function RanksPanel() {
                         {achievements.filter((item) => item.custom).map((item) => (
                           <div key={item.key} className="flex items-center gap-3 rounded-xl bg-background/30 px-3 py-2.5">
                             <div className="min-w-0 flex-1"><p className="text-sm font-medium">{item.title}</p><p className="text-[10px] text-muted-foreground">{item.description}</p></div>
-                            <button onClick={() => void handleDeleteAchievement(item)} aria-label={t('leaderboard.custom.delete')} className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-destructive"><Trash2 className="h-4 w-4" /></button>
+	                            <OverflowMenu
+	                              label={t('common.actions')}
+	                              actions={[
+	                                {
+	                                  label: t('leaderboard.custom.delete'),
+	                                  icon: <Trash2 className="h-4 w-4" />,
+	                                  destructive: true,
+	                                  onSelect: () => {
+	                                    void handleDeleteAchievement(item);
+	                                  },
+	                                },
+	                              ]}
+	                            />
                           </div>
                         ))}
                         {achievements.every((item) => !item.custom) && <p className="px-3 text-xs text-muted-foreground">{t('leaderboard.custom.none')}</p>}

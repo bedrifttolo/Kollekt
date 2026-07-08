@@ -9,6 +9,8 @@ import {
 import { useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { qk } from '../lib/queryKeys';
 import {
   CheckCircle2,
   Package,
@@ -33,7 +35,7 @@ import { connectCollectiveRealtime } from '../lib/realtime';
 import { tapFeedback } from '../lib/haptics';
 import { formatDate, formatDateTime, translateKey } from '../i18n/helpers';
 import type { Task, ShoppingItem, TaskCategory, TaskSwapRequest, MaintenanceTicket, MaintenancePriority, MaintenanceStatus } from '../lib/types';
-import { AddSheet, Eyebrow, Fab, ProgressBar } from '../components/ui-kit';
+import { AddSheet, Eyebrow, Fab, OverflowMenu, ProgressBar } from '../components/ui-kit';
 
 const CATEGORIES: TaskCategory[] = ['CLEANING', 'SMALL_CLEANING', 'VACUUMING', 'MOPPING', 'BATHROOM', 'KITCHEN', 'LAUNDRY', 'DISHES', 'TRASH', 'DUSTING', 'WINDOWS', 'OTHER'];
 const RECURRENCE_OPTIONS = ['NONE', 'DAILY', 'WEEKLY', 'MONTHLY'] as const;
@@ -98,7 +100,7 @@ function TaskEditor({
           autoFocus
         />
       </label>
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
         <label className="space-y-1">
           <span className="text-xs font-semibold text-muted-foreground">{t('tasks.assigneeLabel')}</span>
           <select value={newAssignee} onChange={(event) => setNewAssignee(event.target.value)} className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary">
@@ -110,7 +112,7 @@ function TaskEditor({
           <input type="date" value={newDue} onChange={(event) => setNewDue(event.target.value)} className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary" />
         </label>
       </div>
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
         <label className="space-y-1">
           <span className="text-xs font-semibold text-muted-foreground">{t('tasks.categoryLabel')}</span>
           <select value={newCategory} onChange={(event) => setNewCategory(event.target.value as TaskCategory)} className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary">
@@ -150,6 +152,7 @@ function TaskEditor({
 function TasksMain() {
   const { t } = useTranslation();
   const { currentUser } = useUser();
+  const queryClient = useQueryClient();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [shopping, setShopping] = useState<ShoppingItem[]>([]);
   const [swapRequests, setSwapRequests] = useState<TaskSwapRequest[]>([]);
@@ -213,7 +216,6 @@ function TasksMain() {
   const [pendingTaskIds, setPendingTaskIds] = useState<Set<number>>(new Set());
   const pendingTaskIdsRef = useRef<Set<number>>(new Set());
   const tasksRef = useRef<Task[]>([]);
-  const fetchRequestIdRef = useRef(0);
   const taskOverridesRef = useRef<Map<number, Task>>(new Map());
 
   const name = currentUser?.name ?? '';
@@ -303,26 +305,42 @@ function TasksMain() {
     return (event.payload as Task | undefined) ?? null;
   };
 
+  // Cached bundle load: served instantly from cache on re-navigation, refetched in the
+  // background. Refreshes after mutations happen via queryClient.invalidateQueries below.
+  const { data: taskBundle } = useQuery({
+    queryKey: qk.tasks(name),
+    enabled: !!name,
+    queryFn: async () => {
+      const [taskRes, shopRes, swapRequestRes, maintenanceRes] = await Promise.all([
+        api.get<Task[]>(`/tasks?memberName=${encodeURIComponent(name)}`),
+        api.get<ShoppingItem[]>(`/tasks/shopping?memberName=${encodeURIComponent(name)}`),
+        api.get<TaskSwapRequest[]>(`/users/${currentUser?.id}/swap-requests`),
+        api.get<MaintenanceTicket[]>('/maintenance/tickets'),
+      ]);
+      return { taskRes, shopRes, swapRequestRes, maintenanceRes };
+    },
+  });
+
+  // Apply fetched data to local state, preserving optimistic/pending overrides via merge.
+  useEffect(() => {
+    if (!taskBundle) return;
+    setTasksState(mergeFetchedTasks(taskBundle.taskRes));
+    setShopping(taskBundle.shopRes);
+    setSwapRequests(taskBundle.swapRequestRes);
+    setMaintenanceTickets(taskBundle.maintenanceRes);
+    setLoading(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [taskBundle]);
+
+  // Refetch the bundle (used after mutations and realtime events).
   const fetchAll = async () => {
     if (!name) return;
-    const requestId = ++fetchRequestIdRef.current;
-    const [taskRes, shopRes, swapRequestRes, maintenanceRes] = await Promise.all([
-      api.get<Task[]>(`/tasks?memberName=${encodeURIComponent(name)}`),
-      api.get<ShoppingItem[]>(`/tasks/shopping?memberName=${encodeURIComponent(name)}`),
-      api.get<TaskSwapRequest[]>(`/users/${currentUser?.id}/swap-requests`),
-      api.get<MaintenanceTicket[]>('/maintenance/tickets'),
-    ]);
-    if (requestId !== fetchRequestIdRef.current) return;
-    setTasksState(mergeFetchedTasks(taskRes));
-    setShopping(shopRes);
-    setSwapRequests(swapRequestRes);
-    setMaintenanceTickets(maintenanceRes);
-    setLoading(false);
+    void queryClient.invalidateQueries({ queryKey: qk.dashboard(name) });
+    await queryClient.invalidateQueries({ queryKey: qk.tasks(name) });
   };
 
   useEffect(() => {
     if (!name) return;
-    void fetchAll();
     api.get<{ name: string }[]>(`/members/collective?memberName=${encodeURIComponent(name)}`)
       .then((response) => setMembers(response.map((member) => member.name)))
       .catch(() => {});
@@ -656,9 +674,9 @@ function TasksMain() {
   };
 
   const addFeedback = async (taskId: number) => {
-    if (!commentText.trim()) return;
+    if (!commentText.trim() && !feedbackImage) return;
     await api.patch(`/tasks/${taskId}/feedback?memberName=${encodeURIComponent(name)}`, {
-      message: commentText,
+      message: commentText.trim(),
       anonymous: feedbackAnonymous,
       imageData: feedbackImage?.data ?? null,
       imageMimeType: feedbackImage?.mimeType ?? null,
@@ -735,14 +753,17 @@ function TasksMain() {
     setEditShopText('');
   };
 
+  const today = new Date().toISOString().split('T')[0];
+  const completedRetentionStart = new Date();
+  completedRetentionStart.setDate(completedRetentionStart.getDate() - 7);
+  const completedRetentionDate = completedRetentionStart.toISOString().split('T')[0];
+  const currentTasks = tasks.filter((task) => !task.completed || task.dueDate >= completedRetentionDate);
+
   const filteredTasks = tasks
     .filter((task) => {
-      const today = new Date().toISOString().split('T')[0];
       if (filter === 'DONE') {
         if (!task.completed) return false;
-        const sevenDaysAgo = new Date();
-        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-        return task.dueDate >= sevenDaysAgo.toISOString().split('T')[0];
+        return task.dueDate >= completedRetentionDate;
       }
       if (filter === 'MINE') return task.assignee === name && !task.completed;
       if (filter === 'TODAY') return task.dueDate === today && !task.completed;
@@ -764,8 +785,9 @@ function TasksMain() {
     );
   }
 
-  const completedCount = tasks.filter((task) => task.completed).length;
-  const completionPercent = tasks.length === 0 ? 0 : (completedCount / tasks.length) * 100;
+  const completedCount = currentTasks.filter((task) => task.completed).length;
+  const taskTotal = currentTasks.length;
+  const completionPercent = taskTotal === 0 ? 0 : (completedCount / taskTotal) * 100;
 
   const shoppingToBuy = shopping.filter((item) => !item.completed).length;
   const shoppingBought = shopping.length - shoppingToBuy;
@@ -813,8 +835,8 @@ function TasksMain() {
       {tab === 'tasks' && (
         <div className="househero">
           <p className="text-xs font-bold uppercase tracking-[.15em] text-white/65">{t('tasks.progressLabel')}</p>
-          <p className="bignum mt-3">{completedCount}<span className="text-secondary">/{tasks.length}</span> <span className="text-2xl tracking-normal">{t('tasks.done')}</span></p>
-          <p className="mt-2 text-sm text-white/70">{t('tasks.remaining', { count: Math.max(0, tasks.length - completedCount) })}</p>
+          <p className="bignum mt-3">{completedCount}<span className="text-secondary">/{taskTotal}</span> <span className="text-2xl tracking-normal">{t('tasks.done')}</span></p>
+          <p className="mt-2 text-sm text-white/70">{t('tasks.remaining', { count: Math.max(0, taskTotal - completedCount) })}</p>
           <ProgressBar value={completionPercent} className="mt-4 bg-white/20" />
         </div>
       )}
@@ -886,11 +908,11 @@ function TasksMain() {
                 <span className="text-xs font-semibold text-muted-foreground">{t('tasks.maintenance.descriptionLabel')}</span>
                 <textarea value={newMaintenanceDescription} onChange={(event) => setNewMaintenanceDescription(event.target.value)} placeholder={t('tasks.maintenance.descriptionPlaceholder')} rows={3} className="w-full resize-none rounded-lg bg-muted/50 px-3 py-2 text-sm" />
               </label>
-              <div className="grid grid-cols-2 gap-2">
-                <label className="space-y-1"><span className="text-xs font-semibold text-muted-foreground">{t('tasks.maintenance.priorityLabel')}</span><select value={newMaintenancePriority} onChange={(event) => setNewMaintenancePriority(event.target.value as MaintenancePriority)} className="w-full rounded-lg bg-muted/50 px-3 py-2 text-sm">{(['LOW', 'MEDIUM', 'HIGH', 'URGENT'] as const).map((priority) => <option key={priority} value={priority}>{t(`tasks.maintenance.priorities.${priority}`)}</option>)}</select></label>
-                <label className="space-y-1"><span className="text-xs font-semibold text-muted-foreground">{t('tasks.maintenance.assigneeLabel')}</span><select value={newMaintenanceAssignee} onChange={(event) => setNewMaintenanceAssignee(event.target.value)} className="w-full rounded-lg bg-muted/50 px-3 py-2 text-sm"><option value="">{t('tasks.maintenance.unassigned')}</option>{memberOptions.map((member) => <option key={member} value={member}>{member}</option>)}</select></label>
-                <label className="space-y-1"><span className="text-xs font-semibold text-muted-foreground">{t('tasks.maintenance.dueDateLabel')}</span><input type="date" value={newMaintenanceDue} onChange={(event) => setNewMaintenanceDue(event.target.value)} className="w-full rounded-lg bg-muted/50 px-3 py-2 text-sm" /></label>
-                <label className="space-y-1"><span className="text-xs font-semibold text-muted-foreground">{t('tasks.maintenance.costLabel')}</span><input type="number" min="0" value={newMaintenanceCost} onChange={(event) => setNewMaintenanceCost(event.target.value)} placeholder={t('tasks.maintenance.costPlaceholder')} className="w-full rounded-lg bg-muted/50 px-3 py-2 text-sm" /></label>
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                <label className="min-w-0 space-y-1"><span className="text-xs font-semibold text-muted-foreground">{t('tasks.maintenance.priorityLabel')}</span><select value={newMaintenancePriority} onChange={(event) => setNewMaintenancePriority(event.target.value as MaintenancePriority)} className="w-full min-w-0 rounded-lg bg-muted/50 px-3 py-2 text-sm">{(['LOW', 'MEDIUM', 'HIGH', 'URGENT'] as const).map((priority) => <option key={priority} value={priority}>{t(`tasks.maintenance.priorities.${priority}`)}</option>)}</select></label>
+                <label className="min-w-0 space-y-1"><span className="text-xs font-semibold text-muted-foreground">{t('tasks.maintenance.assigneeLabel')}</span><select value={newMaintenanceAssignee} onChange={(event) => setNewMaintenanceAssignee(event.target.value)} className="w-full min-w-0 rounded-lg bg-muted/50 px-3 py-2 text-sm"><option value="">{t('tasks.maintenance.unassigned')}</option>{memberOptions.map((member) => <option key={member} value={member}>{member}</option>)}</select></label>
+                <label className="min-w-0 space-y-1"><span className="text-xs font-semibold text-muted-foreground">{t('tasks.maintenance.dueDateLabel')}</span><input type="date" value={newMaintenanceDue} onChange={(event) => setNewMaintenanceDue(event.target.value)} className="w-full min-w-0 rounded-lg bg-muted/50 px-3 py-2 text-sm" /></label>
+                <label className="min-w-0 space-y-1"><span className="text-xs font-semibold text-muted-foreground">{t('tasks.maintenance.costLabel')}</span><input type="number" min="0" value={newMaintenanceCost} onChange={(event) => setNewMaintenanceCost(event.target.value)} placeholder={t('tasks.maintenance.costPlaceholder')} className="w-full min-w-0 rounded-lg bg-muted/50 px-3 py-2 text-sm" /></label>
               </div>
               {Number(newMaintenanceCost) > 0 && (
                 <div>
@@ -1079,7 +1101,7 @@ function TasksMain() {
                       </div>
                     </div>
 
-                    <div className="mt-4 flex items-center justify-center gap-2 border-t border-border pt-3">
+	                    <div className="mt-4 flex items-center justify-end gap-2 border-t border-border pt-3">
                       {!task.completed && isOverdue && !isPenalized && (
                         <button
                           onClick={() => {
@@ -1104,44 +1126,40 @@ function TasksMain() {
                           {t('tasks.regretMissed')}
                         </button>
                       )}
-                      <button
-                        onClick={() => startEdit(task)}
-                        className="grid h-10 w-10 place-items-center rounded-full border border-border bg-card"
-                        aria-label={t('tasks.editTaskAria')}
-                      >
-                        <Edit3 className="h-4 w-4 text-muted-foreground" />
-                      </button>
-                      {task.assignee === name && !task.completed && (
-                        <button
-                          onClick={() => {
-                            setSwappingTaskId(swappingTaskId === task.id ? null : task.id);
-                            setSwapRecipient('');
-                          }}
-                          className="grid h-10 w-10 place-items-center rounded-full border border-border bg-card"
-                          aria-label={t('tasks.swap.request')}
-                        >
-                          <Repeat2 className="h-4 w-4 text-primary" />
-                        </button>
-                      )}
-                      <button
-                        onClick={() => {
-                          void deleteTask(task.id);
-                        }}
-                        className="grid h-10 w-10 place-items-center rounded-full border border-border bg-card"
-                        aria-label={t('tasks.deleteTaskAria')}
-                      >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </button>
-                      <button
-                        onClick={() =>
-                          setCommentingId(commentingId === task.id ? null : task.id)
-                        }
-                        className="grid h-10 w-10 place-items-center rounded-full border border-border bg-card text-muted-foreground"
-                        aria-label={t('tasks.toggleComments')}
-                      >
-                        <MessageSquare className="h-4 w-4" />
-                      </button>
-                    </div>
+	                      <OverflowMenu
+	                        label={t('common.actions')}
+	                        actions={[
+	                          {
+	                            label: t('tasks.editTaskAria'),
+	                            icon: <Edit3 className="h-4 w-4" />,
+	                            onSelect: () => startEdit(task),
+	                          },
+	                          ...(task.assignee === name && !task.completed
+	                            ? [{
+	                              label: t('tasks.swap.request'),
+	                              icon: <Repeat2 className="h-4 w-4" />,
+	                              onSelect: () => {
+	                                setSwappingTaskId(swappingTaskId === task.id ? null : task.id);
+	                                setSwapRecipient('');
+	                              },
+	                            }]
+	                            : []),
+	                          {
+	                            label: t('tasks.toggleComments'),
+	                            icon: <MessageSquare className="h-4 w-4" />,
+	                            onSelect: () => setCommentingId(commentingId === task.id ? null : task.id),
+	                          },
+	                          {
+	                            label: t('tasks.deleteTaskAria'),
+	                            icon: <Trash2 className="h-4 w-4" />,
+	                            destructive: true,
+	                            onSelect: () => {
+	                              void deleteTask(task.id);
+	                            },
+	                          },
+	                        ]}
+	                      />
+	                    </div>
 
                     {swappingTaskId === task.id && (
                       <div className="mt-3 flex gap-2 rounded-xl border border-border bg-muted/30 p-3">
@@ -1196,9 +1214,11 @@ function TasksMain() {
                                       {formatDateTime(feedback.createdAt)}
                                     </span>
                                   </div>
-                                  <p className="text-[11px] text-foreground">
-                                    {feedback.message}
-                                  </p>
+                                  {feedback.message && (
+                                    <p className="text-[11px] text-foreground">
+                                      {feedback.message}
+                                    </p>
+                                  )}
                                   {feedback.imageData && feedback.imageMimeType && (
                                     <img
                                       src={`data:${feedback.imageMimeType};base64,${feedback.imageData}`}
@@ -1371,43 +1391,45 @@ function TasksMain() {
                       {t('tasks.addedBy', { name: item.addedBy })}
                     </p>
                   </div>
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    {item.completed ? (
-                      <button
-                        onClick={() => {
-                          void toggleShopItem(item.id);
-                        }}
-                        className="h-10 px-4 rounded-lg glass text-sm font-semibold flex items-center gap-1.5 text-primary"
-                      >
-                        <ShoppingCart className="h-4 w-4" />
-                        {t('common.undo')}
+	                  <div className="flex min-w-[9.5rem] shrink-0 items-center gap-2">
+	                    {item.completed ? (
+	                      <button
+	                        onClick={() => {
+	                          void toggleShopItem(item.id);
+	                        }}
+	                        className="flex h-12 flex-1 items-center justify-center gap-1.5 rounded-xl glass px-4 text-sm font-semibold text-primary"
+	                      >
+	                        <ShoppingCart className="h-4 w-4" />
+	                        {t('common.undo')}
                       </button>
-                    ) : (
-                      <button
-                        onClick={() => openBuyForm(item)}
-                        className="h-10 px-4 rounded-lg gradient-primary text-sm font-semibold flex items-center gap-1.5 text-primary-foreground shadow-sm"
-                      >
-                        <ShoppingCart className="h-4 w-4" />
-                        {t('tasks.shopping.buy')}
-                      </button>
-                    )}
-                    <button
-                      onClick={() => startEditShop(item)}
-                      className="h-10 w-10 rounded-lg glass flex items-center justify-center shrink-0"
-                      aria-label={t('tasks.editShoppingItemAria')}
-                    >
-                      <Edit3 className="h-4 w-4 text-muted-foreground" />
-                    </button>
-                    <button
-                      onClick={() => {
-                        void deleteShopItem(item.id);
-                      }}
-                      className="h-10 w-10 rounded-lg glass flex items-center justify-center shrink-0"
-                      aria-label={t('tasks.deleteShoppingItemAria')}
-                    >
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </button>
-                  </div>
+	                    ) : (
+	                      <button
+	                        onClick={() => openBuyForm(item)}
+	                        className="flex h-12 flex-1 items-center justify-center gap-1.5 rounded-xl gradient-primary px-4 text-sm font-semibold text-primary-foreground shadow-sm"
+	                      >
+	                        <ShoppingCart className="h-4 w-4" />
+	                        {t('tasks.shopping.buy')}
+	                      </button>
+	                    )}
+	                    <OverflowMenu
+	                      label={t('common.actions')}
+	                      actions={[
+	                        {
+	                          label: t('tasks.editShoppingItemAria'),
+	                          icon: <Edit3 className="h-4 w-4" />,
+	                          onSelect: () => startEditShop(item),
+	                        },
+	                        {
+	                          label: t('tasks.deleteShoppingItemAria'),
+	                          icon: <Trash2 className="h-4 w-4" />,
+	                          destructive: true,
+	                          onSelect: () => {
+	                            void deleteShopItem(item.id);
+	                          },
+	                        },
+	                      ]}
+	                    />
+	                  </div>
                 </div>
 
                 <AnimatePresence>
@@ -1576,26 +1598,39 @@ function TasksMain() {
                     </p>
                     {ticket.overdue && <p className="mt-1 text-[10px] font-bold text-destructive">{t('tasks.maintenance.overdue')}</p>}
                   </div>
-                  <div className="flex shrink-0 items-center gap-1">
-                    <button onClick={() => startEditTicket(ticket)} aria-label={t('tasks.maintenance.edit')} className="grid h-8 w-8 place-items-center rounded-lg text-muted-foreground hover:bg-muted">
-                      <Edit3 className="h-3.5 w-3.5" />
-                    </button>
-                    {deletingTicketId === ticket.id ? (
-                      <>
-                        <button onClick={() => void deleteMaintenanceTicket(ticket.id)} aria-label={t('common.done')} className="grid h-8 w-8 place-items-center rounded-lg text-destructive hover:bg-destructive/10">
-                          <CheckCircle2 className="h-3.5 w-3.5" />
-                        </button>
-                        <button onClick={() => setDeletingTicketId(null)} aria-label={t('common.cancel')} className="grid h-8 w-8 place-items-center rounded-lg text-muted-foreground hover:bg-muted">
-                          <X className="h-3.5 w-3.5" />
-                        </button>
-                      </>
-                    ) : (
-                      <button onClick={() => setDeletingTicketId(ticket.id)} aria-label={t('tasks.maintenance.delete')} className="grid h-8 w-8 place-items-center rounded-lg text-muted-foreground hover:text-destructive">
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </button>
-                    )}
-                  </div>
-                </div>
+	                  <OverflowMenu
+	                    label={t('common.actions')}
+	                    actions={deletingTicketId === ticket.id
+	                      ? [
+	                        {
+	                          label: t('common.done'),
+	                          icon: <CheckCircle2 className="h-4 w-4" />,
+	                          destructive: true,
+	                          onSelect: () => {
+	                            void deleteMaintenanceTicket(ticket.id);
+	                          },
+	                        },
+	                        {
+	                          label: t('common.cancel'),
+	                          icon: <X className="h-4 w-4" />,
+	                          onSelect: () => setDeletingTicketId(null),
+	                        },
+	                      ]
+	                      : [
+	                        {
+	                          label: t('tasks.maintenance.edit'),
+	                          icon: <Edit3 className="h-4 w-4" />,
+	                          onSelect: () => startEditTicket(ticket),
+	                        },
+	                        {
+	                          label: t('tasks.maintenance.delete'),
+	                          icon: <Trash2 className="h-4 w-4" />,
+	                          destructive: true,
+	                          onSelect: () => setDeletingTicketId(ticket.id),
+	                        },
+	                      ]}
+	                  />
+	                </div>
                 <div className="mt-3 grid grid-cols-3 gap-2">
                   <select value={ticket.status} onChange={(event) => handleMaintenanceStatusChange(ticket, event.target.value as MaintenanceStatus)} className="rounded-lg border border-border bg-background px-2.5 py-2.5 text-xs">
                     {(['OPEN', 'IN_PROGRESS', 'BLOCKED', 'DONE'] as const).map((status) => <option key={status} value={status}>{t(`tasks.maintenance.statuses.${status}`)}</option>)}

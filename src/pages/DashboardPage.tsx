@@ -3,7 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { CheckSquare, Calendar, Wallet, Zap, ShoppingCart, MessageCircleHeart } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api';
+import { qk } from '../lib/queryKeys';
 import { useUser } from '../context/UserContext';
 import { formatCurrency, formatDate, formatTime, translateKey } from '../i18n/helpers';
 import { connectCollectiveRealtime } from '../lib/realtime';
@@ -38,11 +40,8 @@ export default function DashboardPage() {
   const navigate = useNavigate();
   const { t: translate } = useTranslation();
   const { currentUser } = useUser();
-  const [data, setData] = useState<DashboardResponse | null>(null);
-  const [members, setMembers] = useState<AppUser[]>([]);
+  const queryClient = useQueryClient();
   const [onlineCount, setOnlineCount] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [checkin, setCheckin] = useState<HouseCheckin | null>(null);
   const [mood, setMood] = useState(3);
   const [issue, setIssue] = useState('');
   const [improvement, setImprovement] = useState('');
@@ -54,35 +53,35 @@ export default function DashboardPage() {
     return () => { void hideHomeBanner(); };
   }, []);
 
-  const fetchDashboard = () => {
-    if (!currentUser) return;
-    api.get<DashboardResponse>(`/dashboard?memberName=${encodeURIComponent(currentUser.name)}`)
-      .then(setData)
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  };
+  const { data, isPending } = useQuery({
+    queryKey: qk.dashboard(currentUser?.name),
+    enabled: !!currentUser,
+    queryFn: () => api.get<DashboardResponse>(`/dashboard?memberName=${encodeURIComponent(currentUser!.name)}`),
+  });
 
-  const fetchCheckin = async () => {
-    if (!currentUser) return;
-    const collective = await api.get<{ collectiveId: number }>(`/onboarding/collectives/code/${currentUser.id}`);
-    const current = await api.post<HouseCheckin>(`/collectives/${collective.collectiveId}/checkins/generate`, {});
-    setCheckin(current);
-  };
+  const { data: members = [] } = useQuery({
+    queryKey: qk.members(currentUser?.name),
+    enabled: !!currentUser,
+    queryFn: () => api.get<AppUser[]>(`/members/collective?memberName=${encodeURIComponent(currentUser!.name)}`),
+  });
 
-  useEffect(() => {
-    fetchDashboard();
-    void fetchCheckin();
-    if (currentUser) {
-      api.get<AppUser[]>(`/members/collective?memberName=${encodeURIComponent(currentUser.name)}`)
-        .then(setMembers)
-        .catch(() => {});
-    }
-  }, [currentUser]);
+  const { data: checkin } = useQuery({
+    queryKey: qk.checkin(currentUser?.name),
+    enabled: !!currentUser,
+    queryFn: async () => {
+      const collective = await api.get<{ collectiveId: number }>(`/onboarding/collectives/code/${currentUser!.id}`);
+      return api.post<HouseCheckin>(`/collectives/${collective.collectiveId}/checkins/generate`, {});
+    },
+  });
 
   const submitCheckin = async () => {
     if (!checkin || !issue.trim() || !improvement.trim()) return;
     await api.post(`/checkins/${checkin.id}/responses`, { mood, issue, improvement, anonymous });
-    setCheckin({ ...checkin, hasResponded: true, responseCount: checkin.responseCount + 1 });
+    queryClient.setQueryData(qk.checkin(currentUser?.name), {
+      ...checkin,
+      hasResponded: true,
+      responseCount: checkin.responseCount + 1,
+    });
   };
 
   useEffect(() => {
@@ -91,7 +90,7 @@ export default function DashboardPage() {
       currentUser.name,
       (event) => {
         if (['TASK_UPDATED', 'TASK_COMPLETED_LATE', 'EXPENSE_CREATED', 'EVENT_CREATED', 'BALANCES_SETTLED'].includes(event.type)) {
-          fetchDashboard();
+          void queryClient.invalidateQueries({ queryKey: qk.dashboard(currentUser.name) });
         }
         if (event.type === 'MEMBER_ONLINE' || event.type === 'MEMBER_OFFLINE') {
           const count = (event.payload as { count?: number })?.count;
@@ -100,9 +99,9 @@ export default function DashboardPage() {
       },
     );
     return disconnect;
-  }, [currentUser]);
+  }, [currentUser, queryClient]);
 
-  if (loading || !data) {
+  if (isPending || !data) {
     return (
       <div className="space-y-4 pt-4 animate-pulse">
         {[...Array(4)].map((_, i) => (
