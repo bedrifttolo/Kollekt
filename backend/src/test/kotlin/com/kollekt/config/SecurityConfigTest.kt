@@ -45,6 +45,7 @@ import java.time.Instant
     properties = [
         "app.security.jwt-secret=test-jwt-secret-that-is-long-enough-for-hs256",
         "app.cors.allowed-origins=http://localhost:3000, https://kollekt.app",
+        "app.security.auth-rate-limit-per-minute=10000",
     ],
     controllers = [OnboardingController::class, TaskController::class],
 )
