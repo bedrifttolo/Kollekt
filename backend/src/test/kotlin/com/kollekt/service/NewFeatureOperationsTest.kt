@@ -42,7 +42,7 @@ class NewFeatureOperationsTest {
 
         whenever(members.findById(2)).thenReturn(Optional.of(member(2, "Bea")))
         whenever(swaps.findAllByToUserOrderByIdDesc("Bea")).thenReturn(listOf(pending))
-        whenever(tasks.findByIdAndCollectiveCode(7, "HOME")).thenReturn(task)
+        whenever(tasks.findAllByIdInAndCollectiveCode(listOf(7), "HOME")).thenReturn(listOf(task))
         assertEquals("Clean sink", service.getRequestsForUser(2, "Bea").single().taskTitle)
 
         whenever(swaps.findByIdForUpdate(4)).thenReturn(pending)

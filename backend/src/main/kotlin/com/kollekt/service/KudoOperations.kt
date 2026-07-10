@@ -75,8 +75,12 @@ class KudoOperations(
 
     fun getFeed(actorName: String): List<KudoDto> {
         val collectiveCode = collectiveAccessService.requireCollectiveCodeByMemberName(actorName)
-        return kudoRepository.findAllByCollectiveCodeOrderByCreatedAtDesc(collectiveCode)
-            .map { kudo -> kudo.toDto(kudo.taskId?.let { taskRepository.findById(it).orElse(null)?.title }) }
+        val kudos = kudoRepository.findAllByCollectiveCodeOrderByCreatedAtDesc(collectiveCode)
+        val taskTitles =
+            taskRepository
+                .findAllById(kudos.mapNotNull { it.taskId }.distinct())
+                .associate { it.id to it.title }
+        return kudos.map { kudo -> kudo.toDto(kudo.taskId?.let(taskTitles::get)) }
     }
 
     fun getWeeklySummary(actorName: String): KudosWeeklySummaryDto {

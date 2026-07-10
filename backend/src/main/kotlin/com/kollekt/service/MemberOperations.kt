@@ -162,10 +162,11 @@ class MemberOperations(
     ) = userProfileService.removeFriend(memberName, friendName)
 
     fun getCollectiveMembers(memberName: String) =
-        memberRepository
-            .findAllByCollectiveCode(collectiveAccessService.requireCollectiveCodeByMemberName(memberName))
-            .sortedBy { it.name }
-            .map(userProfileService::toUserDto)
+        userProfileService.toUserDtos(
+            memberRepository
+                .findAllByCollectiveCode(collectiveAccessService.requireCollectiveCodeByMemberName(memberName))
+                .sortedBy { it.name },
+        )
 
     private fun redistributeOpenTasks(
         departingMemberName: String,

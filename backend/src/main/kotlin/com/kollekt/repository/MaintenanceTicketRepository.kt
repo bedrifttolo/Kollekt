@@ -21,4 +21,6 @@ interface MaintenanceTicketRepository : JpaRepository<MaintenanceTicket, Long> {
 
 interface MaintenanceTicketStatusHistoryRepository : JpaRepository<MaintenanceTicketStatusHistory, Long> {
     fun findAllByTicketIdOrderByChangedAtAsc(ticketId: Long): List<MaintenanceTicketStatusHistory>
+
+    fun findAllByTicketIdInOrderByChangedAtAsc(ticketIds: Collection<Long>): List<MaintenanceTicketStatusHistory>
 }

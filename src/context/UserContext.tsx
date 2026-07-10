@@ -32,12 +32,17 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const [notificationsLoading, setNotificationsLoading] = useState(false);
   const queryClient = useQueryClient();
 
-  // Warm the main tabs' caches as soon as the user is known (fresh login or session
-  // restore), so the first navigation to each tab is instant.
+  // Warm secondary tabs only after session verification and the active screen's first
+  // request. Eagerly firing every screen request here used to contend with /me and the
+  // dashboard for the same small DB connection pool.
   useEffect(() => {
-    if (currentUser) prefetchMainData(queryClient, currentUser);
+    if (!currentUser || isLoading) return;
+    const timer = window.setTimeout(() => {
+      void prefetchMainData(queryClient, currentUser).catch(() => undefined);
+    }, 1_500);
+    return () => window.clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentUser?.id, currentUser?.name, queryClient]);
+  }, [currentUser?.id, currentUser?.name, isLoading, queryClient]);
 
   useEffect(() => {
     let cancelled = false;

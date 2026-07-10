@@ -209,6 +209,7 @@ export interface EconomySummary {
   expenses: Expense[];
   balances: Balance[];
   pantSummary: PantSummary;
+  payOptions: PayOption[];
 }
 
 export interface SettleUpResponse {

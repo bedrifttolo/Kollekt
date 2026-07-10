@@ -5,6 +5,9 @@ RUN gradle bootJar --no-daemon
 
 FROM eclipse-temurin:21-jre
 WORKDIR /app
-COPY --from=build /app/build/libs/*.jar app.jar
+RUN groupadd --system spring && useradd --system --gid spring spring
+COPY --from=build --chown=spring:spring /app/build/libs/*.jar app.jar
+USER spring:spring
+ENV JAVA_TOOL_OPTIONS="-XX:InitialRAMPercentage=25 -XX:MaxRAMPercentage=75 -XX:+UseG1GC"
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]

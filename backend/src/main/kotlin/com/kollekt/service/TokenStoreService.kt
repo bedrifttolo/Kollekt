@@ -6,11 +6,19 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Duration
 import java.time.Instant
+import java.util.concurrent.ConcurrentHashMap
 
 @Service
 class TokenStoreService(
     private val tokenEntryRepository: TokenEntryRepository,
 ) {
+    private data class CachedRevocation(
+        val revoked: Boolean,
+        val expiresAtNanos: Long,
+    )
+
+    private val accessRevocationCache = ConcurrentHashMap<String, CachedRevocation>()
+
     @Transactional
     fun storeRefreshToken(
         jti: String,
@@ -59,14 +67,33 @@ class TokenStoreService(
                 expiresAt = Instant.now().plus(ttl),
             ),
         )
+        accessRevocationCache[jti] =
+            CachedRevocation(
+                revoked = true,
+                expiresAtNanos = System.nanoTime() + ttl.coerceAtMost(MAX_REVOKED_CACHE_TTL).toNanos(),
+            )
     }
 
-    fun isAccessTokenRevoked(jti: String): Boolean =
-        tokenEntryRepository.existsByJtiAndTokenTypeAndExpiresAtAfter(
-            jti,
-            REVOKED_ACCESS,
-            Instant.now(),
-        )
+    fun isAccessTokenRevoked(jti: String): Boolean {
+        val nowNanos = System.nanoTime()
+        accessRevocationCache[jti]?.takeIf { it.expiresAtNanos > nowNanos }?.let { return it.revoked }
+
+        val revoked =
+            tokenEntryRepository.existsByJtiAndTokenTypeAndExpiresAtAfter(
+                jti,
+                REVOKED_ACCESS,
+                Instant.now(),
+            )
+        accessRevocationCache[jti] =
+            CachedRevocation(
+                revoked = revoked,
+                expiresAtNanos = nowNanos + ACCESS_REVOCATION_CACHE_TTL.toNanos(),
+            )
+        if (accessRevocationCache.size > MAX_ACCESS_CACHE_ENTRIES) {
+            accessRevocationCache.entries.removeIf { it.value.expiresAtNanos <= nowNanos }
+        }
+        return revoked
+    }
 
     @Transactional
     fun storePasswordResetToken(
@@ -106,5 +133,8 @@ class TokenStoreService(
         const val REFRESH = "REFRESH"
         const val REVOKED_ACCESS = "REVOKED_ACCESS"
         const val PASSWORD_RESET = "PASSWORD_RESET"
+        const val MAX_ACCESS_CACHE_ENTRIES = 10_000
+        val ACCESS_REVOCATION_CACHE_TTL: Duration = Duration.ofSeconds(30)
+        val MAX_REVOKED_CACHE_TTL: Duration = Duration.ofHours(1)
     }
 }

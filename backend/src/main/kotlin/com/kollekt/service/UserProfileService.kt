@@ -65,6 +65,35 @@ class UserProfileService(
         )
     }
 
+    fun toUserDtos(members: List<Member>): List<UserDto> {
+        if (members.isEmpty()) return emptyList()
+        val friendshipsByMember =
+            friendshipRepository
+                .findAllByMemberIdIn(members.map { it.id })
+                .groupBy { it.memberId }
+        val friendIds = friendshipsByMember.values.flatten().map { it.friendId }.distinct()
+        val friendNamesById = memberRepository.findAllById(friendIds).associate { it.id to it.name }
+
+        return members.map { member ->
+            val friends =
+                friendshipsByMember[member.id]
+                    .orEmpty()
+                    .mapNotNull { friendNamesById[it.friendId] }
+                    .sorted()
+                    .map(::FriendDto)
+            UserDto(
+                id = member.id,
+                name = member.name,
+                email = member.email,
+                collectiveCode = member.collectiveCode,
+                status = member.status,
+                awayUntil = member.awayUntil,
+                color = member.color,
+                friends = friends,
+            )
+        }
+    }
+
     private fun requireMember(memberName: String): Member =
         memberRepository.findByName(memberName)
             ?: throw IllegalArgumentException("User '$memberName' not found")

@@ -156,7 +156,20 @@ class StatsService(
             collectiveRepository.findByJoinCode(collectiveCode)
                 ?: throw IllegalArgumentException("Collective not found")
 
-        val allTasks = tasksWithHistory(collectiveCode)
+        return buildLeaderboard(
+            collective = collective,
+            allTasks = tasksWithHistory(collectiveCode),
+            members = memberRepository.findAllByCollectiveCode(collectiveCode),
+            period = period,
+        )
+    }
+
+    private fun buildLeaderboard(
+        collective: com.kollekt.domain.Collective,
+        allTasks: List<TaskItem>,
+        members: List<Member>,
+        period: LeaderboardPeriod,
+    ): LeaderboardResponse {
         val now = LocalDateTime.now()
         val completedTasks =
             when (period) {
@@ -178,16 +191,14 @@ class StatsService(
         // Period XP is the base XP of the member's tasks completed within the selected period,
         // so Total/Year/Month rankings reflect their period. Lifetime XP stays in member.xp.
         val periodXpByMember =
-            memberRepository
-                .findAllByCollectiveCode(collectiveCode)
-                .associateWith { member -> completedTasks.filter { it.assignee == member.name }.sumOf { it.xp } }
-        val members =
+            members.associateWith { member -> completedTasks.filter { it.assignee == member.name }.sumOf { it.xp } }
+        val rankedMembers =
             periodXpByMember.keys.sortedWith(
                 compareByDescending<Member> { periodXpByMember.getValue(it) }.thenBy { it.name },
             )
 
         val players =
-            members.mapIndexed { index, member ->
+            rankedMembers.mapIndexed { index, member ->
                 val memberTasks = completedTasks.filter { it.assignee == member.name }
                 val streak = computeStreak(allTasks.filter { it.assignee == member.name })
                 LeaderboardPlayerDto(
@@ -201,7 +212,7 @@ class StatsService(
                 )
             }
 
-        val periodStats = buildPeriodStats(players, completedTasks, allTasks, members)
+        val periodStats = buildPeriodStats(players, completedTasks, allTasks, rankedMembers)
 
         val response =
             LeaderboardResponse(
@@ -460,15 +471,18 @@ class StatsService(
         val user = collectiveAccessService.requireMember(memberName)
         val collectiveCode = collectiveAccessService.requireCollectiveCode(user)
         val collective = collectiveAccessService.requireCollectiveByCode(collectiveCode)
-        val leaderboard = getLeaderboard(memberName)
+        val members = memberRepository.findAllByCollectiveCode(collectiveCode)
+        val liveTasks = taskRepository.findAllByCollectiveCode(collectiveCode)
+        val allTasks = liveTasks + taskHistoryRepository.findAllByCollectiveCode(collectiveCode).map { it.toTaskItem() }
+        val events = eventRepository.findAllByCollectiveCode(collectiveCode)
+        val expenses = expenseRepository.findAllByCollectiveCode(collectiveCode)
+        val leaderboard = buildLeaderboard(collective, allTasks, members, LeaderboardPeriod.OVERALL)
         val rank =
             leaderboard.players.firstOrNull { it.name == user.name }?.rank
                 ?: leaderboard.players.size
 
-        val balances = economyOperations.getBalances(memberName)
+        val balances = economyOperations.calculateBalancesForLoadedData(collectiveCode, expenses, members.map { it.name })
         val userBalance = balances.firstOrNull { it.name == user.name }?.amount ?: 0
-        val liveTasks = taskRepository.findAllByCollectiveCode(collectiveCode)
-        val allTasks = liveTasks + taskHistoryRepository.findAllByCollectiveCode(collectiveCode).map { it.toTaskItem() }
         val today = LocalDate.now()
         val weekStart = today.minusDays(6)
         val weekTasks = allTasks.filter { it.dueDate in weekStart..today }
@@ -485,14 +499,12 @@ class StatsService(
                 .coerceAtMost(10)
         // Planning life together (shared events, guest nights) is a healthy-household signal.
         val planningBonus =
-            eventRepository
-                .findAllByCollectiveCode(collectiveCode)
+            events
                 .count { it.date in weekStart..today.plusWeeks(1) }
                 .coerceAtMost(6)
         // Sharing costs as a group shows the household is actively cooperating.
         val togethernessBonus =
-            expenseRepository
-                .findAllByCollectiveCode(collectiveCode)
+            expenses
                 .count { it.date in weekStart..today }
                 .coerceAtMost(4)
         // A gentle nudge toward settling up — capped low so money imbalance never dominates.
@@ -536,15 +548,13 @@ class StatsService(
                         .take(3)
                         .map { it.toDto() },
                 upcomingEvents =
-                    eventRepository
-                        .findAllByCollectiveCode(collectiveCode)
+                    events
                         .filter { it.date >= LocalDate.now() }
                         .sortedBy { it.date }
                         .take(3)
                         .map { it.toDto() },
                 recentExpenses =
-                    expenseRepository
-                        .findAllByCollectiveCode(collectiveCode)
+                    expenses
                         .sortedByDescending { it.date }
                         .take(3)
                         .map { it.toDto() },
