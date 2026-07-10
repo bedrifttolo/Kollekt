@@ -22,6 +22,16 @@ export const API_BASE = (configuredApiBase || '/api').replace(/\/$/, '');
 // short enough that a truly dead connection doesn't hang the UI indefinitely.
 const REQUEST_TIMEOUT_MS = 60_000;
 
+/**
+ * Fire-and-forget ping that starts waking the free-tier backend the moment the app
+ * launches, so a cold start overlaps with the splash/login screen instead of the
+ * user's first real request. Safety net for when the scheduled keep-alive workflow
+ * is delayed or disabled (GitHub pauses cron workflows after 60 days of inactivity).
+ */
+export function warmUpBackend(): void {
+  void fetch(`${API_BASE}/health`).catch(() => undefined);
+}
+
 export function getAccessToken(): Promise<string | null> {
   return authStorage.getAccessToken();
 }

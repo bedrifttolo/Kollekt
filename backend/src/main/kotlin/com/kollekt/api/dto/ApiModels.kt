@@ -1,5 +1,6 @@
 package com.kollekt.api.dto
 
+import com.kollekt.domain.AttendanceStatus
 import com.kollekt.domain.EventType
 import com.kollekt.domain.MemberStatus
 import com.kollekt.domain.TaskCategory
@@ -289,6 +290,13 @@ data class EventDto(
     val organizer: String,
     val attendees: Int,
     val description: String?,
+    val joining: List<String> = emptyList(),
+    val passing: List<String> = emptyList(),
+)
+
+data class EventAttendanceRequest(
+    /** JOINING / PASSING, or null to clear the member's response. */
+    val status: AttendanceStatus? = null,
 )
 
 data class CreateEventRequest(

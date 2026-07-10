@@ -1,3 +1,4 @@
+import { AppLauncher } from '@capacitor/app-launcher';
 import { Browser } from '@capacitor/browser';
 import { Capacitor } from '@capacitor/core';
 import type { PaymentHandles } from './types';
@@ -46,16 +47,28 @@ export function hasAnyMethod(handles: PaymentHandles | undefined): boolean {
   return !!(handles && (handles.vipps || handles.mobilepay || handles.paypal || handles.bankAccount));
 }
 
-/** Opens a payment link, using the in-app browser for https and the app scheme for native deep-links. */
-export async function openPaymentLink(url: string): Promise<void> {
+/**
+ * Opens a payment link, using the in-app browser for https and the app scheme for native
+ * deep-links. Returns false when the target app is not installed (the schemes are declared
+ * in LSApplicationQueriesSchemes / the Android <queries> manifest so canOpenUrl is allowed),
+ * letting the caller fall back to copying the handle instead of failing silently.
+ */
+export async function openPaymentLink(url: string): Promise<boolean> {
   if (url.startsWith('https://')) {
     await Browser.open({ url });
-    return;
+    return true;
   }
   // Custom app scheme (vipps://, mobilepay://)
   if (Capacitor.isNativePlatform()) {
-    window.location.href = url;
-  } else {
-    window.open(url, '_blank');
+    try {
+      const { value: canOpen } = await AppLauncher.canOpenUrl({ url });
+      if (!canOpen) return false;
+      const { completed } = await AppLauncher.openUrl({ url });
+      return completed;
+    } catch {
+      return false;
+    }
   }
+  window.open(url, '_blank');
+  return true;
 }

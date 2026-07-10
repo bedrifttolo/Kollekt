@@ -316,7 +316,8 @@ export default function LoginPage() {
           </button>
         )}
 
-        <p className="mt-auto pt-8 pb-2 text-center text-sm text-muted-foreground">{t('auth.buildLabel')}</p>
+        <p className="mt-auto pt-8 text-center text-sm text-muted-foreground">{t('auth.buildLabel')}</p>
+        <p className="pb-2 text-center text-xs text-muted-foreground/70">{t('common.credits')}</p>
       </motion.div>
     </div>
   );

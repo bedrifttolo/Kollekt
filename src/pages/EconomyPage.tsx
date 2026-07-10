@@ -56,6 +56,7 @@ export default function EconomyPage() {
   const [selectedCreditorName, setSelectedCreditorName] = useState('');
   const [showPaySheet, setShowPaySheet] = useState(false);
   const [copiedValue, setCopiedValue] = useState<string | null>(null);
+  const [payOpenFailed, setPayOpenFailed] = useState<string | null>(null);
   const [settlementAcknowledged, setSettlementAcknowledged] = useState(false);
 
   const name = currentUser?.name ?? '';
@@ -169,6 +170,7 @@ export default function EconomyPage() {
   const handlePayCreditor = () => {
     if (!selectedPayOption) return;
     setSettlementAcknowledged(false);
+    setPayOpenFailed(null);
     setShowPaySheet(true);
   };
 
@@ -178,6 +180,16 @@ export default function EconomyPage() {
       setCopiedValue(value);
       setTimeout(() => setCopiedValue((v) => (v === value ? null : v)), 1500);
     } catch {}
+  };
+
+  const handleOpenPayment = async (provider: string, url: string, value: string) => {
+    setPayOpenFailed(null);
+    const opened = await openPaymentLink(url).catch(() => false);
+    if (!opened) {
+      // Payment app not installed — copy the handle so the user can pay another way.
+      setPayOpenFailed(provider);
+      await copyValue(value);
+    }
   };
 
   if (loading || !summary) {
@@ -269,25 +281,30 @@ export default function EconomyPage() {
                   const label = PROVIDER_LABELS[m.provider];
                   const display = label.includes('.') ? t(label) : label;
                   return (
-                    <div key={m.provider} className="glass rounded-xl p-3 flex items-center gap-3">
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold">{display}</p>
-                        <p className="text-xs text-muted-foreground truncate">{m.value}</p>
-                      </div>
-                      <button
-                        onClick={() => void copyValue(m.value)}
-                        className="h-9 w-9 rounded-lg glass flex items-center justify-center shrink-0"
-                        aria-label={t('economy.pay.copy')}
-                      >
-                        {copiedValue === m.value ? <Check className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4 text-muted-foreground" />}
-                      </button>
-                      {m.url && (
+                    <div key={m.provider} className="glass rounded-xl p-3 space-y-2">
+                      <div className="flex items-center gap-3">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold">{display}</p>
+                          <p className="text-xs text-muted-foreground truncate">{m.value}</p>
+                        </div>
                         <button
-                          onClick={() => void openPaymentLink(m.url!)}
-                          className="rounded-lg gradient-primary px-3 py-2 text-xs font-semibold text-primary-foreground flex items-center gap-1.5 shrink-0"
+                          onClick={() => void copyValue(m.value)}
+                          className="h-9 w-9 rounded-lg glass flex items-center justify-center shrink-0"
+                          aria-label={t('economy.pay.copy')}
                         >
-                          <ExternalLink className="h-3.5 w-3.5" /> {t('economy.pay.open')}
+                          {copiedValue === m.value ? <Check className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4 text-muted-foreground" />}
                         </button>
+                        {m.url && (
+                          <button
+                            onClick={() => void handleOpenPayment(m.provider, m.url!, m.value)}
+                            className="rounded-lg gradient-primary px-3 py-2 text-xs font-semibold text-primary-foreground flex items-center gap-1.5 shrink-0"
+                          >
+                            <ExternalLink className="h-3.5 w-3.5" /> {t('economy.pay.open')}
+                          </button>
+                        )}
+                      </div>
+                      {payOpenFailed === m.provider && (
+                        <p className="text-xs text-muted-foreground">{t('economy.pay.appNotInstalled')}</p>
                       )}
                     </div>
                   );
@@ -330,7 +347,7 @@ export default function EconomyPage() {
                 <button onClick={() => setShowAdd(false)}><X className="h-4 w-4 text-muted-foreground" /></button>
               </div>
               <label className="block space-y-1"><span className="text-xs font-semibold text-muted-foreground">{t('economy.descriptionLabel')}</span><input value={newTitle} onChange={(e) => setNewTitle(e.target.value)} placeholder={t('economy.expenseTitlePlaceholder')} autoFocus className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" /></label>
-              <label className="block space-y-1"><span className="text-xs font-semibold text-muted-foreground">{t('economy.amountLabel')}</span><input type="number" min="1" step="1" inputMode="decimal" value={newAmount} onChange={(e) => setNewAmount(e.target.value)} placeholder={t('economy.expenseAmountPlaceholder')} className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" /></label>
+              <label className="block space-y-1"><span className="text-xs font-semibold text-muted-foreground">{t('economy.amountLabel')}</span><input type="number" min="1" step="1" inputMode="decimal" value={newAmount} onChange={(e) => setNewAmount(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && canAddExpense && void handleAddExpense()} placeholder={t('economy.expenseAmountPlaceholder')} className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" /></label>
               <label className="block space-y-1"><span className="text-xs font-semibold text-muted-foreground">{t('economy.categoryLabel')}</span><select value={newCategory} onChange={(e) => setNewCategory(e.target.value)} className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary">{EXPENSE_CATEGORIES.map((c) => <option key={c} value={c}>{translateKey('common.expenseCategories', c)}</option>)}</select></label>
               {members.length > 0 && (
                 <div>

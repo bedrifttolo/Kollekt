@@ -8,6 +8,10 @@ import './styles/globals.css';
 import { initNativeShell } from './lib/nativeBootstrap';
 import { ThemeProvider } from './context/ThemeContext';
 import { queryClient } from './lib/queryClient';
+import { warmUpBackend } from './lib/api';
+
+// Start waking the (possibly cold) backend before anything renders.
+warmUpBackend();
 
 // Persist the query cache to localStorage (persisted across app launches in the iOS/Android
 // WebView too). On reopen the last-known data renders instantly, then refreshes in the
