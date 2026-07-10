@@ -10,7 +10,7 @@ export async function markAllNotificationsAsRead(userName: string): Promise<void
   await api.post(`/notifications/${userName}/read`, {});
 }
 const configuredApiBase =
-  import.meta.env.VITE_API_URL?.trim() || (Capacitor.isNativePlatform() ? 'https://kollekt-backend.onrender.com/api' : '');
+  import.meta.env.VITE_API_URL?.trim() || (Capacitor.isNativePlatform() ? 'https://kollekt-backend-7mdp.onrender.com/api' : '');
 
 if (Capacitor.isNativePlatform() && !configuredApiBase?.startsWith('https://')) {
   throw new Error('VITE_API_URL must be an absolute HTTPS URL in the native app');
