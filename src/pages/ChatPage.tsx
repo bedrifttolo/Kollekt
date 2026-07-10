@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Image as ImageIcon, BarChart3, X, Smile, Reply, HeartHandshake, ChevronDown, WashingMachine, Film, Plus } from 'lucide-react';
 
@@ -55,6 +56,7 @@ function starterGifDataUrl({ emoji, bg, fg }: (typeof STARTER_GIFS)[number]) {
 export default function ChatPage() {
   const { t } = useTranslation();
   const { currentUser } = useUser();
+  const navigate = useNavigate();
   // Seed the household thread from the warm cache so re-opening Chat shows messages
   // instantly instead of the loading state; a background fetch then refreshes them.
   const [messages, setMessages] = useState<ChatMessage[]>(
@@ -429,14 +431,14 @@ export default function ChatPage() {
 
   if (loading) {
     return (
-      <div className="app-screen flex flex-col pt-4 animate-pulse space-y-3">
+      <div className="app-screen-full flex flex-col animate-pulse space-y-3">
         {[...Array(5)].map((_, i) => <div key={i} className={`glass rounded-2xl h-12 ${i % 2 === 0 ? 'w-2/3' : 'w-1/2 ml-auto'}`} />)}
       </div>
     );
   }
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="app-screen relative flex flex-col overflow-hidden">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="app-screen-full relative flex flex-col overflow-hidden">
       <div className="flex items-center gap-2 border-b border-border py-2.5">
         {isDirect ? (
           <span style={{ backgroundColor: colorForMember(activeThread!, memberColorMap.get(activeThread!)) }} className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-xs font-bold text-white">
@@ -458,6 +460,16 @@ export default function ChatPage() {
             )}
           </p>
         </div>
+        {/* Chat hides the shared app header, so profile access lives here instead. */}
+        <button
+          data-tour="profile"
+          onClick={() => navigate('/profile')}
+          style={currentUser ? { backgroundColor: colorForMember(currentUser.name, currentUser.color) } : undefined}
+          className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-border text-sm font-bold text-white"
+          aria-label={t('header.profile')}
+        >
+          {currentUser?.name[0]?.toUpperCase()}
+        </button>
       </div>
 
       {/* Thread switcher: household + a private 1:1 thread per housemate. */}

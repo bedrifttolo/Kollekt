@@ -12,7 +12,12 @@ const pushDebug = import.meta.env.VITE_DEBUG_PUSH === 'true';
 export async function registerPushNotifications(): Promise<void> {
   if (!Capacitor.isNativePlatform()) return;
   try {
-    const permission = await PushNotifications.checkPermissions();
+    let permission = await PushNotifications.checkPermissions();
+    if (permission.receive === 'prompt' || permission.receive === 'prompt-with-rationale') {
+      // First login on this device: ask the user. Without this the permission dialog
+      // never appears and push can never activate.
+      permission = await PushNotifications.requestPermissions();
+    }
     if (permission.receive !== 'granted') return;
 
     if (!listenersBound) {

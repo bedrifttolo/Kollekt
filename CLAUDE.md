@@ -22,7 +22,7 @@ Originally a student project (DAT251) based on a Figma export.
 - **Frontend:** React 18 + TypeScript, Vite, Tailwind, react-router-dom, TanStack Query, i18next, framer-motion.
 - **Mobile:** Capacitor iOS/Android shells (app id `no.kollekt.app`).
 - **Backend:** Spring Boot (Kotlin), package `com.kollekt`. Layered **api → service → repository → domain**.
-- **Database:** PostgreSQL (Supabase in prod; local Postgres in Docker Compose), Flyway migrations (**V1 → V49**).
+- **Database:** PostgreSQL (Supabase in prod; local Postgres in Docker Compose), Flyway migrations (**V1 → V50**).
 - **Realtime:** WebSockets. **No Redis, no Kafka** (both removed — tokens moved to PostgreSQL `auth_tokens`, stats computed on demand).
 - **DevOps:** Docker / Docker Compose / GitHub Actions → Docker Hub.
 
@@ -44,12 +44,12 @@ Originally a student project (DAT251) based on a Figma export.
 - Shared types: `src/lib/types.ts` — the contract mirror of backend DTOs.
 - Pages: `src/pages/` — bottom-nav tabs are Home `/`, Tasks `/tasks`, Calendar `/calendar`, Chat `/chat`, Economy `/economy`, Social `/social`.
 - Games UI: `src/games/`; catalog in `src/games/catalog.ts`; launcher in `src/pages/social/GamesPanel.tsx`; engine bridge in `src/lib/kollektGame.ts` (imports from `othergames/src/engine` and `othergames/src/content`).
-- i18n: `src/i18n/` — four languages: English, Norwegian, Swedish, Danish (`en/no/sv/da.json`). Language key `kollekt-language`, fallback `en`.
+- i18n: `src/i18n/` — four languages: English, Norwegian, Swedish, Danish (`locales/en/no/sv/da.json`). Language key `kollekt-language`, fallback `no`. Locale bundles are code-split; call `loadLanguage()` before `changeLanguage`.
 
 ### Backend (`backend/`, `com.kollekt`)
 
 - Entry: `KollektApplication.kt`. Controllers in `api/` (DTOs in `api/dto/ApiModels.kt`), business logic in `service/` (`*Operations` / `*Service` classes), Spring Data JPA in `repository/`, JPA entities in `domain/`, security/websocket/CORS in `config/`.
-- Flyway migrations in `backend/src/main/resources/db/migration` (`V1` baseline → `V49`).
+- Flyway migrations in `backend/src/main/resources/db/migration` (`V1` baseline → `V50`).
 - Tests under `backend/src/test`: `service/*Test`, `api/*ContractTest`, `acceptance/*` (user-story acceptance tests, see `user-story-test-mapping.md`).
 
 ## Common commands

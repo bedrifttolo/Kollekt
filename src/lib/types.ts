@@ -158,6 +158,8 @@ export interface CalendarEvent {
   organizer: string;
   attendees: number;
   description?: string;
+  joining: string[];
+  passing: string[];
 }
 
 export interface Expense {

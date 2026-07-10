@@ -1,18 +1,24 @@
+import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { UserProvider, useUser } from './context/UserContext';
 import AppLayout from './components/AppLayout';
-import LoginPage from './pages/LoginPage';
-import CreateHouseholdPage from './pages/CreateHouseholdPage';
-import DashboardPage from './pages/DashboardPage';
-import TasksPage from './pages/TasksPage';
-import CalendarPage from './pages/CalendarPage';
-import ChatPage from './pages/ChatPage';
-import EconomyPage from './pages/EconomyPage';
-import PantTrackerPage from './pages/PantTrackerPage';
-import SocialPage from './pages/SocialPage';
-import ProfilePage from './pages/ProfilePage';
-import ResetPasswordPage from './pages/ResetPasswordPage';
-import CollektGamePage from './pages/CollektGamePage';
+
+// Route-level code splitting: each page loads as its own chunk so the initial
+// download stays small (the games engine alone is a large chunk that only
+// people opening a game should pay for). Chunks are served from disk in the
+// native apps, so tab switches stay instant there.
+const LoginPage = lazy(() => import('./pages/LoginPage'));
+const CreateHouseholdPage = lazy(() => import('./pages/CreateHouseholdPage'));
+const DashboardPage = lazy(() => import('./pages/DashboardPage'));
+const TasksPage = lazy(() => import('./pages/TasksPage'));
+const CalendarPage = lazy(() => import('./pages/CalendarPage'));
+const ChatPage = lazy(() => import('./pages/ChatPage'));
+const EconomyPage = lazy(() => import('./pages/EconomyPage'));
+const PantTrackerPage = lazy(() => import('./pages/PantTrackerPage'));
+const SocialPage = lazy(() => import('./pages/SocialPage'));
+const ProfilePage = lazy(() => import('./pages/ProfilePage'));
+const ResetPasswordPage = lazy(() => import('./pages/ResetPasswordPage'));
+const CollektGamePage = lazy(() => import('./pages/CollektGamePage'));
 
 // Guard for auth-only pages that don't need a collective (create-household)
 function AuthOnlyRoute({ children }: { children: React.ReactNode }) {
@@ -40,9 +46,18 @@ function GuestOnlyRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+function RouteFallback() {
+  return (
+    <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="h-8 w-8 rounded-full gradient-primary animate-pulse" />
+    </div>
+  );
+}
+
 function AppRoutes() {
   return (
-    <Routes>
+    <Suspense fallback={<RouteFallback />}>
+      <Routes>
       <Route path="/login" element={<GuestOnlyRoute><LoginPage /></GuestOnlyRoute>} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route
@@ -63,7 +78,8 @@ function AppRoutes() {
         <Route path="/profile" element={<ProfilePage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+      </Routes>
+    </Suspense>
   );
 }
 

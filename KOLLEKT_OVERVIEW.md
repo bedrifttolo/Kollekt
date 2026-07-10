@@ -57,7 +57,7 @@ A user logs in (email/password or social login) → belongs to a **Collective** 
 
 **Social login** — `src/lib/socialAuth.ts`: detects available providers, runs the native/web sign-in flow, and posts the resulting identity to `/onboarding/oauth/{provider}`. Surfaced from `LoginPage`.
 
-**Payments / settle-up** — `src/lib/paymentLinks.ts`: builds the payment methods a creditor has registered (Vipps / MobilePay / PayPal / bank account, the `PaymentHandles` type in `types.ts`) and opens the right deep-link (PayPal.me with amount; Vipps/MobilePay app schemes; bank = copy account number). Handles are registered in `ProfilePage` and used during settle-up in `EconomyPage`.
+**Payments / settle-up** — `src/lib/paymentLinks.ts`: builds the payment methods a creditor has registered (Vipps / MobilePay / PayPal / bank account, the `PaymentHandles` type in `types.ts`) and opens the right deep-link (PayPal.me with amount; Vipps/MobilePay app schemes via `@capacitor/app-launcher`; bank = copy account number). On native, `openPaymentLink` checks `canOpenUrl` first (schemes are declared in `LSApplicationQueriesSchemes` / the Android `<queries>` manifest) and returns `false` when the payment app isn't installed, so `EconomyPage` falls back to copying the handle instead of failing silently. Handles are registered in `ProfilePage` and used during settle-up in `EconomyPage`.
 
 **Games** — see the [Games](#games--in-app-srcgames--othergames) section.
 
@@ -69,7 +69,9 @@ A user logs in (email/password or social login) → belongs to a **Collective** 
 
 **UI kit** — `src/components/ui/` and `src/components/ui-kit/`: shadcn/Radix-based primitives (button, dialog, card, etc.) + custom flair (`Confetti`, `Sparkles`, `AnimatedButton`). Styling via Tailwind (`src/styles/globals.css`).
 
-**i18n** — `src/i18n/`: **four languages — English, Norwegian, Swedish, Danish** (`en.json`, `no.json`, `sv.json`, `da.json`), wired in `src/i18n/index.ts` with `i18next-browser-languagedetector` (localStorage key `kollekt-language`, fallback `en`).
+**i18n** — `src/i18n/`: **four languages — English, Norwegian, Swedish, Danish** (`locales/en.json`, `no.json`, `sv.json`, `da.json`), wired in `src/i18n/index.ts` with `i18next-browser-languagedetector` (localStorage key `kollekt-language`, fallback `no`). Locale bundles are **code-split**: only the active language (plus the Norwegian fallback) loads at boot via top-level await; `loadLanguage()` fetches a locale chunk before `changeLanguage` (see `LanguageSwitcher`).
+
+**Performance** — routes are lazy-loaded in `src/App.tsx` (each page is its own chunk; a Suspense boundary inside `AppLayout` keeps header/nav visible while a tab chunk loads), and `main.tsx` fires a fire-and-forget `warmUpBackend()` ping to `/api/health` at boot so a Render cold start overlaps with the login screen instead of the first real request (backup for `.github/workflows/keepalive.yml`).
 
 ### Pages (`/src/pages`)
 | Page | Route | Purpose |
@@ -159,14 +161,14 @@ Member, Collective, Room, TaskItem, TaskFeedback, TaskSwapRequest, ShoppingItem,
 - `WebConfig` (CORS etc.)
 
 ### Database (`/resources/db/migration`)
-Flyway migrations, **V1 baseline → V49**. `V1` defines the core tables; later migrations layer on features. Core era (selected): task recurrence (V10), penalty XP (V11), notifications (V12–13), chat reactions/polls/images/replies (V14, V15, V18, V31), Google Calendar (V19), monthly prize (V20), task feedback (V21), notification prefs (V23), pant goal (V25), expense deadlines (V26), personal settlements (V27), achievement config (V30), token store (V32, `auth_tokens` — replaced Redis), push device tokens (V33). "Smart assignment" scaffolding spans V4–V9.
+Flyway migrations, **V1 baseline → V50**. `V1` defines the core tables; later migrations layer on features. Core era (selected): task recurrence (V10), penalty XP (V11), notifications (V12–13), chat reactions/polls/images/replies (V14, V15, V18, V31), Google Calendar (V19), monthly prize (V20), task feedback (V21), notification prefs (V23), pant goal (V25), expense deadlines (V26), personal settlements (V27), achievement config (V30), token store (V32, `auth_tokens` — replaced Redis), push device tokens (V33). "Smart assignment" scaffolding spans V4–V9.
 
-Recent feature era (V34–V49):
+Recent feature era (V34–V50):
 - **V34** social identities · **V35** prompt-relay rooms · **V36** member color · **V37** collective address
 - **V38** task recurrence series · **V39** custom achievements · **V40** friendships
 - **V41** member payment handles (Vipps/MobilePay/PayPal/bank) · **V42** task-swap requests
 - **V43** house check-ins · **V44** house rules · **V45** guest notices & quiet hours
-- **V46** maintenance tickets · **V47** kudos · **V48** maintenance-cost split · **V49** kudo type
+- **V46** maintenance tickets · **V47** kudos · **V48** maintenance-cost split · **V49** kudo type · **V50** event attendance (join/pass RSVP)
 
 ---
 
@@ -182,7 +184,7 @@ Recent feature era (V34–V49):
 
 ## Infra & ops
 - `docker-compose.yml` (root) — **backend + frontend only** (DB is external Supabase via `.env`). No Redis/Kafka. The `othergames/` workspace ships its own `Dockerfile`/`docker-compose.yml` for the legacy standalone server, which the app does not run.
-- **Mobile packaging:** committed Capacitor `ios/`/`android/` projects, application ID `no.kollekt.app`. Both native apps call the deployed Kotlin backend over HTTPS/WSS; no backend code is embedded.
+- **Mobile packaging:** committed Capacitor `ios/`/`android/` projects, application ID `no.kollekt.app`. The iOS app targets **iPhone and iPad** (`TARGETED_DEVICE_FAMILY = "1,2"`, all iPad orientations declared). Both native apps call the deployed Kotlin backend over HTTPS/WSS; no backend code is embedded.
 - **Mobile layout:** the shared shell accounts for iOS/Android safe-area insets, dynamic viewport height, the fixed bottom nav, and touch devices without hover.
 - **Mobile environment:** `npm run mobile:sync` builds in Vite's `mobile` mode and requires `.env.mobile` with the absolute HTTPS backend URL. Local web dev uses `.env` and the `/api` proxy.
 - **Google Calendar on mobile:** OAuth opens in the native browser and returns through `no.kollekt.app://google-calendar-connected`; the backend accepts only configured web/native return URLs and stores each OAuth state as a short-lived single-use nonce. A read-only ICS feed is available via `/api/calendar-feed`.

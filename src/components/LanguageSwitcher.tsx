@@ -1,6 +1,6 @@
 import { Languages } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { SUPPORTED_LANGUAGES, type SupportedLanguage } from '../i18n';
+import { loadLanguage, SUPPORTED_LANGUAGES, type SupportedLanguage } from '../i18n';
 import { cn } from './ui/utils';
 
 const languageLabels: Record<SupportedLanguage, string> = {
@@ -30,7 +30,11 @@ export default function LanguageSwitcher({ className }: { className?: string }) 
           <button
             key={language}
             type="button"
-            onClick={() => { void i18n.changeLanguage(language); }}
+            onClick={() => {
+              void loadLanguage(language)
+                .catch(() => undefined)
+                .then(() => i18n.changeLanguage(language));
+            }}
             aria-pressed={isActive}
             aria-label={t(`languages.${language}`)}
             title={t(`languages.${language}`)}

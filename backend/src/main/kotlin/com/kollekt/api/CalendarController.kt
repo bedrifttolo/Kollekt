@@ -3,6 +3,7 @@
 package com.kollekt.api
 
 import com.kollekt.api.dto.CreateEventRequest
+import com.kollekt.api.dto.EventAttendanceRequest
 import com.kollekt.api.dto.EventDto
 import com.kollekt.api.dto.UpdateEventRequest
 import com.kollekt.service.CalendarFeedService
@@ -56,4 +57,11 @@ class CalendarController(
         @PathVariable id: Long,
         @AuthenticationPrincipal jwt: Jwt,
     ) = eventOperations.deleteEvent(id, jwt.subject)
+
+    @PostMapping("/{id}/attendance")
+    fun setAttendance(
+        @PathVariable id: Long,
+        @RequestBody request: EventAttendanceRequest,
+        @AuthenticationPrincipal jwt: Jwt,
+    ): EventDto = eventOperations.setAttendance(id, jwt.subject, request.status)
 }

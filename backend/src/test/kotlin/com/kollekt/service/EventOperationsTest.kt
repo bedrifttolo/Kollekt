@@ -6,6 +6,7 @@ import com.kollekt.domain.CalendarEvent
 import com.kollekt.domain.EventType
 import com.kollekt.domain.Member
 import com.kollekt.repository.CollectiveRepository
+import com.kollekt.repository.EventAttendanceRepository
 import com.kollekt.repository.EventRepository
 import com.kollekt.repository.MemberRepository
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -24,9 +25,11 @@ class EventOperationsTest {
     private lateinit var memberRepository: MemberRepository
     private lateinit var collectiveRepository: CollectiveRepository
     private lateinit var eventRepository: EventRepository
+    private lateinit var eventAttendanceRepository: EventAttendanceRepository
     private lateinit var notificationService: NotificationService
     private lateinit var googleCalendarService: GoogleCalendarService
     private lateinit var collectiveAccessService: CollectiveAccessService
+    private lateinit var realtimeUpdateService: RealtimeUpdateService
     private lateinit var operations: EventOperations
 
     @BeforeEach
@@ -34,16 +37,20 @@ class EventOperationsTest {
         memberRepository = mock()
         collectiveRepository = mock()
         eventRepository = mock()
+        eventAttendanceRepository = mock()
         notificationService = mock()
         googleCalendarService = mock()
+        realtimeUpdateService = mock()
         collectiveAccessService = CollectiveAccessService(memberRepository, collectiveRepository)
         operations =
             EventOperations(
                 memberRepository,
                 eventRepository,
+                eventAttendanceRepository,
                 notificationService,
                 collectiveAccessService,
                 googleCalendarService,
+                realtimeUpdateService,
             )
         whenever(memberRepository.findByName("Kasper")).thenReturn(member("Kasper", "kasper@example.com"))
     }

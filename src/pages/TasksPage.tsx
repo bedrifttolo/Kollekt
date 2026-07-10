@@ -64,6 +64,7 @@ function TaskEditor({
   onClose,
   onSave,
   saveLabel,
+  suggestedAssignee,
 }: {
   title: string;
   newTitle: string;
@@ -83,10 +84,21 @@ function TaskEditor({
   onClose: () => void;
   onSave: () => void;
   saveLabel: string;
+  suggestedAssignee?: string | null;
 }) {
   const { t } = useTranslation();
   const xp = Number(newXp);
   const canSave = newTitle.trim().length > 0 && Number.isInteger(xp) && xp >= 1 && xp <= 1000;
+  const quickDueDate = (offsetDays: number) => {
+    const date = new Date();
+    date.setDate(date.getDate() + offsetDays);
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+  };
+  const quickDueOptions = [
+    { labelKey: 'tasks.quickDueToday', value: quickDueDate(0) },
+    { labelKey: 'tasks.quickDueTomorrow', value: quickDueDate(1) },
+    { labelKey: 'tasks.quickDueNextWeek', value: quickDueDate(7) },
+  ];
 
   return (
     <AddSheet title={title} onClose={onClose}>
@@ -107,10 +119,33 @@ function TaskEditor({
           <select value={newAssignee} onChange={(event) => setNewAssignee(event.target.value)} className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary">
             {(members.length > 0 ? members : [name]).map((member) => <option key={member} value={member}>{member}</option>)}
           </select>
+          {suggestedAssignee && suggestedAssignee !== newAssignee && (
+            <button
+              type="button"
+              onClick={() => setNewAssignee(suggestedAssignee)}
+              className="text-left text-[11px] font-medium text-primary"
+            >
+              💡 {t('tasks.fairSuggestion', { name: suggestedAssignee })}
+            </button>
+          )}
         </label>
         <label className="space-y-1">
           <span className="text-xs font-semibold text-muted-foreground">{t('tasks.dueDateLabel')}</span>
           <input type="date" value={newDue} onChange={(event) => setNewDue(event.target.value)} className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary" />
+          <div className="flex gap-1.5 pt-0.5">
+            {quickDueOptions.map((option) => (
+              <button
+                key={option.labelKey}
+                type="button"
+                onClick={() => setNewDue(option.value)}
+                className={`rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors ${
+                  newDue === option.value ? 'gradient-primary text-primary-foreground' : 'glass text-muted-foreground'
+                }`}
+              >
+                {t(option.labelKey)}
+              </button>
+            ))}
+          </div>
         </label>
       </div>
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -232,6 +267,19 @@ function TasksMain() {
 
   const name = currentUser?.name ?? '';
   const memberOptions = members.length > 0 ? members : [name];
+
+  // Fairness nudge: suggest the housemate with the fewest open tasks when creating a task.
+  const openTaskCounts = new Map(memberOptions.map((member) => [member, 0]));
+  for (const task of tasks) {
+    if (!task.completed && openTaskCounts.has(task.assignee)) {
+      openTaskCounts.set(task.assignee, (openTaskCounts.get(task.assignee) ?? 0) + 1);
+    }
+  }
+  const suggestedAssignee = memberOptions.length > 1
+    ? memberOptions.reduce((best, member) =>
+        (openTaskCounts.get(member) ?? 0) < (openTaskCounts.get(best) ?? 0) ? member : best,
+      )
+    : null;
 
   const setTasksState = (updater: SetStateAction<Task[]>) => {
     setTasks((prev) => {
@@ -1031,6 +1079,7 @@ function TasksMain() {
                   onClose={resetForm}
                   onSave={handleSave}
                   saveLabel={t('tasks.addTask')}
+                  suggestedAssignee={suggestedAssignee}
                 />
               </motion.div>
             )}

@@ -1,4 +1,5 @@
-import { Outlet, Navigate } from 'react-router-dom';
+import { Suspense } from 'react';
+import { Outlet, Navigate, useLocation } from 'react-router-dom';
 import AppHeader from './AppHeader';
 import BottomNav from './BottomNav';
 import TourOverlay, { type TourStep } from './TourOverlay';
@@ -16,6 +17,10 @@ const APP_TOUR_STEPS: TourStep[] = [
 
 export default function AppLayout() {
   const { currentUser, isLoading } = useUser();
+  const { pathname } = useLocation();
+  // Chat renders its own compact header (thread info + profile button) so the shared
+  // header would just duplicate it and cost the messages a full row of space.
+  const hideHeader = pathname === '/chat';
 
   if (isLoading) {
     return (
@@ -30,9 +35,18 @@ export default function AppLayout() {
 
   return (
     <div className="app-viewport bg-background max-w-xl mx-auto relative overflow-x-hidden">
-      <AppHeader />
+      {!hideHeader && <AppHeader />}
       <main className="safe-content-bottom px-4 sm:px-6 pt-2">
-        <Outlet />
+        {/* Keeps header + bottom nav visible while a lazily loaded tab's chunk downloads. */}
+        <Suspense
+          fallback={
+            <div className="space-y-3 pt-4 animate-pulse">
+              {[...Array(4)].map((_, i) => <div key={i} className="glass rounded-2xl h-20" />)}
+            </div>
+          }
+        >
+          <Outlet />
+        </Suspense>
       </main>
       <BottomNav />
       <TourOverlay steps={APP_TOUR_STEPS} storageKey={`kollekt_tour_v2_${currentUser.id}`} />

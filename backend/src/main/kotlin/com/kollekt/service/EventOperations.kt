@@ -3,8 +3,11 @@ package com.kollekt.service
 import com.kollekt.api.dto.CreateEventRequest
 import com.kollekt.api.dto.EventDto
 import com.kollekt.api.dto.UpdateEventRequest
+import com.kollekt.domain.AttendanceStatus
 import com.kollekt.domain.CalendarEvent
+import com.kollekt.domain.EventAttendance
 import com.kollekt.domain.MemberStatus
+import com.kollekt.repository.EventAttendanceRepository
 import com.kollekt.repository.EventRepository
 import com.kollekt.repository.MemberRepository
 import org.springframework.stereotype.Service
@@ -14,16 +17,49 @@ import org.springframework.transaction.annotation.Transactional
 class EventOperations(
     private val memberRepository: MemberRepository,
     private val eventRepository: EventRepository,
+    private val eventAttendanceRepository: EventAttendanceRepository,
     private val notificationService: NotificationService,
     private val collectiveAccessService: CollectiveAccessService,
     private val googleCalendarService: GoogleCalendarService,
+    private val realtimeUpdateService: RealtimeUpdateService,
 ) {
     fun getEvents(memberName: String): List<EventDto> {
         val collectiveCode = collectiveAccessService.requireCollectiveCodeByMemberName(memberName)
-        return eventRepository
-            .findAllByCollectiveCode(collectiveCode)
-            .sortedBy { it.date }
-            .map { it.toDto() }
+        val events = eventRepository.findAllByCollectiveCode(collectiveCode).sortedBy { it.date }
+        val attendanceByEvent =
+            eventAttendanceRepository
+                .findAllByEventIdIn(events.map { it.id })
+                .groupBy { it.eventId }
+        return events.map { it.toDto(attendanceByEvent[it.id].orEmpty()) }
+    }
+
+    /** Records (or clears, when [status] is null) a member's join/pass response to an event. */
+    @Transactional
+    fun setAttendance(
+        eventId: Long,
+        actorName: String,
+        status: AttendanceStatus?,
+    ): EventDto {
+        val collectiveCode = collectiveAccessService.requireCollectiveCodeByMemberName(actorName)
+        val event =
+            eventRepository
+                .findById(eventId)
+                .orElseThrow { IllegalArgumentException("Event $eventId not found") }
+
+        require(event.collectiveCode == collectiveCode) { "Event not in your collective" }
+
+        val existing = eventAttendanceRepository.findByEventIdAndMemberName(eventId, actorName)
+        when {
+            status == null -> existing?.let { eventAttendanceRepository.delete(it) }
+            existing == null ->
+                eventAttendanceRepository.save(
+                    EventAttendance(eventId = eventId, memberName = actorName, status = status),
+                )
+            existing.status != status -> eventAttendanceRepository.save(existing.copy(status = status))
+        }
+
+        realtimeUpdateService.publish(collectiveCode, "EVENT_UPDATED", mapOf("eventId" to eventId))
+        return event.toDto(eventAttendanceRepository.findAllByEventIdIn(listOf(eventId)))
     }
 
     @Transactional
@@ -70,6 +106,7 @@ class EventOperations(
             )
         }
 
+        realtimeUpdateService.publish(collectiveCode, "EVENT_CREATED", mapOf("eventId" to saved.id))
         return saved.toDto()
     }
 
@@ -94,6 +131,7 @@ class EventOperations(
         }
 
         eventRepository.delete(event)
+        realtimeUpdateService.publish(collectiveCode, "EVENT_DELETED", mapOf("eventId" to eventId))
     }
 
     @Transactional
@@ -121,8 +159,22 @@ class EventOperations(
                 ),
             )
 
-        return updated.toDto()
+        realtimeUpdateService.publish(collectiveCode, "EVENT_UPDATED", mapOf("eventId" to eventId))
+        return updated.toDto(eventAttendanceRepository.findAllByEventIdIn(listOf(eventId)))
     }
 
-    private fun CalendarEvent.toDto() = EventDto(id, title, date, time, endTime, type, organizer, attendees, description)
+    private fun CalendarEvent.toDto(attendance: List<EventAttendance> = emptyList()) =
+        EventDto(
+            id,
+            title,
+            date,
+            time,
+            endTime,
+            type,
+            organizer,
+            attendees,
+            description,
+            joining = attendance.filter { it.status == AttendanceStatus.JOINING }.map { it.memberName },
+            passing = attendance.filter { it.status == AttendanceStatus.PASSING }.map { it.memberName },
+        )
 }

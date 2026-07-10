@@ -215,6 +215,15 @@ export default function CalendarPage() {
     setEvents((prev) => prev.filter((e) => e.id !== id));
   };
 
+  // Join/pass RSVP. Tapping your current answer again clears it.
+  const handleAttendance = async (event: CalendarEvent, status: "JOINING" | "PASSING") => {
+    const mine = event.joining.includes(name) ? "JOINING" : event.passing.includes(name) ? "PASSING" : null;
+    const updated = await api.post<CalendarEvent>(`/events/${event.id}/attendance`, {
+      status: mine === status ? null : status,
+    });
+    setEvents((prev) => prev.map((e) => (e.id === event.id ? updated : e)));
+  };
+
   const openEdit = (e: CalendarEvent) => {
     setEditingEvent(e);
     setEditTitle(e.title);
@@ -520,16 +529,43 @@ export default function CalendarPage() {
 	                  ]}
 	                />
               </div>
-              <div className="mt-2 flex -space-x-2">
-                <span className="grid h-8 w-8 place-items-center rounded-full border-2 border-card bg-primary text-xs font-bold text-primary-foreground">
-                  {e.organizer[0]?.toUpperCase()}
-                </span>
-                {e.attendees > 1 && (
-                  <span className="grid h-8 w-8 place-items-center rounded-full border-2 border-card bg-accent text-xs font-bold text-accent-foreground">
-                    +{e.attendees - 1}
+              <div className="mt-2 flex items-center justify-between gap-2">
+                <div className="flex -space-x-2">
+                  <span className="grid h-8 w-8 place-items-center rounded-full border-2 border-card bg-primary text-xs font-bold text-primary-foreground">
+                    {e.organizer[0]?.toUpperCase()}
                   </span>
-                )}
+                  {e.joining.filter((member) => member !== e.organizer).slice(0, 3).map((member) => (
+                    <span key={member} className="grid h-8 w-8 place-items-center rounded-full border-2 border-card bg-accent text-xs font-bold text-accent-foreground">
+                      {member[0]?.toUpperCase()}
+                    </span>
+                  ))}
+                </div>
+                <div className="flex shrink-0 gap-1.5">
+                  <button
+                    onClick={() => void handleAttendance(e, "JOINING")}
+                    className={`rounded-full px-2.5 py-1 text-[11px] font-semibold transition-colors ${
+                      e.joining.includes(name) ? "gradient-primary text-primary-foreground" : "glass text-muted-foreground"
+                    }`}
+                  >
+                    ✓ {t("calendar.attendance.join")}
+                  </button>
+                  <button
+                    onClick={() => void handleAttendance(e, "PASSING")}
+                    className={`rounded-full px-2.5 py-1 text-[11px] font-semibold transition-colors ${
+                      e.passing.includes(name) ? "bg-muted text-foreground" : "glass text-muted-foreground"
+                    }`}
+                  >
+                    {t("calendar.attendance.pass")}
+                  </button>
+                </div>
               </div>
+              {(e.joining.length > 0 || e.passing.length > 0) && (
+                <p className="mt-1.5 text-[11px] text-muted-foreground">
+                  {e.joining.length > 0 && <>✅ {e.joining.join(", ")}</>}
+                  {e.joining.length > 0 && e.passing.length > 0 && " · "}
+                  {e.passing.length > 0 && <>🙅 {e.passing.join(", ")}</>}
+                </p>
+              )}
             </div>
           </motion.div>
         ))}

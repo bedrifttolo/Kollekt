@@ -1176,6 +1176,8 @@ export default function ProfilePage() {
         </button>
       </div>
 
+      <p className="pt-1 pb-2 text-center text-xs text-muted-foreground/70">{t("common.credits")}</p>
+
       <AnimatePresence>
         {showRulesEditor && (
           <motion.div
