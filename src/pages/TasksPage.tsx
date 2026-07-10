@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { qk } from '../lib/queryKeys';
+import { queryClient as sharedQueryClient } from '../lib/queryClient';
 import {
   CheckCircle2,
   Package,
@@ -153,10 +154,21 @@ function TasksMain() {
   const { t } = useTranslation();
   const { currentUser } = useUser();
   const queryClient = useQueryClient();
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [shopping, setShopping] = useState<ShoppingItem[]>([]);
-  const [swapRequests, setSwapRequests] = useState<TaskSwapRequest[]>([]);
-  const [maintenanceTickets, setMaintenanceTickets] = useState<MaintenanceTicket[]>([]);
+  // Seed from the warm React Query cache so re-entering the tab renders instantly instead
+  // of flashing the loading skeleton on every navigation.
+  const cachedTaskBundle = () =>
+    sharedQueryClient.getQueryData<{
+      taskRes: Task[];
+      shopRes: ShoppingItem[];
+      swapRequestRes: TaskSwapRequest[];
+      maintenanceRes: MaintenanceTicket[];
+    }>(qk.tasks(currentUser?.name ?? ''));
+  const [tasks, setTasks] = useState<Task[]>(() => cachedTaskBundle()?.taskRes ?? []);
+  const [shopping, setShopping] = useState<ShoppingItem[]>(() => cachedTaskBundle()?.shopRes ?? []);
+  const [swapRequests, setSwapRequests] = useState<TaskSwapRequest[]>(() => cachedTaskBundle()?.swapRequestRes ?? []);
+  const [maintenanceTickets, setMaintenanceTickets] = useState<MaintenanceTicket[]>(
+    () => cachedTaskBundle()?.maintenanceRes ?? [],
+  );
   const [members, setMembers] = useState<string[]>([]);
   const [filter, setFilter] = useState<TaskFilter>('ALL');
   const [searchParams] = useSearchParams();
@@ -212,7 +224,7 @@ function TasksMain() {
   const [buyParticipants, setBuyParticipants] = useState<string[]>([]);
   const [buyDate, setBuyDate] = useState('');
   const [buyDeadline, setBuyDeadline] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => !cachedTaskBundle());
   const [pendingTaskIds, setPendingTaskIds] = useState<Set<number>>(new Set());
   const pendingTaskIdsRef = useRef<Set<number>>(new Set());
   const tasksRef = useRef<Task[]>([]);
@@ -803,7 +815,7 @@ function TasksMain() {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12 }}
+      initial={false}
       animate={{ opacity: 1, y: 0 }}
       className="space-y-4 pt-4"
     >

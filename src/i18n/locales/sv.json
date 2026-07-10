@@ -9,19 +9,52 @@
     "next": "Nästa",
     "done": "Uppfattat",
     "onboarding": {
-      "mode": { "title": "Skapa eller gå med", "body": "Starta ett nytt hem, eller gå med i rumskompisarnas med deras kod." },
-      "name": { "title": "Namnge ditt hem", "body": "Välj ett namn som alla känner igen." },
-      "rooms": { "title": "Välj era gemensamma rum", "body": "Tryck på exempelrum för att lägga till dem, eller lägg till egna. Du kan ändra städtiden för varje rum — tiden bestämmer XP." },
-      "create": { "title": "Klar att börja", "body": "Skapa hemmet och bjud sedan in de andra." }
+      "mode": {
+        "title": "Skapa eller gå med",
+        "body": "Starta ett nytt hem, eller gå med i rumskompisarnas med deras kod."
+      },
+      "name": {
+        "title": "Namnge ditt hem",
+        "body": "Välj ett namn som alla känner igen."
+      },
+      "rooms": {
+        "title": "Välj era gemensamma rum",
+        "body": "Tryck på exempelrum för att lägga till dem, eller lägg till egna. Du kan ändra städtiden för varje rum — tiden bestämmer XP."
+      },
+      "create": {
+        "title": "Klar att börja",
+        "body": "Skapa hemmet och bjud sedan in de andra."
+      }
     },
     "steps": {
-      "home": { "title": "Din utgångspunkt", "body": "Se kollektivet med en blick — saldon, uppgifter och stämningen för veckan." },
-      "tasks": { "title": "Rättvis fördelning", "body": "Uppgifterna roterar jämnt varje vecka. Slutför du dem får du XP." },
-      "calendar": { "title": "Planera tillsammans", "body": "En delad kalender för husets händelser, gäster och tysta timmar — synka den med din egen kalender också." },
-      "chat": { "title": "Prata ihop er", "body": "Gruppchatt för kollektivet: omröstningar, reaktioner, bilder och ett vänligt tack med kudos." },
-      "economy": { "title": "Dela och gör upp", "body": "Håll koll på gemensamma utgifter, spara mottagningsuppgifter och öppna externa betalappar när ni betalar tillbaka varandra." },
-      "social": { "title": "Tävla och spela", "body": "Klättra på topplistan och starta spelkvällar tillsammans." },
-      "profile": { "title": "Du och inställningarna", "body": "Tryck här för profil, betalningsmetoder, inbjudningar och val för kollektivet." }
+      "home": {
+        "title": "Din utgångspunkt",
+        "body": "Se kollektivet med en blick — saldon, uppgifter och stämningen för veckan."
+      },
+      "tasks": {
+        "title": "Rättvis fördelning",
+        "body": "Uppgifterna roterar jämnt varje vecka. Slutför du dem får du XP."
+      },
+      "calendar": {
+        "title": "Planera tillsammans",
+        "body": "En delad kalender för husets händelser, gäster och tysta timmar — synka den med din egen kalender också."
+      },
+      "chat": {
+        "title": "Prata ihop er",
+        "body": "Gruppchatt för kollektivet: omröstningar, reaktioner, bilder och ett vänligt tack med kudos."
+      },
+      "economy": {
+        "title": "Dela och gör upp",
+        "body": "Håll koll på gemensamma utgifter, spara mottagningsuppgifter och öppna externa betalappar när ni betalar tillbaka varandra."
+      },
+      "social": {
+        "title": "Tävla och spela",
+        "body": "Klättra på topplistan och starta spelkvällar tillsammans."
+      },
+      "profile": {
+        "title": "Du och inställningarna",
+        "body": "Tryck här för profil, betalningsmetoder, inbjudningar och val för kollektivet."
+      }
     }
   },
   "languages": {
@@ -364,7 +397,12 @@
     "addSupply": "Lägg till vara",
     "supplyNamePlaceholder": "Varunamn...",
     "shoppingSuggestions": "Vanliga varor",
-    "shoppingTemplates": { "toiletPaper": "Toalettpapper", "dishSoap": "Diskmedel", "trashBags": "Soppåsar", "laundryDetergent": "Tvättmedel" },
+    "shoppingTemplates": {
+      "toiletPaper": "Toalettpapper",
+      "dishSoap": "Diskmedel",
+      "trashBags": "Soppåsar",
+      "laundryDetergent": "Tvättmedel"
+    },
     "toggleComments": "Visa feedback",
     "editTaskAria": "Redigera uppgift",
     "deleteTaskAria": "Ta bort uppgift",
@@ -389,7 +427,11 @@
       "toBuyUnit": "att köpa",
       "boughtCount": "{{count}} köpta",
       "noneInFilter": "Inget här.",
-      "filters": { "ALL": "Alla", "TO_BUY": "Att köpa", "BOUGHT": "Köpta" }
+      "filters": {
+        "ALL": "Alla",
+        "TO_BUY": "Att köpa",
+        "BOUGHT": "Köpta"
+      }
     },
     "maintenance": {
       "boardTitle": "Underhållstavla",
@@ -422,8 +464,18 @@
       "due": "Förfaller",
       "noDueDate": "Inget förfallodatum",
       "overdue": "Försenad",
-      "priorities": { "LOW": "Låg", "MEDIUM": "Medel", "HIGH": "Hög", "URGENT": "Brådskande" },
-      "statuses": { "OPEN": "Öppen", "IN_PROGRESS": "Pågår", "BLOCKED": "Blockerad", "DONE": "Klar" }
+      "priorities": {
+        "LOW": "Låg",
+        "MEDIUM": "Medel",
+        "HIGH": "Hög",
+        "URGENT": "Brådskande"
+      },
+      "statuses": {
+        "OPEN": "Öppen",
+        "IN_PROGRESS": "Pågår",
+        "BLOCKED": "Blockerad",
+        "DONE": "Klar"
+      }
     }
   },
   "checkin": {
@@ -445,14 +497,26 @@
   },
   "kudos": {
     "typeLabel": "För vad?",
-    "types": { "THANK_YOU": "Tack", "CLEANEST": "Renast", "MOST_HELPFUL": "Mest hjälpsam", "PEACEMAKER": "Fredsmäklare" },
+    "types": {
+      "THANK_YOU": "Tack",
+      "CLEANEST": "Renast",
+      "MOST_HELPFUL": "Mest hjälpsam",
+      "PEACEMAKER": "Fredsmäklare"
+    },
     "privateNote": "Bara de ser detta — det delas inte med kollektivet.",
-    "sendTitle": "Skicka beröm", "chooseRoommate": "Välj en rumskamrat", "generalHelp": "Allmän hjälp",
-    "contextPlaceholder": "Vad gjorde personen som hjälpte?", "send": "Skicka beröm",
-    "dailyLimit": "Du kan skicka upp till 3 beröm per dag.", "weeklyTitle": "Veckans positivitet",
-    "weeklyTotal_one": "{{count}} beröm delat denna vecka", "weeklyTotal_other": "{{count}} beröm delade denna vecka",
-    "weeklyEmpty": "Inget delat ännu — var den första.", "profileBadge": "Mottagna beröm",
-    "receivedTotal_one": "{{count}} uppskattning från hushållet", "receivedTotal_other": "{{count}} uppskattningar från hushållet"
+    "sendTitle": "Skicka beröm",
+    "chooseRoommate": "Välj en rumskamrat",
+    "generalHelp": "Allmän hjälp",
+    "contextPlaceholder": "Vad gjorde personen som hjälpte?",
+    "send": "Skicka beröm",
+    "dailyLimit": "Du kan skicka upp till 3 beröm per dag.",
+    "weeklyTitle": "Veckans positivitet",
+    "weeklyTotal_one": "{{count}} beröm delat denna vecka",
+    "weeklyTotal_other": "{{count}} beröm delade denna vecka",
+    "weeklyEmpty": "Inget delat ännu — var den första.",
+    "profileBadge": "Mottagna beröm",
+    "receivedTotal_one": "{{count}} uppskattning från hushållet",
+    "receivedTotal_other": "{{count}} uppskattningar från hushållet"
   },
   "laundry": {
     "title": "Ska tvätta",
@@ -462,9 +526,24 @@
     "message": "Jag kör en tvätt på {{temp}}°C ({{type}}). Häng på?",
     "join": "Jag vill vara med",
     "notThisTime": "Inte den här gången",
-    "types": { "WHITES": "Vitt", "COLORS": "Kulört", "DELICATES": "Fintvätt", "WOOL": "Ylle", "SPORTS": "Träningskläder", "TOWELS": "Handdukar" }
+    "types": {
+      "WHITES": "Vitt",
+      "COLORS": "Kulört",
+      "DELICATES": "Fintvätt",
+      "WOOL": "Ylle",
+      "SPORTS": "Träningskläder",
+      "TOWELS": "Handdukar"
+    }
   },
-  "quietHours": { "title": "Tyst tid", "window": "{{start}}–{{end}}", "disabled": "Tyst tid är av", "save": "Spara tyst tid", "edit": "Redigera", "cancel": "Avbryt", "enabledLabel": "Aktivera tyst tid" },
+  "quietHours": {
+    "title": "Tyst tid",
+    "window": "{{start}}–{{end}}",
+    "disabled": "Tyst tid är av",
+    "save": "Spara tyst tid",
+    "edit": "Redigera",
+    "cancel": "Avbryt",
+    "enabledLabel": "Aktivera tyst tid"
+  },
   "calendar": {
     "eyebrow": "Tillsammans",
     "title": "Huskalender",
@@ -479,7 +558,10 @@
     "subscribeButton": "Prenumerera",
     "subscribeUrlLabel": "Länk för kalenderprenumeration",
     "newEvent": "Ny händelse",
-    "addModes": { "event": "Händelse", "guest": "Gästmeddelande" },
+    "addModes": {
+      "event": "Händelse",
+      "guest": "Gästmeddelande"
+    },
     "guestNamePlaceholder": "Gästens namn...",
     "guestOvernight": "Övernattande gäst",
     "addGuestNotice": "Dela gästmeddelande",
@@ -535,7 +617,8 @@
     "descriptionLabel": "Vad gällde det?",
     "amountLabel": "Belopp (kr)",
     "categoryLabel": "Kategori",
-    "splitSummary_one": "Delas med {{count}} person", "splitSummary_other": "Delas med {{count}} personer",
+    "splitSummary_one": "Delas med {{count}} person",
+    "splitSummary_other": "Delas med {{count}} personer",
     "expenseTitlePlaceholder": "Vad gällde det?",
     "expenseAmountPlaceholder": "Belopp (kr)",
     "splitWith": "Dela med",
@@ -639,8 +722,7 @@
         "snusboksen": "Snusboksen",
         "whoAreWe": "Vilka är vi?",
         "guysNight": "Killkväll",
-        "girlsNight": "Tjejkväll",
-        "whoAreWe": "Vilka är vi?"
+        "girlsNight": "Tjejkväll"
       },
       "descriptions": {
         "dice": "Kasta en virtuell tärning och skicka turen vidare. Perfekt för Opus!",
@@ -720,19 +802,58 @@
         "ready": "Dra första kortet när ni är redo.",
         "draw": "Dra kort",
         "cards": {
-          "A": { "title": "Vattenfall", "rule": "Alla börjar dricka. Ingen slutar förrän personen till höger har slutat." },
-          "2": { "title": "Du", "rule": "{{player}} väljer någon som tar två klunkar." },
-          "3": { "title": "Jag", "rule": "{{player}} tar tre klunkar." },
-          "4": { "title": "Golvet", "rule": "Sista personen som rör golvet tar en klunk." },
-          "5": { "title": "Killarna", "rule": "Alla som identifierar sig som kille tar en klunk." },
-          "6": { "title": "Tjejerna", "rule": "Alla som identifierar sig som tjej tar en klunk." },
-          "7": { "title": "Himlen", "rule": "Sista personen som pekar uppåt tar en klunk." },
-          "8": { "title": "Kompis", "rule": "{{player}} väljer en kompis. När en dricker, dricker båda." },
-          "9": { "title": "Rim", "rule": "{{player}} säger ett ord. Fortsätt med rim runt bordet; första missen förlorar." },
-          "10": { "title": "Kategori", "rule": "{{player}} väljer en kategori. Fortsätt runt bordet; första missen förlorar." },
-          "J": { "title": "Jag har aldrig", "rule": "{{player}} säger «Jag har aldrig …». De som har gjort det tar en klunk." },
-          "Q": { "title": "Frågemästare", "rule": "Svarar du på en fråga från {{player}} måste du dricka. Gäller till nästa dam." },
-          "K": { "title": "Kungens kopp", "rule": "Häll lite i koppen. Den som drar den fjärde kungen måste ta koppen." }
+          "A": {
+            "title": "Vattenfall",
+            "rule": "Alla börjar dricka. Ingen slutar förrän personen till höger har slutat."
+          },
+          "2": {
+            "title": "Du",
+            "rule": "{{player}} väljer någon som tar två klunkar."
+          },
+          "3": {
+            "title": "Jag",
+            "rule": "{{player}} tar tre klunkar."
+          },
+          "4": {
+            "title": "Golvet",
+            "rule": "Sista personen som rör golvet tar en klunk."
+          },
+          "5": {
+            "title": "Killarna",
+            "rule": "Alla som identifierar sig som kille tar en klunk."
+          },
+          "6": {
+            "title": "Tjejerna",
+            "rule": "Alla som identifierar sig som tjej tar en klunk."
+          },
+          "7": {
+            "title": "Himlen",
+            "rule": "Sista personen som pekar uppåt tar en klunk."
+          },
+          "8": {
+            "title": "Kompis",
+            "rule": "{{player}} väljer en kompis. När en dricker, dricker båda."
+          },
+          "9": {
+            "title": "Rim",
+            "rule": "{{player}} säger ett ord. Fortsätt med rim runt bordet; första missen förlorar."
+          },
+          "10": {
+            "title": "Kategori",
+            "rule": "{{player}} väljer en kategori. Fortsätt runt bordet; första missen förlorar."
+          },
+          "J": {
+            "title": "Jag har aldrig",
+            "rule": "{{player}} säger «Jag har aldrig …». De som har gjort det tar en klunk."
+          },
+          "Q": {
+            "title": "Frågemästare",
+            "rule": "Svarar du på en fråga från {{player}} måste du dricka. Gäller till nästa dam."
+          },
+          "K": {
+            "title": "Kungens kopp",
+            "rule": "Häll lite i koppen. Den som drar den fjärde kungen måste ta koppen."
+          }
         }
       },
       "categoriesGame": {
@@ -742,7 +863,18 @@
         "out": "Spelare är ute",
         "timeOut": "Tiden är ute",
         "winner": "{{player}} vinner!",
-        "prompts": { "countries": "Länder", "foods": "Maträtter", "movies": "Filmer", "animals": "Djur", "brands": "Varumärken", "songs": "Låtar", "cities": "Städer", "thingsInKitchen": "Saker i köket", "excuses": "Dåliga ursäkter", "houseRules": "Regler i ett kollektiv" }
+        "prompts": {
+          "countries": "Länder",
+          "foods": "Maträtter",
+          "movies": "Filmer",
+          "animals": "Djur",
+          "brands": "Varumärken",
+          "songs": "Låtar",
+          "cities": "Städer",
+          "thingsInKitchen": "Saker i köket",
+          "excuses": "Dåliga ursäkter",
+          "houseRules": "Regler i ett kollektiv"
+        }
       },
       "charadesGame": {
         "turn": "{{player}} ska mima",
@@ -752,7 +884,28 @@
         "skip": "Hoppa över",
         "correct": "Rätt",
         "nextPlayer": "Tiden är ute – nästa spelare",
-        "prompts": { "vacuum": "Dammsuga", "penguin": "Pingvin", "superhero": "Superhjälte", "pizza": "Göra pizza", "washingMachine": "Tvättmaskin", "cat": "Katt", "football": "Spela fotboll", "alarmClock": "Väckarklocka", "hairdresser": "Frisör", "airplane": "Flygplan", "ghost": "Spöke", "chef": "Kock", "robot": "Robot", "fishing": "Fiska", "selfie": "Ta en selfie", "banana": "Skala en banan", "snowman": "Bygga snögubbe", "guitar": "Spela gitarr", "trafficJam": "Trafikstockning", "movingDay": "Flyttdag" }
+        "prompts": {
+          "vacuum": "Dammsuga",
+          "penguin": "Pingvin",
+          "superhero": "Superhjälte",
+          "pizza": "Göra pizza",
+          "washingMachine": "Tvättmaskin",
+          "cat": "Katt",
+          "football": "Spela fotboll",
+          "alarmClock": "Väckarklocka",
+          "hairdresser": "Frisör",
+          "airplane": "Flygplan",
+          "ghost": "Spöke",
+          "chef": "Kock",
+          "robot": "Robot",
+          "fishing": "Fiska",
+          "selfie": "Ta en selfie",
+          "banana": "Skala en banan",
+          "snowman": "Bygga snögubbe",
+          "guitar": "Spela gitarr",
+          "trafficJam": "Trafikstockning",
+          "movingDay": "Flyttdag"
+        }
       },
       "deckGame": {
         "pickDeck": "Välj en kortlek",
@@ -765,7 +918,11 @@
         "changeDeck": "Byt kortlek"
       },
       "whoAreWe": {
-        "deckNames": { "mild": "Mild", "medium": "Medium", "droy": "Dröy" },
+        "deckNames": {
+          "mild": "Mild",
+          "medium": "Medium",
+          "droy": "Dröy"
+        },
         "deckDescriptions": {
           "mild": "Lätta frågor för att komma igång.",
           "medium": "Mer personligt — med lite krydda.",
@@ -773,105 +930,109 @@
         },
         "decks": {
           "mild": [
-            "Vem här är definitivt fortfarande i sängen när alla andra är uppe?",
+            "Vem här ligger kvar i sängen när alla andra är uppe?",
             "Vem här fungerar inte utan kaffe eller te på morgonen?",
             "Vem här tar alltid längst tid på badrummet?",
             "Vem här skulle glömma att äta om ingen påminde dem?",
-            "Vem här skulle äta flingor till middag utan att tänka på det?",
-            "Vem här stjäl alltid en bit av andras mat?",
-            "Vem här är fredsmäklaren när det bli spänt?",
-            "Vem här skulle hamna i ett samtal som pågår till soluppgången utan att ha planerat det?",
+            "Vem här äter flingor till middag utan att blinka?",
+            "Vem här snor alltid en bit av någon annans mat?",
+            "Vem här är fredsmäklaren när stämningen blir spänd?",
+            "Vem här blir sittande och prata till soluppgången utan att planera det?",
             "Vem här vet alltid vad som händer i allas liv?",
             "Vem här skulle vara allas nödkontakt?",
-            "Vem här har en förmåga som skulle förvåna alla?",
-            "Vem här skulle kunna laga något trasigt med bara det som finns i lägenheten?",
-            "Vem här ger de bästa råden utan att det blir konstigt?",
+            "Vem här har en dold färdighet som skulle överraska alla?",
+            "Vem här kunde laga något trasigt med bara det som finns i lägenheten?",
+            "Vem här ger bäst råd utan att det blir jobbigt?",
             "Vem här skulle överleva längst i ett realityprogram?",
-            "Vem här är festens medelpunkt fem minuter efter ankomst?",
-            "Vem här skulle bli vän med alla på en fest inom en timme?",
-            "Vem här har en spellista för absolut alla stämningar?",
-            "Vem här skulle lämna allt för att hjälpa en vän klockan 2 på natten?",
-            "Vem här är egentligen den mest sentimentala personen i huset?",
-            "Vem här skulle göra något pinsamt bara för att muntra upp någon?",
+            "Vem här är festens medelpunkt fem minuter efter de kommit?",
+            "Vem här blir vän med alla på en fest inom en timme?",
+            "Vem här har en spellista för precis varje humör?",
+            "Vem här skulle släppa allt för att hjälpa en vän klockan två på natten?",
+            "Vem här är egentligen den mest sentimentala i kollektivet?",
+            "Vem här skulle göra något pinsamt för att muntra upp någon?",
             "Vem här pratar med sig själv när de tror att ingen hör?",
-            "Vem här skulle flytta utomlands på impuls och få det att fungera?",
-            "Vem här har alltid något snacks gömt på sitt rum?",
-            "Vem här skulle vara den första att märka om något var fel med någon?",
-            "Vem här har en röst som skulle passa perfekt till en podcast?",
-            "Vem här knyter de mest osannolika vänskaper?",
+            "Vem här skulle åka utomlands på impuls och få det att funka?",
+            "Vem här har alltid snacks gömt på rummet?",
+            "Vem här märker först om något är fel med någon?",
+            "Vem här har en röst som passar perfekt för en podd?",
+            "Vem här får de mest osannolika vänskaperna?",
             "Vem här skulle hålla en växt vid liv längst?",
-            "Vem här skulle vara den mest pålitliga i ett grupprojekt?",
+            "Vem här är mest pålitlig i ett grupparbete?",
             "Vem här behöver en kram mest men skulle aldrig be om en?",
-            "Vem här skulle hamna som husets inofficiella kock?"
+            "Vem här skulle bli kollektivets inofficiella kock?"
           ],
           "medium": [
-            "Vem här skulle flörta med någon bara för att se om de kunde?",
-            "Vem här har definitivt kollat sin exes plats minst en gång den här veckan?",
-            "Vem här är mest sannolik att kära ner sig alldeles för fort?",
-            "Vem här skulle kyssa någon härinne om lamporna slocknade?",
-            "Vem här har haft en smash på en kompis ex alldeles för länge?",
-            "Vem här blir alltför ärlig om sitt kärleksliv när de är fulla?",
-            "Vem här är mest sannolik att bli kär i någon de absolut inte borde?",
+            "Vem här skulle flörta med någon bara för att se om de klarade det?",
+            "Vem här har garanterat kollat exets plats minst en gång i veckan?",
+            "Vem här faller för någon alldeles för snabbt?",
+            "Vem här skulle kyssa någon här om ljuset slocknade?",
+            "Vem här har haft en crush på en väns ex alldeles för länge?",
+            "Vem här blir alldeles för ärlig om kärlekslivet när de är fulla?",
+            "Vem här blir kär i precis den de absolut inte borde?",
             "Vem här skulle vara mest äventyrlig i sängen?",
             "Vem här har den mest pinsamma dejtingapp-historien?",
-            "Vem här är mest sannolik att ha en crush på någon i rummet just nu?",
-            "Vem här har den mest intressanta romantiska historiken?",
-            "Vem här skulle ta första steget utan att tveka?",
-            "Vem här har haft det längsta situationship som inte gick någonstans?",
-            "Vem här är mest sannolik att somna direkt efter sex?",
-            "Vem här skulle ligga med någon de träffade samma dag?",
-            "Vem här skickar de mest riskabla meddelandena efter några drinkar?",
-            "Vem här är mest sannolik att dejta någon som är mycket äldre eller yngre?",
+            "Vem här har garanterat en crush på någon i rummet just nu?",
+            "Vem här har den mest intressanta romantiska historien?",
+            "Vem här tar första steget utan att tveka?",
+            "Vem här har haft den längsta situationshipen som aldrig ledde nånstans?",
+            "Vem här somnar direkt efter sex?",
+            "Vem här skulle sms:a exet efter midnatt?",
+            "Vem här skickar de mest riskabla meddelandena efter ett par drinkar?",
+            "Vem här skulle dejta någon mycket äldre eller yngre?",
             "Vem här skulle vara mest dramatisk efter ett uppbrott?",
-            "Vem här har den sämsta smaken på folk de attraheras av?",
-            "Vem här är mest sannolik att fortfarande tänka på en hookup från månader sedan?",
-            "Vem här skulle överleva längst utan fysisk intimitet?",
-            "Vem här är mest sannolik att hamna i en komplicerad kärlekssituation?",
-            "Vem här har den mest kaotiska romantiska historiken?",
-            "Vem här är mest sannolik att förbli vänner med en ex?",
-            "Vem här har den bästa historien om att bli raggas på helt oväntat?",
-            "Vem här är mest sannolik att kära ner sig bara via textmeddelanden?",
-            "Vem här skulle ta första steget och direkt ångra det?",
-            "Vem här skulle vara den mest givande partnern i ett förhållande?",
-            "Vem här är mest sannolik att hamna i en komplicerad situation?",
-            "Vem här har det högsta antalet i rummet? Alla pekar."
+            "Vem här har sämst smak i folk de faller för?",
+            "Vem här tänker fortfarande på nån de hade en flört med för månader sen?",
+            "Vem här skulle klara sig längst utan fysisk närhet?",
+            "Vem här hamnar garanterat i en komplicerad kärlekssituation?",
+            "Vem här har den mest kaotiska romantiska historien?",
+            "Vem här förblir vän med ett ex?",
+            "Vem här vore den mest generösa partnern?",
+            "Vem här har den bästa storyn om att bli uppraggad helt oväntat?",
+            "Vem här får känslor bara via sms?",
+            "Vem här är bäst på att prata någon till vad som helst?",
+            "Vem här skulle ta första steget och ångra det direkt?",
+            "Vem här flörtar utan att inse att de gör det?"
           ],
           "droy": [
-            "Vem här skulle ligga med någon i rummet om det inte fick några konsekvenser?",
-            "Vem här har den kinkigaste sidan som ingen här känner till?",
-            "Vem här är mest sannolik att ha en one-night stand ikväll?",
-            "Vem här har den mest intressanta platsen de någonsin haft sex?",
-            "Vem här skulle vara störst i sängen?",
-            "Vem här skulle vara öppen för en kompis-med-förmåner-situation?",
-            "Vem här har skickat nakenbilder de direkt ångrat?",
-            "Vem här är mest sannolik att redan ha legat med någon i huset?",
+            "Vem här skulle ta en one-night stand ikväll om chansen dök upp?",
+            "Vem här har en kinkig sida ingen här anar?",
+            "Vem här har det vildaste stället de haft sex på?",
+            "Vem här skulle vara högljuddast i sängen?",
+            "Vem här skulle vara öppen för ett knullkompis-upplägg?",
+            "Vem här har skickat en nakenbild de ångrade direkt?",
             "Vem här har mest att dölja i kamerarullen just nu?",
-            "Vem här har haft den mest pinsamma morgondagen efter?",
-            "Vem här är mest sannolik att föreslå något oväntat i sängen?",
-            "Vem här skulle göra en walk of shame med mest självförtroende?",
-            "Vem här har legat med mer än en person i samma vänkrets?",
-            "Vem här har låtsats och direkt känt sig skyldig efteråt?",
-            "Vem här skulle vara helt ärlig om sitt antal om de frågades just nu?",
-            "Vem här har den mest dramatiska sexuella missödeshistorien?",
-            "Vem här är mest sannolik att ha sex ikväll?",
-            "Vem här skulle vara den bästa hookup — ärligt talat?",
-            "Vem här har en typ som skulle förvåna alla härinne?",
-            "Vem här har legat med någon i gruppen och aldrig berättat?",
-            "Vem här är mest sannolik att ha tänkt på någon härinne på det sättet?",
-            "Vem här har det mest explicita i sina utkast just nu?",
-            "Vem här skulle hantera en one-night stand med mest mognad?",
-            "Vem här är mest sannolik att ha en hemlig romantisk historia med någon härinne?",
-            "Vem här är hemligt den kinkigaste personen härinne?",
-            "Vem här har gjort något sexuellt de skulle skämmas för att erkänna för den här gruppen?",
-            "Vem här är mest sannolik att ha sex ikväll av alla härinne?",
-            "Vem här har den mest kreativa ursäkten de använt för att ta sig ur en sexuell situation?",
-            "Vem här skulle vara den mest äventyrliga partnern?",
-            "Vem här är mest sannolik att tänka på att ligga med någon härinne just nu?"
+            "Vem här har haft den mest pinsamma morgonen efter?",
+            "Vem här skulle föreslå något oväntat i sängen?",
+            "Vem här skulle göra en walk of shame med hög svans?",
+            "Vem här har flörtat med två i samma kompisgäng?",
+            "Vem här skulle svara helt ärligt på sitt antal just nu?",
+            "Vem här har den mest dramatiska storyn om ett sexuellt missöde?",
+            "Vem här vore det bästa hookup-valet — helt ärligt?",
+            "Vem här har en typ som skulle chocka precis alla här?",
+            "Vem här har det mest explicita i utkastmappen just nu?",
+            "Vem här skulle hantera en one-night stand med mest stil?",
+            "Vem här skulle skicka ett dirty-talk-meddelande först?",
+            "Vem här har en fetisch de aldrig skulle erkänna nyktra?",
+            "Vem här har haft sex nånstans de lätt kunde ha åkt fast?",
+            "Vem här tänker garanterat på någon här på det sättet?",
+            "Vem här har den längsta torkan vid bordet just nu?",
+            "Vem här skulle testa något de sett på nätet men aldrig vågat föreslå?",
+            "Vem här har den snuskigaste meddelandeloggen vid bordet?",
+            "Vem här skulle säga ja till en dejt de vet slutar i sängen?",
+            "Vem här har flörtat sig till något gratis?",
+            "Vem här har gjort något i sängen de skulle skämmas för att erkänna här?",
+            "Vem här har den mest kreativa ursäkten för att smita från en dejt?",
+            "Vem här vore den mest äventyrliga partnern?",
+            "Vem här har den vildaste hookup-storyn de faktiskt vågar berätta?"
           ]
         }
       },
       "guysNight": {
-        "deckNames": { "mild": "Mild", "medium": "Medium", "droy": "Dröy" },
+        "deckNames": {
+          "mild": "Mild",
+          "medium": "Medium",
+          "droy": "Dröy"
+        },
         "deckDescriptions": {
           "mild": "Kul, socialt och lite tävlingsinriktat. Perfekt för att värma upp.",
           "medium": "Mer personligt — lite roastning, lite bekännelser, lite krydda.",
@@ -880,104 +1041,108 @@
         "decks": {
           "mild": [
             "Peka på vem som skulle överleva längst i skogen utan utrustning.",
-            "Jag har aldrig hoppat över bendag och sedan burit shorts nästa dag.",
-            "Alla som har skickat ett 'är du vaken?'-meddelande den senaste månaden dricker.",
-            "Peka på vem som är mest sannolik att gråta på en fotbollsmatch.",
-            "Jag har aldrig låtsats kunna texten och fullständigt missat den vid värsta tillfället.",
+            "Jag har aldrig hoppat över bendagen och tagit shorts dagen efter.",
+            "Alla som skickat ett 'är du vaken?'-meddelande senaste månaden dricker.",
+            "Peka på vem som mest troligt gråter på en fotbollsmatch.",
+            "Jag har aldrig låtsats kunna texten och missat vid värsta tänkbara tillfälle.",
             "Bästa imitationen av någon i rummet. Gruppen röstar — förloraren dricker.",
-            "Peka på vem som skulle vinna beer pong om livet stod på spel.",
-            "Jag har aldrig textat en tjej och låtsats att jag bara checkade in.",
-            "Alla som har ett oskrivet meddelande i utkast som de aldrig skickade dricker.",
-            "Peka på vem som skulle bli slagen först i ett bråk på en bar de inte startade.",
-            "Bryta finger med personen bredvid dig. Förloraren dricker.",
-            "Jag har aldrig sjukanmält mig och gått rakt till puben.",
+            "Peka på vem som skulle vinna beer pong om livet hängde på det.",
+            "Jag har aldrig sms:at någon och låtsats att det bara var en koll.",
+            "Alla som har ett meddelande i utkast de aldrig skickade dricker.",
+            "Peka på vem som skulle bli slagen först i ett barbråk de inte startade.",
+            "Fingerkrok med den bredvid dig. Förloraren dricker.",
+            "Jag har aldrig sjukanmält mig och gått raka vägen till puben.",
             "Peka på vem som har flest olästa notiser just nu.",
-            "Alla som har ghostat någon i år dricker.",
-            "Bästa roasten av personen till vänster. Tio sekunder. Kör.",
-            "Jag har aldrig börjat en gymfas som varade under två veckor.",
-            "Peka på vem som är mest sannolik att av en slump bli ett meme.",
-            "Alla som har ätit en hel måltid direkt från kastrullen dricker.",
-            "Jag har aldrig memorerat något fullständigt onödigt och känt mig stolt.",
+            "Alla som ghostat någon i år dricker.",
+            "Roasta den till vänster. Tio sekunder. Kör.",
+            "Jag har aldrig börjat ett träningsprogram som höll under två veckor.",
+            "Peka på vem som mest troligt blir ett meme av misstag.",
+            "Alla som ätit en hel måltid direkt ur grytan dricker.",
+            "Jag har aldrig pluggat in något helt värdelöst och varit stolt över det.",
             "Peka på vem som skulle klara sig längst utan telefon.",
-            "Alla som inte vet sin bästa väns faktiska födelsedag dricker.",
-            "Jag har aldrig skyllat på någon annan för en lukt som definitivt var jag.",
-            "Peka på vem du vill ha på ditt lag i precis vilken tävling som helst.",
-            "Alla som har ljugit om sitt tempo på en löptur dricker.",
-            "Jag har aldrig tackat nej till ett bråk och hemligt känt mig lättad.",
-            "Peka på vem som skulle ge efter först om gruppen ville stanna ute längre.",
-            "Alla som har tre eller fler flikar öppna just nu som de aldrig stänger dricker.",
+            "Alla som inte vet sin bästis riktiga födelsedag dricker.",
+            "Jag har aldrig skyllt en lukt på någon annan när det uppenbart var jag.",
+            "Peka på vem du vill ha i ditt lag i precis vilken tävling som helst.",
+            "Alla som ljugit om tempot på en löprunda dricker.",
+            "Jag har aldrig backat ur ett bråk och i hemlighet varit lättad.",
+            "Peka på vem som skulle ge med sig först om gänget ville stanna ute längre.",
+            "Alla med tre eller fler flikar de aldrig kommer stänga dricker.",
             "Jag har aldrig köpt något enbart för att imponera på någon.",
-            "Peka på vem som är mest sannolik att av misstag starta en trend online.",
-            "Alla som åt rester som definitivt var för gamla dricker."
+            "Peka på vem som mest troligt startar en trend på nätet av misstag.",
+            "Alla som ätit rester som uppenbart var för gamla dricker."
           ],
           "medium": [
-            "Peka på vem som har skickat ett meddelande de omedelbart ångrat.",
+            "Peka på vem som skickat ett meddelande de ångrade direkt.",
             "Jag har aldrig legat med någon jag träffade samma kväll.",
-            "Alla som har swipat på någon och blivit lämnade som sedd dricker.",
-            "Peka på vem som är mest sannolik att ta hem någon ikväll.",
-            "Jag har aldrig ljugit om varför ett förhållande slutade.",
-            "Berätta för gruppen om ditt mest pinsamma ögonblick med en tjej. Ingen hoppar.",
-            "Alla som genuint har fått känslor för en hookup dricker.",
-            "Peka på vem du tycker är snyggast i det här rummet.",
+            "Alla som skrivit till en match och blivit lämnad på läst dricker.",
+            "Peka på vem som mest troligt tar med sig någon hem ikväll.",
+            "Jag har aldrig ljugit om varför ett förhållande tog slut.",
+            "Berätta gruppens mest pinsamma ögonblick med någon du gillade. Inget hoppande.",
+            "Alla som verkligen fått känslor för en flört dricker.",
+            "Peka på vem som ger mest självförtroende till resten av gänget.",
             "Jag har aldrig varit med någon utan att veta deras efternamn.",
-            "Alla som har låtsats vara mer erfarna än de var dricker.",
-            "Peka på vem som har det högsta antalet i rummet.",
-            "Jag har aldrig haft sex någonstans jag absolut inte borde ha haft det.",
-            "Alla som har matchat med en ex på en dejtingapp dricker.",
-            "Betygsätt alla i rummet från 1 till 10. Inga decimaler. Ingen tvekan.",
-            "Jag har aldrig textat någon medan jag var hos någon annan.",
-            "Peka på vem som skulle hantera en walk of shame med mest självförtroende.",
-            "Alla som har avslutat pinsamt snabbt och inte sagt något dricker.",
-            "Berätta för gruppen vilken typ du faktiskt gillar — inte vad du skulle erkänna online.",
-            "Jag har aldrig försökt och blivit totalt avvisad framför folk.",
-            "Peka på vem som skulle vara mest emotionellt otillgänglig i ett förhållande.",
-            "Alla som har sagt 'vi borde göra det här igen' utan att mena det dricker.",
-            "Jag har aldrig kollat en exes profil idag.",
-            "Peka på vem som är mest sannolik att falla hårt för fel person.",
-            "Alla som har haft ett situationship i mer än sex månader dricker.",
-            "Jag har aldrig sagt till en tjej att jag skulle ringa och sedan inte gjort det.",
-            "Alla som lagt mer kraft på att få tillbaka någon än att få dem från början dricker.",
-            "Jag har aldrig haft morgonsex innan en 9-årsförpliktelse.",
-            "Peka på vem som hemligt är den mest romantiska i rummet.",
-            "Alla som har kallats för 'den emotionellt otillgängliga' dricker.",
+            "Alla som låtsats vara mer erfarna än de var dricker.",
+            "Peka på vem som har den mest imponerande dejtinghistoriken i rummet.",
+            "Jag har aldrig haft sex nånstans jag absolut inte borde.",
+            "Alla som matchat med ett ex på en dejtingapp dricker.",
+            "Ge varje person i rummet ett ärligt ord som beskriver dem. Ingen tvekan.",
+            "Jag har aldrig sms:at någon medan jag var hemma hos någon annan.",
+            "Peka på vem som skulle göra en walk of shame med mest självförtroende.",
+            "Alla som varit alldeles för snabba och inte sagt något om det dricker.",
+            "Berätta för gruppen vilken typ du faktiskt går på — inte det du säger online.",
+            "Jag har aldrig gjort ett försök och blivit totalt nobbad inför folk.",
+            "Peka på vem som skulle vara mest känslomässigt otillgänglig i ett förhållande.",
+            "Alla som sagt 'vi borde göra om det här' utan att mena det dricker.",
+            "Jag har aldrig kollat ett ex profil idag.",
+            "Peka på vem som mest troligt faller hårt för fel person.",
+            "Alla som varit i en situationship i mer än sex månader dricker.",
+            "Jag har aldrig sagt till någon att jag skulle ringa och sen inte gjort det.",
+            "Alla som lagt mer krut på att få tillbaka någon än på förhållandet självt dricker.",
+            "Jag har aldrig haft morgonsex och ändå hunnit ett åtagande klockan nio.",
+            "Peka på vem som i hemlighet är den mest romantiska i rummet.",
+            "Alla som blivit kallade 'den känslomässigt otillgängliga' dricker.",
             "Peka på vem som har den mest kaotiska situationship-historien just nu."
           ],
           "droy": [
-            "Peka på vem som är mest sannolik att ha sex ikväll.",
-            "Jag har aldrig befunnit mig i en sexuell situation jag inte kunde förklara då.",
-            "Alla som har skickat explicita bilder dricker.",
-            "Peka på vem som är den kinkigaste personen i rummet.",
-            "Jag har aldrig haft sex med någon och hållit det fullständigt hemligt för alla du känner.",
-            "Berätta din ärliga topp 3 dealbreakers i sängen. En klunk om du tvekar.",
-            "Alla som har haft sex medan någon annan var i rummet dricker.",
-            "Peka på vem som har haft flest partners på en månad.",
-            "Jag har aldrig låtsats för att avsluta en situation snabbare.",
-            "Alla som har haft sex i en bil dricker.",
-            "Peka på vem som skulle vara den bästa one-night standen — ärligt talat.",
+            "Peka på vem som mest troligt får lite ikväll.",
+            "Jag har aldrig varit i en sexuell situation jag inte kunde förklara där och då.",
+            "Alla som skickat explicita bilder dricker.",
+            "Peka på vem som är kinkigast i rummet.",
+            "Jag har aldrig legat med någon och hållit det helt hemligt för alla jag känner.",
+            "Berätta för gruppen dina ärliga topp tre dealbreakers i sängen. En klunk om du tvekar.",
+            "Alla som haft sex medan någon annan var i rummet dricker.",
+            "Peka på vem som haft flest partners på en månad.",
+            "Jag har aldrig fegat ur bara för att avsluta något snabbare.",
+            "Alla som haft sex i en bil dricker.",
+            "Peka på vem som vore den bästa one-night standen — helt ärligt.",
             "Jag har aldrig haft tankar om någon i det här rummet.",
-            "Beskriv din typ fysiskt med tre ord. Mest träffande beskrivning vinner — de delar ut drinkar.",
-            "Alla som har legat med någon i sin egen vänkrets dricker.",
+            "Beskriv din typ fysiskt i tre ord. Mest exakt vinner och delar ut drinkar.",
+            "Alla som legat med någon från samma kompisgäng dricker.",
             "Jag har aldrig sagt fel namn i sängen.",
-            "Peka på vem som skulle överleva längst i en no-sex-utmaning.",
-            "Alla som har haft ett situationship de genuint trodde skulle bli något dricker.",
-            "Jag har aldrig gjort något offentligt som jag aldrig skulle erkänna för min familj.",
-            "Peka på vem som har de mest vilda DM:s skickade den senaste månaden.",
-            "Alla som har börjat något med någon och avslutat det samma kväll dricker.",
+            "Peka på vem som skulle överleva längst i en ingen-sex-utmaning.",
+            "Alla som haft en situationship de verkligen trodde skulle bli något dricker.",
+            "Jag har aldrig gjort något offentligt jag aldrig skulle erkänna för min familj.",
+            "Peka på vem som skickat de vildaste DM:en senaste månaden.",
+            "Alla som startat något med någon och avslutat det samma kväll dricker.",
             "Jag har aldrig haft sex med någon mer än tio år äldre.",
-            "Peka på vem som skulle vara först med att föreslå något oväntat i sängen.",
-            "Berätta för gruppen den vildaste platsen du haft sex. Drick först så du faktiskt säger det.",
-            "Jag har aldrig använt sex för att undvika ett svårt samtal.",
-            "Peka på vem som har den mest kontroversiella sexuella åsikten i rummet.",
-            "Alla som har blivit påkommen under sex dricker.",
-            "Jag har aldrig gjort något i sängen som förvånade mig själv.",
-            "Peka på vem som är mest sannolik att ha legat med någon annan i den här gruppen.",
-            "Alla som har haft mer än en partner inom 24 timmar dricker.",
-            "Jag har aldrig haft sex på första dejten — och skulle göra det igen."
+            "Peka på vem som skulle vara först att föreslå något oväntat i sängen.",
+            "Berätta för gruppen det vildaste stället du haft sex. Drick först så du faktiskt säger det.",
+            "Jag har aldrig använt sex för att slippa ett svårt samtal.",
+            "Peka på vem som har den mest kontroversiella åsikten om sex i rummet.",
+            "Alla som blivit påkomna under sex dricker.",
+            "Jag har aldrig gjort något i sängen som överraskade mig själv.",
+            "Peka på vem som är bäst på att prata sig ur en pinsam efter-hookup.",
+            "Alla som haft mer än en partner inom 24 timmar dricker.",
+            "Jag har aldrig haft sex på första dejten — och skulle göra om det."
           ]
         }
       },
       "girlsNight": {
-        "deckNames": { "mild": "Mild", "medium": "Medium", "droy": "Dröy" },
+        "deckNames": {
+          "mild": "Mild",
+          "medium": "Medium",
+          "droy": "Dröy"
+        },
         "deckDescriptions": {
           "mild": "Kul, socialt och lite kaotiskt. Perfekt för att värma upp.",
           "medium": "Mer personligt — skvaller, känslor och lite krydda.",
@@ -985,106 +1150,110 @@
         },
         "decks": {
           "mild": [
-            "Peka på vem som skulle överleva längst utan sin telefon.",
-            "Jag har aldrig gråtit på toaletten på en fest och gått raka vägen tillbaka för att dansa.",
-            "Alla som har behållit ett klädesplagg från en ex dricker.",
-            "Peka på vem som är gruppens inofficiella terapeut.",
-            "Jag har aldrig låtsats gilla en present jag absolut hatade.",
-            "Bästa kändisimitationen — gruppen röstar och den sämsta dricker.",
-            "Peka på vem som skulle vara först med att glida in i någons DM:s.",
-            "Jag har aldrig stalkerat någons Instagram innan jag träffat dem.",
-            "Alla som har läst ett meddelande och väntat med att svara för att verka mindre ivriga dricker.",
-            "Peka på vem som ger bäst råd men aldrig följer dem själv.",
-            "Berätta för gruppen om ditt mest pinsamma offentliga ögonblick. Ingen hoppar.",
-            "Jag har aldrig hittat på en ursäkt för att inte gå ut och sedan ångrat det.",
-            "Peka på vem som skulle vara den bästa realityprogram-skurken utan att ens försöka.",
-            "Alla som har textat någon de inte borde efter ett par glas dricker.",
-            "Jag har aldrig kopierat någons estetik och hoppats de inte skulle märka.",
-            "Peka på vem som är mest sannolik att få alla med på en spontan plan.",
-            "Alla som har sjukanmält sig den dagen för att slippa något dricker.",
-            "Jag har aldrig köpt något jag inte hade råd med och övertygat mig själv om att det var värt det.",
-            "Peka på vem som är den mest emotionellt kaotiska på bästa möjliga sätt.",
-            "Alla som har trecheckat ett meddelande innan de skickade det dricker.",
+            "Peka på vem som skulle överleva längst utan telefonen.",
+            "Jag har aldrig gråtit på toa på en fest och gått rakt tillbaka för att dansa.",
+            "Alla som behållit ett klädesplagg från ett ex dricker.",
+            "Peka på vem som är gängets inofficiella terapeut.",
+            "Jag har aldrig låtsats älska en present jag egentligen hatade.",
+            "Bästa kändisimitationen — gruppen röstar, sämsta dricker.",
+            "Peka på vem som skulle vara först att glida in i någons DM.",
+            "Jag har aldrig stalkat någons Instagram innan jag träffade dem.",
+            "Alla som läst ett meddelande och väntat med att svara för att verka mindre ivriga dricker.",
+            "Peka på vem som ger bäst råd men aldrig följer det själv.",
+            "Berätta för gruppen ditt mest pinsamma offentliga ögonblick. Inget hoppande.",
+            "Jag har aldrig hittat på en ursäkt för att slippa gå ut och ångrat det.",
+            "Peka på vem som vore den bästa reality-skurken utan att ens försöka.",
+            "Alla som sms:at någon de inte borde efter ett par glas dricker.",
+            "Jag har aldrig kopierat någons stil och hoppats att de inte skulle märka det.",
+            "Peka på vem som mest troligt får med alla på en spontan plan.",
+            "Alla som sjukanmält sig den dagen för att slippa något dricker.",
+            "Jag har aldrig köpt något jag inte hade råd med och intalat mig att det var värt det.",
+            "Peka på vem som är mest känslomässigt kaotisk på bästa sätt.",
+            "Alla som kollat ett meddelande tre gånger innan de skickade dricker.",
             "Jag har aldrig lämnat en fest utan att säga hej då till någon.",
-            "Peka på vem som är mest sannolik att starta ett företag från ingenstans och faktiskt lyckas.",
-            "Alla som för närvarande har ett situationship de inte berättat om för hela gruppen dricker.",
-            "Jag har aldrig varit kär i någon som inte alls hade en aning.",
+            "Peka på vem som mest troligt startar något eget från ingenting och faktiskt lyckas.",
+            "Alla med en situationship de inte berättat för hela gruppen om dricker.",
+            "Jag har aldrig varit kär i någon som inte hade en aning.",
             "Peka på vem som skulle hantera ett uppbrott mest dramatiskt.",
-            "Alla som har skrivit ett meddelande, raderat det och skickat det tre dagar senare dricker.",
-            "Jag har aldrig varit avundsjuk på en kompis förhållande utan att säga något.",
-            "Peka på vem som är mest sannolik att gråta under ett gräl.",
-            "Alla som har kollat en exes profil idag dricker.",
-            "Jag har aldrig tänkt på att få tillbaka en ex den senaste månaden."
+            "Alla som skrivit ett meddelande, raderat det och skickat det tre dagar senare dricker.",
+            "Jag har aldrig varit avundsjuk på en väns förhållande utan att säga något.",
+            "Peka på vem som mest troligt gråter under ett bråk.",
+            "Alla som kollat ett ex profil idag dricker.",
+            "Jag har aldrig övervägt att bli ihop med ett ex igen senaste månaden."
           ],
           "medium": [
-            "Peka på vem som har den mest intressanta romantiska historiken i rummet.",
-            "Jag har aldrig låtsats njuta av något i sängen.",
-            "Alla som har skickat ett riskabelt foto och direkt ångrat det dricker.",
-            "Peka på vem som skulle hantera en one-night stand med mest grace.",
-            "Berätta för gruppen: vad är din faktiska typ — inte vad du låtsas att din typ är?",
-            "Jag har aldrig matchat med någon enbart för att deras hund var med på bilderna.",
-            "Alla som har haft ett situationship i mer än tre månader dricker.",
-            "Peka på vem som är mest sannolik att bli kär efter ett enda bra samtal.",
-            "Jag har aldrig stannat i ett förhållande för länge på grund av den fysiska sidan.",
-            "Alla som har avbokat planer för någon de var intresserade av dricker.",
+            "Peka på vem som har den mest intressanta romantiska historien i rummet.",
+            "Jag har aldrig fegat ur att njuta av något i sängen.",
+            "Alla som skickat en riskabel bild och ångrat sig direkt dricker.",
+            "Peka på vem som skulle hantera en one-night stand med mest elegans.",
+            "Berätta för gruppen vad din typ faktiskt är — inte den du låtsas är din typ.",
+            "Jag har aldrig matchat med någon bara för att hunden var med på bilden.",
+            "Alla som varit i en situationship i mer än tre månader dricker.",
+            "Peka på vem som mest troligt blir kär efter ett bra samtal.",
+            "Jag har aldrig stannat i ett förhållande alldeles för länge på grund av den fysiska biten.",
+            "Alla som ställt in planer för någon de var intresserade av dricker.",
             "Peka på vem som har den mest kaotiska meddelandetråden just nu.",
-            "Jag har aldrig använt gråt för att ta mig ur ett gräl.",
-            "Berätta om din värsta dejt någonsin. Den mest hemska berättelsen vinner — de delar ut drinkar.",
-            "Alla som har tänkt på någon i det här rummet romantiskt dricker.",
-            "Jag har aldrig kysst någon jag visste hade en partner.",
-            "Peka på vem som är mest sannolik att ha ett hemligt situationship just nu.",
-            "Alla som har skickat ett 'förlåt, somnade' när de definitivt var vakna dricker.",
+            "Jag har aldrig använt gråt för att komma undan ett bråk.",
+            "Berätta för gruppen om din värsta dejt. Den mest skräckinjagande vinner och delar ut drinkar.",
+            "Alla som tänkt på någon i rummet romantiskt dricker.",
+            "Jag har aldrig kysst någon jag visste var upptagen.",
+            "Peka på vem som mest troligt har en hemlig situationship just nu.",
+            "Alla som skickat ett 'förlåt, somnade' medan de var klarvakna dricker.",
             "Jag har aldrig snokat i en partners telefon.",
-            "Peka på vem som skulle vara den bästa partnern — ärligt talat.",
-            "Alla som har tagit första steget och varit glad för det dricker.",
-            "Jag har aldrig fått känslor för någon som tydligt var otillgänglig.",
-            "Berätta för gruppen vad som senast faktiskt attraherade dig till någon — inget med utseende.",
-            "Peka på vem som har den bästa historien om att bli raggas på helt oväntat.",
-            "Alla som har druckit-textat någon de gillade och fått ett bra svar dricker.",
-            "Jag har aldrig avslutat något med någon av en anledning jag aldrig fullt förklarat.",
-            "Peka på vem som är mest sannolik att fortfarande tänka på en hookup från månader sedan.",
-            "Alla som har dejtat någon deras vänner inte godkände dricker.",
-            "Peka på vem som ger bäst kärleksråd men har det mest röriga kärlekslivet.",
-            "Alla som har ett antal som är högre än vad de skulle erkänna i sällskap dricker.",
+            "Peka på vem som vore den bästa partnern — helt ärligt.",
+            "Alla som tagit första steget och varit glada för det dricker.",
+            "Jag har aldrig fått känslor för någon som uppenbart var otillgänglig.",
+            "Berätta för gruppen det senaste som faktiskt drog dig till någon — inte utseende.",
+            "Peka på vem som har den bästa storyn om att bli uppraggad helt oväntat.",
+            "Alla som skickat ett fyllemeddelande till någon de gillade och fått bra respons dricker.",
+            "Jag har aldrig avslutat något med någon av en anledning jag aldrig helt förklarat.",
+            "Peka på vem som fortfarande tänker på nån de hade en flört med för månader sen.",
+            "Alla som dejtat någon vännerna inte gillade dricker.",
+            "Peka på vem som ger bäst kärleksråd men har det rörigaste kärlekslivet.",
+            "Alla med ett antal högre än de skulle erkänna i fint sällskap dricker.",
             "Jag har aldrig haft sex och direkt önskat att jag var någon annanstans."
           ],
           "droy": [
-            "Peka på vem som är mest sannolik att ha sex ikväll.",
-            "Jag har aldrig gjort något i sängen jag aldrig skulle berätta för min mamma.",
-            "Alla som har skickat explicita bilder dricker.",
-            "Berätta för gruppen din mest kontroversiella åsikt om killar. Drick först för modighetens skull.",
-            "Jag har aldrig haft sex i en situation där det att bli påkommen var en reell möjlighet.",
+            "Peka på vem som mest troligt får lite ikväll.",
+            "Jag har aldrig gjort något i sängen jag aldrig skulle berätta för mamma.",
+            "Alla som skickat explicita bilder dricker.",
+            "Berätta för gruppen din mest kontroversiella åsikt om dejting. Drick först för mod.",
+            "Jag har aldrig haft sex nånstans där att åka fast var en reell möjlighet.",
             "Peka på vem som har den kinkigaste sidan de aldrig nämnt.",
-            "Alla som har legat med någon från vänkretsen dricker.",
-            "Jag har aldrig varit med mer än en person under samma vecka.",
-            "Berätta för gruppen din faktiska fantasi — den du aldrig sagt högt.",
-            "Alla som har tänkt på någon i det här rummet på det sättet dricker.",
-            "Peka på vem som skulle vara bäst i sängen, ärligt talat.",
-            "Jag har aldrig haft en hookup som förvandlades till en situation du fick hantera i veckor.",
-            "Alla som har använt sex som distraktion från något stressande dricker.",
-            "Peka på vem som har det mest vilda innehållet i sin kamerarulle just nu.",
-            "Jag har aldrig varit högljutt intim någonstans som inte var helt privat.",
+            "Alla som legat med någon från kompisgänget dricker.",
+            "Jag har aldrig varit med mer än en person under en vecka.",
+            "Berätta för gruppen din fantasi — den du aldrig sagt högt.",
+            "Alla som tänkt på någon i rummet på det sättet dricker.",
+            "Peka på vem som vore bäst i sängen — helt ärligt.",
+            "Jag har aldrig haft en hookup som blev en hel grej jag fick hantera i veckor.",
+            "Alla som använt sex som distraktion från något stressigt dricker.",
+            "Peka på vem som har mest att dölja i kamerarullen just nu.",
+            "Jag har aldrig varit högljutt intim nånstans som inte var helt privat.",
             "Berätta för gruppen det djärvaste draget du någonsin gjort på någon.",
-            "Alla som har haft sex och direkt behövt vara ensam dricker.",
-            "Peka på vem som har haft den mest dramatiska morgondagen efter.",
-            "Jag har aldrig ångrat ett sexuellt beslut och gjort det igen ändå.",
-            "Alla som har matchat med någon, legat med dem och omatchat direkt dricker.",
-            "Peka på vem som har den största hemligheten de aldrig skulle säga nykter i det här rummet.",
-            "Jag har aldrig stannat någonstans jag absolut inte borde ha stannat.",
-            "Alla som har sagt till någon att det var bra när det verkligen inte var det dricker.",
-            "Berätta för gruppen den sämsta ursäkten någon gett dig efter en hookup.",
-            "Jag har aldrig fått genuina känslor för en kompis-med-förmåner-situation.",
+            "Alla som haft sex och direkt behövde vara ensamma dricker.",
+            "Peka på vem som haft den mest dramatiska morgonen efter.",
+            "Jag har aldrig ångrat ett sexuellt beslut och gjort om det ändå.",
+            "Alla som matchat med någon, legat med dem och unmatchat direkt dricker.",
+            "Peka på vem som har den största hemligheten de aldrig skulle berätta nyktra i rummet.",
+            "Jag har aldrig stannat kvar nånstans jag absolut inte borde.",
+            "Alla som sagt till någon att det var bra när det verkligen inte var det dricker.",
+            "Berätta för gruppen den sämsta ursäkten någon gav dig efter en hookup.",
+            "Jag har aldrig fått äkta känslor för en knullkompis.",
             "Peka på vem som har den mest intressanta intima historien i rummet.",
-            "Alla som har varit helt ärliga med en partner om vad de vill ha i sängen dricker.",
-            "Jag har aldrig initierat något med någon och vetat att det var en fruktansvärd idé.",
-            "Peka på vem som skulle vara den mest äventyrliga partnern.",
-            "Alla som aldrig haft en riktigt klumpig sexuell situation dricker — statistiskt omöjligt."
+            "Alla som varit helt ärliga om vad de vill ha i sängen dricker.",
+            "Jag har aldrig dragit igång något med någon jag visste var en hemsk idé.",
+            "Peka på vem som vore den mest äventyrliga partnern.",
+            "Alla som aldrig haft en pinsam sexuell situation dricker — statistiskt omöjligt."
           ]
         }
       },
       "snusboksen": {
         "pickDeck": "Välj en kortlek",
-        "deckNames": { "mild": "Mild", "medium": "Medium", "droy": "Drøy" },
+        "deckNames": {
+          "mild": "Mild",
+          "medium": "Medium",
+          "droy": "Drøy"
+        },
         "deckDescriptions": {
           "mild": "Lätta frågor för att komma igång.",
           "medium": "Hetare frågor som tänder igång diskussionen.",
@@ -1250,21 +1419,81 @@
         "finishedHint": "Alla inskickade frågor har fått sitt ögonblick.",
         "backToGames": "Tillbaka till spel",
         "categories": {
-          "HOT_TAKES": { "title": "Starka åsikter", "example": "Åsikter någon skulle försvara för alltid", "placeholder": "Vilken åsikt skulle du försvara för alltid?" },
-          "PLOT_TWISTS": { "title": "Oväntade vändningar", "example": "Överraskande historier och konstiga vändningar", "placeholder": "Vad är din mest oväntade historia?" },
-          "TINY_CONFESSIONS": { "title": "Små bekännelser", "example": "Ofarliga hemligheter och roliga vanor", "placeholder": "Vilken ofarlig hemlighet kan du erkänna?" },
-          "FUTURE_HEADLINES": { "title": "Framtidens rubriker", "example": "Spådomar om folket i rummet", "placeholder": "Var är någon här om tio år?" },
-          "HOUSE_AWARDS": { "title": "Huspriser", "example": "Hitta på ett pris och nominera någon", "placeholder": "Vem förtjänar ett pris, och för vad?" },
-          "IMPOSSIBLE_CHOICES": { "title": "Omöjliga val", "example": "Svåra och roliga antingen-eller-frågor", "placeholder": "Skapa ett omöjligt antingen-eller-val…" },
-          "FRIENDLY_CHALLENGES": { "title": "Vänliga utmaningar", "example": "Snabba och ofarliga utmaningar", "placeholder": "Ge någon en enminutsutmaning…" },
-          "WILDCARD": { "title": "Joker", "example": "Något originellt som passar rummet", "placeholder": "Skriv en valfri fråga till rummet…" },
-          "PEKELEK": { "title": "Peklek", "example": "Alla pekar på någon som passar beskrivningen", "placeholder": "Vem i rummet passar bäst för detta?" },
-          "JEG_HAR_ALDRI": { "title": "Jag har aldrig", "example": "Små avslöjanden och konstiga erfarenheter", "placeholder": "Vad har du aldrig gjort?" },
-          "RED_FLAG_DEALBREAKER_OK": { "title": "Red flag, dealbreaker, ok", "example": "Sortera saker från ja till nej", "placeholder": "Vad är en tydlig red flag för dig?" },
-          "FUCK_MARRY_KILL": { "title": "Fuck, marry, kill...", "example": "Tre val, inga perfekta svar", "placeholder": "Välj: vem, vem och vem?" },
-          "LAG_EN_REGEL": { "title": "Skapa en regel", "example": "En ny regel för kvällen", "placeholder": "Vilken regel ska gälla resten av spelet?" },
-          "DILEMMA": { "title": "Dilemma", "example": "Två dåliga eller bra val", "placeholder": "Vad skulle du välja i detta dilemma?" },
-          "KATEGORILEK": { "title": "Kategorilek", "example": "Hitta ord som passar kategorin", "placeholder": "Vilken kategori vill du testa rummet med?" }
+          "HOT_TAKES": {
+            "title": "Starka åsikter",
+            "example": "Åsikter någon skulle försvara för alltid",
+            "placeholder": "Vilken åsikt skulle du försvara för alltid?"
+          },
+          "PLOT_TWISTS": {
+            "title": "Oväntade vändningar",
+            "example": "Överraskande historier och konstiga vändningar",
+            "placeholder": "Vad är din mest oväntade historia?"
+          },
+          "TINY_CONFESSIONS": {
+            "title": "Små bekännelser",
+            "example": "Ofarliga hemligheter och roliga vanor",
+            "placeholder": "Vilken ofarlig hemlighet kan du erkänna?"
+          },
+          "FUTURE_HEADLINES": {
+            "title": "Framtidens rubriker",
+            "example": "Spådomar om folket i rummet",
+            "placeholder": "Var är någon här om tio år?"
+          },
+          "HOUSE_AWARDS": {
+            "title": "Huspriser",
+            "example": "Hitta på ett pris och nominera någon",
+            "placeholder": "Vem förtjänar ett pris, och för vad?"
+          },
+          "IMPOSSIBLE_CHOICES": {
+            "title": "Omöjliga val",
+            "example": "Svåra och roliga antingen-eller-frågor",
+            "placeholder": "Skapa ett omöjligt antingen-eller-val…"
+          },
+          "FRIENDLY_CHALLENGES": {
+            "title": "Vänliga utmaningar",
+            "example": "Snabba och ofarliga utmaningar",
+            "placeholder": "Ge någon en enminutsutmaning…"
+          },
+          "WILDCARD": {
+            "title": "Joker",
+            "example": "Något originellt som passar rummet",
+            "placeholder": "Skriv en valfri fråga till rummet…"
+          },
+          "PEKELEK": {
+            "title": "Peklek",
+            "example": "Alla pekar på någon som passar beskrivningen",
+            "placeholder": "Vem i rummet passar bäst för detta?"
+          },
+          "JEG_HAR_ALDRI": {
+            "title": "Jag har aldrig",
+            "example": "Små avslöjanden och konstiga erfarenheter",
+            "placeholder": "Vad har du aldrig gjort?"
+          },
+          "RED_FLAG_DEALBREAKER_OK": {
+            "title": "Red flag, dealbreaker, ok",
+            "example": "Sortera saker från ja till nej",
+            "placeholder": "Vad är en tydlig red flag för dig?"
+          },
+          "FUCK_MARRY_KILL": {
+            "title": "Fuck, marry, kill...",
+            "example": "Tre val, inga perfekta svar",
+            "placeholder": "Välj: vem, vem och vem?"
+          },
+          "LAG_EN_REGEL": {
+            "title": "Skapa en regel",
+            "example": "En ny regel för kvällen",
+            "placeholder": "Vilken regel ska gälla resten av spelet?"
+          },
+          "DILEMMA": {
+            "title": "Dilemma",
+            "example": "Två dåliga eller bra val",
+            "placeholder": "Vad skulle du välja i detta dilemma?"
+          },
+          "KATEGORILEK": {
+            "title": "Kategorilek",
+            "example": "Hitta ord som passar kategorin",
+            "placeholder": "Vilken kategori vill du testa rummet med?"
+          }
         }
       }
     }
@@ -1294,27 +1523,90 @@
     "manageAchievements": "Hantera prestationer",
     "manageAchievementsSubtitle": "Slå på eller av prestationer för kollektivet",
     "achievementKeys": {
-      "TASK_1":    { "title": "Första steget",      "description": "Slutför din första uppgift" },
-      "TASK_5":    { "title": "Bra start",          "description": "Slutför 5 uppgifter" },
-      "TASK_10":   { "title": "Tio klara",          "description": "Slutför 10 uppgifter" },
-      "TASK_25":   { "title": "Kollektivhjälte",    "description": "Slutför 25 uppgifter" },
-      "TASK_50":   { "title": "Uppgiftstitan",      "description": "Slutför 50 uppgifter" },
-      "STREAK_3":  { "title": "På rad",             "description": "Slutför uppgifter 3 dagar i rad" },
-      "STREAK_7":  { "title": "Veckokrigare",       "description": "Slutför uppgifter 7 dagar i rad" },
-      "STREAK_14": { "title": "Järnvilja",          "description": "Slutför uppgifter 14 dagar i rad" },
-      "EARLY_BIRD":{ "title": "Tidig fågel",        "description": "Slutför 3 uppgifter före fristen" },
-      "EARLY_10":  { "title": "I förväg",           "description": "Slutför 10 uppgifter före fristen" },
-      "ON_TIME_10":{ "title": "Punktlig",           "description": "Slutför 10 uppgifter inom fristen" },
-      "NO_PENALTY":{ "title": "Rent register",      "description": "Slutför 5 uppgifter utan straff" },
-      "CLEANING_5":{ "title": "Rent hus",           "description": "Slutför 5 städuppgifter" },
-      "DISHES_5":  { "title": "Diskkrossare",       "description": "Slutför 5 diskuppgifter" },
-      "TRASH_5":   { "title": "Sopmästare",         "description": "Slutför 5 sopuppgifter" },
-      "RECURRING_10": { "title": "Pålitlig rumskompis", "description": "Slutför 10 återkommande uppgifter" },
-      "LEVEL_2":   { "title": "Nivå upp",           "description": "Nå nivå 2" },
-      "LEVEL_5":   { "title": "Kollektivproffs",    "description": "Nå nivå 5" },
-      "XP_100":    { "title": "Hundraklubben",      "description": "Tjäna 100 XP" },
-      "XP_500":    { "title": "XP-maskin",          "description": "Tjäna 500 XP" },
-      "XP_1000":   { "title": "XP-legend",          "description": "Tjäna 1 000 XP" }
+      "TASK_1": {
+        "title": "Första steget",
+        "description": "Slutför din första uppgift"
+      },
+      "TASK_5": {
+        "title": "Bra start",
+        "description": "Slutför 5 uppgifter"
+      },
+      "TASK_10": {
+        "title": "Tio klara",
+        "description": "Slutför 10 uppgifter"
+      },
+      "TASK_25": {
+        "title": "Kollektivhjälte",
+        "description": "Slutför 25 uppgifter"
+      },
+      "TASK_50": {
+        "title": "Uppgiftstitan",
+        "description": "Slutför 50 uppgifter"
+      },
+      "STREAK_3": {
+        "title": "På rad",
+        "description": "Slutför uppgifter 3 dagar i rad"
+      },
+      "STREAK_7": {
+        "title": "Veckokrigare",
+        "description": "Slutför uppgifter 7 dagar i rad"
+      },
+      "STREAK_14": {
+        "title": "Järnvilja",
+        "description": "Slutför uppgifter 14 dagar i rad"
+      },
+      "EARLY_BIRD": {
+        "title": "Tidig fågel",
+        "description": "Slutför 3 uppgifter före fristen"
+      },
+      "EARLY_10": {
+        "title": "I förväg",
+        "description": "Slutför 10 uppgifter före fristen"
+      },
+      "ON_TIME_10": {
+        "title": "Punktlig",
+        "description": "Slutför 10 uppgifter inom fristen"
+      },
+      "NO_PENALTY": {
+        "title": "Rent register",
+        "description": "Slutför 5 uppgifter utan straff"
+      },
+      "CLEANING_5": {
+        "title": "Rent hus",
+        "description": "Slutför 5 städuppgifter"
+      },
+      "DISHES_5": {
+        "title": "Diskkrossare",
+        "description": "Slutför 5 diskuppgifter"
+      },
+      "TRASH_5": {
+        "title": "Sopmästare",
+        "description": "Slutför 5 sopuppgifter"
+      },
+      "RECURRING_10": {
+        "title": "Pålitlig rumskompis",
+        "description": "Slutför 10 återkommande uppgifter"
+      },
+      "LEVEL_2": {
+        "title": "Nivå upp",
+        "description": "Nå nivå 2"
+      },
+      "LEVEL_5": {
+        "title": "Kollektivproffs",
+        "description": "Nå nivå 5"
+      },
+      "XP_100": {
+        "title": "Hundraklubben",
+        "description": "Tjäna 100 XP"
+      },
+      "XP_500": {
+        "title": "XP-maskin",
+        "description": "Tjäna 500 XP"
+      },
+      "XP_1000": {
+        "title": "XP-legend",
+        "description": "Tjäna 1 000 XP"
+      }
     },
     "custom": {
       "builtIn": "Inbyggda prestationer",
@@ -1387,10 +1679,22 @@
       "drinks_multiplier": " · ×{{m}} drinkar"
     },
     "presets": {
-      "default":  { "label": "Standard",   "description": "15 rundor, balanserad blandning av kaos och statistik." },
-      "quick":    { "label": "Snabb",       "description": "8 rundor — kom in, bli glad, kom ut." },
-      "hardcore": { "label": "Hardcore",    "description": "20 rundor, dubbla drinkar, ingen nåd." },
-      "casual":   { "label": "Avslappnad",  "description": "12 rundor, lätta klunkar, statistik betyder lite." }
+      "default": {
+        "label": "Standard",
+        "description": "15 rundor, balanserad blandning av kaos och statistik."
+      },
+      "quick": {
+        "label": "Snabb",
+        "description": "8 rundor — kom in, bli glad, kom ut."
+      },
+      "hardcore": {
+        "label": "Hardcore",
+        "description": "20 rundor, dubbla drinkar, ingen nåd."
+      },
+      "casual": {
+        "label": "Avslappnad",
+        "description": "12 rundor, lätta klunkar, statistik betyder lite."
+      }
     },
     "playing": {
       "roundOf": "Runda {{current}} av {{total}}",

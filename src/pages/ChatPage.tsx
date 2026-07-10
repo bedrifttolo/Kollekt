@@ -7,6 +7,8 @@ const LAUNDRY_TYPES: LaundryType[] = ['WHITES', 'COLORS', 'DELICATES', 'WOOL', '
 const LAUNDRY_TEMPS = [30, 40, 60, 90];
 import { useTranslation } from 'react-i18next';
 import { api } from '../lib/api';
+import { qk } from '../lib/queryKeys';
+import { queryClient as sharedQueryClient } from '../lib/queryClient';
 import { capturePhotoFile, nativeCameraAvailable } from '../lib/camera';
 import { useUser } from '../context/UserContext';
 import { formatDateTime, formatTime } from '../i18n/helpers';
@@ -53,7 +55,11 @@ function starterGifDataUrl({ emoji, bg, fg }: (typeof STARTER_GIFS)[number]) {
 export default function ChatPage() {
   const { t } = useTranslation();
   const { currentUser } = useUser();
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  // Seed the household thread from the warm cache so re-opening Chat shows messages
+  // instantly instead of the loading state; a background fetch then refreshes them.
+  const [messages, setMessages] = useState<ChatMessage[]>(
+    () => sharedQueryClient.getQueryData<ChatMessage[]>(qk.chat(currentUser?.name ?? '')) ?? [],
+  );
   const [members, setMembers] = useState<AppUser[]>([]);
   const [input, setInput] = useState('');
   const [inputFocused, setInputFocused] = useState(false);
@@ -76,7 +82,9 @@ export default function ChatPage() {
   const [replyingToId, setReplyingToId] = useState<number | null>(null);
   const [expandedImage, setExpandedImage] = useState<{ src: string; alt: string } | null>(null);
   const [onlineCount, setOnlineCount] = useState<number | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(
+    () => !sharedQueryClient.getQueryData(qk.chat(currentUser?.name ?? '')),
+  );
   const [checkinSummary, setCheckinSummary] = useState<CheckinSummary | null>(null);
   const [checkinExpanded, setCheckinExpanded] = useState(false);
   const [mention, setMention] = useState<{ query: string; start: number } | null>(null);
@@ -132,6 +140,8 @@ export default function ChatPage() {
     const res = await api.get<ChatMessage[]>(url);
     setMessages(res);
     setLoading(false);
+    // Cache the household thread so the next visit to Chat renders instantly from cache.
+    if (!thread) sharedQueryClient.setQueryData(qk.chat(name), res);
   };
 
   const selectThread = (thread: string | null) => {
@@ -209,12 +219,32 @@ export default function ChatPage() {
     setInput('');
     setMention(null);
     setReplyingToId(null);
-    if (thread) {
-      await api.post('/chat/direct', { recipient: thread, text });
-    } else {
-      await api.post('/chat/messages', { sender: name, text, replyToMessageId });
+
+    // Show the message instantly with a temporary id, then swap in the persisted version
+    // when the server responds. Avoids waiting on the POST (and a second full refetch)
+    // before anything appears — the send now feels immediate.
+    const tempId = -Date.now();
+    const optimistic: ChatMessage = {
+      id: tempId,
+      sender: name,
+      recipient: thread ?? null,
+      text,
+      replyToMessageId: replyToMessageId ?? null,
+      timestamp: new Date().toISOString(),
+      reactions: [],
+    };
+    setMessages((prev) => [...prev, optimistic]);
+
+    try {
+      const saved = thread
+        ? await api.post<ChatMessage>('/chat/direct', { recipient: thread, text })
+        : await api.post<ChatMessage>('/chat/messages', { sender: name, text, replyToMessageId });
+      setMessages((prev) => prev.map((m) => (m.id === tempId ? saved : m)));
+    } catch {
+      // Roll back the placeholder and restore the draft so the user can retry.
+      setMessages((prev) => prev.filter((m) => m.id !== tempId));
+      setInput(text);
     }
-    fetchMessages(thread);
   };
 
   // Detect an in-progress "@name" token immediately before the caret.

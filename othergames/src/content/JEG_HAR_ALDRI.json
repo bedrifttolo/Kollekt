@@ -15,22 +15,22 @@
   "prompts": [
     {
       "id": 1,
-      "text": "Jeg har aldri kysset flere enn 5 på en kveld",
+      "text": "Jeg har aldri kysset mer enn fem på én kveld",
       "kind": "never"
     },
     {
       "id": 2,
-      "text": "Jeg har aldri stjelet noe",
+      "text": "Jeg har aldri stjålet noe",
       "kind": "never"
     },
     {
       "id": 3,
-      "text": "Jeg har aldri mistet flyet mitt",
+      "text": "Jeg har aldri mistet et fly",
       "kind": "never"
     },
     {
       "id": 4,
-      "text": "Jeg har aldri send fylla meldinger til noen jeg ikke burde",
+      "text": "Jeg har aldri sendt fyllemeldinger til noen jeg ikke burde",
       "kind": "never"
     },
     {
@@ -40,7 +40,7 @@
     },
     {
       "id": 6,
-      "text": "Jeg har aldri nakenbadet",
+      "text": "Jeg har aldri badet naken",
       "kind": "never"
     },
     {
@@ -55,7 +55,7 @@
     },
     {
       "id": 9,
-      "text": "Jeg har aldri brukket et ben",
+      "text": "Jeg har aldri brukket et bein",
       "kind": "never"
     },
     {
@@ -65,27 +65,27 @@
     },
     {
       "id": 11,
-      "text": "Jeg har aldri vært på tv",
+      "text": "Jeg har aldri vært på TV",
       "kind": "never"
     },
     {
       "id": 12,
-      "text": "Jeg har aldri vært på en tinderdate",
+      "text": "Jeg har aldri vært på en Tinder-date",
       "kind": "never"
     },
     {
       "id": 13,
-      "text": "Jeg har aldri tatt en tattovering",
+      "text": "Jeg har aldri tatt en tatovering",
       "kind": "never"
     },
     {
       "id": 14,
-      "text": "Jeg har aldri lyvd til politiet",
+      "text": "Jeg har aldri løyet til politiet",
       "kind": "never"
     },
     {
       "id": 15,
-      "text": "Jeg har aldri brukt et Fake-Leg",
+      "text": "Jeg har aldri brukt falsk legitimasjon",
       "kind": "never"
     },
     {
@@ -95,17 +95,17 @@
     },
     {
       "id": 17,
-      "text": "Jeg har aldri brukt noen andres tannbørste",
+      "text": "Jeg har aldri brukt tannbørsten til noen andre",
       "kind": "never"
     },
     {
       "id": 18,
-      "text": "Jeg har aldri tettet noen andre sin do",
+      "text": "Jeg har aldri tettet do hos noen andre",
       "kind": "never"
     },
     {
       "id": 19,
-      "text": "Jeg har aldri sovnet i offentligheten",
+      "text": "Jeg har aldri sovnet på et offentlig sted",
       "kind": "never"
     },
     {
@@ -115,32 +115,32 @@
     },
     {
       "id": 21,
-      "text": "Jeg har aldri brukt noen for penger",
+      "text": "Jeg har aldri brukt noen for pengene",
       "kind": "never"
     },
     {
       "id": 22,
-      "text": "Jeg har aldri hatt et ons",
+      "text": "Jeg har aldri hatt et one-night stand",
       "kind": "never"
     },
     {
       "id": 23,
-      "text": "Jeg har aldri lurt noen",
+      "text": "Jeg har aldri lurt noen skikkelig",
       "kind": "never"
     },
     {
       "id": 24,
-      "text": "Jeg har aldri kjørt på noe med uhell",
+      "text": "Jeg har aldri kjørt på noe med et uhell",
       "kind": "never"
     },
     {
       "id": 25,
-      "text": "Jeg har aldri ledd så mye at jeg tisset på meg",
+      "text": "Jeg har aldri ledd så hardt at jeg tisset på meg",
       "kind": "never"
     },
     {
       "id": 26,
-      "text": "Jeg har aldri gått gjennom en annens person meldinger",
+      "text": "Jeg har aldri snoket i meldingene til noen andre",
       "kind": "never"
     },
     {
@@ -155,12 +155,12 @@
     },
     {
       "id": 29,
-      "text": "Jeg har aldri hatt walk of shame",
+      "text": "Jeg har aldri hatt en walk of shame",
       "kind": "never"
     },
     {
       "id": 30,
-      "text": "Jeg har aldri dratt på alene tur til utlandet",
+      "text": "Jeg har aldri reist alene til utlandet",
       "kind": "never"
     },
     {
@@ -170,12 +170,12 @@
     },
     {
       "id": 32,
-      "text": "Jeg har aldri lyvd til foreldrene mine om hvor jeg har vært",
+      "text": "Jeg har aldri løyet til foreldrene mine om hvor jeg var",
       "kind": "never"
     },
     {
       "id": 33,
-      "text": "Jeg har aldri vært på en Disney park",
+      "text": "Jeg har aldri vært i en Disney-park",
       "kind": "never"
     },
     {
@@ -185,57 +185,57 @@
     },
     {
       "id": 35,
-      "text": "Jeg har aldri lyvd om alderen min",
+      "text": "Jeg har aldri løyet om alderen min",
       "kind": "never"
     },
     {
       "id": 36,
-      "text": "Jeg har aldri trodd på spøkelser",
+      "text": "Jeg har aldri vært overbevist om at et sted var hjemsøkt",
       "kind": "never"
     },
     {
       "id": 37,
-      "text": "Jeg har aldri faket at jeg har var syk for å slippe skolen",
+      "text": "Jeg har aldri faket sykdom for å slippe skolen",
       "kind": "never"
     },
     {
       "id": 38,
-      "text": "Jeg har aldri slettet et innlegg fordi det fikk for få likes/kmt",
+      "text": "Jeg har aldri slettet et innlegg fordi det fikk for få likes",
       "kind": "never"
     },
     {
       "id": 39,
-      "text": "Jeg har aldri kastet mat/drikke på noen",
+      "text": "Jeg har aldri kastet mat eller drikke på noen",
       "kind": "never"
     },
     {
       "id": 40,
-      "text": "Jeg har aldri brukt noen andres undertøy",
+      "text": "Jeg har aldri brukt undertøyet til noen andre",
       "kind": "never"
     },
     {
       "id": 41,
-      "text": "Jeg har aldri sett en hel serie på en dag",
+      "text": "Jeg har aldri sett en hel serie på én dag",
       "kind": "never"
     },
     {
       "id": 42,
-      "text": "Jeg har aldri vært utafor Europa",
+      "text": "Jeg har aldri vært utenfor Europa",
       "kind": "never"
     },
     {
       "id": 43,
-      "text": "Jeg har aldri sett en A-kjendis i virkeligheten",
+      "text": "Jeg har aldri møtt en A-kjendis i virkeligheten",
       "kind": "never"
     },
     {
       "id": 44,
-      "text": "Jeg har aldri stryket på en prøve",
+      "text": "Jeg har aldri strøket på en prøve",
       "kind": "never"
     },
     {
       "id": 45,
-      "text": "Jeg har aldri donert penger til veldedighet",
+      "text": "Jeg har aldri donert til veldedighet",
       "kind": "never"
     },
     {
@@ -245,7 +245,7 @@
     },
     {
       "id": 47,
-      "text": "Jeg har aldri vært forelsket",
+      "text": "Jeg har aldri vært skikkelig forelsket",
       "kind": "never"
     },
     {
@@ -260,7 +260,7 @@
     },
     {
       "id": 50,
-      "text": "Jeg har aldri tatt mat fra kjøleskapet som ikke var mitt",
+      "text": "Jeg har aldri tatt mat fra kjøleskapet som ikke var min",
       "kind": "never"
     },
     {
@@ -275,7 +275,7 @@
     },
     {
       "id": 53,
-      "text": "Jeg har aldri vært innlagt på sykehuset",
+      "text": "Jeg har aldri vært innlagt på sykehus",
       "kind": "never"
     },
     {
@@ -285,12 +285,12 @@
     },
     {
       "id": 55,
-      "text": "Jeg har aldri fått vennen min til å slå opp med kjæresten",
+      "text": "Jeg har aldri fått en venn til å slå opp",
       "kind": "never"
     },
     {
       "id": 56,
-      "text": "Jeg har aldri sladra på noen",
+      "text": "Jeg har aldri sladret på noen",
       "kind": "never"
     },
     {
@@ -310,32 +310,32 @@
     },
     {
       "id": 60,
-      "text": "Jeg har aldri tenkt at en baby er direkte stygg",
+      "text": "Jeg har aldri syntes en baby var direkte stygg",
       "kind": "never"
     },
     {
       "id": 61,
-      "text": "Jeg har aldri hatt en våtdrøm",
+      "text": "Jeg har aldri hatt en våt drøm",
       "kind": "never"
     },
     {
       "id": 62,
-      "text": "Jeg har aldri vært langsint lenger enn et år",
+      "text": "Jeg har aldri holdt nag i mer enn et år",
       "kind": "never"
     },
     {
       "id": 63,
-      "text": "Jeg har aldri vært på en diett",
+      "text": "Jeg har aldri vært på diett",
       "kind": "never"
     },
     {
       "id": 64,
-      "text": "Jeg har aldri klippet mitt eget hår",
+      "text": "Jeg har aldri klippet håret mitt selv",
       "kind": "never"
     },
     {
       "id": 65,
-      "text": "Jeg har aldri sagt \"Elsker deg\" med uhell",
+      "text": "Jeg har aldri sagt «elsker deg» ved et uhell",
       "kind": "never"
     },
     {
@@ -345,12 +345,12 @@
     },
     {
       "id": 67,
-      "text": "Jeg har aldri brukt utseendet mitt for å få fordeler fra noe",
+      "text": "Jeg har aldri brukt utseendet mitt for å få fordeler",
       "kind": "never"
     },
     {
       "id": 68,
-      "text": "Jeg har aldri send nudes",
+      "text": "Jeg har aldri sendt nudes",
       "kind": "never"
     },
     {
@@ -360,7 +360,7 @@
     },
     {
       "id": 70,
-      "text": "Jeg har aldri blokket noen",
+      "text": "Jeg har aldri blokkert noen",
       "kind": "never"
     },
     {
@@ -370,12 +370,12 @@
     },
     {
       "id": 72,
-      "text": "Jeg har aldri blødd igjennom",
+      "text": "Jeg har aldri blødd gjennom klærne",
       "kind": "never"
     },
     {
       "id": 73,
-      "text": "Jeg har aldri måtte løpe for livet",
+      "text": "Jeg har aldri måttet løpe for livet",
       "kind": "never"
     },
     {
@@ -385,7 +385,7 @@
     },
     {
       "id": 75,
-      "text": "Jeg har aldri hatt sex med ulike partnere på 24 timer",
+      "text": "Jeg har aldri ligget med to forskjellige på 24 timer",
       "kind": "never"
     },
     {
@@ -400,7 +400,7 @@
     },
     {
       "id": 78,
-      "text": "Jeg har aldri gjort noe seksuelt med en av samme kjønn",
+      "text": "Jeg har aldri gjort noe seksuelt med noen av samme kjønn",
       "kind": "never"
     },
     {
@@ -410,17 +410,17 @@
     },
     {
       "id": 80,
-      "text": "Jeg har aldri spydd i bilen",
+      "text": "Jeg har aldri spydd i en bil",
       "kind": "never"
     },
     {
       "id": 81,
-      "text": "Jeg har aldri gitt noen dårlig råd med vilje",
+      "text": "Jeg har aldri gitt noen dårlige råd med vilje",
       "kind": "never"
     },
     {
       "id": 82,
-      "text": "Jeg har aldri kræsjet med noen",
+      "text": "Jeg har aldri gått rett på noen",
       "kind": "never"
     },
     {
@@ -435,17 +435,17 @@
     },
     {
       "id": 85,
-      "text": "Jeg har aldri operert",
+      "text": "Jeg har aldri blitt operert",
       "kind": "never"
     },
     {
       "id": 86,
-      "text": "Jeg har aldri flørtet med en som har kjæreste",
+      "text": "Jeg har aldri flørtet med noen som har kjæreste",
       "kind": "never"
     },
     {
       "id": 87,
-      "text": "Jeg har aldri flørtet med en 20+ år eldre",
+      "text": "Jeg har aldri flørtet med noen 20+ år eldre",
       "kind": "never"
     },
     {
@@ -460,12 +460,12 @@
     },
     {
       "id": 90,
-      "text": "Jeg har aldri tatt opp en haiker",
+      "text": "Jeg har aldri plukket opp en haiker",
       "kind": "never"
     },
     {
       "id": 91,
-      "text": "Jeg har aldri lyvd om sivilstatus",
+      "text": "Jeg har aldri løyet om sivilstatusen min",
       "kind": "never"
     },
     {
@@ -480,12 +480,12 @@
     },
     {
       "id": 94,
-      "text": "Jeg har aldri gått inn på noen ha sex",
+      "text": "Jeg har aldri gått inn på noen som hadde sex",
       "kind": "never"
     },
     {
       "id": 95,
-      "text": "Jeg har aldri vært i samme rom med noen som har sex",
+      "text": "Jeg har aldri vært i samme rom mens noen hadde sex",
       "kind": "never"
     },
     {
@@ -495,7 +495,7 @@
     },
     {
       "id": 97,
-      "text": "Jeg har aldri ridd en hest",
+      "text": "Jeg har aldri ridd på en hest",
       "kind": "never"
     },
     {
@@ -505,7 +505,7 @@
     },
     {
       "id": 99,
-      "text": "Jeg har aldri donert blod",
+      "text": "Jeg har aldri gitt blod",
       "kind": "never"
     },
     {
@@ -520,12 +520,12 @@
     },
     {
       "id": 102,
-      "text": "Jeg har aldri stalket noen på snapmap",
+      "text": "Jeg har aldri stalket noen på Snap Map",
       "kind": "never"
     },
     {
       "id": 103,
-      "text": "Jeg har aldri avfyrt et skudd",
+      "text": "Jeg har aldri avfyrt et våpen",
       "kind": "never"
     },
     {
@@ -535,7 +535,7 @@
     },
     {
       "id": 105,
-      "text": "Jeg har aldri vært en del av et rykte som ikke var sant",
+      "text": "Jeg har aldri vært del av et rykte som ikke var sant",
       "kind": "never"
     },
     {
@@ -550,7 +550,7 @@
     },
     {
       "id": 108,
-      "text": "Jeg har aldri dratt på jobb hangover",
+      "text": "Jeg har aldri dratt på jobb med bakrus",
       "kind": "never"
     },
     {
@@ -560,7 +560,7 @@
     },
     {
       "id": 110,
-      "text": "Jeg har aldri vært i en politibil",
+      "text": "Jeg har aldri sittet i en politibil",
       "kind": "never"
     },
     {
@@ -570,12 +570,12 @@
     },
     {
       "id": 112,
-      "text": "Jeg har aldri brukt over 5k kr på byen",
+      "text": "Jeg har aldri brukt over 5000 kr på én kveld ute",
       "kind": "never"
     },
     {
       "id": 113,
-      "text": "Jeg har aldri brukt over 10 k på byen",
+      "text": "Jeg har aldri brukt over 10 000 kr på én kveld ute",
       "kind": "never"
     },
     {
@@ -595,7 +595,7 @@
     },
     {
       "id": 117,
-      "text": "Jeg har aldri gitt en dårlig anmeldelse på internett",
+      "text": "Jeg har aldri lagt igjen en slem anmeldelse på nett",
       "kind": "never"
     },
     {
@@ -610,22 +610,22 @@
     },
     {
       "id": 120,
-      "text": "Jeg har aldri mistet stemmen min",
+      "text": "Jeg har aldri mistet stemmen",
       "kind": "never"
     },
     {
       "id": 121,
-      "text": "Jeg har aldri sunget for en mengde mennesker",
+      "text": "Jeg har aldri sunget for en folkemengde",
       "kind": "never"
     },
     {
       "id": 122,
-      "text": "Jeg har aldri fått et blått øye",
+      "text": "Jeg har aldri fått blått øye",
       "kind": "never"
     },
     {
       "id": 123,
-      "text": "Jeg har aldri gitt noen et blått øye",
+      "text": "Jeg har aldri gitt noen blått øye",
       "kind": "never"
     },
     {
@@ -635,7 +635,7 @@
     },
     {
       "id": 125,
-      "text": "Jeg har aldri drukket over 60%",
+      "text": "Jeg har aldri drukket noe over 60 %",
       "kind": "never"
     },
     {
@@ -650,12 +650,12 @@
     },
     {
       "id": 128,
-      "text": "Jeg har aldri brukt en datingapp",
+      "text": "Jeg har aldri brukt en dating-app",
       "kind": "never"
     },
     {
       "id": 129,
-      "text": "Jeg har aldri brukt en dating nettside (match.com feks)",
+      "text": "Jeg har aldri brukt en dating-nettside",
       "kind": "never"
     },
     {
@@ -670,7 +670,7 @@
     },
     {
       "id": 132,
-      "text": "Jeg har aldri fantasert om å gå tilbake til en eks",
+      "text": "Jeg har aldri fantasert om å ta tilbake en eks",
       "kind": "never"
     },
     {
@@ -680,7 +680,7 @@
     },
     {
       "id": 134,
-      "text": "Jeg har aldri googlet megselv",
+      "text": "Jeg har aldri googlet meg selv",
       "kind": "never"
     },
     {
@@ -700,12 +700,12 @@
     },
     {
       "id": 138,
-      "text": "Jeg har aldri role-played",
+      "text": "Jeg har aldri drevet med rollespill i senga",
       "kind": "never"
     },
     {
       "id": 139,
-      "text": "Jeg har aldri sugd på noen sine tær",
+      "text": "Jeg har aldri sugd på tærne til noen",
       "kind": "never"
     },
     {
@@ -715,7 +715,7 @@
     },
     {
       "id": 141,
-      "text": "Jeg har aldri hatt sex med bestevennen din",
+      "text": "Jeg har aldri hatt sex med en bestevenn",
       "kind": "never"
     },
     {
@@ -725,7 +725,7 @@
     },
     {
       "id": 143,
-      "text": "Jeg har aldri møtt opp på forelesning fortsatt full fra kvelden før",
+      "text": "Jeg har aldri møtt på forelesning fortsatt full fra kvelden før",
       "kind": "never"
     },
     {
@@ -735,17 +735,17 @@
     },
     {
       "id": 145,
-      "text": "Jeg har aldri late-som jeg var mer full enn jeg var for å komme meg ut av en samtale",
+      "text": "Jeg har aldri latet som jeg var fullere enn jeg var for å slippe unna en samtale",
       "kind": "never"
     },
     {
       "id": 146,
-      "text": "Jeg har aldri kalt læreren min for mamma eller pappa ved et uhell",
+      "text": "Jeg har aldri kalt læreren mamma eller pappa ved et uhell",
       "kind": "never"
     },
     {
       "id": 147,
-      "text": "Jeg har aldri spist noen andres mat på studentkjøkkenet",
+      "text": "Jeg har aldri spist noen andres mat på fellenskjøkkenet",
       "kind": "never"
     },
     {
@@ -755,12 +755,12 @@
     },
     {
       "id": 149,
-      "text": "Jeg har aldri hatt en seriøs livssamtale fullstendig drita",
+      "text": "Jeg har aldri hatt en dyp livssamtale mens jeg var helt dritings",
       "kind": "never"
     },
     {
       "id": 150,
-      "text": "Jeg har aldri sovet gjennom alarmen og mistet noe viktig",
+      "text": "Jeg har aldri forsovet meg og mistet noe viktig",
       "kind": "never"
     },
     {
@@ -770,12 +770,12 @@
     },
     {
       "id": 152,
-      "text": "Jeg har aldri bestilt matlevering og sovnet før den kom",
+      "text": "Jeg har aldri bestilt mat og sovnet før den kom",
       "kind": "never"
     },
     {
       "id": 153,
-      "text": "Jeg har aldri vært på en gruppeoppgave der jeg ikke gjorde noe",
+      "text": "Jeg har aldri vært på et gruppeprosjekt der jeg gjorde absolutt ingenting",
       "kind": "never"
     },
     {
@@ -790,7 +790,7 @@
     },
     {
       "id": 156,
-      "text": "Jeg har aldri mistet noe dyrt på byen og funnet det neste dag et rart sted",
+      "text": "Jeg har aldri mistet noe dyrt på byen og funnet det igjen et rart sted dagen etter",
       "kind": "never"
     },
     {
@@ -800,57 +800,57 @@
     },
     {
       "id": 158,
-      "text": "Jeg har aldri sneket meg inn på et arrangement uten billett",
+      "text": "Jeg har aldri snek meg inn på et arrangement uten billett",
       "kind": "never"
     },
     {
       "id": 159,
-      "text": "Jeg har aldri sendt en talefekst ved et uhell i stedet for en tekstmelding",
+      "text": "Jeg har aldri sendt en talemelding ved et uhell i stedet for en tekst",
       "kind": "never"
     },
     {
       "id": 160,
-      "text": "Jeg har aldri overbevist noen om å gjøre noe dumt og gitt dem skylden etterpå",
+      "text": "Jeg har aldri overtalt noen til noe dumt og gitt dem skylden etterpå",
       "kind": "never"
     },
     {
       "id": 161,
-      "text": "Jeg har aldri late-som jeg snakket i telefonen for å unngå noen",
+      "text": "Jeg har aldri latet som jeg snakket i telefonen for å unngå noen",
       "kind": "never"
     },
     {
       "id": 162,
-      "text": "Jeg har aldri vært i en gruppechat som eksploderte helt",
+      "text": "Jeg har aldri vært i en gruppechat som eksploderte totalt",
       "kind": "never"
     },
     {
       "id": 163,
-      "text": "Jeg har aldri gjort noe edru som folk antok at jeg var full for å gjøre",
+      "text": "Jeg har aldri gjort noe helt edru som folk trodde jeg var full for å gjøre",
       "kind": "never"
     },
     {
       "id": 164,
-      "text": "Jeg har aldri late-som jeg skjønte en vits som gikk over hodet mitt",
+      "text": "Jeg har aldri latet som jeg skjønte en vits jeg overhodet ikke fikk med meg",
       "kind": "never"
     },
     {
       "id": 165,
-      "text": "Jeg har aldri likt mitt eget innlegg fra en falsk konto",
+      "text": "Jeg har aldri likt mitt eget innlegg fra en fake-konto",
       "kind": "never"
     },
     {
       "id": 166,
-      "text": "Jeg har aldri sendt en melding til feil person på verst mulig tidspunkt",
+      "text": "Jeg har aldri sendt en melding til feil person på verst tenkelige tidspunkt",
       "kind": "never"
     },
     {
       "id": 167,
-      "text": "Jeg har aldri funnet på en unnskyldning for å dra fra en date og dratt et annet sted",
+      "text": "Jeg har aldri funnet på en unnskyldning for å dra fra en date og dratt et helt annet sted",
       "kind": "never"
     },
     {
       "id": 168,
-      "text": "Jeg har aldri lånt penger av noen og fullstendig glemt det",
+      "text": "Jeg har aldri lånt penger av noen og glemt det fullstendig",
       "kind": "never"
     },
     {
@@ -860,7 +860,7 @@
     },
     {
       "id": 170,
-      "text": "Jeg har aldri havnet i feil gruppechat og blitt sittende stille",
+      "text": "Jeg har aldri havnet i feil gruppechat og bare blitt sittende stille",
       "kind": "never"
     },
     {
@@ -870,12 +870,12 @@
     },
     {
       "id": 172,
-      "text": "Jeg har aldri betalt for et abonnement jeg ikke har brukt på seks måneder",
+      "text": "Jeg har aldri betalt for et abonnement jeg ikke har brukt på et halvår",
       "kind": "never"
     },
     {
       "id": 173,
-      "text": "Jeg har aldri tatt bilde av noen uten at de visste det og slettet det av dårlig samvittighet",
+      "text": "Jeg har aldri tatt et snikbilde av noen og slettet det av dårlig samvittighet",
       "kind": "never"
     },
     {
@@ -885,12 +885,12 @@
     },
     {
       "id": 175,
-      "text": "Jeg har aldri vært så nervøs at jeg glemte navnet på noen rett etter de sa det",
+      "text": "Jeg har aldri vært så nervøs at jeg glemte navnet til noen rett etter de sa det",
       "kind": "never"
     },
     {
       "id": 176,
-      "text": "Jeg har aldri blitt i et forhold lenger enn jeg burde fordi timingen ikke føltes riktig",
+      "text": "Jeg har aldri blitt i et forhold lenger enn jeg burde fordi timingen føltes feil",
       "kind": "never"
     },
     {
@@ -905,7 +905,7 @@
     },
     {
       "id": 179,
-      "text": "Jeg har aldri søkt på en jobb jeg ikke hadde noen kvalifikasjoner for",
+      "text": "Jeg har aldri søkt på en jobb jeg overhodet ikke var kvalifisert for",
       "kind": "never"
     },
     {
@@ -915,27 +915,27 @@
     },
     {
       "id": 181,
-      "text": "Jeg har aldri lest alle gammeldagse innlegg til noen på sosiale medier før jeg møtte dem",
+      "text": "Jeg har aldri scrollet gjennom alle de gamle innleggene til noen før jeg møtte dem",
       "kind": "never"
     },
     {
       "id": 182,
-      "text": "Jeg har aldri knipet en utfordring i siste sekund",
+      "text": "Jeg har aldri knipet på en utfordring i siste sekund",
       "kind": "never"
     },
     {
       "id": 183,
-      "text": "Jeg har aldri søvngått",
+      "text": "Jeg har aldri gått i søvne",
       "kind": "never"
     },
     {
       "id": 184,
-      "text": "Jeg har aldri snorket så høyt at det vekket noen andre",
+      "text": "Jeg har aldri snorket så høyt at jeg vekket noen andre",
       "kind": "never"
     },
     {
       "id": 185,
-      "text": "Jeg har aldri dratt på bryllup uten å kjenne paret",
+      "text": "Jeg har aldri vært i et bryllup uten å kjenne paret",
       "kind": "never"
     },
     {
@@ -945,17 +945,17 @@
     },
     {
       "id": 187,
-      "text": "Jeg har aldri likt et bilde ved et uhell mens jeg satt og stalket noen",
+      "text": "Jeg har aldri likt et bilde ved et uhell mens jeg dypstalket noen",
       "kind": "never"
     },
     {
       "id": 188,
-      "text": "Jeg har aldri late-som jeg var syk for å slippe noe, og blitt avslørt av et bilde på nett",
+      "text": "Jeg har aldri faket sykdom for å slippe noe og blitt avslørt av et bilde på nett",
       "kind": "never"
     },
     {
       "id": 189,
-      "text": "Jeg har aldri holdt en hemmelighet i over fem år uten å fortelle noen",
+      "text": "Jeg har aldri holdt på en hemmelighet i over fem år uten å si det til noen",
       "kind": "never"
     },
     {
@@ -967,17 +967,17 @@
   "translations": {
     "en": {
       "title": "Never Have I Ever",
-      "shortTitle": "Never",
-      "description": "Draw a statement. If you have done it, drink.",
+      "shortTitle": "Never Have I Ever",
+      "description": "Read it out. Everyone who's done it drinks. Simple as that.",
       "rules": [
-        "Draw one question at a time.",
-        "Read the statement out loud for everyone.",
-        "Everyone who has done what is on the card must drink."
+        "Draw one card at a time.",
+        "Read the statement out loud.",
+        "Everyone who has done it drinks."
       ],
       "prompts": [
         {
           "id": 1,
-          "text": "Never have I ever kissed more than 5 people in one night"
+          "text": "Never have I ever kissed more than five people in one night"
         },
         {
           "id": 2,
@@ -985,11 +985,11 @@
         },
         {
           "id": 3,
-          "text": "Never have I ever missed my flight"
+          "text": "Never have I ever missed a flight"
         },
         {
           "id": 4,
-          "text": "Never have I ever sent drunk messages to someone I should not have"
+          "text": "Never have I ever sent drunk texts to someone I shouldn't have"
         },
         {
           "id": 5,
@@ -1001,7 +1001,7 @@
         },
         {
           "id": 7,
-          "text": "Never have I ever been unfaithful"
+          "text": "Never have I ever cheated on someone"
         },
         {
           "id": 8,
@@ -1057,7 +1057,7 @@
         },
         {
           "id": 21,
-          "text": "Never have I ever used someone for money"
+          "text": "Never have I ever used someone for their money"
         },
         {
           "id": 22,
@@ -1065,7 +1065,7 @@
         },
         {
           "id": 23,
-          "text": "Never have I ever tricked someone"
+          "text": "Never have I ever properly tricked someone"
         },
         {
           "id": 24,
@@ -1073,15 +1073,15 @@
         },
         {
           "id": 25,
-          "text": "Never have I ever laughed so hard I peed myself"
+          "text": "Never have I ever laughed so hard I peed a little"
         },
         {
           "id": 26,
-          "text": "Never have I ever gone through someone else's private messages"
+          "text": "Never have I ever gone through someone else's messages"
         },
         {
           "id": 27,
-          "text": "Never have I ever tried hash"
+          "text": "Never have I ever tried weed"
         },
         {
           "id": 28,
@@ -1089,11 +1089,11 @@
         },
         {
           "id": 29,
-          "text": "Never have I ever had a walk of shame"
+          "text": "Never have I ever done a walk of shame"
         },
         {
           "id": 30,
-          "text": "Never have I ever gone on a solo trip abroad"
+          "text": "Never have I ever travelled abroad alone"
         },
         {
           "id": 31,
@@ -1117,7 +1117,7 @@
         },
         {
           "id": 36,
-          "text": "Never have I ever believed in ghosts"
+          "text": "Never have I ever been convinced a place was haunted"
         },
         {
           "id": 37,
@@ -1125,11 +1125,11 @@
         },
         {
           "id": 38,
-          "text": "Never have I ever deleted a post because it got too few likes or comments"
+          "text": "Never have I ever deleted a post because it got too few likes"
         },
         {
           "id": 39,
-          "text": "Never have I ever thrown food or drinks at someone"
+          "text": "Never have I ever thrown food or a drink at someone"
         },
         {
           "id": 40,
@@ -1137,7 +1137,7 @@
         },
         {
           "id": 41,
-          "text": "Never have I ever watched an entire series in one day"
+          "text": "Never have I ever binged a whole series in one day"
         },
         {
           "id": 42,
@@ -1145,7 +1145,7 @@
         },
         {
           "id": 43,
-          "text": "Never have I ever seen an A-list celebrity in real life"
+          "text": "Never have I ever met an A-list celebrity in real life"
         },
         {
           "id": 44,
@@ -1153,15 +1153,15 @@
         },
         {
           "id": 45,
-          "text": "Never have I ever donated money to charity"
+          "text": "Never have I ever donated to charity"
         },
         {
           "id": 46,
-          "text": "Never have I ever had sex outside the bedroom"
+          "text": "Never have I ever had sex somewhere other than a bedroom"
         },
         {
           "id": 47,
-          "text": "Never have I ever been in love"
+          "text": "Never have I ever been properly in love"
         },
         {
           "id": 48,
@@ -1173,7 +1173,7 @@
         },
         {
           "id": 50,
-          "text": "Never have I ever taken food from the fridge that was not mine"
+          "text": "Never have I ever taken food from the fridge that wasn't mine"
         },
         {
           "id": 51,
@@ -1193,7 +1193,7 @@
         },
         {
           "id": 55,
-          "text": "Never have I ever made my friend break up with their partner"
+          "text": "Never have I ever made a friend break up with someone"
         },
         {
           "id": 56,
@@ -1213,7 +1213,7 @@
         },
         {
           "id": 60,
-          "text": "Never have I ever thought a baby was downright ugly"
+          "text": "Never have I ever thought a baby was straight-up ugly"
         },
         {
           "id": 61,
@@ -1221,7 +1221,7 @@
         },
         {
           "id": 62,
-          "text": "Never have I ever held a grudge for longer than a year"
+          "text": "Never have I ever held a grudge for more than a year"
         },
         {
           "id": 63,
@@ -1233,7 +1233,7 @@
         },
         {
           "id": 65,
-          "text": "Never have I ever accidentally said \"I love you\""
+          "text": "Never have I ever accidentally said 'I love you'"
         },
         {
           "id": 66,
@@ -1241,7 +1241,7 @@
         },
         {
           "id": 67,
-          "text": "Never have I ever used my looks to get advantages from something"
+          "text": "Never have I ever used my looks to get an advantage"
         },
         {
           "id": 68,
@@ -1273,7 +1273,7 @@
         },
         {
           "id": 75,
-          "text": "Never have I ever had sex with different partners within 24 hours"
+          "text": "Never have I ever slept with two different people within 24 hours"
         },
         {
           "id": 76,
@@ -1297,11 +1297,11 @@
         },
         {
           "id": 81,
-          "text": "Never have I ever intentionally given someone bad advice"
+          "text": "Never have I ever given someone bad advice on purpose"
         },
         {
           "id": 82,
-          "text": "Never have I ever crashed into someone"
+          "text": "Never have I ever walked straight into someone"
         },
         {
           "id": 83,
@@ -1309,7 +1309,7 @@
         },
         {
           "id": 84,
-          "text": "Never have I ever dumpster dived"
+          "text": "Never have I ever gone dumpster diving"
         },
         {
           "id": 85,
@@ -1317,7 +1317,7 @@
         },
         {
           "id": 86,
-          "text": "Never have I ever flirted with someone who has a partner"
+          "text": "Never have I ever flirted with someone who's taken"
         },
         {
           "id": 87,
@@ -1353,11 +1353,11 @@
         },
         {
           "id": 95,
-          "text": "Never have I ever been in the same room as people having sex"
+          "text": "Never have I ever been in the same room while people had sex"
         },
         {
           "id": 96,
-          "text": "Never have I ever witnessed something criminal"
+          "text": "Never have I ever witnessed a crime"
         },
         {
           "id": 97,
@@ -1393,7 +1393,7 @@
         },
         {
           "id": 105,
-          "text": "Never have I ever been part of a rumor that was not true"
+          "text": "Never have I ever been part of a rumour that wasn't true"
         },
         {
           "id": 106,
@@ -1413,7 +1413,7 @@
         },
         {
           "id": 110,
-          "text": "Never have I ever been in a police car"
+          "text": "Never have I ever sat in a police car"
         },
         {
           "id": 111,
@@ -1421,11 +1421,11 @@
         },
         {
           "id": 112,
-          "text": "Never have I ever spent over 5k NOK on a night out"
+          "text": "Never have I ever blown over 5000 on a single night out"
         },
         {
           "id": 113,
-          "text": "Never have I ever spent over 10k NOK on a night out"
+          "text": "Never have I ever blown over 10,000 on a single night out"
         },
         {
           "id": 114,
@@ -1441,7 +1441,7 @@
         },
         {
           "id": 117,
-          "text": "Never have I ever left a bad review online"
+          "text": "Never have I ever left a nasty review online"
         },
         {
           "id": 118,
@@ -1449,7 +1449,7 @@
         },
         {
           "id": 119,
-          "text": "Never have I ever done something sexual at a nightclub or bar"
+          "text": "Never have I ever done something sexual at a club or bar"
         },
         {
           "id": 120,
@@ -1473,11 +1473,11 @@
         },
         {
           "id": 125,
-          "text": "Never have I ever drunk alcohol over 60%"
+          "text": "Never have I ever drunk something over 60%"
         },
         {
           "id": 126,
-          "text": "Never have I ever smoked regularly for a period"
+          "text": "Never have I ever smoked regularly for a while"
         },
         {
           "id": 127,
@@ -1489,7 +1489,7 @@
         },
         {
           "id": 129,
-          "text": "Never have I ever used a dating website, like match.com"
+          "text": "Never have I ever used a dating website"
         },
         {
           "id": 130,
@@ -1497,7 +1497,7 @@
         },
         {
           "id": 131,
-          "text": "Never have I ever dated several people at the same time"
+          "text": "Never have I ever dated more than one person at once"
         },
         {
           "id": 132,
@@ -1525,7 +1525,7 @@
         },
         {
           "id": 138,
-          "text": "Never have I ever role-played"
+          "text": "Never have I ever done role-play in bed"
         },
         {
           "id": 139,
@@ -1541,11 +1541,11 @@
         },
         {
           "id": 142,
-          "text": "Never have I ever been thrown out of a nightclub or bar"
+          "text": "Never have I ever been kicked out of a club or bar"
         },
         {
           "id": 143,
-          "text": "Never have I ever showed up to a lecture still drunk from the night before"
+          "text": "Never have I ever shown up to a lecture still drunk from the night before"
         },
         {
           "id": 144,
@@ -1553,7 +1553,7 @@
         },
         {
           "id": 145,
-          "text": "Never have I ever pretended to be more drunk than I was to escape a conversation"
+          "text": "Never have I ever pretended to be drunker than I was to escape a conversation"
         },
         {
           "id": 146,
@@ -1561,7 +1561,7 @@
         },
         {
           "id": 147,
-          "text": "Never have I ever eaten someone else's food in the student kitchen"
+          "text": "Never have I ever eaten someone else's food in a shared kitchen"
         },
         {
           "id": 148,
@@ -1569,7 +1569,7 @@
         },
         {
           "id": 149,
-          "text": "Never have I ever had a serious conversation about life while completely wasted"
+          "text": "Never have I ever had a deep talk about life while completely wasted"
         },
         {
           "id": 150,
@@ -1577,7 +1577,7 @@
         },
         {
           "id": 151,
-          "text": "Never have I ever taken a photo with a celebrity without knowing who they were"
+          "text": "Never have I ever taken a photo with a celeb without knowing who they were"
         },
         {
           "id": 152,
@@ -1589,15 +1589,15 @@
         },
         {
           "id": 154,
-          "text": "Never have I ever ended up at a completely wrong party"
+          "text": "Never have I ever ended up at completely the wrong party"
         },
         {
           "id": 155,
-          "text": "Never have I ever made a bet I immediately regretted"
+          "text": "Never have I ever made a bet I regretted immediately"
         },
         {
           "id": 156,
-          "text": "Never have I ever lost something expensive on a night out and found it the next day somewhere weird"
+          "text": "Never have I ever lost something expensive out and found it somewhere weird the next day"
         },
         {
           "id": 157,
@@ -1605,15 +1605,15 @@
         },
         {
           "id": 158,
-          "text": "Never have I ever snuck into a festival or event without a ticket"
+          "text": "Never have I ever snuck into an event without a ticket"
         },
         {
           "id": 159,
-          "text": "Never have I ever accidentally sent a voice message instead of a text"
+          "text": "Never have I ever sent a voice message by accident instead of a text"
         },
         {
           "id": 160,
-          "text": "Never have I ever convinced someone to do something stupid and blamed it on them afterwards"
+          "text": "Never have I ever talked someone into something dumb and blamed them after"
         },
         {
           "id": 161,
@@ -1621,15 +1621,15 @@
         },
         {
           "id": 162,
-          "text": "Never have I ever been in a group chat that completely exploded"
+          "text": "Never have I ever been in a group chat that totally blew up"
         },
         {
           "id": 163,
-          "text": "Never have I ever done something completely sober that people assumed I was drunk to do"
+          "text": "Never have I ever done something totally sober that people assumed I was drunk to do"
         },
         {
           "id": 164,
-          "text": "Never have I ever pretended to understand a joke that completely went over my head"
+          "text": "Never have I ever pretended to get a joke that went completely over my head"
         },
         {
           "id": 165,
@@ -1637,23 +1637,23 @@
         },
         {
           "id": 166,
-          "text": "Never have I ever sent a message to the wrong person at the worst possible moment"
+          "text": "Never have I ever sent a text to the wrong person at the worst possible time"
         },
         {
           "id": 167,
-          "text": "Never have I ever made up an excuse to leave a date and then gone somewhere else entirely"
+          "text": "Never have I ever made up an excuse to leave a date and gone somewhere else entirely"
         },
         {
           "id": 168,
-          "text": "Never have I ever borrowed money from someone and completely forgotten about it"
+          "text": "Never have I ever borrowed money from someone and completely forgotten"
         },
         {
           "id": 169,
-          "text": "Never have I ever cried because of a fictional character"
+          "text": "Never have I ever cried over a fictional character"
         },
         {
           "id": 170,
-          "text": "Never have I ever accidentally joined a wrong group chat and stayed silent"
+          "text": "Never have I ever ended up in the wrong group chat and just stayed quiet"
         },
         {
           "id": 171,
@@ -1665,7 +1665,7 @@
         },
         {
           "id": 173,
-          "text": "Never have I ever taken a photo of someone without them knowing and deleted it out of guilt"
+          "text": "Never have I ever taken a sneaky photo of someone and deleted it out of guilt"
         },
         {
           "id": 174,
@@ -1673,15 +1673,15 @@
         },
         {
           "id": 175,
-          "text": "Never have I ever been so nervous I forgot someone's name right after they told me"
+          "text": "Never have I ever been so nervous I forgot someone's name right after they said it"
         },
         {
           "id": 176,
-          "text": "Never have I ever stayed in a relationship longer than I should have because the timing didn't feel right"
+          "text": "Never have I ever stayed in a relationship too long because the timing felt off"
         },
         {
           "id": 177,
-          "text": "Never have I ever invented an excuse to get out of a video call"
+          "text": "Never have I ever invented an excuse to dodge a video call"
         },
         {
           "id": 178,
@@ -1689,7 +1689,7 @@
         },
         {
           "id": 179,
-          "text": "Never have I ever applied for a job I had zero qualifications for"
+          "text": "Never have I ever applied for a job I was in no way qualified for"
         },
         {
           "id": 180,
@@ -1697,7 +1697,7 @@
         },
         {
           "id": 181,
-          "text": "Never have I ever read all of someone's old social media posts before meeting them"
+          "text": "Never have I ever scrolled through all of someone's old posts before meeting them"
         },
         {
           "id": 182,
@@ -1709,7 +1709,7 @@
         },
         {
           "id": 184,
-          "text": "Never have I ever snored so loud it woke someone else up"
+          "text": "Never have I ever snored so loud I woke someone else up"
         },
         {
           "id": 185,
@@ -1721,19 +1721,1563 @@
         },
         {
           "id": 187,
-          "text": "Never have I ever accidentally liked a photo while deep-scrolling someone's profile"
+          "text": "Never have I ever accidentally liked a photo while deep-stalking someone"
         },
         {
           "id": 188,
-          "text": "Never have I ever pretended to be sick to get out of something and been caught by a photo online"
+          "text": "Never have I ever faked being sick to skip something and been busted by a photo online"
         },
         {
           "id": 189,
-          "text": "Never have I ever kept a secret for more than five years without telling anyone"
+          "text": "Never have I ever kept a secret for over five years without telling a soul"
         },
         {
           "id": 190,
           "text": "Never have I ever made an emergency exit from a dinner party"
+        }
+      ]
+    },
+    "sv": {
+      "title": "Jag har aldrig",
+      "shortTitle": "Jag har aldrig",
+      "description": "Läs upp kortet. Alla som gjort det dricker. Så enkelt är det.",
+      "rules": [
+        "Dra ett kort i taget.",
+        "Läs påståendet högt.",
+        "Alla som har gjort det dricker."
+      ],
+      "prompts": [
+        {
+          "id": 1,
+          "text": "Jag har aldrig kysst fler än fem på en kväll"
+        },
+        {
+          "id": 2,
+          "text": "Jag har aldrig stulit något"
+        },
+        {
+          "id": 3,
+          "text": "Jag har aldrig missat ett flyg"
+        },
+        {
+          "id": 4,
+          "text": "Jag har aldrig skickat fyllemeddelanden till någon jag inte borde"
+        },
+        {
+          "id": 5,
+          "text": "Jag har aldrig förlorat ett vad"
+        },
+        {
+          "id": 6,
+          "text": "Jag har aldrig badat naken"
+        },
+        {
+          "id": 7,
+          "text": "Jag har aldrig varit otrogen"
+        },
+        {
+          "id": 8,
+          "text": "Jag har aldrig sjungit karaoke"
+        },
+        {
+          "id": 9,
+          "text": "Jag har aldrig brutit ett ben"
+        },
+        {
+          "id": 10,
+          "text": "Jag har aldrig varit på en yacht"
+        },
+        {
+          "id": 11,
+          "text": "Jag har aldrig varit på TV"
+        },
+        {
+          "id": 12,
+          "text": "Jag har aldrig varit på en Tinder-dejt"
+        },
+        {
+          "id": 13,
+          "text": "Jag har aldrig tatuerat mig"
+        },
+        {
+          "id": 14,
+          "text": "Jag har aldrig ljugit för polisen"
+        },
+        {
+          "id": 15,
+          "text": "Jag har aldrig använt falsk legitimation"
+        },
+        {
+          "id": 16,
+          "text": "Jag har aldrig gjort slut med någon"
+        },
+        {
+          "id": 17,
+          "text": "Jag har aldrig använt någon annans tandborste"
+        },
+        {
+          "id": 18,
+          "text": "Jag har aldrig täppt till någon annans toalett"
+        },
+        {
+          "id": 19,
+          "text": "Jag har aldrig somnat på ett offentligt ställe"
+        },
+        {
+          "id": 20,
+          "text": "Jag har aldrig kysst någon offentligt"
+        },
+        {
+          "id": 21,
+          "text": "Jag har aldrig utnyttjat någon för pengar"
+        },
+        {
+          "id": 22,
+          "text": "Jag har aldrig haft en one-night stand"
+        },
+        {
+          "id": 23,
+          "text": "Jag har aldrig lurat någon rejält"
+        },
+        {
+          "id": 24,
+          "text": "Jag har aldrig kört på något av misstag"
+        },
+        {
+          "id": 25,
+          "text": "Jag har aldrig skrattat så hårt att jag kissade på mig"
+        },
+        {
+          "id": 26,
+          "text": "Jag har aldrig snokat i någon annans meddelanden"
+        },
+        {
+          "id": 27,
+          "text": "Jag har aldrig testat hasch"
+        },
+        {
+          "id": 28,
+          "text": "Jag har aldrig gått flera dagar utan att duscha"
+        },
+        {
+          "id": 29,
+          "text": "Jag har aldrig haft en walk of shame"
+        },
+        {
+          "id": 30,
+          "text": "Jag har aldrig rest ensam utomlands"
+        },
+        {
+          "id": 31,
+          "text": "Jag har aldrig sprungit ett maraton"
+        },
+        {
+          "id": 32,
+          "text": "Jag har aldrig ljugit för mina föräldrar om var jag var"
+        },
+        {
+          "id": 33,
+          "text": "Jag har aldrig varit i en Disney-park"
+        },
+        {
+          "id": 34,
+          "text": "Jag har aldrig ghostat någon"
+        },
+        {
+          "id": 35,
+          "text": "Jag har aldrig ljugit om min ålder"
+        },
+        {
+          "id": 36,
+          "text": "Jag har aldrig varit övertygad om att en plats var hemsökt"
+        },
+        {
+          "id": 37,
+          "text": "Jag har aldrig spelat sjuk för att slippa skolan"
+        },
+        {
+          "id": 38,
+          "text": "Jag har aldrig raderat ett inlägg för att det fick för få likes"
+        },
+        {
+          "id": 39,
+          "text": "Jag har aldrig kastat mat eller dryck på någon"
+        },
+        {
+          "id": 40,
+          "text": "Jag har aldrig haft på mig någon annans underkläder"
+        },
+        {
+          "id": 41,
+          "text": "Jag har aldrig kollat klart en hel serie på en dag"
+        },
+        {
+          "id": 42,
+          "text": "Jag har aldrig varit utanför Europa"
+        },
+        {
+          "id": 43,
+          "text": "Jag har aldrig träffat en A-kändis på riktigt"
+        },
+        {
+          "id": 44,
+          "text": "Jag har aldrig kuggat ett prov"
+        },
+        {
+          "id": 45,
+          "text": "Jag har aldrig skänkt till välgörenhet"
+        },
+        {
+          "id": 46,
+          "text": "Jag har aldrig haft sex utanför sovrummet"
+        },
+        {
+          "id": 47,
+          "text": "Jag har aldrig varit riktigt kär"
+        },
+        {
+          "id": 48,
+          "text": "Jag har aldrig fuskat på ett prov"
+        },
+        {
+          "id": 49,
+          "text": "Jag har aldrig tagit alkohol från mina föräldrar"
+        },
+        {
+          "id": 50,
+          "text": "Jag har aldrig tagit mat ur kylen som inte var min"
+        },
+        {
+          "id": 51,
+          "text": "Jag har aldrig kissat i poolen"
+        },
+        {
+          "id": 52,
+          "text": "Jag har aldrig testat droger"
+        },
+        {
+          "id": 53,
+          "text": "Jag har aldrig varit inlagd på sjukhus"
+        },
+        {
+          "id": 54,
+          "text": "Jag har aldrig varit i Asien"
+        },
+        {
+          "id": 55,
+          "text": "Jag har aldrig fått en kompis att göra slut"
+        },
+        {
+          "id": 56,
+          "text": "Jag har aldrig skvallrat på någon"
+        },
+        {
+          "id": 57,
+          "text": "Jag har aldrig donerat ett organ"
+        },
+        {
+          "id": 58,
+          "text": "Jag har aldrig förlorat ett organ"
+        },
+        {
+          "id": 59,
+          "text": "Jag har aldrig sagt fel namn under sex"
+        },
+        {
+          "id": 60,
+          "text": "Jag har aldrig tyckt att en bebis var direkt ful"
+        },
+        {
+          "id": 61,
+          "text": "Jag har aldrig haft en våt dröm"
+        },
+        {
+          "id": 62,
+          "text": "Jag har aldrig burit agg i mer än ett år"
+        },
+        {
+          "id": 63,
+          "text": "Jag har aldrig varit på diet"
+        },
+        {
+          "id": 64,
+          "text": "Jag har aldrig klippt mitt eget hår"
+        },
+        {
+          "id": 65,
+          "text": "Jag har aldrig sagt 'älskar dig' av misstag"
+        },
+        {
+          "id": 66,
+          "text": "Jag har aldrig fastat"
+        },
+        {
+          "id": 67,
+          "text": "Jag har aldrig använt mitt utseende för att få fördelar"
+        },
+        {
+          "id": 68,
+          "text": "Jag har aldrig skickat nudes"
+        },
+        {
+          "id": 69,
+          "text": "Jag har aldrig fått nudes"
+        },
+        {
+          "id": 70,
+          "text": "Jag har aldrig blockat någon"
+        },
+        {
+          "id": 71,
+          "text": "Jag har aldrig sett någon dö"
+        },
+        {
+          "id": 72,
+          "text": "Jag har aldrig blött igenom kläderna"
+        },
+        {
+          "id": 73,
+          "text": "Jag har aldrig varit tvungen att springa för livet"
+        },
+        {
+          "id": 74,
+          "text": "Jag har aldrig haft 69"
+        },
+        {
+          "id": 75,
+          "text": "Jag har aldrig legat med två olika inom 24 timmar"
+        },
+        {
+          "id": 76,
+          "text": "Jag har aldrig startat en trend"
+        },
+        {
+          "id": 77,
+          "text": "Jag har aldrig dykt"
+        },
+        {
+          "id": 78,
+          "text": "Jag har aldrig gjort något sexuellt med någon av samma kön"
+        },
+        {
+          "id": 79,
+          "text": "Jag har aldrig kysst någon i regnet"
+        },
+        {
+          "id": 80,
+          "text": "Jag har aldrig spytt i en bil"
+        },
+        {
+          "id": 81,
+          "text": "Jag har aldrig gett någon dåliga råd med flit"
+        },
+        {
+          "id": 82,
+          "text": "Jag har aldrig gått rakt in i någon"
+        },
+        {
+          "id": 83,
+          "text": "Jag har aldrig gått utan underkläder"
+        },
+        {
+          "id": 84,
+          "text": "Jag har aldrig dumpster-dykt"
+        },
+        {
+          "id": 85,
+          "text": "Jag har aldrig blivit opererad"
+        },
+        {
+          "id": 86,
+          "text": "Jag har aldrig flörtat med någon som är upptagen"
+        },
+        {
+          "id": 87,
+          "text": "Jag har aldrig flörtat med någon 20+ år äldre"
+        },
+        {
+          "id": 88,
+          "text": "Jag har aldrig haft tandställning"
+        },
+        {
+          "id": 89,
+          "text": "Jag har aldrig liftat"
+        },
+        {
+          "id": 90,
+          "text": "Jag har aldrig plockat upp en liftare"
+        },
+        {
+          "id": 91,
+          "text": "Jag har aldrig ljugit om min relationsstatus"
+        },
+        {
+          "id": 92,
+          "text": "Jag har aldrig catfishat någon"
+        },
+        {
+          "id": 93,
+          "text": "Jag har aldrig sextat"
+        },
+        {
+          "id": 94,
+          "text": "Jag har aldrig kommit på någon som hade sex"
+        },
+        {
+          "id": 95,
+          "text": "Jag har aldrig varit i samma rum medan någon hade sex"
+        },
+        {
+          "id": 96,
+          "text": "Jag har aldrig bevittnat något kriminellt"
+        },
+        {
+          "id": 97,
+          "text": "Jag har aldrig ridit på en häst"
+        },
+        {
+          "id": 98,
+          "text": "Jag har aldrig svimmat"
+        },
+        {
+          "id": 99,
+          "text": "Jag har aldrig gett blod"
+        },
+        {
+          "id": 100,
+          "text": "Jag har aldrig varit i ett slagsmål"
+        },
+        {
+          "id": 101,
+          "text": "Jag har aldrig stalkat någon på sociala medier"
+        },
+        {
+          "id": 102,
+          "text": "Jag har aldrig stalkat någon på Snap Map"
+        },
+        {
+          "id": 103,
+          "text": "Jag har aldrig avfyrat ett vapen"
+        },
+        {
+          "id": 104,
+          "text": "Jag har aldrig fått sparken"
+        },
+        {
+          "id": 105,
+          "text": "Jag har aldrig varit del av ett rykte som inte var sant"
+        },
+        {
+          "id": 106,
+          "text": "Jag har aldrig gråtit på en fest"
+        },
+        {
+          "id": 107,
+          "text": "Jag har aldrig gråtit på jobbet"
+        },
+        {
+          "id": 108,
+          "text": "Jag har aldrig gått till jobbet bakis"
+        },
+        {
+          "id": 109,
+          "text": "Jag har aldrig fejkat en orgasm"
+        },
+        {
+          "id": 110,
+          "text": "Jag har aldrig suttit i en polisbil"
+        },
+        {
+          "id": 111,
+          "text": "Jag har aldrig varit på en strippklubb"
+        },
+        {
+          "id": 112,
+          "text": "Jag har aldrig gjort av med över 5000 på en kväll ute"
+        },
+        {
+          "id": 113,
+          "text": "Jag har aldrig gjort av med över 10 000 på en kväll ute"
+        },
+        {
+          "id": 114,
+          "text": "Jag har aldrig surfat"
+        },
+        {
+          "id": 115,
+          "text": "Jag har aldrig varit på en nudiststrand"
+        },
+        {
+          "id": 116,
+          "text": "Jag har aldrig ringt polisen"
+        },
+        {
+          "id": 117,
+          "text": "Jag har aldrig lämnat en elak recension online"
+        },
+        {
+          "id": 118,
+          "text": "Jag har aldrig blivit ghostad"
+        },
+        {
+          "id": 119,
+          "text": "Jag har aldrig gjort något sexuellt på ett uteställe"
+        },
+        {
+          "id": 120,
+          "text": "Jag har aldrig tappat rösten"
+        },
+        {
+          "id": 121,
+          "text": "Jag har aldrig sjungit inför en folkmassa"
+        },
+        {
+          "id": 122,
+          "text": "Jag har aldrig fått en blåtira"
+        },
+        {
+          "id": 123,
+          "text": "Jag har aldrig gett någon en blåtira"
+        },
+        {
+          "id": 124,
+          "text": "Jag har aldrig kysst en främling"
+        },
+        {
+          "id": 125,
+          "text": "Jag har aldrig druckit något över 60 %"
+        },
+        {
+          "id": 126,
+          "text": "Jag har aldrig rökt regelbundet en period"
+        },
+        {
+          "id": 127,
+          "text": "Jag har aldrig gett någon en lapdance"
+        },
+        {
+          "id": 128,
+          "text": "Jag har aldrig använt en dejtingapp"
+        },
+        {
+          "id": 129,
+          "text": "Jag har aldrig använt en dejtingsajt"
+        },
+        {
+          "id": 130,
+          "text": "Jag har aldrig fått en sugmärke"
+        },
+        {
+          "id": 131,
+          "text": "Jag har aldrig dejtat flera personer samtidigt"
+        },
+        {
+          "id": 132,
+          "text": "Jag har aldrig fantiserat om att bli ihop med ett ex igen"
+        },
+        {
+          "id": 133,
+          "text": "Jag har aldrig varit i ett förhållande"
+        },
+        {
+          "id": 134,
+          "text": "Jag har aldrig googlat mig själv"
+        },
+        {
+          "id": 135,
+          "text": "Jag har aldrig haft sex på första dejten"
+        },
+        {
+          "id": 136,
+          "text": "Jag har aldrig haft sex med en kollega"
+        },
+        {
+          "id": 137,
+          "text": "Jag har aldrig haft trekant"
+        },
+        {
+          "id": 138,
+          "text": "Jag har aldrig hållit på med rollspel i sängen"
+        },
+        {
+          "id": 139,
+          "text": "Jag har aldrig sugit på någons tår"
+        },
+        {
+          "id": 140,
+          "text": "Jag har aldrig haft sex med någon och hållit det hemligt"
+        },
+        {
+          "id": 141,
+          "text": "Jag har aldrig haft sex med en bästis"
+        },
+        {
+          "id": 142,
+          "text": "Jag har aldrig blivit utkastad från ett uteställe"
+        },
+        {
+          "id": 143,
+          "text": "Jag har aldrig dykt upp på föreläsning fortfarande full från kvällen innan"
+        },
+        {
+          "id": 144,
+          "text": "Jag har aldrig somnat under en tenta"
+        },
+        {
+          "id": 145,
+          "text": "Jag har aldrig låtsats vara fullare än jag var för att slippa ett samtal"
+        },
+        {
+          "id": 146,
+          "text": "Jag har aldrig råkat kalla läraren mamma eller pappa"
+        },
+        {
+          "id": 147,
+          "text": "Jag har aldrig ätit någon annans mat i det gemensamma köket"
+        },
+        {
+          "id": 148,
+          "text": "Jag har aldrig gråtit på biblioteket"
+        },
+        {
+          "id": 149,
+          "text": "Jag har aldrig haft ett djupt livssamtal helt packad"
+        },
+        {
+          "id": 150,
+          "text": "Jag har aldrig försovit mig och missat något viktigt"
+        },
+        {
+          "id": 151,
+          "text": "Jag har aldrig tagit en bild med en kändis utan att veta vem det var"
+        },
+        {
+          "id": 152,
+          "text": "Jag har aldrig beställt matleverans och somnat innan den kom"
+        },
+        {
+          "id": 153,
+          "text": "Jag har aldrig varit med i ett grupparbete där jag gjorde absolut ingenting"
+        },
+        {
+          "id": 154,
+          "text": "Jag har aldrig hamnat på helt fel fest"
+        },
+        {
+          "id": 155,
+          "text": "Jag har aldrig ingått ett vad jag ångrade direkt"
+        },
+        {
+          "id": 156,
+          "text": "Jag har aldrig tappat något dyrt på krogen och hittat det på ett konstigt ställe dagen efter"
+        },
+        {
+          "id": 157,
+          "text": "Jag har aldrig ätit något från golvet på en fest"
+        },
+        {
+          "id": 158,
+          "text": "Jag har aldrig smugit in på ett evenemang utan biljett"
+        },
+        {
+          "id": 159,
+          "text": "Jag har aldrig skickat ett röstmeddelande av misstag istället för ett sms"
+        },
+        {
+          "id": 160,
+          "text": "Jag har aldrig övertalat någon till något dumt och skyllt på dem efteråt"
+        },
+        {
+          "id": 161,
+          "text": "Jag har aldrig låtsats prata i telefon för att undvika någon"
+        },
+        {
+          "id": 162,
+          "text": "Jag har aldrig varit med i en gruppchatt som exploderade totalt"
+        },
+        {
+          "id": 163,
+          "text": "Jag har aldrig gjort något helnyktert som folk trodde jag var full för att göra"
+        },
+        {
+          "id": 164,
+          "text": "Jag har aldrig låtsats fatta ett skämt som gick helt över huvudet på mig"
+        },
+        {
+          "id": 165,
+          "text": "Jag har aldrig gillat mitt eget inlägg från ett fejkkonto"
+        },
+        {
+          "id": 166,
+          "text": "Jag har aldrig skickat ett meddelande till fel person vid värsta tänkbara tillfälle"
+        },
+        {
+          "id": 167,
+          "text": "Jag har aldrig hittat på en ursäkt för att lämna en dejt och gått nån helt annanstans"
+        },
+        {
+          "id": 168,
+          "text": "Jag har aldrig lånat pengar av någon och glömt bort det helt"
+        },
+        {
+          "id": 169,
+          "text": "Jag har aldrig gråtit över en fiktiv karaktär"
+        },
+        {
+          "id": 170,
+          "text": "Jag har aldrig hamnat i fel gruppchatt och bara suttit tyst"
+        },
+        {
+          "id": 171,
+          "text": "Jag har aldrig dykt upp någonstans fel dag"
+        },
+        {
+          "id": 172,
+          "text": "Jag har aldrig betalat för en prenumeration jag inte använt på ett halvår"
+        },
+        {
+          "id": 173,
+          "text": "Jag har aldrig smygfotat någon och raderat det av dåligt samvete"
+        },
+        {
+          "id": 174,
+          "text": "Jag har aldrig startat ett bråk på karaoke"
+        },
+        {
+          "id": 175,
+          "text": "Jag har aldrig varit så nervös att jag glömde någons namn direkt efter de sa det"
+        },
+        {
+          "id": 176,
+          "text": "Jag har aldrig stannat i ett förhållande för länge för att timingen kändes fel"
+        },
+        {
+          "id": 177,
+          "text": "Jag har aldrig hittat på en ursäkt för att slippa ett videosamtal"
+        },
+        {
+          "id": 178,
+          "text": "Jag har aldrig druckit ensam hemma och faktiskt njutit"
+        },
+        {
+          "id": 179,
+          "text": "Jag har aldrig sökt ett jobb jag inte var det minsta kvalificerad för"
+        },
+        {
+          "id": 180,
+          "text": "Jag har aldrig skrattat så hårt att jag inte kunde andas"
+        },
+        {
+          "id": 181,
+          "text": "Jag har aldrig scrollat igenom alla någons gamla inlägg innan jag träffade dem"
+        },
+        {
+          "id": 182,
+          "text": "Jag har aldrig fegat ur en utmaning i sista sekund"
+        },
+        {
+          "id": 183,
+          "text": "Jag har aldrig gått i sömnen"
+        },
+        {
+          "id": 184,
+          "text": "Jag har aldrig snarkat så högt att jag väckte någon annan"
+        },
+        {
+          "id": 185,
+          "text": "Jag har aldrig varit på ett bröllop utan att känna paret"
+        },
+        {
+          "id": 186,
+          "text": "Jag har aldrig blivit utslängd från ett museum eller en utställning"
+        },
+        {
+          "id": 187,
+          "text": "Jag har aldrig råkat gilla en bild medan jag deep-stalkade någon"
+        },
+        {
+          "id": 188,
+          "text": "Jag har aldrig spelat sjuk för att slippa något och blivit avslöjad av en bild online"
+        },
+        {
+          "id": 189,
+          "text": "Jag har aldrig hållit på en hemlighet i över fem år utan att berätta för någon"
+        },
+        {
+          "id": 190,
+          "text": "Jag har aldrig gjort en snabb sorti från en middagsbjudning"
+        }
+      ]
+    },
+    "da": {
+      "title": "Jeg har aldrig",
+      "shortTitle": "Jeg har aldrig",
+      "description": "Læs kortet op. Alle, der har gjort det, drikker. Så enkelt er det.",
+      "rules": [
+        "Træk ét kort ad gangen.",
+        "Læs udsagnet højt.",
+        "Alle, der har gjort det, drikker."
+      ],
+      "prompts": [
+        {
+          "id": 1,
+          "text": "Jeg har aldrig kysset mere end fem på én aften"
+        },
+        {
+          "id": 2,
+          "text": "Jeg har aldrig stjålet noget"
+        },
+        {
+          "id": 3,
+          "text": "Jeg har aldrig misset et fly"
+        },
+        {
+          "id": 4,
+          "text": "Jeg har aldrig sendt fulde beskeder til nogen, jeg ikke burde"
+        },
+        {
+          "id": 5,
+          "text": "Jeg har aldrig tabt et væddemål"
+        },
+        {
+          "id": 6,
+          "text": "Jeg har aldrig badet nøgen"
+        },
+        {
+          "id": 7,
+          "text": "Jeg har aldrig været utro"
+        },
+        {
+          "id": 8,
+          "text": "Jeg har aldrig sunget karaoke"
+        },
+        {
+          "id": 9,
+          "text": "Jeg har aldrig brækket en knogle"
+        },
+        {
+          "id": 10,
+          "text": "Jeg har aldrig været på en yacht"
+        },
+        {
+          "id": 11,
+          "text": "Jeg har aldrig været i TV"
+        },
+        {
+          "id": 12,
+          "text": "Jeg har aldrig været på en Tinder-date"
+        },
+        {
+          "id": 13,
+          "text": "Jeg har aldrig fået en tatovering"
+        },
+        {
+          "id": 14,
+          "text": "Jeg har aldrig løjet for politiet"
+        },
+        {
+          "id": 15,
+          "text": "Jeg har aldrig brugt falsk ID"
+        },
+        {
+          "id": 16,
+          "text": "Jeg har aldrig slået op med nogen"
+        },
+        {
+          "id": 17,
+          "text": "Jeg har aldrig brugt en andens tandbørste"
+        },
+        {
+          "id": 18,
+          "text": "Jeg har aldrig stoppet en andens toilet til"
+        },
+        {
+          "id": 19,
+          "text": "Jeg har aldrig faldet i søvn offentligt"
+        },
+        {
+          "id": 20,
+          "text": "Jeg har aldrig kysset nogen offentligt"
+        },
+        {
+          "id": 21,
+          "text": "Jeg har aldrig brugt nogen for pengene"
+        },
+        {
+          "id": 22,
+          "text": "Jeg har aldrig haft et one-night stand"
+        },
+        {
+          "id": 23,
+          "text": "Jeg har aldrig narret nogen ordentligt"
+        },
+        {
+          "id": 24,
+          "text": "Jeg har aldrig påkørt noget ved et uheld"
+        },
+        {
+          "id": 25,
+          "text": "Jeg har aldrig grinet så meget, at jeg tissede lidt"
+        },
+        {
+          "id": 26,
+          "text": "Jeg har aldrig snaget i en andens beskeder"
+        },
+        {
+          "id": 27,
+          "text": "Jeg har aldrig prøvet hash"
+        },
+        {
+          "id": 28,
+          "text": "Jeg har aldrig gået flere dage uden bad"
+        },
+        {
+          "id": 29,
+          "text": "Jeg har aldrig haft en walk of shame"
+        },
+        {
+          "id": 30,
+          "text": "Jeg har aldrig rejst alene til udlandet"
+        },
+        {
+          "id": 31,
+          "text": "Jeg har aldrig løbet et maraton"
+        },
+        {
+          "id": 32,
+          "text": "Jeg har aldrig løjet for mine forældre om, hvor jeg var"
+        },
+        {
+          "id": 33,
+          "text": "Jeg har aldrig været i en Disney-park"
+        },
+        {
+          "id": 34,
+          "text": "Jeg har aldrig ghostet nogen"
+        },
+        {
+          "id": 35,
+          "text": "Jeg har aldrig løjet om min alder"
+        },
+        {
+          "id": 36,
+          "text": "Jeg har aldrig været overbevist om, at et sted var hjemsøgt"
+        },
+        {
+          "id": 37,
+          "text": "Jeg har aldrig spillet syg for at slippe for skole"
+        },
+        {
+          "id": 38,
+          "text": "Jeg har aldrig slettet et opslag, fordi det fik for få likes"
+        },
+        {
+          "id": 39,
+          "text": "Jeg har aldrig kastet mad eller drikke på nogen"
+        },
+        {
+          "id": 40,
+          "text": "Jeg har aldrig haft en andens undertøj på"
+        },
+        {
+          "id": 41,
+          "text": "Jeg har aldrig set en hel serie på én dag"
+        },
+        {
+          "id": 42,
+          "text": "Jeg har aldrig været uden for Europa"
+        },
+        {
+          "id": 43,
+          "text": "Jeg har aldrig mødt en A-kendis i virkeligheden"
+        },
+        {
+          "id": 44,
+          "text": "Jeg har aldrig dumpet en prøve"
+        },
+        {
+          "id": 45,
+          "text": "Jeg har aldrig doneret til velgørenhed"
+        },
+        {
+          "id": 46,
+          "text": "Jeg har aldrig haft sex uden for soveværelset"
+        },
+        {
+          "id": 47,
+          "text": "Jeg har aldrig været rigtig forelsket"
+        },
+        {
+          "id": 48,
+          "text": "Jeg har aldrig snydt til en prøve"
+        },
+        {
+          "id": 49,
+          "text": "Jeg har aldrig taget alkohol fra mine forældre"
+        },
+        {
+          "id": 50,
+          "text": "Jeg har aldrig taget mad fra køleskabet, der ikke var min"
+        },
+        {
+          "id": 51,
+          "text": "Jeg har aldrig tisset i poolen"
+        },
+        {
+          "id": 52,
+          "text": "Jeg har aldrig prøvet stoffer"
+        },
+        {
+          "id": 53,
+          "text": "Jeg har aldrig været indlagt på hospitalet"
+        },
+        {
+          "id": 54,
+          "text": "Jeg har aldrig været i Asien"
+        },
+        {
+          "id": 55,
+          "text": "Jeg har aldrig fået en ven til at slå op"
+        },
+        {
+          "id": 56,
+          "text": "Jeg har aldrig sladret om nogen"
+        },
+        {
+          "id": 57,
+          "text": "Jeg har aldrig doneret et organ"
+        },
+        {
+          "id": 58,
+          "text": "Jeg har aldrig mistet et organ"
+        },
+        {
+          "id": 59,
+          "text": "Jeg har aldrig sagt det forkerte navn under sex"
+        },
+        {
+          "id": 60,
+          "text": "Jeg har aldrig syntes, en baby var decideret grim"
+        },
+        {
+          "id": 61,
+          "text": "Jeg har aldrig haft en våd drøm"
+        },
+        {
+          "id": 62,
+          "text": "Jeg har aldrig båret nag i mere end et år"
+        },
+        {
+          "id": 63,
+          "text": "Jeg har aldrig været på slankekur"
+        },
+        {
+          "id": 64,
+          "text": "Jeg har aldrig klippet mit eget hår"
+        },
+        {
+          "id": 65,
+          "text": "Jeg har aldrig sagt 'jeg elsker dig' ved et uheld"
+        },
+        {
+          "id": 66,
+          "text": "Jeg har aldrig fastet"
+        },
+        {
+          "id": 67,
+          "text": "Jeg har aldrig brugt mit udseende for at få fordele"
+        },
+        {
+          "id": 68,
+          "text": "Jeg har aldrig sendt nudes"
+        },
+        {
+          "id": 69,
+          "text": "Jeg har aldrig fået nudes"
+        },
+        {
+          "id": 70,
+          "text": "Jeg har aldrig blokeret nogen"
+        },
+        {
+          "id": 71,
+          "text": "Jeg har aldrig set nogen dø"
+        },
+        {
+          "id": 72,
+          "text": "Jeg har aldrig blødt igennem tøjet"
+        },
+        {
+          "id": 73,
+          "text": "Jeg har aldrig været nødt til at løbe for livet"
+        },
+        {
+          "id": 74,
+          "text": "Jeg har aldrig haft 69"
+        },
+        {
+          "id": 75,
+          "text": "Jeg har aldrig været i seng med to forskellige inden for 24 timer"
+        },
+        {
+          "id": 76,
+          "text": "Jeg har aldrig startet en trend"
+        },
+        {
+          "id": 77,
+          "text": "Jeg har aldrig dykket"
+        },
+        {
+          "id": 78,
+          "text": "Jeg har aldrig gjort noget seksuelt med en af samme køn"
+        },
+        {
+          "id": 79,
+          "text": "Jeg har aldrig kysset nogen i regnen"
+        },
+        {
+          "id": 80,
+          "text": "Jeg har aldrig kastet op i en bil"
+        },
+        {
+          "id": 81,
+          "text": "Jeg har aldrig givet nogen dårlige råd med vilje"
+        },
+        {
+          "id": 82,
+          "text": "Jeg har aldrig gået lige ind i nogen"
+        },
+        {
+          "id": 83,
+          "text": "Jeg har aldrig gået uden underbukser"
+        },
+        {
+          "id": 84,
+          "text": "Jeg har aldrig rodet i skraldespande efter noget"
+        },
+        {
+          "id": 85,
+          "text": "Jeg har aldrig været under kniven"
+        },
+        {
+          "id": 86,
+          "text": "Jeg har aldrig flirtet med nogen, der har en kæreste"
+        },
+        {
+          "id": 87,
+          "text": "Jeg har aldrig flirtet med nogen 20+ år ældre"
+        },
+        {
+          "id": 88,
+          "text": "Jeg har aldrig haft bøjle"
+        },
+        {
+          "id": 89,
+          "text": "Jeg har aldrig blaffet"
+        },
+        {
+          "id": 90,
+          "text": "Jeg har aldrig samlet en blaffer op"
+        },
+        {
+          "id": 91,
+          "text": "Jeg har aldrig løjet om min forholdsstatus"
+        },
+        {
+          "id": 92,
+          "text": "Jeg har aldrig catfishet nogen"
+        },
+        {
+          "id": 93,
+          "text": "Jeg har aldrig sextet"
+        },
+        {
+          "id": 94,
+          "text": "Jeg har aldrig gået ind på nogen, der havde sex"
+        },
+        {
+          "id": 95,
+          "text": "Jeg har aldrig været i samme rum, mens nogen havde sex"
+        },
+        {
+          "id": 96,
+          "text": "Jeg har aldrig været vidne til noget kriminelt"
+        },
+        {
+          "id": 97,
+          "text": "Jeg har aldrig redet på en hest"
+        },
+        {
+          "id": 98,
+          "text": "Jeg har aldrig besvimet"
+        },
+        {
+          "id": 99,
+          "text": "Jeg har aldrig givet blod"
+        },
+        {
+          "id": 100,
+          "text": "Jeg har aldrig været i et slagsmål"
+        },
+        {
+          "id": 101,
+          "text": "Jeg har aldrig stalket nogen på sociale medier"
+        },
+        {
+          "id": 102,
+          "text": "Jeg har aldrig stalket nogen på Snap Map"
+        },
+        {
+          "id": 103,
+          "text": "Jeg har aldrig affyret et våben"
+        },
+        {
+          "id": 104,
+          "text": "Jeg har aldrig fået en fyreseddel"
+        },
+        {
+          "id": 105,
+          "text": "Jeg har aldrig været del af et rygte, der ikke var sandt"
+        },
+        {
+          "id": 106,
+          "text": "Jeg har aldrig grædt til en fest"
+        },
+        {
+          "id": 107,
+          "text": "Jeg har aldrig grædt på arbejde"
+        },
+        {
+          "id": 108,
+          "text": "Jeg har aldrig taget på arbejde med tømmermænd"
+        },
+        {
+          "id": 109,
+          "text": "Jeg har aldrig faket en orgasme"
+        },
+        {
+          "id": 110,
+          "text": "Jeg har aldrig siddet i en politibil"
+        },
+        {
+          "id": 111,
+          "text": "Jeg har aldrig været på en stripklub"
+        },
+        {
+          "id": 112,
+          "text": "Jeg har aldrig brugt over 5000 på én aften i byen"
+        },
+        {
+          "id": 113,
+          "text": "Jeg har aldrig brugt over 10.000 på én aften i byen"
+        },
+        {
+          "id": 114,
+          "text": "Jeg har aldrig surfet"
+        },
+        {
+          "id": 115,
+          "text": "Jeg har aldrig været på en nudiststrand"
+        },
+        {
+          "id": 116,
+          "text": "Jeg har aldrig ringet politiet"
+        },
+        {
+          "id": 117,
+          "text": "Jeg har aldrig efterladt en led anmeldelse online"
+        },
+        {
+          "id": 118,
+          "text": "Jeg har aldrig blevet ghostet"
+        },
+        {
+          "id": 119,
+          "text": "Jeg har aldrig gjort noget seksuelt på et diskotek eller en bar"
+        },
+        {
+          "id": 120,
+          "text": "Jeg har aldrig mistet stemmen"
+        },
+        {
+          "id": 121,
+          "text": "Jeg har aldrig sunget for en menneskemængde"
+        },
+        {
+          "id": 122,
+          "text": "Jeg har aldrig fået et blåt øje"
+        },
+        {
+          "id": 123,
+          "text": "Jeg har aldrig givet nogen et blåt øje"
+        },
+        {
+          "id": 124,
+          "text": "Jeg har aldrig kysset en fremmed"
+        },
+        {
+          "id": 125,
+          "text": "Jeg har aldrig drukket noget over 60 %"
+        },
+        {
+          "id": 126,
+          "text": "Jeg har aldrig røget fast i en periode"
+        },
+        {
+          "id": 127,
+          "text": "Jeg har aldrig givet nogen en lapdance"
+        },
+        {
+          "id": 128,
+          "text": "Jeg har aldrig brugt en dating-app"
+        },
+        {
+          "id": 129,
+          "text": "Jeg har aldrig brugt en dating-hjemmeside"
+        },
+        {
+          "id": 130,
+          "text": "Jeg har aldrig fået et sugemærke"
+        },
+        {
+          "id": 131,
+          "text": "Jeg har aldrig datet flere personer samtidig"
+        },
+        {
+          "id": 132,
+          "text": "Jeg har aldrig fantaseret om at få en eks tilbage"
+        },
+        {
+          "id": 133,
+          "text": "Jeg har aldrig været i et forhold"
+        },
+        {
+          "id": 134,
+          "text": "Jeg har aldrig googlet mig selv"
+        },
+        {
+          "id": 135,
+          "text": "Jeg har aldrig haft sex på første date"
+        },
+        {
+          "id": 136,
+          "text": "Jeg har aldrig haft sex med en kollega"
+        },
+        {
+          "id": 137,
+          "text": "Jeg har aldrig haft trekant"
+        },
+        {
+          "id": 138,
+          "text": "Jeg har aldrig leget rollespil i sengen"
+        },
+        {
+          "id": 139,
+          "text": "Jeg har aldrig suttet på nogens tæer"
+        },
+        {
+          "id": 140,
+          "text": "Jeg har aldrig haft sex med nogen og holdt det hemmeligt"
+        },
+        {
+          "id": 141,
+          "text": "Jeg har aldrig haft sex med en bedste ven"
+        },
+        {
+          "id": 142,
+          "text": "Jeg har aldrig blevet smidt ud af et diskotek eller en bar"
+        },
+        {
+          "id": 143,
+          "text": "Jeg har aldrig mødt op til forelæsning stadig fuld fra aftenen før"
+        },
+        {
+          "id": 144,
+          "text": "Jeg har aldrig faldet i søvn til en eksamen"
+        },
+        {
+          "id": 145,
+          "text": "Jeg har aldrig ladet som om jeg var mere fuld, end jeg var, for at slippe væk fra en samtale"
+        },
+        {
+          "id": 146,
+          "text": "Jeg har aldrig kaldt læreren mor eller far ved et uheld"
+        },
+        {
+          "id": 147,
+          "text": "Jeg har aldrig spist en andens mad i fælleskøkkenet"
+        },
+        {
+          "id": 148,
+          "text": "Jeg har aldrig grædt på biblioteket"
+        },
+        {
+          "id": 149,
+          "text": "Jeg har aldrig haft en dyb livssamtale, mens jeg var helt smadret"
+        },
+        {
+          "id": 150,
+          "text": "Jeg har aldrig sovet over mig og misset noget vigtigt"
+        },
+        {
+          "id": 151,
+          "text": "Jeg har aldrig taget et billede med en kendis uden at vide, hvem det var"
+        },
+        {
+          "id": 152,
+          "text": "Jeg har aldrig bestilt mad ud af huset og faldet i søvn, før den kom"
+        },
+        {
+          "id": 153,
+          "text": "Jeg har aldrig været med i et gruppeprojekt, hvor jeg lavede absolut ingenting"
+        },
+        {
+          "id": 154,
+          "text": "Jeg har aldrig endt til den helt forkerte fest"
+        },
+        {
+          "id": 155,
+          "text": "Jeg har aldrig indgået et væddemål, jeg fortrød med det samme"
+        },
+        {
+          "id": 156,
+          "text": "Jeg har aldrig mistet noget dyrt i byen og fundet det et mærkeligt sted dagen efter"
+        },
+        {
+          "id": 157,
+          "text": "Jeg har aldrig spist noget fra gulvet til en fest"
+        },
+        {
+          "id": 158,
+          "text": "Jeg har aldrig sneget mig ind til et arrangement uden billet"
+        },
+        {
+          "id": 159,
+          "text": "Jeg har aldrig sendt en talebesked ved et uheld i stedet for en sms"
+        },
+        {
+          "id": 160,
+          "text": "Jeg har aldrig overtalt nogen til noget dumt og givet dem skylden bagefter"
+        },
+        {
+          "id": 161,
+          "text": "Jeg har aldrig ladet som om jeg talte i telefon for at undgå nogen"
+        },
+        {
+          "id": 162,
+          "text": "Jeg har aldrig været med i en gruppechat, der eksploderede totalt"
+        },
+        {
+          "id": 163,
+          "text": "Jeg har aldrig gjort noget helt ædru, som folk troede, jeg var fuld for at gøre"
+        },
+        {
+          "id": 164,
+          "text": "Jeg har aldrig ladet som om jeg forstod en vittighed, der gik helt hen over hovedet på mig"
+        },
+        {
+          "id": 165,
+          "text": "Jeg har aldrig liket mit eget opslag fra en fake-konto"
+        },
+        {
+          "id": 166,
+          "text": "Jeg har aldrig sendt en besked til den forkerte person på det værst tænkelige tidspunkt"
+        },
+        {
+          "id": 167,
+          "text": "Jeg har aldrig fundet på en undskyldning for at forlade en date og taget et helt andet sted hen"
+        },
+        {
+          "id": 168,
+          "text": "Jeg har aldrig lånt penge af nogen og glemt det fuldstændig"
+        },
+        {
+          "id": 169,
+          "text": "Jeg har aldrig grædt over en fiktiv karakter"
+        },
+        {
+          "id": 170,
+          "text": "Jeg har aldrig endt i den forkerte gruppechat og bare siddet stille"
+        },
+        {
+          "id": 171,
+          "text": "Jeg har aldrig mødt op et sted på den forkerte dag"
+        },
+        {
+          "id": 172,
+          "text": "Jeg har aldrig betalt for et abonnement, jeg ikke har brugt i et halvt år"
+        },
+        {
+          "id": 173,
+          "text": "Jeg har aldrig taget et snigbillede af nogen og slettet det af dårlig samvittighed"
+        },
+        {
+          "id": 174,
+          "text": "Jeg har aldrig startet et skænderi til karaoke"
+        },
+        {
+          "id": 175,
+          "text": "Jeg har aldrig været så nervøs, at jeg glemte nogens navn lige efter, de sagde det"
+        },
+        {
+          "id": 176,
+          "text": "Jeg har aldrig blevet i et forhold for længe, fordi timingen føltes forkert"
+        },
+        {
+          "id": 177,
+          "text": "Jeg har aldrig fundet på en undskyldning for at slippe for et videoopkald"
+        },
+        {
+          "id": 178,
+          "text": "Jeg har aldrig drukket alene hjemme og faktisk nydt det"
+        },
+        {
+          "id": 179,
+          "text": "Jeg har aldrig søgt et job, jeg overhovedet ikke var kvalificeret til"
+        },
+        {
+          "id": 180,
+          "text": "Jeg har aldrig grinet så meget, at jeg ikke kunne få vejret"
+        },
+        {
+          "id": 181,
+          "text": "Jeg har aldrig scrollet gennem alle nogens gamle opslag, før jeg mødte dem"
+        },
+        {
+          "id": 182,
+          "text": "Jeg har aldrig knibet ud af en udfordring i sidste sekund"
+        },
+        {
+          "id": 183,
+          "text": "Jeg har aldrig gået i søvne"
+        },
+        {
+          "id": 184,
+          "text": "Jeg har aldrig snorket så højt, at jeg vækkede en anden"
+        },
+        {
+          "id": 185,
+          "text": "Jeg har aldrig været til et bryllup uden at kende parret"
+        },
+        {
+          "id": 186,
+          "text": "Jeg har aldrig blevet smidt ud af et museum eller en udstilling"
+        },
+        {
+          "id": 187,
+          "text": "Jeg har aldrig liket et billede ved et uheld, mens jeg dybstalkede nogen"
+        },
+        {
+          "id": 188,
+          "text": "Jeg har aldrig spillet syg for at slippe for noget og blevet afsløret af et billede online"
+        },
+        {
+          "id": 189,
+          "text": "Jeg har aldrig holdt på en hemmelighed i over fem år uden at fortælle nogen"
+        },
+        {
+          "id": 190,
+          "text": "Jeg har aldrig lavet en nødudgang fra en middag"
         }
       ]
     }

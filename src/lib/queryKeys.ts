@@ -9,6 +9,7 @@ export const qk = {
   calendar: (memberName?: string) => ['calendar', memberName] as const,
   economy: (memberName?: string) => ['economy', memberName] as const,
   pant: (memberName?: string) => ['pant', memberName] as const,
+  chat: (memberName?: string) => ['chat', memberName] as const,
   profile: (memberName?: string) => ['profile', memberName] as const,
   profileStats: (memberName?: string) => ['profile', 'stats', memberName] as const,
   profileRules: (memberName?: string) => ['profile', 'rules', memberName] as const,

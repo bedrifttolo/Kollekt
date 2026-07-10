@@ -12,6 +12,7 @@ import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { api, API_BASE } from "../lib/api";
 import { qk } from "../lib/queryKeys";
+import { queryClient as sharedQueryClient } from "../lib/queryClient";
 import { addEventToDeviceCalendar } from "../lib/deviceCalendar";
 import { useUser } from "../context/UserContext";
 import {
@@ -64,8 +65,20 @@ export default function CalendarPage() {
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth());
   const [selectedDay, setSelectedDay] = useState(now.getDate());
-  const [events, setEvents] = useState<CalendarEvent[]>([]);
-  const [guestNotices, setGuestNotices] = useState<GuestNotice[]>([]);
+  // Seed from the warm React Query cache so re-entering the tab renders instantly instead
+  // of flashing the loading skeleton on every navigation.
+  const [events, setEvents] = useState<CalendarEvent[]>(
+    () =>
+      sharedQueryClient.getQueryData<{ eventResponse: CalendarEvent[]; guestResponse: GuestNotice[] }>(
+        qk.calendar(currentUser?.name ?? ""),
+      )?.eventResponse ?? [],
+  );
+  const [guestNotices, setGuestNotices] = useState<GuestNotice[]>(
+    () =>
+      sharedQueryClient.getQueryData<{ eventResponse: CalendarEvent[]; guestResponse: GuestNotice[] }>(
+        qk.calendar(currentUser?.name ?? ""),
+      )?.guestResponse ?? [],
+  );
   const [checkin, setCheckin] = useState<HouseCheckin | null>(null);
   const [showAdd, setShowAdd] = useState(false);
   const [addMode, setAddMode] = useState<"event" | "guest">("event");
@@ -80,7 +93,9 @@ export default function CalendarPage() {
   const [editEndTime, setEditEndTime] = useState("");
   const [editType, setEditType] = useState<EventType>("OTHER");
   const [feedUrl, setFeedUrl] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(
+    () => !sharedQueryClient.getQueryData(qk.calendar(currentUser?.name ?? "")),
+  );
 
   const name = currentUser?.name ?? "";
   const queryClient = useQueryClient();
@@ -256,7 +271,7 @@ export default function CalendarPage() {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12 }}
+      initial={false}
       animate={{ opacity: 1, y: 0 }}
       className="space-y-4 pt-2"
     >
@@ -526,7 +541,7 @@ export default function CalendarPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 pb-6 px-4"
+              className="fixed inset-0 z-[60] flex items-end justify-center bg-black/50 px-4 pb-[calc(env(safe-area-inset-bottom)+1.5rem)]"
               onClick={(ev) => {
                 if (ev.target === ev.currentTarget) setEditingEvent(null);
               }}

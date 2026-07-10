@@ -42,7 +42,7 @@ export default function MexicanGame({ players, onClose }: { players: string[]; o
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-background p-5">
+    <div className="fixed inset-0 z-[60] overflow-y-auto bg-background p-5">
       <div className="mx-auto max-w-md space-y-5">
         <div className="flex items-center gap-3"><button onClick={onClose} className="btn-ghost !p-3"><ArrowLeft className="h-5 w-5" /></button><div><p className="eyebrow">{t('social.games.catalog.mexican')}</p><h2 className="font-display text-2xl font-extrabold">{player}</h2></div></div>
         <div className="card text-sm leading-relaxed"><p className="font-bold">{t('social.games.rules')}</p><p className="mt-2 text-muted-foreground">{t('social.games.mexican.rules')}</p></div>

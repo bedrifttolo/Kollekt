@@ -27,7 +27,7 @@ export default function CharadesGame({ players, onClose }: { players: string[]; 
   const nextPlayer = () => { setPlaying(false); setSeconds(60); setTurn((value) => value + 1); setIndex((value) => (value + 1) % deck.length); };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-background p-5"><div className="mx-auto max-w-md space-y-5">
+    <div className="fixed inset-0 z-[60] overflow-y-auto bg-background p-5"><div className="mx-auto max-w-md space-y-5">
       <div className="flex items-center gap-3"><button onClick={onClose} className="btn-ghost !p-3"><ArrowLeft className="h-5 w-5" /></button><div><p className="eyebrow">{t('social.games.catalog.charades')}</p><h2 className="font-display text-2xl font-extrabold">{t('social.games.charadesGame.turn', { player })}</h2></div></div>
       <div className="flex flex-wrap gap-2">{players.map((name) => <span key={name} className="pill pill-pine">{name}: {scores[name]}</span>)}</div>
       <div className="card flex min-h-80 flex-col items-center justify-center text-center">

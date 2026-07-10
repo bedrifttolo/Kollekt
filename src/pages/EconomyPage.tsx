@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api';
 import { qk } from '../lib/queryKeys';
+import { queryClient as sharedQueryClient } from '../lib/queryClient';
 import { useUser } from '../context/UserContext';
 import { formatCurrency, formatDate, translateKey } from '../i18n/helpers';
 import { connectCollectiveRealtime } from '../lib/realtime';
@@ -27,14 +28,20 @@ export default function EconomyPage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { currentUser } = useUser();
-  const [summary, setSummary] = useState<EconomySummary | null>(null);
+  // Seed from the React Query cache so re-entering the tab renders instantly from the
+  // warm cache instead of flashing the loading skeleton on every navigation.
+  const [summary, setSummary] = useState<EconomySummary | null>(
+    () => sharedQueryClient.getQueryData<EconomySummary>(qk.economy(currentUser?.name ?? '')) ?? null,
+  );
   const [members, setMembers] = useState<string[]>([]);
   const [showAdd, setShowAdd] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [newAmount, setNewAmount] = useState('');
   const [newCategory, setNewCategory] = useState('Other');
   const [newSplit, setNewSplit] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(
+    () => !sharedQueryClient.getQueryData(qk.economy(currentUser?.name ?? '')),
+  );
   const [settling, setSettling] = useState(false);
   const [showAllExpenses, setShowAllExpenses] = useState(false);
   const [newDeadline, setNewDeadline] = useState('');
@@ -43,7 +50,9 @@ export default function EconomyPage() {
   const [editAmount, setEditAmount] = useState('');
   const [editCategory, setEditCategory] = useState('Other');
   const [deletingExpenseId, setDeletingExpenseId] = useState<number | null>(null);
-  const [payOptions, setPayOptions] = useState<PayOption[]>([]);
+  const [payOptions, setPayOptions] = useState<PayOption[]>(
+    () => sharedQueryClient.getQueryData<EconomySummary>(qk.economy(currentUser?.name ?? ''))?.payOptions ?? [],
+  );
   const [selectedCreditorName, setSelectedCreditorName] = useState('');
   const [showPaySheet, setShowPaySheet] = useState(false);
   const [copiedValue, setCopiedValue] = useState<string | null>(null);
@@ -183,7 +192,7 @@ export default function EconomyPage() {
   const hasPayOptions = payOptions.length > 0;
 
   return (
-    <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-5 pt-4">
+    <motion.div initial={false} animate={{ opacity: 1, y: 0 }} className="space-y-5 pt-4">
       <div>
         <Eyebrow>{t('economy.eyebrow')}</Eyebrow>
         <h2 className="mt-2 font-display text-[2.4rem] font-extrabold leading-none tracking-[-.04em]">{t('economy.titleLineOne')} <span className="mark">{t('economy.titleLineTwo')}</span></h2>
@@ -232,12 +241,12 @@ export default function EconomyPage() {
         {showPaySheet && selectedPayOption && (
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4"
+            className="fixed inset-0 z-[60] flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4"
             onClick={() => setShowPaySheet(false)}
           >
             <motion.div
               initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 40, opacity: 0 }}
-              className="glass w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 space-y-3"
+              className="glass w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 space-y-3 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] sm:pb-5"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between">
