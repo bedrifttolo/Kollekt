@@ -33,16 +33,23 @@ class MaintenanceTicketOperations(
     ): List<MaintenanceTicketDto> {
         val collectiveCode = collectiveAccessService.requireCollectiveCodeByMemberName(actorName)
         val doneCutoff = LocalDateTime.now().minusDays(1)
-        return ticketRepository.findAllByCollectiveCode(collectiveCode)
-            .asSequence()
-            .filter { it.status != MaintenanceStatus.DONE || it.updatedAt.isAfter(doneCutoff) }
-            .filter { status == null || it.status == status }
-            .filter { priority == null || it.priority == priority }
-            .sortedWith(
-                compareBy<MaintenanceTicket> { it.status == MaintenanceStatus.DONE }.thenByDescending { it.priority }.thenBy { it.dueDate },
-            )
-            .map { it.toDto() }
-            .toList()
+        val tickets =
+            ticketRepository.findAllByCollectiveCode(collectiveCode)
+                .asSequence()
+                .filter { it.status != MaintenanceStatus.DONE || it.updatedAt.isAfter(doneCutoff) }
+                .filter { status == null || it.status == status }
+                .filter { priority == null || it.priority == priority }
+                .sortedWith(
+                    compareBy<MaintenanceTicket> { it.status == MaintenanceStatus.DONE }
+                        .thenByDescending { it.priority }
+                        .thenBy { it.dueDate },
+                )
+                .toList()
+        val historyByTicket =
+            historyRepository
+                .findAllByTicketIdInOrderByChangedAtAsc(tickets.map { it.id })
+                .groupBy { it.ticketId }
+        return tickets.map { it.toDto(historyByTicket[it.id].orEmpty()) }
     }
 
     @Transactional
@@ -185,24 +192,26 @@ class MaintenanceTicketOperations(
         }
     }
 
-    private fun MaintenanceTicket.toDto() =
-        MaintenanceTicketDto(
-            id = id,
-            title = title,
-            description = description,
-            priority = priority,
-            status = status,
-            assignee = assignee,
-            dueDate = dueDate,
-            costEstimate = costEstimate,
-            splitParticipants = decodeParticipants(splitParticipants),
-            createdBy = createdBy,
-            createdAt = createdAt,
-            updatedAt = updatedAt,
-            overdue = dueDate?.isBefore(LocalDate.now()) == true && status != MaintenanceStatus.DONE,
-            statusHistory =
-                historyRepository.findAllByTicketIdOrderByChangedAtAsc(id).map {
-                    MaintenanceStatusHistoryDto(it.id, it.status, it.changedBy, it.changedAt)
-                },
-        )
+    private fun MaintenanceTicket.toDto(
+        statusHistoryEntries: List<MaintenanceTicketStatusHistory> =
+            historyRepository.findAllByTicketIdOrderByChangedAtAsc(id),
+    ) = MaintenanceTicketDto(
+        id = id,
+        title = title,
+        description = description,
+        priority = priority,
+        status = status,
+        assignee = assignee,
+        dueDate = dueDate,
+        costEstimate = costEstimate,
+        splitParticipants = decodeParticipants(splitParticipants),
+        createdBy = createdBy,
+        createdAt = createdAt,
+        updatedAt = updatedAt,
+        overdue = dueDate?.isBefore(LocalDate.now()) == true && status != MaintenanceStatus.DONE,
+        statusHistory =
+            statusHistoryEntries.map {
+                MaintenanceStatusHistoryDto(it.id, it.status, it.changedBy, it.changedAt)
+            },
+    )
 }

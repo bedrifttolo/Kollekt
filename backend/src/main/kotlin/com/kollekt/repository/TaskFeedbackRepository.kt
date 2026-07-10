@@ -5,4 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository
 
 interface TaskFeedbackRepository : JpaRepository<TaskFeedback, Long> {
     fun findAllByTaskId(taskId: Long): List<TaskFeedback>
+
+    fun findAllByTaskIdIn(taskIds: Collection<Long>): List<TaskFeedback>
 }

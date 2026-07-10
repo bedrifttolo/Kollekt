@@ -78,12 +78,14 @@ class TaskSwapOperations(
         val user = memberRepository.findById(userId).orElseThrow { IllegalArgumentException("User $userId not found") }
         if (user.name != actorName) throw AccessDeniedException("Cannot view another user's swap requests")
         val collectiveCode = collectiveAccessService.requireCollectiveCodeByMemberName(actorName)
-        return swapRequestRepository
-            .findAllByToUserOrderByIdDesc(actorName)
-            .mapNotNull { request ->
-                val task = taskRepository.findByIdAndCollectiveCode(request.taskId, collectiveCode) ?: return@mapNotNull null
-                request.toDto(task.title)
-            }
+        val requests = swapRequestRepository.findAllByToUserOrderByIdDesc(actorName)
+        val tasksById =
+            taskRepository
+                .findAllByIdInAndCollectiveCode(requests.map { it.taskId }, collectiveCode)
+                .associateBy { it.id }
+        return requests.mapNotNull { request ->
+            request.toDto(tasksById[request.taskId]?.title ?: return@mapNotNull null)
+        }
     }
 
     @Transactional

@@ -630,6 +630,7 @@ data class EconomySummaryDto(
     val expenses: List<ExpenseDto>,
     val balances: List<BalanceDto>,
     val pantSummary: PantSummaryDto,
+    val payOptions: List<PayOptionDto> = emptyList(),
 )
 
 data class SettleUpRequest(

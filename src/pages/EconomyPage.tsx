@@ -55,27 +55,21 @@ export default function EconomyPage() {
 
   const queryClient = useQueryClient();
 
-  // Cached economy load — instant on re-navigation, refreshed in the background.
+  // One screen-specific request returns expenses, balances, pant and payment options.
   const { data: economyBundle } = useQuery({
     queryKey: qk.economy(name),
     enabled: !!name,
-    queryFn: async () => {
-      const [res, payOptionsRes] = await Promise.all([
-        api.get<EconomySummary>(`/economy/summary?memberName=${encodeURIComponent(name)}`),
-        api.get<PayOption[]>(`/economy/pay-options?memberName=${encodeURIComponent(name)}`),
-      ]);
-      return { res, payOptionsRes };
-    },
+    queryFn: () => api.get<EconomySummary>(`/economy/summary?memberName=${encodeURIComponent(name)}`),
   });
 
   useEffect(() => {
     if (!economyBundle) return;
-    const { res, payOptionsRes } = economyBundle;
+    const res = economyBundle;
     setSummary(res);
-    setPayOptions(payOptionsRes);
+    setPayOptions(res.payOptions);
     setSelectedCreditorName((prev) => {
-      if (payOptionsRes.length === 0) return '';
-      return payOptionsRes.some((option) => option.name === prev) ? prev : payOptionsRes[0].name;
+      if (res.payOptions.length === 0) return '';
+      return res.payOptions.some((option) => option.name === prev) ? prev : res.payOptions[0].name;
     });
     setLoading(false);
   }, [economyBundle]);

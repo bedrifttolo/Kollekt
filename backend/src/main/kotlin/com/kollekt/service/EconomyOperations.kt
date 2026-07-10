@@ -165,12 +165,23 @@ class EconomyOperations(
         if (allExpenses.isEmpty()) return emptyList()
 
         val members = memberRepository.findAllByCollectiveCode(collectiveCode).map { it.name }
-        val memberCheckpoints =
-            members.associateWith { member ->
-                latestSettledExpenseIdForMember(collectiveCode, member)
-            }
+        val memberCheckpoints = latestSettledExpenseIdsByMember(collectiveCode)
         val personalSettlements = personalSettlementRepository.findAllByCollectiveCode(collectiveCode)
         return calculateBalances(allExpenses, members, memberCheckpoints, personalSettlements)
+    }
+
+    fun calculateBalancesForLoadedData(
+        collectiveCode: String,
+        allExpenses: List<Expense>,
+        members: List<String>,
+    ): List<BalanceDto> {
+        if (allExpenses.isEmpty()) return emptyList()
+        return calculateBalances(
+            allExpenses,
+            members,
+            latestSettledExpenseIdsByMember(collectiveCode),
+            personalSettlementRepository.findAllByCollectiveCode(collectiveCode),
+        )
     }
 
     fun getPantSummary(memberName: String): PantSummaryDto {
@@ -195,6 +206,19 @@ class EconomyOperations(
         if (allExpenses.isEmpty()) return emptyList()
 
         val memberEntities = memberRepository.findAllByCollectiveCode(collectiveCode)
+        val checkpoints = latestSettledExpenseIdsByMember(collectiveCode)
+        val personalSettlements = personalSettlementRepository.findAllByCollectiveCode(collectiveCode)
+        return buildPayOptions(memberName, allExpenses, memberEntities, checkpoints, personalSettlements)
+    }
+
+    private fun buildPayOptions(
+        memberName: String,
+        allExpenses: List<Expense>,
+        memberEntities: List<com.kollekt.domain.Member>,
+        checkpoints: Map<String, Long>,
+        personalSettlements: List<PersonalSettlement>,
+    ): List<PayOptionDto> {
+        if (allExpenses.isEmpty()) return emptyList()
         val handlesByName =
             memberEntities.associate { member ->
                 member.name to
@@ -207,14 +231,13 @@ class EconomyOperations(
             }
         val members = memberEntities.map { it.name }
         val memberSet = members.toSet()
-        val payerCheckpoint = latestSettledExpenseIdForMember(collectiveCode, memberName)
-        val personalSettlements = personalSettlementRepository.findAllByCollectiveCode(collectiveCode)
+        val payerCheckpoint = checkpoints[memberName] ?: 0L
 
         return members
             .asSequence()
             .filter { it != memberName }
             .mapNotNull { creditorName ->
-                val creditorCheckpoint = latestSettledExpenseIdForMember(collectiveCode, creditorName)
+                val creditorCheckpoint = checkpoints[creditorName] ?: 0L
                 val bilateralDebt =
                     calculateBilateralDebt(
                         allExpenses,
@@ -312,12 +335,40 @@ class EconomyOperations(
         return dto
     }
 
-    fun getEconomySummary(memberName: String): EconomySummaryDto =
-        EconomySummaryDto(
-            expenses = getExpenses(memberName),
-            balances = getBalances(memberName),
-            pantSummary = getPantSummary(memberName),
+    fun getEconomySummary(memberName: String): EconomySummaryDto {
+        val collectiveCode = collectiveAccessService.requireCollectiveCodeByMemberName(memberName)
+        val expenses = expenseRepository.findAllByCollectiveCode(collectiveCode)
+        val memberEntities = memberRepository.findAllByCollectiveCode(collectiveCode)
+        val members = memberEntities.map { it.name }
+        val checkpoints = latestSettledExpenseIdsByMember(collectiveCode)
+        val personalSettlements = personalSettlementRepository.findAllByCollectiveCode(collectiveCode)
+        val collective = collectiveRepository.findByJoinCode(collectiveCode)
+        val pantEntries =
+            pantEntryRepository
+                .findAllByCollectiveCode(collectiveCode)
+                .sortedWith(compareByDescending<PantEntry> { it.date }.thenByDescending { it.id })
+                .map { it.toDto() }
+
+        return EconomySummaryDto(
+            expenses =
+                expenses
+                    .sortedWith(compareByDescending<Expense> { it.date }.thenByDescending { it.id })
+                    .map { it.toDto() },
+            balances =
+                if (expenses.isEmpty()) {
+                    emptyList()
+                } else {
+                    calculateBalances(expenses, members, checkpoints, personalSettlements)
+                },
+            pantSummary =
+                PantSummaryDto(
+                    currentAmount = pantEntries.sumOf { it.amount },
+                    goalAmount = collective?.pantGoal ?: 1000,
+                    entries = pantEntries,
+                ),
+            payOptions = buildPayOptions(memberName, expenses, memberEntities, checkpoints, personalSettlements),
         )
+    }
 
     @Transactional
     fun settleUp(memberName: String): SettleUpResponse {
@@ -489,6 +540,12 @@ class EconomyOperations(
             .findTopByCollectiveCodeAndSettledByOrderByIdDesc(collectiveCode, memberName)
             ?.lastExpenseId
             ?: 0L
+
+    private fun latestSettledExpenseIdsByMember(collectiveCode: String): Map<String, Long> =
+        settlementCheckpointRepository
+            .findAllByCollectiveCode(collectiveCode)
+            .groupBy { it.settledBy }
+            .mapValues { (_, checkpoints) -> checkpoints.maxBy { it.id }.lastExpenseId }
 
     private fun calculateBalances(
         expenses: List<Expense>,
