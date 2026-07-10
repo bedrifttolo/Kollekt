@@ -2,6 +2,8 @@ package com.kollekt.config
 
 import com.kollekt.repository.MemberRepository
 import com.kollekt.service.RealtimeUpdateService
+import org.springframework.security.oauth2.jwt.JwtDecoder
+import org.springframework.security.oauth2.jwt.JwtException
 import org.springframework.stereotype.Component
 import org.springframework.web.socket.CloseStatus
 import org.springframework.web.socket.TextMessage
@@ -13,6 +15,7 @@ import org.springframework.web.util.UriComponentsBuilder
 class CollectiveWebSocketHandler(
     private val memberRepository: MemberRepository,
     private val realtimeUpdateService: RealtimeUpdateService,
+    private val jwtDecoder: JwtDecoder,
 ) : TextWebSocketHandler() {
     override fun afterConnectionEstablished(session: WebSocketSession) {
         val uri =
@@ -24,6 +27,25 @@ class CollectiveWebSocketHandler(
         val memberName = queryParams.getFirst("memberName")?.trim()
         if (memberName.isNullOrBlank()) {
             session.close(CloseStatus.BAD_DATA.withReason("Missing memberName"))
+            return
+        }
+
+        // The stream carries the collective's chat and activity, so the caller must prove who
+        // they are. /ws is not covered by the HTTP JWT filter, so validate the token here and
+        // trust its verified subject over the (spoofable) memberName query param.
+        val token = queryParams.getFirst("token")?.trim()
+        val tokenSubject =
+            if (token.isNullOrBlank()) {
+                null
+            } else {
+                try {
+                    jwtDecoder.decode(token).subject
+                } catch (_: JwtException) {
+                    null
+                }
+            }
+        if (tokenSubject == null || tokenSubject != memberName) {
+            session.close(CloseStatus.POLICY_VIOLATION.withReason("Unauthorized"))
             return
         }
 
