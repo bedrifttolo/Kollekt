@@ -14,37 +14,37 @@
   "prompts": [
     {
       "id": 1,
-      "text": "Utrolig nok ikke har vært i håndjern enda",
+      "text": "Har utrolig nok ikke vært i håndjern enda?",
       "kind": "vote"
     },
     {
       "id": 2,
-      "text": "Sender mest nudes?",
+      "text": "Sender flest nudes?",
       "kind": "vote"
     },
     {
       "id": 3,
-      "text": "Kan drikke mest alkohol uten å bli drita?",
+      "text": "Tåler mest uten å bli dritings?",
       "kind": "vote"
     },
     {
       "id": 4,
-      "text": "Har hooket med flest i rommet?",
+      "text": "Har hooka med flest her i rommet?",
       "kind": "vote"
     },
     {
       "id": 5,
-      "text": "Er den største fyliken?",
+      "text": "Er den største festløven?",
       "kind": "vote"
     },
     {
       "id": 6,
-      "text": "Har vært/kunne vært utro.",
+      "text": "Er mest sannsynlig til å være utro?",
       "kind": "vote"
     },
     {
       "id": 7,
-      "text": "Blir den beste moren/faren.",
+      "text": "Blir den beste mora eller faren?",
       "kind": "vote"
     },
     {
@@ -54,7 +54,7 @@
     },
     {
       "id": 9,
-      "text": "Kjørt uten lappen?",
+      "text": "Har kjørt uten lappen?",
       "kind": "vote"
     },
     {
@@ -64,27 +64,27 @@
     },
     {
       "id": 11,
-      "text": "Skål 10!",
+      "text": "Skål for nummer 10!",
       "kind": "toast"
     },
     {
       "id": 12,
-      "text": "Mest ubesluttsom",
+      "text": "Er mest ubesluttsom?",
       "kind": "vote"
     },
     {
       "id": 13,
-      "text": "Har onanert offentlig?",
+      "text": "Har runka på et offentlig sted?",
       "kind": "vote"
     },
     {
       "id": 14,
-      "text": "Bruker mest penger på byn?",
+      "text": "Bruker mest penger på byen?",
       "kind": "vote"
     },
     {
       "id": 15,
-      "text": "Hvem ville du vært på en øde øy med?",
+      "text": "Hvem her vil du bli strandet på en øde øy med?",
       "kind": "vote"
     },
     {
@@ -94,22 +94,22 @@
     },
     {
       "id": 17,
-      "text": "Har diggest tits?",
+      "text": "Har best selvtillit?",
       "kind": "vote"
     },
     {
       "id": 18,
-      "text": "Tror selv hen er morsomst.",
+      "text": "Tror selv de er morsomst?",
       "kind": "vote"
     },
     {
       "id": 19,
-      "text": "Har best musikksmak",
+      "text": "Har best musikksmak?",
       "kind": "vote"
     },
     {
       "id": 20,
-      "text": "Hvem her i rommet kunne personen til din høyre hooket med?",
+      "text": "Hvem her kunne den på høyre for deg hooka med?",
       "kind": "vote"
     },
     {
@@ -119,207 +119,207 @@
     },
     {
       "id": 22,
-      "text": "Er mest bortskjemt.",
+      "text": "Er mest bortskjemt?",
       "kind": "vote"
     },
     {
       "id": 23,
-      "text": "Hadde klart seg best på farmen",
+      "text": "Hadde klart seg best på Farmen?",
       "kind": "vote"
     },
     {
       "id": 24,
-      "text": "Lyser opp rommet",
+      "text": "Lyser opp rommet?",
       "kind": "vote"
     },
     {
       "id": 25,
-      "text": "Runker mest",
+      "text": "Runker mest?",
       "kind": "vote"
     },
     {
       "id": 26,
-      "text": "Hvem du får vakrest barn med.",
+      "text": "Hvem her hadde du fått penest barn med?",
       "kind": "vote"
     },
     {
       "id": 27,
-      "text": "Er flinkest på skolen",
+      "text": "Er flinkest på skolen?",
       "kind": "vote"
     },
     {
       "id": 28,
-      "text": "Ville du ikke hatt til å styre dine sosiale medier for en dag",
+      "text": "Hvem ville du aldri gitt telefonen din til i en time?",
       "kind": "vote"
     },
     {
       "id": 29,
-      "text": "Har finest rumpe",
+      "text": "Har finest rumpe?",
       "kind": "vote"
     },
     {
       "id": 30,
-      "text": "Er den beste vennen",
+      "text": "Er den beste vennen?",
       "kind": "vote"
     },
     {
       "id": 31,
-      "text": "Har de fineste øynene",
+      "text": "Har de fineste øynene?",
       "kind": "vote"
     },
     {
       "id": 32,
-      "text": "Trodde du var mest bitch første gang dere møttes",
+      "text": "Hvem trodde du var mest teit da dere møttes?",
       "kind": "vote"
     },
     {
       "id": 33,
-      "text": "Er mest uheldig",
+      "text": "Er mest uheldig?",
       "kind": "vote"
     },
     {
       "id": 34,
-      "text": "Tatt flest jomfrudommer",
+      "text": "Har tatt flest jomfrudommer?",
       "kind": "vote"
     },
     {
       "id": 35,
-      "text": "Spyr i kveld",
+      "text": "Spyr i kveld?",
       "kind": "vote"
     },
     {
       "id": 36,
-      "text": "Blir den beste kjæresten",
+      "text": "Blir den beste kjæresten?",
       "kind": "vote"
     },
     {
       "id": 37,
-      "text": "Gått lengst uten å ha sex",
+      "text": "Har gått lengst uten sex?",
       "kind": "vote"
     },
     {
       "id": 38,
-      "text": "Mest sannsynlig å være hangover i en hverdag",
+      "text": "Er mest sannsynlig fyllesyk på en tirsdag?",
       "kind": "vote"
     },
     {
       "id": 39,
-      "text": "Morsomst",
+      "text": "Er morsomst?",
       "kind": "vote"
     },
     {
       "id": 40,
-      "text": "Skål 40!",
+      "text": "Skål for nummer 40!",
       "kind": "toast"
     },
     {
       "id": 41,
-      "text": "Har hatt flest våte drømmer",
+      "text": "Har hatt flest våte drømmer?",
       "kind": "vote"
     },
     {
       "id": 42,
-      "text": "Er smartest",
+      "text": "Er smartest?",
       "kind": "vote"
     },
     {
       "id": 43,
-      "text": "Svigemors/Svigefars drøm?",
+      "text": "Er svigers drøm?",
       "kind": "vote"
     },
     {
       "id": 44,
-      "text": "Er med på alt",
+      "text": "Er med på alt?",
       "kind": "vote"
     },
     {
       "id": 45,
-      "text": "Minst flink til å bruke prevensjon",
+      "text": "Er minst flink med prevensjon?",
       "kind": "vote"
     },
     {
       "id": 46,
-      "text": "Danser best",
+      "text": "Danser best?",
       "kind": "vote"
     },
     {
       "id": 47,
-      "text": "Mest ansvarlig",
+      "text": "Er mest ansvarlig?",
       "kind": "vote"
     },
     {
       "id": 48,
-      "text": "Minst ansvarlig",
+      "text": "Er minst ansvarlig?",
       "kind": "vote"
     },
     {
       "id": 49,
-      "text": "Lukter best",
+      "text": "Lukter best?",
       "kind": "vote"
     },
     {
       "id": 50,
-      "text": "Er kåtest",
+      "text": "Er kåtest?",
       "kind": "vote"
     },
     {
       "id": 51,
-      "text": "Er den beste sjekkeren",
+      "text": "Er den beste til å sjekke opp folk?",
       "kind": "vote"
     },
     {
       "id": 52,
-      "text": "Høyest IQ?",
+      "text": "Har høyest IQ?",
       "kind": "vote"
     },
     {
       "id": 53,
-      "text": "Har den mest skitneste loggen",
+      "text": "Har den skitneste meldingsloggen?",
       "kind": "vote"
     },
     {
       "id": 54,
-      "text": "Hadde blitt den beste statsministeren",
+      "text": "Hadde blitt den beste statsministeren?",
       "kind": "vote"
     },
     {
       "id": 55,
-      "text": "Har det beste snittet",
+      "text": "Har best karaktersnitt?",
       "kind": "vote"
     },
     {
       "id": 56,
-      "text": "Festens midtpunkt",
+      "text": "Er festens midtpunkt?",
       "kind": "vote"
     },
     {
       "id": 57,
-      "text": "Best til å kysse",
+      "text": "Er best til å kysse?",
       "kind": "vote"
     },
     {
       "id": 58,
-      "text": "Største dramaqueenen",
+      "text": "Er den største dramaqueenen?",
       "kind": "vote"
     },
     {
       "id": 59,
-      "text": "Rundet netflix",
+      "text": "Har sett hele Netflix?",
       "kind": "vote"
     },
     {
       "id": 60,
-      "text": "Skål 60!",
+      "text": "Skål for nummer 60!",
       "kind": "toast"
     },
     {
       "id": 61,
-      "text": "Hadde overlevd hunger games?",
+      "text": "Hadde overlevd Hunger Games?",
       "kind": "vote"
     },
     {
       "id": 62,
-      "text": "Hvem kommer til å drikke mest i kveld?",
+      "text": "Hvem drikker mest i kveld?",
       "kind": "vote"
     },
     {
@@ -329,57 +329,57 @@
     },
     {
       "id": 64,
-      "text": "Er lærerens favoritt",
+      "text": "Er lærerens favoritt?",
       "kind": "vote"
     },
     {
       "id": 65,
-      "text": "Blir best likt av nye personer",
+      "text": "Blir best likt av nye folk?",
       "kind": "vote"
     },
     {
       "id": 66,
-      "text": "Har de mest slitte knærne",
+      "text": "Har de mest slitte knærne?",
       "kind": "vote"
     },
     {
       "id": 67,
-      "text": "Er best i sengen",
+      "text": "Er best i senga?",
       "kind": "vote"
     },
     {
       "id": 68,
-      "text": "Er villeste",
+      "text": "Er villest?",
       "kind": "vote"
     },
     {
       "id": 69,
-      "text": "Har shavet og er klar for alt",
+      "text": "Er alltid klar for hva som helst?",
       "kind": "vote"
     },
     {
       "id": 70,
-      "text": "Skål 70!",
+      "text": "Skål for nummer 70!",
       "kind": "toast"
     },
     {
       "id": 71,
-      "text": "Er lengst i dusjen",
+      "text": "Er lengst i dusjen?",
       "kind": "vote"
     },
     {
       "id": 72,
-      "text": "Blir mest suksessfull",
+      "text": "Blir mest suksessfull?",
       "kind": "vote"
     },
     {
       "id": 73,
-      "text": "Hvem sover ikke hjem i natt?",
+      "text": "Hvem sover ikke hjemme i natt?",
       "kind": "vote"
     },
     {
       "id": 74,
-      "text": "Er flinkest med barn",
+      "text": "Er flinkest med barn?",
       "kind": "vote"
     },
     {
@@ -389,62 +389,62 @@
     },
     {
       "id": 76,
-      "text": "Kommer til himmelen",
+      "text": "Kommer til himmelen?",
       "kind": "vote"
     },
     {
       "id": 77,
-      "text": "Har best sjans på deg",
+      "text": "Har best sjanse på deg?",
       "kind": "vote"
     },
     {
       "id": 78,
-      "text": "Har flest tinder matches",
+      "text": "Har flest Tinder-matcher?",
       "kind": "vote"
     },
     {
       "id": 79,
-      "text": "Ler på dårligst tidspunkt",
+      "text": "Ler på det verste tidspunktet?",
       "kind": "vote"
     },
     {
       "id": 80,
-      "text": "Skål 80!",
+      "text": "Skål for nummer 80!",
       "kind": "toast"
     },
     {
       "id": 81,
-      "text": "Hvem ville du hatt som beer pong partner",
+      "text": "Hvem vil du ha som beer pong-partner?",
       "kind": "vote"
     },
     {
       "id": 82,
-      "text": "Blir gjenkjent på polet",
+      "text": "Blir gjenkjent på polet?",
       "kind": "vote"
     },
     {
       "id": 83,
-      "text": "Blir gjenkjent på kondomeriet",
+      "text": "Blir gjenkjent i sexbutikken?",
       "kind": "vote"
     },
     {
       "id": 84,
-      "text": "Stoler du mest på",
+      "text": "Hvem stoler du mest på?",
       "kind": "vote"
     },
     {
       "id": 85,
-      "text": "Hadde gjort mest for minst penger",
+      "text": "Hadde gjort mest for minst penger?",
       "kind": "vote"
     },
     {
       "id": 86,
-      "text": "Hooker mest",
+      "text": "Hooker mest?",
       "kind": "vote"
     },
     {
       "id": 87,
-      "text": "Lager de sykeste lydene i senga?",
+      "text": "Lager de villeste lydene i senga?",
       "kind": "vote"
     },
     {
@@ -454,79 +454,79 @@
     },
     {
       "id": 89,
-      "text": "Mest sannsynelig kunne spilt i en porno",
+      "text": "Kunne mest sannsynlig spilt i en voksenfilm?",
       "kind": "vote"
     },
     {
       "id": 90,
-      "text": "Mest sannsynelig hadde betalt for den. SKÅL 90!",
+      "text": "Hadde mest sannsynlig betalt for det. Skål for nummer 90!",
       "kind": "toast"
     },
     {
       "id": 91,
-      "text": "Får flest nudes",
+      "text": "Får flest nudes?",
       "kind": "vote"
     },
     {
       "id": 92,
-      "text": "Er den største stalkeren",
+      "text": "Er den største stalkeren?",
       "kind": "vote"
     },
     {
       "id": 93,
-      "text": "Kommer raskest",
+      "text": "Blir raskest ferdig?",
       "kind": "vote"
     },
     {
       "id": 94,
-      "text": "Har sex på første date",
+      "text": "Har sex på første date?",
       "kind": "vote"
     },
     {
       "id": 95,
-      "text": "Er keen på læreren sin",
+      "text": "Er hekta på en lærer?",
       "kind": "vote"
     },
     {
       "id": 96,
-      "text": "Er mest overlegen",
+      "text": "Er mest overlegen?",
       "kind": "vote"
     },
     {
       "id": 97,
-      "text": "Blir spandert mest på byen",
+      "text": "Blir spandert mest på byen?",
       "kind": "vote"
     },
     {
       "id": 98,
-      "text": "Tømmer og rømmer",
+      "text": "Tømmer og rømmer?",
       "kind": "vote"
     },
     {
       "id": 99,
-      "text": "Skal ta bonski med deg?",
+      "text": "Hvem skal ta en bonski med deg?",
       "kind": "vote"
     },
     {
       "id": 100,
-      "text": "SKÅL 100!!",
+      "text": "Skål for nummer 100!!",
       "kind": "toast"
     }
   ],
   "translations": {
     "en": {
       "title": "100 Questions",
-      "shortTitle": "100",
-      "description": "A structured question-card game for the whole room.",
+      "shortTitle": "100 Questions",
+      "description": "100 point-at-someone cards. No wrong answers, just honest ones.",
       "rules": [
         "Read the question out loud.",
-        "Everyone points to or names the person who fits best.",
-        "The chosen person drinks. On toast cards, everyone cheers."
+        "Everyone points at the person who fits best.",
+        "The one with the most votes drinks. On CHEERS cards, everyone drinks."
       ],
       "prompts": [
         {
           "id": 1,
-          "text": "Surprisingly has not been in handcuffs yet"
+          "text": "Somehow hasn't ended up in handcuffs yet?"
         },
         {
           "id": 2,
@@ -534,11 +534,11 @@
         },
         {
           "id": 3,
-          "text": "Can drink the most alcohol without getting wasted?"
+          "text": "Can drink the most without getting wasted?"
         },
         {
           "id": 4,
-          "text": "Has hooked up with the most people in the room?"
+          "text": "Has hooked up with the most people in this room?"
         },
         {
           "id": 5,
@@ -546,11 +546,11 @@
         },
         {
           "id": 6,
-          "text": "Has been or could be unfaithful."
+          "text": "Is most likely to cheat?"
         },
         {
           "id": 7,
-          "text": "Will be the best mom or dad."
+          "text": "Will be the best mum or dad?"
         },
         {
           "id": 8,
@@ -566,23 +566,23 @@
         },
         {
           "id": 11,
-          "text": "Cheers 10!"
+          "text": "Cheers to number 10!"
         },
         {
           "id": 12,
-          "text": "Most indecisive"
+          "text": "Is the most indecisive?"
         },
         {
           "id": 13,
-          "text": "Has masturbated in public?"
+          "text": "Has gotten off somewhere public?"
         },
         {
           "id": 14,
-          "text": "Spends the most money on nights out?"
+          "text": "Spends the most on a night out?"
         },
         {
           "id": 15,
-          "text": "Who would you want to be on a deserted island with?"
+          "text": "Who here would you want to be stranded on a desert island with?"
         },
         {
           "id": 16,
@@ -590,19 +590,19 @@
         },
         {
           "id": 17,
-          "text": "Has the nicest boobs?"
+          "text": "Has the most confidence?"
         },
         {
           "id": 18,
-          "text": "Thinks they are the funniest."
+          "text": "Thinks they're the funniest?"
         },
         {
           "id": 19,
-          "text": "Has the best music taste"
+          "text": "Has the best music taste?"
         },
         {
           "id": 20,
-          "text": "Who in this room could the person to your right hook up with?"
+          "text": "Who here could the person on your right hook up with?"
         },
         {
           "id": 21,
@@ -610,251 +610,251 @@
         },
         {
           "id": 22,
-          "text": "Is the most spoiled."
+          "text": "Is the most spoiled?"
         },
         {
           "id": 23,
-          "text": "Would do best on Farmen"
+          "text": "Would survive the longest off the grid?"
         },
         {
           "id": 24,
-          "text": "Lights up the room"
+          "text": "Lights up the room?"
         },
         {
           "id": 25,
-          "text": "Masturbates the most"
+          "text": "Gets off the most?"
         },
         {
           "id": 26,
-          "text": "Who would you have the most beautiful children with?"
+          "text": "Who here would you make the cutest baby with?"
         },
         {
           "id": 27,
-          "text": "Is best at school"
+          "text": "Is the best at school?"
         },
         {
           "id": 28,
-          "text": "Who would you not want controlling your social media for a day?"
+          "text": "Who would you never hand your phone to for an hour?"
         },
         {
           "id": 29,
-          "text": "Has the nicest butt"
+          "text": "Has the nicest butt?"
         },
         {
           "id": 30,
-          "text": "Is the best friend"
+          "text": "Is the best friend?"
         },
         {
           "id": 31,
-          "text": "Has the prettiest eyes"
+          "text": "Has the prettiest eyes?"
         },
         {
           "id": 32,
-          "text": "Who did you think was the biggest bitch the first time you met?"
+          "text": "Who did you think was the worst when you first met?"
         },
         {
           "id": 33,
-          "text": "Is the unluckiest"
+          "text": "Is the unluckiest?"
         },
         {
           "id": 34,
-          "text": "Has taken the most virginities"
+          "text": "Has taken the most virginities?"
         },
         {
           "id": 35,
-          "text": "Will throw up tonight"
+          "text": "Is throwing up tonight?"
         },
         {
           "id": 36,
-          "text": "Will be the best partner"
+          "text": "Will be the best partner?"
         },
         {
           "id": 37,
-          "text": "Has gone the longest without sex"
+          "text": "Has gone the longest without sex?"
         },
         {
           "id": 38,
-          "text": "Most likely to be hungover on a weekday"
+          "text": "Is most likely hungover on a Tuesday?"
         },
         {
           "id": 39,
-          "text": "Funniest"
+          "text": "Is the funniest?"
         },
         {
           "id": 40,
-          "text": "Cheers 40!"
+          "text": "Cheers to number 40!"
         },
         {
           "id": 41,
-          "text": "Has had the most wet dreams"
+          "text": "Has had the most wet dreams?"
         },
         {
           "id": 42,
-          "text": "Is the smartest"
+          "text": "Is the smartest?"
         },
         {
           "id": 43,
-          "text": "Mother-in-law or father-in-law's dream?"
+          "text": "Is the in-laws' dream?"
         },
         {
           "id": 44,
-          "text": "Is up for anything"
+          "text": "Is up for anything?"
         },
         {
           "id": 45,
-          "text": "Worst at using contraception"
+          "text": "Is the worst at using protection?"
         },
         {
           "id": 46,
-          "text": "Dances best"
+          "text": "Dances best?"
         },
         {
           "id": 47,
-          "text": "Most responsible"
+          "text": "Is the most responsible?"
         },
         {
           "id": 48,
-          "text": "Least responsible"
+          "text": "Is the least responsible?"
         },
         {
           "id": 49,
-          "text": "Smells best"
+          "text": "Smells the best?"
         },
         {
           "id": 50,
-          "text": "Is the horniest"
+          "text": "Is the horniest?"
         },
         {
           "id": 51,
-          "text": "Is the best flirt"
+          "text": "Is the best at flirting?"
         },
         {
           "id": 52,
-          "text": "Highest IQ?"
+          "text": "Has the highest IQ?"
         },
         {
           "id": 53,
-          "text": "Has the dirtiest message log"
+          "text": "Has the dirtiest message log?"
         },
         {
           "id": 54,
-          "text": "Would be the best prime minister"
+          "text": "Would make the best prime minister?"
         },
         {
           "id": 55,
-          "text": "Has the best GPA"
+          "text": "Has the best grades?"
         },
         {
           "id": 56,
-          "text": "Center of the party"
+          "text": "Is the center of the party?"
         },
         {
           "id": 57,
-          "text": "Best at kissing"
+          "text": "Is the best kisser?"
         },
         {
           "id": 58,
-          "text": "Biggest drama queen"
+          "text": "Is the biggest drama queen?"
         },
         {
           "id": 59,
-          "text": "Has completed Netflix"
+          "text": "Has finished all of Netflix?"
         },
         {
           "id": 60,
-          "text": "Cheers 60!"
+          "text": "Cheers to number 60!"
         },
         {
           "id": 61,
-          "text": "Would survive The Hunger Games?"
+          "text": "Would survive the Hunger Games?"
         },
         {
           "id": 62,
-          "text": "Who will drink the most tonight?"
+          "text": "Who's drinking the most tonight?"
         },
         {
           "id": 63,
-          "text": "Will become a millionaire first?"
+          "text": "Will be a millionaire first?"
         },
         {
           "id": 64,
-          "text": "Is the teacher's favorite"
+          "text": "Is the teacher's pet?"
         },
         {
           "id": 65,
-          "text": "Is most liked by new people"
+          "text": "Is the most liked by new people?"
         },
         {
           "id": 66,
-          "text": "Has the most worn-out knees"
+          "text": "Has the most worn-out knees?"
         },
         {
           "id": 67,
-          "text": "Is best in bed"
+          "text": "Is the best in bed?"
         },
         {
           "id": 68,
-          "text": "Is the wildest"
+          "text": "Is the wildest?"
         },
         {
           "id": 69,
-          "text": "Is shaved and ready for anything"
+          "text": "Is always down for anything?"
         },
         {
           "id": 70,
-          "text": "Cheers 70!"
+          "text": "Cheers to number 70!"
         },
         {
           "id": 71,
-          "text": "Takes the longest showers"
+          "text": "Takes the longest showers?"
         },
         {
           "id": 72,
-          "text": "Will be the most successful"
+          "text": "Will be the most successful?"
         },
         {
           "id": 73,
-          "text": "Who is not sleeping at home tonight?"
+          "text": "Who's not sleeping at home tonight?"
         },
         {
           "id": 74,
-          "text": "Is best with children"
+          "text": "Is the best with kids?"
         },
         {
           "id": 75,
-          "text": "Has the biggest celebrity factor?"
+          "text": "Has the biggest celeb energy?"
         },
         {
           "id": 76,
-          "text": "Is going to heaven"
+          "text": "Is going to heaven?"
         },
         {
           "id": 77,
-          "text": "Has the best chance with you"
+          "text": "Has the best shot with you?"
         },
         {
           "id": 78,
-          "text": "Has the most Tinder matches"
+          "text": "Has the most Tinder matches?"
         },
         {
           "id": 79,
-          "text": "Laughs at the worst time"
+          "text": "Laughs at the worst possible time?"
         },
         {
           "id": 80,
-          "text": "Cheers 80!"
+          "text": "Cheers to number 80!"
         },
         {
           "id": 81,
-          "text": "Who would you want as your beer pong partner?"
+          "text": "Who do you want as your beer pong partner?"
         },
         {
           "id": 82,
-          "text": "Gets recognized at the liquor store"
+          "text": "Gets recognized at the liquor store?"
         },
         {
           "id": 83,
-          "text": "Gets recognized at the sex shop"
+          "text": "Gets recognized at the sex shop?"
         },
         {
           "id": 84,
@@ -862,11 +862,11 @@
         },
         {
           "id": 85,
-          "text": "Would do the most for the least money"
+          "text": "Would do the most for the least money?"
         },
         {
           "id": 86,
-          "text": "Hooks up the most"
+          "text": "Hooks up the most?"
         },
         {
           "id": 87,
@@ -874,55 +874,879 @@
         },
         {
           "id": 88,
-          "text": "Gets jealous fastest?"
+          "text": "Gets jealous the fastest?"
         },
         {
           "id": 89,
-          "text": "Most likely could be in an adult film"
+          "text": "Is most likely to end up in an adult film?"
         },
         {
           "id": 90,
-          "text": "Most likely would have paid for it. CHEERS 90!"
+          "text": "Is most likely to have paid for it. Cheers to number 90!"
         },
         {
           "id": 91,
-          "text": "Gets the most nudes"
+          "text": "Gets the most nudes?"
         },
         {
           "id": 92,
-          "text": "Is the biggest stalker"
+          "text": "Is the biggest stalker?"
         },
         {
           "id": 93,
-          "text": "Finishes fastest"
+          "text": "Finishes the fastest?"
         },
         {
           "id": 94,
-          "text": "Has sex on the first date"
+          "text": "Has sex on the first date?"
         },
         {
           "id": 95,
-          "text": "Has a crush on their teacher"
+          "text": "Has a crush on a teacher?"
         },
         {
           "id": 96,
-          "text": "Is the most arrogant"
+          "text": "Is the most arrogant?"
         },
         {
           "id": 97,
-          "text": "Gets bought the most drinks in town"
+          "text": "Gets bought the most drinks out?"
         },
         {
           "id": 98,
-          "text": "Hits it and quits it"
+          "text": "Hits it and quits it?"
         },
         {
           "id": 99,
-          "text": "Should shotgun a drink with you?"
+          "text": "Who's shotgunning a drink with you?"
         },
         {
           "id": 100,
-          "text": "CHEERS 100!"
+          "text": "Cheers to number 100!!"
+        }
+      ]
+    },
+    "sv": {
+      "title": "100 Frågor",
+      "shortTitle": "100 Frågor",
+      "description": "100 peka-på-någon-kort. Inga fel svar, bara ärliga.",
+      "rules": [
+        "Läs frågan högt.",
+        "Alla pekar på den som passar bäst.",
+        "Den med flest röster dricker. På SKÅL-kort dricker alla."
+      ],
+      "prompts": [
+        {
+          "id": 1,
+          "text": "Har otroligt nog inte suttit i handklovar än?"
+        },
+        {
+          "id": 2,
+          "text": "Skickar flest nudes?"
+        },
+        {
+          "id": 3,
+          "text": "Tål mest utan att bli full?"
+        },
+        {
+          "id": 4,
+          "text": "Har hookat med flest i rummet?"
+        },
+        {
+          "id": 5,
+          "text": "Är det största festlejonet?"
+        },
+        {
+          "id": 6,
+          "text": "Är mest trolig att vara otrogen?"
+        },
+        {
+          "id": 7,
+          "text": "Blir den bästa mamman eller pappan?"
+        },
+        {
+          "id": 8,
+          "text": "Har bäst hygien?"
+        },
+        {
+          "id": 9,
+          "text": "Har kört utan körkort?"
+        },
+        {
+          "id": 10,
+          "text": "Har haft trekant?"
+        },
+        {
+          "id": 11,
+          "text": "Skål för nummer 10!"
+        },
+        {
+          "id": 12,
+          "text": "Är mest obeslutsam?"
+        },
+        {
+          "id": 13,
+          "text": "Har runkat på ett offentligt ställe?"
+        },
+        {
+          "id": 14,
+          "text": "Lägger mest pengar på krogen?"
+        },
+        {
+          "id": 15,
+          "text": "Vem här vill du bli strandsatt på en öde ö med?"
+        },
+        {
+          "id": 16,
+          "text": "Krossar flest hjärtan?"
+        },
+        {
+          "id": 17,
+          "text": "Har bäst självförtroende?"
+        },
+        {
+          "id": 18,
+          "text": "Tror själva att de är roligast?"
+        },
+        {
+          "id": 19,
+          "text": "Har bäst musiksmak?"
+        },
+        {
+          "id": 20,
+          "text": "Vem här kunde personen till höger hooka med?"
+        },
+        {
+          "id": 21,
+          "text": "Blir mest bakis?"
+        },
+        {
+          "id": 22,
+          "text": "Är mest bortskämd?"
+        },
+        {
+          "id": 23,
+          "text": "Skulle klara sig bäst på Farmen?"
+        },
+        {
+          "id": 24,
+          "text": "Lyser upp rummet?"
+        },
+        {
+          "id": 25,
+          "text": "Runkar mest?"
+        },
+        {
+          "id": 26,
+          "text": "Vem här skulle du få sötast barn med?"
+        },
+        {
+          "id": 27,
+          "text": "Är bäst i skolan?"
+        },
+        {
+          "id": 28,
+          "text": "Vem skulle du aldrig ge din telefon i en timme?"
+        },
+        {
+          "id": 29,
+          "text": "Har snyggast rumpa?"
+        },
+        {
+          "id": 30,
+          "text": "Är den bästa vännen?"
+        },
+        {
+          "id": 31,
+          "text": "Har de finaste ögonen?"
+        },
+        {
+          "id": 32,
+          "text": "Vem tyckte du var värst när ni först träffades?"
+        },
+        {
+          "id": 33,
+          "text": "Är mest otur?"
+        },
+        {
+          "id": 34,
+          "text": "Har tagit flest oskulder?"
+        },
+        {
+          "id": 35,
+          "text": "Spyr ikväll?"
+        },
+        {
+          "id": 36,
+          "text": "Blir den bästa partnern?"
+        },
+        {
+          "id": 37,
+          "text": "Har gått längst utan sex?"
+        },
+        {
+          "id": 38,
+          "text": "Är mest trolig bakis på en tisdag?"
+        },
+        {
+          "id": 39,
+          "text": "Är roligast?"
+        },
+        {
+          "id": 40,
+          "text": "Skål för nummer 40!"
+        },
+        {
+          "id": 41,
+          "text": "Har haft flest våta drömmar?"
+        },
+        {
+          "id": 42,
+          "text": "Är smartast?"
+        },
+        {
+          "id": 43,
+          "text": "Är svärföräldrarnas dröm?"
+        },
+        {
+          "id": 44,
+          "text": "Är med på allt?"
+        },
+        {
+          "id": 45,
+          "text": "Är sämst på preventivmedel?"
+        },
+        {
+          "id": 46,
+          "text": "Dansar bäst?"
+        },
+        {
+          "id": 47,
+          "text": "Är mest ansvarsfull?"
+        },
+        {
+          "id": 48,
+          "text": "Är minst ansvarsfull?"
+        },
+        {
+          "id": 49,
+          "text": "Luktar bäst?"
+        },
+        {
+          "id": 50,
+          "text": "Är kåtast?"
+        },
+        {
+          "id": 51,
+          "text": "Är bäst på att raggа?"
+        },
+        {
+          "id": 52,
+          "text": "Har högst IQ?"
+        },
+        {
+          "id": 53,
+          "text": "Har den snuskigaste meddelandeloggen?"
+        },
+        {
+          "id": 54,
+          "text": "Skulle bli den bästa statsministern?"
+        },
+        {
+          "id": 55,
+          "text": "Har bäst betyg?"
+        },
+        {
+          "id": 56,
+          "text": "Är festens medelpunkt?"
+        },
+        {
+          "id": 57,
+          "text": "Är bäst på att kyssas?"
+        },
+        {
+          "id": 58,
+          "text": "Är den största drama queen?"
+        },
+        {
+          "id": 59,
+          "text": "Har kollat klart hela Netflix?"
+        },
+        {
+          "id": 60,
+          "text": "Skål för nummer 60!"
+        },
+        {
+          "id": 61,
+          "text": "Skulle överleva Hunger Games?"
+        },
+        {
+          "id": 62,
+          "text": "Vem dricker mest ikväll?"
+        },
+        {
+          "id": 63,
+          "text": "Blir miljonär först?"
+        },
+        {
+          "id": 64,
+          "text": "Är lärarens favorit?"
+        },
+        {
+          "id": 65,
+          "text": "Blir bäst omtyckt av nya människor?"
+        },
+        {
+          "id": 66,
+          "text": "Har de mest slitna knäna?"
+        },
+        {
+          "id": 67,
+          "text": "Är bäst i sängen?"
+        },
+        {
+          "id": 68,
+          "text": "Är vildast?"
+        },
+        {
+          "id": 69,
+          "text": "Är alltid redo för vad som helst?"
+        },
+        {
+          "id": 70,
+          "text": "Skål för nummer 70!"
+        },
+        {
+          "id": 71,
+          "text": "Är längst i duschen?"
+        },
+        {
+          "id": 72,
+          "text": "Blir mest framgångsrik?"
+        },
+        {
+          "id": 73,
+          "text": "Vem sover inte hemma inatt?"
+        },
+        {
+          "id": 74,
+          "text": "Är bäst med barn?"
+        },
+        {
+          "id": 75,
+          "text": "Har störst kändisfaktor?"
+        },
+        {
+          "id": 76,
+          "text": "Kommer till himlen?"
+        },
+        {
+          "id": 77,
+          "text": "Har bäst chans på dig?"
+        },
+        {
+          "id": 78,
+          "text": "Har flest Tinder-matchningar?"
+        },
+        {
+          "id": 79,
+          "text": "Skrattar vid sämsta tänkbara tillfälle?"
+        },
+        {
+          "id": 80,
+          "text": "Skål för nummer 80!"
+        },
+        {
+          "id": 81,
+          "text": "Vem vill du ha som beer pong-partner?"
+        },
+        {
+          "id": 82,
+          "text": "Blir igenkänd på Systemet?"
+        },
+        {
+          "id": 83,
+          "text": "Blir igenkänd i sexbutiken?"
+        },
+        {
+          "id": 84,
+          "text": "Vem litar du mest på?"
+        },
+        {
+          "id": 85,
+          "text": "Skulle göra mest för minst pengar?"
+        },
+        {
+          "id": 86,
+          "text": "Hookar mest?"
+        },
+        {
+          "id": 87,
+          "text": "Gör de vildaste ljuden i sängen?"
+        },
+        {
+          "id": 88,
+          "text": "Blir snabbast svartsjuk?"
+        },
+        {
+          "id": 89,
+          "text": "Skulle mest troligt kunna vara med i en vuxenfilm?"
+        },
+        {
+          "id": 90,
+          "text": "Skulle mest troligt ha betalat för det. Skål för nummer 90!"
+        },
+        {
+          "id": 91,
+          "text": "Får flest nudes?"
+        },
+        {
+          "id": 92,
+          "text": "Är den största stalkern?"
+        },
+        {
+          "id": 93,
+          "text": "Blir snabbast klar?"
+        },
+        {
+          "id": 94,
+          "text": "Har sex på första dejten?"
+        },
+        {
+          "id": 95,
+          "text": "Är kär i en lärare?"
+        },
+        {
+          "id": 96,
+          "text": "Är mest överlägsen?"
+        },
+        {
+          "id": 97,
+          "text": "Blir bjuden mest på krogen?"
+        },
+        {
+          "id": 98,
+          "text": "Kör och sticker?"
+        },
+        {
+          "id": 99,
+          "text": "Vem tar en shotgun med dig?"
+        },
+        {
+          "id": 100,
+          "text": "Skål för nummer 100!!"
+        }
+      ]
+    },
+    "da": {
+      "title": "100 Spørgsmål",
+      "shortTitle": "100 Spørgsmål",
+      "description": "100 peg-på-nogen-kort. Ingen forkerte svar, kun ærlige.",
+      "rules": [
+        "Læs spørgsmålet højt.",
+        "Alle peger på den, det passer bedst på.",
+        "Den med flest stemmer drikker. På SKÅL-kort drikker alle."
+      ],
+      "prompts": [
+        {
+          "id": 1,
+          "text": "Har utroligt nok ikke været i håndjern endnu?"
+        },
+        {
+          "id": 2,
+          "text": "Sender flest nudes?"
+        },
+        {
+          "id": 3,
+          "text": "Kan tåle mest uden at blive fuld?"
+        },
+        {
+          "id": 4,
+          "text": "Har hooket med flest her i rummet?"
+        },
+        {
+          "id": 5,
+          "text": "Er den største festløve?"
+        },
+        {
+          "id": 6,
+          "text": "Er mest tilbøjelig til at være utro?"
+        },
+        {
+          "id": 7,
+          "text": "Bliver den bedste mor eller far?"
+        },
+        {
+          "id": 8,
+          "text": "Har den bedste hygiejne?"
+        },
+        {
+          "id": 9,
+          "text": "Har kørt uden kørekort?"
+        },
+        {
+          "id": 10,
+          "text": "Har haft trekant?"
+        },
+        {
+          "id": 11,
+          "text": "Skål for nummer 10!"
+        },
+        {
+          "id": 12,
+          "text": "Er mest ubeslutsom?"
+        },
+        {
+          "id": 13,
+          "text": "Har spillet den af et offentligt sted?"
+        },
+        {
+          "id": 14,
+          "text": "Bruger flest penge på byen?"
+        },
+        {
+          "id": 15,
+          "text": "Hvem her vil du strande på en øde ø med?"
+        },
+        {
+          "id": 16,
+          "text": "Knuser flest hjerter?"
+        },
+        {
+          "id": 17,
+          "text": "Har mest selvtillid?"
+        },
+        {
+          "id": 18,
+          "text": "Tror selv, de er sjovest?"
+        },
+        {
+          "id": 19,
+          "text": "Har den bedste musiksmag?"
+        },
+        {
+          "id": 20,
+          "text": "Hvem her kunne personen til højre hooke med?"
+        },
+        {
+          "id": 21,
+          "text": "Får de værste tømmermænd?"
+        },
+        {
+          "id": 22,
+          "text": "Er mest forkælet?"
+        },
+        {
+          "id": 23,
+          "text": "Ville klare sig bedst på landet uden strøm?"
+        },
+        {
+          "id": 24,
+          "text": "Lyser rummet op?"
+        },
+        {
+          "id": 25,
+          "text": "Spiller mest den af?"
+        },
+        {
+          "id": 26,
+          "text": "Hvem her ville du få det sødeste barn med?"
+        },
+        {
+          "id": 27,
+          "text": "Er bedst i skolen?"
+        },
+        {
+          "id": 28,
+          "text": "Hvem ville du aldrig give din telefon i en time?"
+        },
+        {
+          "id": 29,
+          "text": "Har den flotteste numse?"
+        },
+        {
+          "id": 30,
+          "text": "Er den bedste ven?"
+        },
+        {
+          "id": 31,
+          "text": "Har de smukkeste øjne?"
+        },
+        {
+          "id": 32,
+          "text": "Hvem troede du var værst, da I mødtes?"
+        },
+        {
+          "id": 33,
+          "text": "Er den mest uheldige?"
+        },
+        {
+          "id": 34,
+          "text": "Har taget flest mødomme?"
+        },
+        {
+          "id": 35,
+          "text": "Kaster op i aften?"
+        },
+        {
+          "id": 36,
+          "text": "Bliver den bedste kæreste?"
+        },
+        {
+          "id": 37,
+          "text": "Har været længst uden sex?"
+        },
+        {
+          "id": 38,
+          "text": "Er mest sandsynligt tømmermænd på en tirsdag?"
+        },
+        {
+          "id": 39,
+          "text": "Er sjovest?"
+        },
+        {
+          "id": 40,
+          "text": "Skål for nummer 40!"
+        },
+        {
+          "id": 41,
+          "text": "Har haft flest våde drømme?"
+        },
+        {
+          "id": 42,
+          "text": "Er klogest?"
+        },
+        {
+          "id": 43,
+          "text": "Er svigerforældrenes drøm?"
+        },
+        {
+          "id": 44,
+          "text": "Er med på alt?"
+        },
+        {
+          "id": 45,
+          "text": "Er dårligst til prævention?"
+        },
+        {
+          "id": 46,
+          "text": "Danser bedst?"
+        },
+        {
+          "id": 47,
+          "text": "Er mest ansvarlig?"
+        },
+        {
+          "id": 48,
+          "text": "Er mindst ansvarlig?"
+        },
+        {
+          "id": 49,
+          "text": "Dufter bedst?"
+        },
+        {
+          "id": 50,
+          "text": "Er mest liderlig?"
+        },
+        {
+          "id": 51,
+          "text": "Er bedst til at score?"
+        },
+        {
+          "id": 52,
+          "text": "Har den højeste IQ?"
+        },
+        {
+          "id": 53,
+          "text": "Har den frækkeste beskedlog?"
+        },
+        {
+          "id": 54,
+          "text": "Ville blive den bedste statsminister?"
+        },
+        {
+          "id": 55,
+          "text": "Har det bedste karaktergennemsnit?"
+        },
+        {
+          "id": 56,
+          "text": "Er festens midtpunkt?"
+        },
+        {
+          "id": 57,
+          "text": "Er bedst til at kysse?"
+        },
+        {
+          "id": 58,
+          "text": "Er den største drama queen?"
+        },
+        {
+          "id": 59,
+          "text": "Har set hele Netflix færdig?"
+        },
+        {
+          "id": 60,
+          "text": "Skål for nummer 60!"
+        },
+        {
+          "id": 61,
+          "text": "Ville overleve Hunger Games?"
+        },
+        {
+          "id": 62,
+          "text": "Hvem drikker mest i aften?"
+        },
+        {
+          "id": 63,
+          "text": "Bliver millionær først?"
+        },
+        {
+          "id": 64,
+          "text": "Er lærerens kæledægge?"
+        },
+        {
+          "id": 65,
+          "text": "Bliver bedst kunne lide af nye mennesker?"
+        },
+        {
+          "id": 66,
+          "text": "Har de mest slidte knæ?"
+        },
+        {
+          "id": 67,
+          "text": "Er bedst i sengen?"
+        },
+        {
+          "id": 68,
+          "text": "Er vildest?"
+        },
+        {
+          "id": 69,
+          "text": "Er altid klar på hvad som helst?"
+        },
+        {
+          "id": 70,
+          "text": "Skål for nummer 70!"
+        },
+        {
+          "id": 71,
+          "text": "Er længst i bad?"
+        },
+        {
+          "id": 72,
+          "text": "Bliver mest succesfuld?"
+        },
+        {
+          "id": 73,
+          "text": "Hvem sover ikke hjemme i nat?"
+        },
+        {
+          "id": 74,
+          "text": "Er bedst med børn?"
+        },
+        {
+          "id": 75,
+          "text": "Har størst kendisfaktor?"
+        },
+        {
+          "id": 76,
+          "text": "Kommer i himlen?"
+        },
+        {
+          "id": 77,
+          "text": "Har den bedste chance hos dig?"
+        },
+        {
+          "id": 78,
+          "text": "Har flest Tinder-matches?"
+        },
+        {
+          "id": 79,
+          "text": "Griner på det værst tænkelige tidspunkt?"
+        },
+        {
+          "id": 80,
+          "text": "Skål for nummer 80!"
+        },
+        {
+          "id": 81,
+          "text": "Hvem vil du have som beer pong-makker?"
+        },
+        {
+          "id": 82,
+          "text": "Bliver genkendt i Vinmonopolet?"
+        },
+        {
+          "id": 83,
+          "text": "Bliver genkendt i sexbutikken?"
+        },
+        {
+          "id": 84,
+          "text": "Hvem stoler du mest på?"
+        },
+        {
+          "id": 85,
+          "text": "Ville gøre mest for færrest penge?"
+        },
+        {
+          "id": 86,
+          "text": "Hooker mest?"
+        },
+        {
+          "id": 87,
+          "text": "Laver de vildeste lyde i sengen?"
+        },
+        {
+          "id": 88,
+          "text": "Bliver hurtigst jaloux?"
+        },
+        {
+          "id": 89,
+          "text": "Er mest sandsynligt til at ende i en voksenfilm?"
+        },
+        {
+          "id": 90,
+          "text": "Ville mest sandsynligt have betalt for det. Skål for nummer 90!"
+        },
+        {
+          "id": 91,
+          "text": "Får flest nudes?"
+        },
+        {
+          "id": 92,
+          "text": "Er den største stalker?"
+        },
+        {
+          "id": 93,
+          "text": "Bliver hurtigst færdig?"
+        },
+        {
+          "id": 94,
+          "text": "Har sex på første date?"
+        },
+        {
+          "id": 95,
+          "text": "Er lun på en lærer?"
+        },
+        {
+          "id": 96,
+          "text": "Er mest overlegen?"
+        },
+        {
+          "id": 97,
+          "text": "Bliver givet flest drinks på byen?"
+        },
+        {
+          "id": 98,
+          "text": "Tager den og skrider?"
+        },
+        {
+          "id": 99,
+          "text": "Hvem tager en shotgun med dig?"
+        },
+        {
+          "id": 100,
+          "text": "Skål for nummer 100!!"
         }
       ]
     }

@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes, CSSProperties, InputHTMLAttributes, ReactNode } from 'react';
+import type { ButtonHTMLAttributes, CSSProperties, FocusEvent, InputHTMLAttributes, ReactNode } from 'react';
 import { MoreHorizontal, Plus, X } from 'lucide-react';
 import { cn } from '../ui/utils';
 import { colorForMember } from '../../lib/memberColors';
@@ -41,8 +41,16 @@ export function Eyebrow({ children }: { children: ReactNode }) {
 }
 
 export function AddSheet({ title, onClose, children, className }: { title: string; onClose: () => void; children: ReactNode; className?: string }) {
+  // Keep the focused field visible above the on-screen keyboard, which otherwise covers the
+  // lower inputs of the sheet. Runs after the keyboard's ~250ms show animation settles.
+  const scrollFocusedIntoView = (event: FocusEvent<HTMLDivElement>) => {
+    const target = event.target;
+    if (target instanceof HTMLElement && target.matches('input, textarea, select')) {
+      window.setTimeout(() => target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
+    }
+  };
   return (
-    <div className={cn('glass w-full max-w-full space-y-3 overflow-hidden rounded-xl p-4', className)}>
+    <div onFocusCapture={scrollFocusedIntoView} className={cn('glass w-full max-w-full space-y-3 overflow-hidden rounded-xl p-4', className)}>
       <div className="flex items-center justify-between gap-3">
         <p className="text-sm font-semibold">{title}</p>
         <button onClick={onClose} className="grid h-11 w-11 shrink-0 place-items-center rounded-full" aria-label={title}>

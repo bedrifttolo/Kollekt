@@ -9,19 +9,52 @@
     "next": "Next",
     "done": "Got it",
     "onboarding": {
-      "mode": { "title": "Create or join", "body": "Start a new home, or join your housemates' with their code." },
-      "name": { "title": "Name your home", "body": "Give your household a name everyone will recognise." },
-      "rooms": { "title": "Choose your shared rooms", "body": "Tap example rooms to add them, or add your own. You can edit each room's cleaning minutes — the time sets its XP." },
-      "create": { "title": "You're all set", "body": "Create your home, then invite the others to join." }
+      "mode": {
+        "title": "Create or join",
+        "body": "Start a new home, or join your housemates' with their code."
+      },
+      "name": {
+        "title": "Name your home",
+        "body": "Give your household a name everyone will recognise."
+      },
+      "rooms": {
+        "title": "Choose your shared rooms",
+        "body": "Tap example rooms to add them, or add your own. You can edit each room's cleaning minutes — the time sets its XP."
+      },
+      "create": {
+        "title": "You're all set",
+        "body": "Create your home, then invite the others to join."
+      }
     },
     "steps": {
-      "home": { "title": "Your home base", "body": "See your household at a glance — balances, chores and the vibe of the week." },
-      "tasks": { "title": "Chores, kept fair", "body": "Tasks rotate evenly every week. Finishing them earns you XP." },
-      "calendar": { "title": "Plan together", "body": "A shared calendar for house events, guests and quiet hours — sync it with your own calendar too." },
-      "chat": { "title": "Talk it out", "body": "Group chat for the house: polls, reactions, photos and a friendly thank-you with kudos." },
-      "economy": { "title": "Split & settle up", "body": "Track shared expenses, store receiving details, and open external payment apps when housemates pay each other back." },
-      "social": { "title": "Compete & play", "body": "Climb the leaderboard and start game nights together." },
-      "profile": { "title": "You & your settings", "body": "Tap here for your profile, payment methods, invites and household options." }
+      "home": {
+        "title": "Your home base",
+        "body": "See your household at a glance — balances, chores and the vibe of the week."
+      },
+      "tasks": {
+        "title": "Chores, kept fair",
+        "body": "Tasks rotate evenly every week. Finishing them earns you XP."
+      },
+      "calendar": {
+        "title": "Plan together",
+        "body": "A shared calendar for house events, guests and quiet hours — sync it with your own calendar too."
+      },
+      "chat": {
+        "title": "Talk it out",
+        "body": "Group chat for the house: polls, reactions, photos and a friendly thank-you with kudos."
+      },
+      "economy": {
+        "title": "Split & settle up",
+        "body": "Track shared expenses, store receiving details, and open external payment apps when housemates pay each other back."
+      },
+      "social": {
+        "title": "Compete & play",
+        "body": "Climb the leaderboard and start game nights together."
+      },
+      "profile": {
+        "title": "You & your settings",
+        "body": "Tap here for your profile, payment methods, invites and household options."
+      }
     }
   },
   "languages": {
@@ -364,7 +397,12 @@
     "addSupply": "Add Supply",
     "supplyNamePlaceholder": "Supply name...",
     "shoppingSuggestions": "Common supplies",
-    "shoppingTemplates": { "toiletPaper": "Toilet paper", "dishSoap": "Dish soap", "trashBags": "Trash bags", "laundryDetergent": "Laundry detergent" },
+    "shoppingTemplates": {
+      "toiletPaper": "Toilet paper",
+      "dishSoap": "Dish soap",
+      "trashBags": "Trash bags",
+      "laundryDetergent": "Laundry detergent"
+    },
     "toggleComments": "Toggle feedback",
     "editTaskAria": "Edit task",
     "deleteTaskAria": "Delete task",
@@ -389,7 +427,11 @@
       "toBuyUnit": "to buy",
       "boughtCount": "{{count}} bought",
       "noneInFilter": "Nothing here.",
-      "filters": { "ALL": "All", "TO_BUY": "To buy", "BOUGHT": "Bought" }
+      "filters": {
+        "ALL": "All",
+        "TO_BUY": "To buy",
+        "BOUGHT": "Bought"
+      }
     },
     "maintenance": {
       "boardTitle": "Maintenance board",
@@ -422,8 +464,18 @@
       "due": "Due",
       "noDueDate": "No due date",
       "overdue": "Overdue",
-      "priorities": { "LOW": "Low", "MEDIUM": "Medium", "HIGH": "High", "URGENT": "Urgent" },
-      "statuses": { "OPEN": "Open", "IN_PROGRESS": "In progress", "BLOCKED": "Blocked", "DONE": "Done" }
+      "priorities": {
+        "LOW": "Low",
+        "MEDIUM": "Medium",
+        "HIGH": "High",
+        "URGENT": "Urgent"
+      },
+      "statuses": {
+        "OPEN": "Open",
+        "IN_PROGRESS": "In progress",
+        "BLOCKED": "Blocked",
+        "DONE": "Done"
+      }
     }
   },
   "checkin": {
@@ -445,14 +497,26 @@
   },
   "kudos": {
     "typeLabel": "What for?",
-    "types": { "THANK_YOU": "Thank you", "CLEANEST": "Cleanest", "MOST_HELPFUL": "Most helpful", "PEACEMAKER": "Peacemaker" },
+    "types": {
+      "THANK_YOU": "Thank you",
+      "CLEANEST": "Cleanest",
+      "MOST_HELPFUL": "Most helpful",
+      "PEACEMAKER": "Peacemaker"
+    },
     "privateNote": "Only they will see this — it won't be shared with the house.",
-    "sendTitle": "Send kudos", "chooseRoommate": "Choose a roommate", "generalHelp": "General help",
-    "contextPlaceholder": "What did they do that helped?", "send": "Send kudos",
-    "dailyLimit": "You can send up to 3 kudos per day.", "weeklyTitle": "Weekly positivity",
-    "weeklyTotal_one": "{{count}} kudo shared this week", "weeklyTotal_other": "{{count}} kudos shared this week",
-    "weeklyEmpty": "No kudos shared yet — be the first.", "profileBadge": "Kudos received",
-    "receivedTotal_one": "{{count}} kudos from your household", "receivedTotal_other": "{{count}} kudos from your household"
+    "sendTitle": "Send kudos",
+    "chooseRoommate": "Choose a roommate",
+    "generalHelp": "General help",
+    "contextPlaceholder": "What did they do that helped?",
+    "send": "Send kudos",
+    "dailyLimit": "You can send up to 3 kudos per day.",
+    "weeklyTitle": "Weekly positivity",
+    "weeklyTotal_one": "{{count}} kudo shared this week",
+    "weeklyTotal_other": "{{count}} kudos shared this week",
+    "weeklyEmpty": "No kudos shared yet — be the first.",
+    "profileBadge": "Kudos received",
+    "receivedTotal_one": "{{count}} kudos from your household",
+    "receivedTotal_other": "{{count}} kudos from your household"
   },
   "laundry": {
     "title": "Going to wash",
@@ -462,9 +526,24 @@
     "message": "Doing a {{temp}}°C wash ({{type}}). Join in?",
     "join": "I want to join",
     "notThisTime": "Not this time",
-    "types": { "WHITES": "Whites", "COLORS": "Colors", "DELICATES": "Delicates", "WOOL": "Wool", "SPORTS": "Sportswear", "TOWELS": "Towels" }
+    "types": {
+      "WHITES": "Whites",
+      "COLORS": "Colors",
+      "DELICATES": "Delicates",
+      "WOOL": "Wool",
+      "SPORTS": "Sportswear",
+      "TOWELS": "Towels"
+    }
   },
-  "quietHours": { "title": "Quiet hours", "window": "{{start}}–{{end}}", "disabled": "Quiet hours are off", "save": "Save quiet hours", "edit": "Edit", "cancel": "Cancel", "enabledLabel": "Enable quiet hours" },
+  "quietHours": {
+    "title": "Quiet hours",
+    "window": "{{start}}–{{end}}",
+    "disabled": "Quiet hours are off",
+    "save": "Save quiet hours",
+    "edit": "Edit",
+    "cancel": "Cancel",
+    "enabledLabel": "Enable quiet hours"
+  },
   "calendar": {
     "eyebrow": "Together",
     "title": "House calendar",
@@ -479,7 +558,10 @@
     "subscribeButton": "Subscribe",
     "subscribeUrlLabel": "Calendar subscription link",
     "newEvent": "New Event",
-    "addModes": { "event": "Event", "guest": "Guest notice" },
+    "addModes": {
+      "event": "Event",
+      "guest": "Guest notice"
+    },
     "guestNamePlaceholder": "Guest name...",
     "guestOvernight": "Overnight guest",
     "addGuestNotice": "Share guest notice",
@@ -535,7 +617,8 @@
     "descriptionLabel": "What was it for?",
     "amountLabel": "Amount (NOK)",
     "categoryLabel": "Category",
-    "splitSummary_one": "Split with {{count}} person", "splitSummary_other": "Split with {{count}} people",
+    "splitSummary_one": "Split with {{count}} person",
+    "splitSummary_other": "Split with {{count}} people",
     "expenseTitlePlaceholder": "What was it for?",
     "expenseAmountPlaceholder": "Amount (NOK)",
     "splitWith": "Split with",
@@ -719,19 +802,58 @@
         "ready": "Draw the first card when everyone is ready.",
         "draw": "Draw a card",
         "cards": {
-          "A": { "title": "Waterfall", "rule": "Everyone starts drinking. Nobody stops until the person to their right has stopped." },
-          "2": { "title": "You", "rule": "{{player}} chooses someone to take two sips." },
-          "3": { "title": "Me", "rule": "{{player}} takes three sips." },
-          "4": { "title": "Floor", "rule": "Last person to touch the floor takes a sip." },
-          "5": { "title": "Guys", "rule": "Everyone who identifies as a guy takes a sip." },
-          "6": { "title": "Girls", "rule": "Everyone who identifies as a girl takes a sip." },
-          "7": { "title": "Heaven", "rule": "Last person to point upward takes a sip." },
-          "8": { "title": "Mate", "rule": "{{player}} picks a mate. Whenever one drinks, both drink." },
-          "9": { "title": "Rhyme", "rule": "{{player}} says a word. Go around with rhymes; the first miss loses." },
-          "10": { "title": "Category", "rule": "{{player}} picks a category. Go around the group; the first miss loses." },
-          "J": { "title": "Never have I ever", "rule": "{{player}} says «Never have I ever …». Anyone who has done it takes a sip." },
-          "Q": { "title": "Question master", "rule": "Answer a question from {{player}} and you drink. This lasts until the next queen." },
-          "K": { "title": "King's cup", "rule": "Pour a little into the cup. Whoever draws the fourth king drinks it." }
+          "A": {
+            "title": "Waterfall",
+            "rule": "Everyone starts drinking. Nobody stops until the person to their right has stopped."
+          },
+          "2": {
+            "title": "You",
+            "rule": "{{player}} chooses someone to take two sips."
+          },
+          "3": {
+            "title": "Me",
+            "rule": "{{player}} takes three sips."
+          },
+          "4": {
+            "title": "Floor",
+            "rule": "Last person to touch the floor takes a sip."
+          },
+          "5": {
+            "title": "Guys",
+            "rule": "Everyone who identifies as a guy takes a sip."
+          },
+          "6": {
+            "title": "Girls",
+            "rule": "Everyone who identifies as a girl takes a sip."
+          },
+          "7": {
+            "title": "Heaven",
+            "rule": "Last person to point upward takes a sip."
+          },
+          "8": {
+            "title": "Mate",
+            "rule": "{{player}} picks a mate. Whenever one drinks, both drink."
+          },
+          "9": {
+            "title": "Rhyme",
+            "rule": "{{player}} says a word. Go around with rhymes; the first miss loses."
+          },
+          "10": {
+            "title": "Category",
+            "rule": "{{player}} picks a category. Go around the group; the first miss loses."
+          },
+          "J": {
+            "title": "Never have I ever",
+            "rule": "{{player}} says «Never have I ever …». Anyone who has done it takes a sip."
+          },
+          "Q": {
+            "title": "Question master",
+            "rule": "Answer a question from {{player}} and you drink. This lasts until the next queen."
+          },
+          "K": {
+            "title": "King's cup",
+            "rule": "Pour a little into the cup. Whoever draws the fourth king drinks it."
+          }
         }
       },
       "categoriesGame": {
@@ -741,7 +863,18 @@
         "out": "Player is out",
         "timeOut": "Time is up",
         "winner": "{{player}} wins!",
-        "prompts": { "countries": "Countries", "foods": "Foods", "movies": "Movies", "animals": "Animals", "brands": "Brands", "songs": "Songs", "cities": "Cities", "thingsInKitchen": "Things in a kitchen", "excuses": "Bad excuses", "houseRules": "Shared-house rules" }
+        "prompts": {
+          "countries": "Countries",
+          "foods": "Foods",
+          "movies": "Movies",
+          "animals": "Animals",
+          "brands": "Brands",
+          "songs": "Songs",
+          "cities": "Cities",
+          "thingsInKitchen": "Things in a kitchen",
+          "excuses": "Bad excuses",
+          "houseRules": "Shared-house rules"
+        }
       },
       "charadesGame": {
         "turn": "{{player}} acts",
@@ -751,7 +884,28 @@
         "skip": "Skip",
         "correct": "Correct",
         "nextPlayer": "Time is up – next player",
-        "prompts": { "vacuum": "Vacuuming", "penguin": "Penguin", "superhero": "Superhero", "pizza": "Making pizza", "washingMachine": "Washing machine", "cat": "Cat", "football": "Playing football", "alarmClock": "Alarm clock", "hairdresser": "Hairdresser", "airplane": "Airplane", "ghost": "Ghost", "chef": "Chef", "robot": "Robot", "fishing": "Fishing", "selfie": "Taking a selfie", "banana": "Peeling a banana", "snowman": "Building a snowman", "guitar": "Playing guitar", "trafficJam": "Traffic jam", "movingDay": "Moving day" }
+        "prompts": {
+          "vacuum": "Vacuuming",
+          "penguin": "Penguin",
+          "superhero": "Superhero",
+          "pizza": "Making pizza",
+          "washingMachine": "Washing machine",
+          "cat": "Cat",
+          "football": "Playing football",
+          "alarmClock": "Alarm clock",
+          "hairdresser": "Hairdresser",
+          "airplane": "Airplane",
+          "ghost": "Ghost",
+          "chef": "Chef",
+          "robot": "Robot",
+          "fishing": "Fishing",
+          "selfie": "Taking a selfie",
+          "banana": "Peeling a banana",
+          "snowman": "Building a snowman",
+          "guitar": "Playing guitar",
+          "trafficJam": "Traffic jam",
+          "movingDay": "Moving day"
+        }
       },
       "deckGame": {
         "pickDeck": "Pick a deck",
@@ -764,7 +918,11 @@
         "changeDeck": "Change deck"
       },
       "whoAreWe": {
-        "deckNames": { "mild": "Mild", "medium": "Medium", "droy": "Drøy" },
+        "deckNames": {
+          "mild": "Mild",
+          "medium": "Medium",
+          "droy": "Drøy"
+        },
         "deckDescriptions": {
           "mild": "Light questions to get everyone talking.",
           "medium": "More personal — with a bit of spice.",
@@ -772,105 +930,109 @@
         },
         "decks": {
           "mild": [
-            "Who here is definitely still in bed when everyone else is up?",
-            "Who here can't function without coffee or tea in the morning?",
-            "Who here always takes the longest in the bathroom?",
-            "Who here would forget to eat if nobody reminded them?",
-            "Who here would eat cereal for dinner without a second thought?",
+            "Who here is still in bed when everyone else is up?",
+            "Who here doesn't function without coffee or tea in the morning?",
+            "Who here always hogs the bathroom the longest?",
+            "Who here would forget to eat if no one reminded them?",
+            "Who here eats cereal for dinner without a second thought?",
             "Who here always steals a bite of someone else's food?",
             "Who here is the peacemaker when things get tense?",
-            "Who here would end up talking until sunrise without planning to?",
-            "Who here always knows what's going on in everyone else's life?",
+            "Who here ends up talking till sunrise without meaning to?",
+            "Who here always knows what's going on in everyone's life?",
             "Who here would be everyone's emergency contact?",
-            "Who here has a skill that would genuinely surprise everyone?",
-            "Who here could fix something broken using only what's in the flat?",
+            "Who here has a hidden skill that would surprise everyone?",
+            "Who here could fix something broken with just what's in the flat?",
             "Who here gives the best advice without making it awkward?",
-            "Who here would last longest on a reality TV show?",
-            "Who here is the life of the party five minutes after arriving?",
-            "Who here would make friends with everyone at a party within an hour?",
-            "Who here has a playlist for literally every mood?",
-            "Who here would drop everything to help a friend at 2am?",
-            "Who here is actually the most sentimental person in the house?",
-            "Who here would do something embarrassing just to make someone feel better?",
-            "Who here talks to themselves when they think nobody's listening?",
-            "Who here would move abroad on a whim and make it work?",
-            "Who here always has snacks hidden somewhere in their room?",
-            "Who here would be first to notice if something was wrong with someone?",
-            "Who here has a voice that would be perfect for a podcast?",
-            "Who here makes the most unlikely friendships?",
+            "Who here would last the longest on a reality show?",
+            "Who here is the center of the party five minutes after arriving?",
+            "Who here befriends everyone at a party within an hour?",
+            "Who here has a playlist for absolutely every mood?",
+            "Who here would drop everything to help a friend at 2 a.m.?",
+            "Who here is secretly the most sentimental one in the house?",
+            "Who here would do something embarrassing to cheer someone up?",
+            "Who here talks to themselves when they think no one's listening?",
+            "Who here would fly abroad on a whim and make it work?",
+            "Who here always has snacks stashed in their room?",
+            "Who here notices first when something's off with someone?",
+            "Who here has a voice made for a podcast?",
+            "Who here ends up with the most unlikely friendships?",
             "Who here would keep a plant alive the longest?",
-            "Who here would be the most reliable person in a group project?",
+            "Who here is the most reliable in a group project?",
             "Who here needs a hug the most but would never ask for one?",
-            "Who here would end up as the unofficial house chef?"
+            "Who here would become the unofficial chef of the house?"
           ],
           "medium": [
-            "Who here would flirt with someone just to prove they could?",
+            "Who here would flirt with someone just to see if they could?",
             "Who here has definitely checked their ex's location at least once this week?",
-            "Who here is most likely to catch feelings way too fast?",
-            "Who here would kiss someone here if the lights went off?",
-            "Who here has had a secret thing for a friend's ex for way too long?",
+            "Who here falls for people way too fast?",
+            "Who here would kiss someone in this room if the lights went out?",
+            "Who here has had a crush on a friend's ex for way too long?",
             "Who here gets way too honest about their love life when drunk?",
-            "Who here is most likely to fall for someone they absolutely shouldn't?",
+            "Who here falls for exactly the person they absolutely shouldn't?",
             "Who here would be the most adventurous in bed?",
             "Who here has the most embarrassing dating app story?",
-            "Who here is most likely to have a crush on someone in this room right now?",
-            "Who here has the most interesting dating history?",
-            "Who here would make the first move without hesitation?",
-            "Who here has the longest situationship that went absolutely nowhere?",
-            "Who here is most likely to fall asleep immediately after sex?",
-            "Who here would hook up with someone they met that same day?",
-            "Who here sends the most risky texts after a few drinks?",
-            "Who here is most likely to date someone way older or younger?",
-            "Who here would be the most dramatic about a breakup?",
-            "Who here has the worst taste in people they're attracted to?",
-            "Who here is most likely to still be thinking about a hookup from months ago?",
-            "Who here would survive longest without physical intimacy?",
-            "Who here is most likely to end up in a complicated love situation?",
+            "Who here definitely has a crush on someone in this room right now?",
+            "Who here has the most interesting romantic history?",
+            "Who here makes the first move without hesitating?",
+            "Who here has had the longest situationship that went nowhere?",
+            "Who here falls asleep immediately after sex?",
+            "Who here would text their ex after midnight?",
+            "Who here sends the riskiest messages after a couple of drinks?",
+            "Who here would date someone much older or younger?",
+            "Who here would be the most dramatic after a breakup?",
+            "Who here has the worst taste in the people they fall for?",
+            "Who here still thinks about someone they had a fling with months ago?",
+            "Who here would last the longest without physical intimacy?",
+            "Who here definitely ends up in a complicated love situation?",
             "Who here has the most chaotic romantic history?",
-            "Who here is most likely to stay friends with an ex?",
-            "Who here would be the most giving partner in a relationship?",
-            "Who here has the best story about someone hitting on them completely out of nowhere?",
-            "Who here is most likely to catch feelings purely from texting?",
-            "Who here would be the best at talking someone into something?",
-            "Who here would make the first move and immediately regret it?",
-            "Who here has the highest body count in this room? Everyone points."
+            "Who here stays friends with an ex?",
+            "Who here would be the most generous partner?",
+            "Who here has the best story about getting hit on out of nowhere?",
+            "Who here catches feelings purely over text?",
+            "Who here is best at talking someone round to anything?",
+            "Who here would make the first move and regret it instantly?",
+            "Who here flirts without realizing they're doing it?"
           ],
           "droy": [
-            "Who here would sleep with someone in this room if there were zero consequences?",
-            "Who here has the kinkiest side they've never told anyone here about?",
-            "Who here is most likely to have a one-night stand tonight?",
-            "Who here has the most interesting place they've ever hooked up?",
+            "Who here would have a one-night stand tonight if the chance came up?",
+            "Who here has a kinky side nobody here knows about?",
+            "Who here has the wildest place they've ever had sex?",
             "Who here would be the loudest in bed?",
-            "Who here would be up for a friends-with-benefits arrangement?",
-            "Who here has sent nudes they immediately regretted?",
-            "Who here is most likely to have already hooked up with someone in this house?",
+            "Who here would be up for a friends-with-benefits thing?",
+            "Who here has sent a nude they regretted immediately?",
             "Who here has the most to hide in their camera roll right now?",
             "Who here has had the most awkward morning after?",
-            "Who here is most likely to suggest something unexpected in bed?",
-            "Who here would do a walk of shame with the most confidence?",
-            "Who here has hooked up with more than one person in the same friend group?",
-            "Who here has faked it and immediately felt guilty?",
-            "Who here would be completely honest about their number if asked right now?",
-            "Who here has had the most dramatic sexual misadventure story?",
-            "Who here is most likely to have sex tonight?",
-            "Who here would be the best hookup — genuinely?",
-            "Who here has a type that would surprise absolutely everyone in this room?",
-            "Who here has hooked up with someone in this group and never told the rest of you?",
-            "Who here is most likely to have thought about someone here in that way?",
-            "Who here has the most explicit thing in their drafts folder right now?",
-            "Who here would handle a one-night stand with the most maturity?",
-            "Who here is most likely to have a secret romantic history with someone in this room?",
-            "Who here would first bring up a 'what if we hooked up' scenario?",
-            "Who here is secretly the kinkiest person here?",
-            "Who here has done something sexually they'd be too embarrassed to admit to this group?",
-            "Who here has the most creative excuse they've ever used to get out of a sexual situation?",
+            "Who here would suggest something unexpected in bed?",
+            "Who here would do a walk of shame with their head held high?",
+            "Who here has flirted with two people in the same friend group?",
+            "Who here would answer their number completely honestly right now?",
+            "Who here has the most dramatic story about a sexual mishap?",
+            "Who here would be the best hookup — honestly?",
+            "Who here has a type that would shock absolutely everyone here?",
+            "Who here has the most explicit thing in their drafts right now?",
+            "Who here would handle a one-night stand with the most class?",
+            "Who here would fire off a dirty-talk text first?",
+            "Who here has a fetish they'd never admit sober?",
+            "Who here has had sex somewhere they could easily have been caught?",
+            "Who here is definitely thinking about someone here in that way?",
+            "Who here has the longest dry spell at this table right now?",
+            "Who here would try something they saw online but never dared suggest?",
+            "Who here has the dirtiest message log at this table?",
+            "Who here would say yes to a date they know ends in bed?",
+            "Who here has flirted their way into something for free?",
+            "Who here has done something in bed they'd be ashamed to admit here?",
+            "Who here has the most creative excuse to bail on a date?",
             "Who here would be the most adventurous partner?",
-            "Who here is most likely to be thinking about hooking up with someone here right now?"
+            "Who here has the wildest hookup story they'd actually dare to tell?"
           ]
         }
       },
       "guysNight": {
-        "deckNames": { "mild": "Mild", "medium": "Medium", "droy": "Drøy" },
+        "deckNames": {
+          "mild": "Mild",
+          "medium": "Medium",
+          "droy": "Drøy"
+        },
         "deckDescriptions": {
           "mild": "Fun, social, competitive. Good for warming up.",
           "medium": "More personal — some roasting, some confessions, some spice.",
@@ -878,105 +1040,109 @@
         },
         "decks": {
           "mild": [
-            "Point to who would survive longest in the wilderness with zero gear.",
+            "Point at who'd last the longest in the woods with no gear.",
             "Never have I ever skipped leg day and worn shorts the next day.",
-            "Everyone who has sent a 'u up?' text in the last month drinks.",
-            "Point to who is most likely to cry at a football match.",
-            "Never have I ever pretended to know the lyrics and got them completely wrong at the worst moment.",
+            "Everyone who's sent a 'you up?' text this past month drinks.",
+            "Point at who's most likely to cry at a football match.",
+            "Never have I ever faked knowing the lyrics and blown it at the worst moment.",
             "Best impression of someone in the room. Group votes — loser drinks.",
-            "Point to who would win at beer pong if their life depended on it.",
-            "Never have I ever texted a girl and pretended I was just checking in.",
-            "Everyone who still has a draft message they never sent drinks.",
-            "Point to who would get punched first in a bar fight they didn't even start.",
-            "Arm wrestle the person next to you. Loser drinks.",
+            "Point at who'd win beer pong if their life depended on it.",
+            "Never have I ever texted someone and pretended it was just a check-in.",
+            "Everyone with a message in drafts they never sent drinks.",
+            "Point at who'd get hit first in a bar fight they didn't start.",
+            "Thumb war with the person next to you. Loser drinks.",
             "Never have I ever called in sick and gone straight to the pub.",
-            "Point to who has the most unread notifications right now.",
-            "Everyone who has ghosted someone this year drinks.",
-            "Best roast of the person on your left. Ten seconds. Go.",
-            "Never have I ever started a gym phase that lasted less than two weeks.",
-            "Point to who would most likely accidentally become a meme.",
-            "Everyone who has eaten a full meal directly from the pot drinks.",
-            "Never have I ever memorized something completely useless and been proud of it.",
-            "Point to who would last longest without their phone.",
-            "Everyone who still doesn't know their best friend's actual birthday drinks.",
-            "Never have I ever blamed someone else for a smell that was definitely me.",
-            "Point to who you'd want on your team in literally any competition.",
-            "Everyone who has lied about their pace on a run drinks.",
-            "Never have I ever turned down a fight and secretly been relieved about it.",
-            "Point to who would be first to cave if the group wanted to stay out late.",
-            "Everyone who has three or more tabs open right now that they'll never close drinks.",
+            "Point at who has the most unread notifications right now.",
+            "Everyone who's ghosted someone this year drinks.",
+            "Roast the person on your left. Ten seconds. Go.",
+            "Never have I ever started a workout plan that lasted under two weeks.",
+            "Point at who's most likely to accidentally become a meme.",
+            "Everyone who's eaten a full meal straight from the pot drinks.",
+            "Never have I ever memorized something totally useless and been proud of it.",
+            "Point at who'd cope the longest without a phone.",
+            "Everyone who doesn't know their best friend's actual birthday drinks.",
+            "Never have I ever blamed someone else for a smell that was clearly me.",
+            "Point at who you want on your team for absolutely any competition.",
+            "Everyone who's lied about their pace on a run drinks.",
+            "Never have I ever backed out of a fight and secretly been relieved.",
+            "Point at who'd cave first if the group wanted to stay out longer.",
+            "Everyone with three or more tabs they'll never close drinks.",
             "Never have I ever bought something purely to impress someone.",
-            "Point to who would be most likely to accidentally start a trend online.",
-            "Everyone who ate leftovers that were definitely past their best drinks."
+            "Point at who's most likely to accidentally start an online trend.",
+            "Everyone who's eaten leftovers that were clearly too old drinks."
           ],
           "medium": [
-            "Point to who has sent a text they immediately regretted.",
-            "Never have I ever hooked up with someone I met that same evening.",
-            "Everyone who has slid into DMs and got left on read drinks.",
-            "Point to who is most likely to go home with someone tonight.",
+            "Point at who's sent a text they regretted immediately.",
+            "Never have I ever slept with someone I met that same night.",
+            "Everyone who's messaged a match and been left on read drinks.",
+            "Point at who's most likely to take someone home tonight.",
             "Never have I ever lied about why a relationship ended.",
-            "Tell the group your most embarrassing moment with a girl. No skipping.",
-            "Everyone who has genuinely caught feelings for a hookup drinks.",
-            "Point to who you think is the best-looking person in this room.",
+            "Tell the group your most embarrassing moment with a crush. No skipping.",
+            "Everyone who's genuinely caught feelings for a fling drinks.",
+            "Point at who brings the most confidence to the rest of the group.",
             "Never have I ever been with someone without knowing their last name.",
-            "Everyone who has pretended to be more experienced than they were drinks.",
-            "Point to who has the highest body count in the room.",
+            "Everyone who's pretended to be more experienced than they were drinks.",
+            "Point at who has the most impressive dating history in the room.",
             "Never have I ever had sex somewhere I absolutely shouldn't have.",
-            "Everyone who has matched with an ex on a dating app drinks.",
-            "Rate everyone in the room out of 10. No decimals. No hesitation.",
-            "Never have I ever texted someone while hooking up with someone else.",
-            "Point to who would handle a walk of shame with the most confidence.",
-            "Everyone who has finished embarrassingly fast and said nothing about it drinks.",
-            "Tell the group what kind of person you actually go for — not what you'd admit online.",
-            "Never have I ever made a move and been completely shut down in front of people.",
-            "Point to who would be the most emotionally unavailable in a relationship.",
-            "Everyone who has said 'we should do this again' without meaning it drinks.",
+            "Everyone who's matched with an ex on a dating app drinks.",
+            "Give each person in the room one honest word to describe them. No hesitating.",
+            "Never have I ever texted someone while at another person's place.",
+            "Point at who'd do a walk of shame with the most confidence.",
+            "Everyone who's finished way too fast and said nothing about it drinks.",
+            "Tell the group the type you actually go for — not what you say online.",
+            "Never have I ever made a move and been totally shot down in front of people.",
+            "Point at who'd be the most emotionally unavailable in a relationship.",
+            "Everyone who's said 'we should do this again' without meaning it drinks.",
             "Never have I ever checked an ex's profile today.",
-            "Point to who is most likely to fall hard for the wrong person.",
-            "Everyone who has been in a situationship for more than six months drinks.",
-            "Never have I ever told a girl I'd call and then didn't.",
-            "Everyone who has put more effort into getting someone back than getting them in the first place drinks.",
-            "Never have I ever had morning sex before a 9am commitment.",
-            "Point to who is secretly the most romantic in the room.",
-            "Everyone who has been called the 'emotionally unavailable one' drinks.",
-            "Point to who has the most chaotic situationship story right now."
+            "Point at who's most likely to fall hard for the wrong person.",
+            "Everyone who's been in a situationship for over six months drinks.",
+            "Never have I ever told someone I'd call and then didn't.",
+            "Everyone who's put more effort into winning someone back than into the relationship itself drinks.",
+            "Never have I ever had morning sex and still made a 9 a.m. commitment.",
+            "Point at who's secretly the most romantic in the room.",
+            "Everyone who's been called 'the emotionally unavailable one' drinks.",
+            "Point at who's got the most chaotic situationship story right now."
           ],
           "droy": [
-            "Point to who is most likely to have sex tonight.",
-            "Never have I ever been part of a sexual situation I couldn't explain at the time.",
-            "Everyone who has sent explicit photos drinks.",
-            "Point to who is the kinkiest person in the room.",
-            "Never have I ever had sex with someone and kept it a complete secret from everyone you know.",
-            "Tell the group your honest top 3 dealbreakers in bed. One drink if you hesitate.",
-            "Everyone who has had sex while someone else was in the room drinks.",
-            "Point to who has had the most partners in a single month.",
-            "Never have I ever faked it to end a situation faster.",
-            "Everyone who has had sex in a car drinks.",
-            "Point to who would be the best one-night stand — honestly.",
+            "Point at who's most likely to get some tonight.",
+            "Never have I ever been in a sexual situation I couldn't explain on the spot.",
+            "Everyone who's sent explicit pics drinks.",
+            "Point at who's the kinkiest in the room.",
+            "Never have I ever slept with someone and kept it secret from everyone I know.",
+            "Tell the group your honest top three dealbreakers in bed. One sip if you hesitate.",
+            "Everyone who's had sex while someone else was in the room drinks.",
+            "Point at who's had the most partners in a single month.",
+            "Never have I ever chickened out just to end something faster.",
+            "Everyone who's had sex in a car drinks.",
+            "Point at who'd be the best one-night stand — honestly.",
             "Never have I ever had thoughts about someone in this room.",
-            "Describe your type physically in three words. Most accurate wins — they hand out drinks.",
-            "Everyone who has hooked up with someone in their own friend group drinks.",
-            "Never have I ever called someone the wrong name in bed.",
-            "Point to who would survive longest in a no-sex challenge.",
-            "Everyone who has had a situationship they genuinely thought was going somewhere drinks.",
-            "Never have I ever done anything in public that I'd never admit to my family.",
-            "Point to who has the most unhinged DMs sent in the last month.",
-            "Everyone who has started something with someone and ended it the same night drinks.",
+            "Describe your type physically in three words. Most precise wins and hands out drinks.",
+            "Everyone who's slept with someone from the same friend group drinks.",
+            "Never have I ever said the wrong name in bed.",
+            "Point at who'd last the longest in a no-sex challenge.",
+            "Everyone who's had a situationship they genuinely thought would become something drinks.",
+            "Never have I ever done something in public I'd never admit to my family.",
+            "Point at who's fired off the wildest DMs this past month.",
+            "Everyone who's started something with someone and ended it the same night drinks.",
             "Never have I ever had sex with someone more than ten years older.",
-            "Point to who would be first to suggest something unexpected in bed.",
-            "Tell the group the wildest place you've ever had sex. Drink first so you'll actually say it.",
-            "Never have I ever used sex to avoid a difficult conversation.",
-            "Point to who has the most controversial sexual opinion in the room.",
-            "Everyone who has been walked in on drinks.",
-            "Never have I ever done something in bed that surprised even myself.",
-            "Point to who is most likely to have hooked up with someone else in this group.",
-            "Everyone who has had more than one partner in a 24-hour period drinks.",
+            "Point at who'd be first to suggest something unexpected in bed.",
+            "Tell the group the wildest place you've had sex. Drink first so you actually say it.",
+            "Never have I ever used sex to dodge a difficult conversation.",
+            "Point at who's got the most controversial opinion about sex in the room.",
+            "Everyone who's been caught in the act drinks.",
+            "Never have I ever done something in bed that surprised even me.",
+            "Point at who's best at talking their way out of an awkward post-hookup.",
+            "Everyone who's had more than one partner within 24 hours drinks.",
             "Never have I ever had sex on the first date — and would do it again."
           ]
         }
       },
       "girlsNight": {
-        "deckNames": { "mild": "Mild", "medium": "Medium", "droy": "Drøy" },
+        "deckNames": {
+          "mild": "Mild",
+          "medium": "Medium",
+          "droy": "Drøy"
+        },
         "deckDescriptions": {
           "mild": "Fun, social, a little chaotic. Perfect for warming up.",
           "medium": "More personal — gossip, feelings, a bit of spice.",
@@ -984,106 +1150,110 @@
         },
         "decks": {
           "mild": [
-            "Point to who would survive the longest without their phone.",
-            "Never have I ever cried in the bathroom at a party and then gone straight back to dance.",
-            "Everyone who has kept an item of clothing from an ex drinks.",
-            "Point to who is the group's unofficial therapist.",
-            "Never have I ever pretended to like a gift I absolutely hated.",
-            "Best celebrity impression — the group votes and the worst drinks.",
-            "Point to who would be first to slide into someone's DMs.",
+            "Point at who'd survive the longest without their phone.",
+            "Never have I ever cried in the toilet at a party and gone straight back to dance.",
+            "Everyone who's kept a piece of clothing from an ex drinks.",
+            "Point at who's the group's unofficial therapist.",
+            "Never have I ever pretended to love a gift I actually hated.",
+            "Best celebrity impression — group votes, worst one drinks.",
+            "Point at who'd be first to slide into someone's DMs.",
             "Never have I ever stalked someone's Instagram before meeting them.",
-            "Everyone who has read a message and waited before replying to seem less eager drinks.",
-            "Point to who gives the best advice but never follows it themselves.",
+            "Everyone who's read a text and delayed replying to seem less keen drinks.",
+            "Point at who gives the best advice but never takes it themselves.",
             "Tell the group your most embarrassing public moment. No skipping.",
-            "Never have I ever made up an excuse to not go out and then regretted it.",
-            "Point to who would make the best reality TV villain without even trying.",
-            "Everyone who has texted someone they shouldn't have after a few glasses drinks.",
+            "Never have I ever made up an excuse to skip going out and regretted it.",
+            "Point at who'd be the best reality-show villain without even trying.",
+            "Everyone who's texted someone they shouldn't after a couple of glasses drinks.",
             "Never have I ever copied someone's aesthetic and hoped they wouldn't notice.",
-            "Point to who is most likely to get everyone hyped for a spontaneous plan.",
-            "Everyone who has faked sick to get out of something that day drinks.",
+            "Point at who's most likely to rope everyone into a spontaneous plan.",
+            "Everyone who's called in sick to dodge something drinks.",
             "Never have I ever bought something I couldn't afford and convinced myself it was worth it.",
-            "Point to who is the most emotionally chaotic in the best way.",
-            "Everyone who has triple-checked a message before sending drinks.",
-            "Never have I ever left a party without saying goodbye to anyone.",
-            "Point to who would most likely start a business out of nowhere and actually succeed.",
-            "Everyone who currently has a situationship they haven't told the full group about drinks.",
-            "Never have I ever been in love with someone who had absolutely no idea.",
-            "Point to who would handle a breakup the most dramatically.",
-            "Everyone who has drafted a message, deleted it, and sent it three days later drinks.",
-            "Never have I ever been jealous of a friend's relationship and said nothing.",
-            "Point to who is the most likely to cry during an argument.",
-            "Everyone who has checked an ex's profile today drinks.",
-            "Never have I ever thought about getting back with an ex in the last month."
+            "Point at who's the most emotionally chaotic in the best way.",
+            "Everyone who's reread a text three times before sending it drinks.",
+            "Never have I ever left a party without saying bye to anyone.",
+            "Point at who's most likely to start something from nothing and actually make it.",
+            "Everyone with a situationship they haven't told the whole group about drinks.",
+            "Never have I ever had a crush on someone who was completely clueless.",
+            "Point at who'd handle a breakup the most dramatically.",
+            "Everyone who's written a text, deleted it, and sent it three days later drinks.",
+            "Never have I ever been jealous of a friend's relationship without saying a word.",
+            "Point at who's most likely to cry during an argument.",
+            "Everyone who's checked an ex's profile today drinks.",
+            "Never have I ever considered getting back with an ex this past month."
           ],
           "medium": [
-            "Point to who has the most interesting dating history in the room.",
-            "Never have I ever faked enjoying something in bed.",
-            "Everyone who has sent a risky photo and immediately regretted it drinks.",
-            "Point to who would handle a one-night stand with the most grace.",
-            "Tell the group: what's your actual type — not what you pretend your type is?",
-            "Never have I ever matched with someone purely because of their dog.",
-            "Everyone who has been in a situationship for more than three months drinks.",
-            "Point to who is most likely to fall in love after one good conversation.",
-            "Never have I ever stayed in a relationship too long because of the physical side.",
-            "Everyone who has cancelled plans for someone they were seeing drinks.",
-            "Point to who has the most chaotic text thread right now.",
+            "Point at who's got the most interesting romantic history in the room.",
+            "Never have I ever been too shy to enjoy something in bed.",
+            "Everyone who's sent a risky pic and regretted it immediately drinks.",
+            "Point at who'd handle a one-night stand with the most grace.",
+            "Tell the group what your type actually is — not the one you pretend it is.",
+            "Never have I ever matched with someone purely because their dog was in the photo.",
+            "Everyone who's been in a situationship for over three months drinks.",
+            "Point at who's most likely to fall for someone after one good conversation.",
+            "Never have I ever stayed in a relationship way too long because of the physical side.",
+            "Everyone who's cancelled plans for someone they were into drinks.",
+            "Point at who's got the most chaotic message thread going right now.",
             "Never have I ever used crying to get out of an argument.",
-            "Tell the group your worst date ever. The most horrifying one hands out drinks.",
-            "Everyone who has thought about someone in this room romantically drinks.",
-            "Never have I ever kissed someone I knew had a partner.",
-            "Point to who is most likely to be in a secret situationship right now.",
-            "Everyone who has sent a 'sorry I fell asleep' text when they were definitely awake drinks.",
-            "Never have I ever snooped through a partner's phone.",
-            "Point to who would make the best partner — genuinely.",
-            "Everyone who has made the first move and been glad they did drinks.",
-            "Never have I ever caught feelings for someone who was very clearly unavailable.",
-            "Tell the group the last thing that genuinely attracted you to someone — nothing to do with looks.",
-            "Point to who has the best story about getting hit on completely out of nowhere.",
-            "Everyone who has drunk-texted someone they liked and got a great response drinks.",
+            "Tell the group about your worst date ever. The most horrifying wins and hands out drinks.",
+            "Everyone who's thought about someone in this room romantically drinks.",
+            "Never have I ever kissed someone I knew was taken.",
+            "Point at who's most likely to have a secret situationship right now.",
+            "Everyone who's sent a 'sorry, fell asleep' while wide awake drinks.",
+            "Never have I ever gone through a partner's phone.",
+            "Point at who'd be the best partner — honestly.",
+            "Everyone who's made the first move and been glad they did drinks.",
+            "Never have I ever caught feelings for someone clearly unavailable.",
+            "Tell the group the last thing that actually drew you to someone — not looks.",
+            "Point at who's got the best story about getting hit on completely out of nowhere.",
+            "Everyone who's sent a drunk text to a crush and gotten a good response drinks.",
             "Never have I ever ended things with someone for a reason I've never fully explained.",
-            "Point to who is most likely to still be thinking about a hookup from months ago.",
-            "Everyone who has dated someone their friends didn't approve of drinks.",
-            "Point to who gives the best relationship advice but has the messiest love life.",
-            "Everyone who has a body count higher than what they'd admit in polite company drinks.",
+            "Point at who's still thinking about someone they had a fling with months ago.",
+            "Everyone who's dated someone their friends didn't approve of drinks.",
+            "Point at who gives the best love advice but has the messiest love life.",
+            "Everyone with a number higher than they'd admit in polite company drinks.",
             "Never have I ever had sex and immediately wished I was somewhere else."
           ],
           "droy": [
-            "Point to who is most likely to have sex tonight.",
+            "Point at who's most likely to get some tonight.",
             "Never have I ever done something in bed I'd never tell my mum about.",
-            "Everyone who has sent explicit photos drinks.",
-            "Tell the group your most controversial opinion about men. Drink first for courage.",
-            "Never have I ever had sex in a situation where getting caught was a real possibility.",
-            "Point to who has the kinkiest side they've never mentioned.",
-            "Everyone who has hooked up with someone from their friend group drinks.",
-            "Never have I ever been with more than one person in the same week.",
-            "Tell the group your actual fantasy — the one you've never said out loud.",
-            "Everyone who has thought about someone in this room in that way drinks.",
-            "Point to who would be the best in bed, honestly.",
-            "Never have I ever had a hookup turn into a situation you had to manage for weeks.",
-            "Everyone who has used sex as a distraction from something stressful drinks.",
-            "Point to who has the most unhinged thing in their camera roll right now.",
-            "Never have I ever been loudly intimate somewhere that wasn't fully private.",
-            "Tell the group the boldest move you've ever made on someone.",
-            "Everyone who has had sex and immediately needed to be alone drinks.",
-            "Point to who has had the most dramatic morning after.",
+            "Everyone who's sent explicit pics drinks.",
+            "Tell the group your most controversial opinion about dating. Drink first for courage.",
+            "Never have I ever had sex somewhere getting caught was a real possibility.",
+            "Point at who's got the kinkiest side they've never mentioned.",
+            "Everyone who's slept with someone from the friend group drinks.",
+            "Never have I ever been with more than one person in a single week.",
+            "Tell the group your fantasy — the one you've never said out loud.",
+            "Everyone who's thought about someone in this room in that way drinks.",
+            "Point at who'd be the best in bed — honestly.",
+            "Never have I ever had a hookup that became a whole thing I had to manage for weeks.",
+            "Everyone who's used sex as a distraction from something stressful drinks.",
+            "Point at who's got the most to hide in their camera roll right now.",
+            "Never have I ever been loudly intimate somewhere not exactly private.",
+            "Tell the group the boldest move you've ever pulled on someone.",
+            "Everyone who's had sex and immediately needed to be alone drinks.",
+            "Point at who's had the most dramatic morning after.",
             "Never have I ever regretted a sexual decision and done it again anyway.",
-            "Everyone who has matched with someone, hooked up, and unmatched immediately drinks.",
-            "Point to who has the biggest secret they'd never say in this room sober.",
-            "Never have I ever stayed over somewhere I absolutely should not have stayed.",
-            "Everyone who has told someone they were good when they really weren't drinks.",
-            "Tell the group the worst excuse someone has ever given you after a hookup.",
-            "Never have I ever caught genuine feelings for a friends-with-benefits situation.",
-            "Point to who has the most interesting intimate story in this room.",
-            "Everyone who has been completely honest with a partner about what they want in bed drinks.",
-            "Never have I ever initiated something with someone knowing it was a terrible idea.",
-            "Point to who would be the most adventurous partner.",
-            "Everyone who has never had a truly awkward sexual situation drinks — statistically impossible."
+            "Everyone who's matched with someone, slept with them, and unmatched instantly drinks.",
+            "Point at who's got the biggest secret they'd never tell sober in this room.",
+            "Never have I ever stayed over somewhere I absolutely shouldn't have.",
+            "Everyone who's told someone it was great when it really wasn't drinks.",
+            "Tell the group the worst excuse someone ever gave you after a hookup.",
+            "Never have I ever caught genuine feelings for a friend with benefits.",
+            "Point at who's got the most interesting intimate history in the room.",
+            "Everyone who's been completely honest about what they want in bed drinks.",
+            "Never have I ever started something with someone I knew was a terrible idea.",
+            "Point at who'd be the most adventurous partner.",
+            "Everyone who's never had an awkward sexual situation drinks — statistically impossible."
           ]
         }
       },
       "snusboksen": {
         "pickDeck": "Pick a deck",
-        "deckNames": { "mild": "Mild", "medium": "Medium", "droy": "Drøy" },
+        "deckNames": {
+          "mild": "Mild",
+          "medium": "Medium",
+          "droy": "Drøy"
+        },
         "deckDescriptions": {
           "mild": "Light questions to get everyone talking.",
           "medium": "Juicier questions that spark real debates.",
@@ -1249,21 +1419,81 @@
         "finishedHint": "Every submitted prompt has had its moment.",
         "backToGames": "Back to games",
         "categories": {
-          "HOT_TAKES": { "title": "Hot Takes", "example": "Opinions someone would defend forever", "placeholder": "What opinion would you defend forever?" },
-          "PLOT_TWISTS": { "title": "Plot Twists", "example": "Unexpected stories and surprising turns", "placeholder": "What is your most unexpected story?" },
-          "TINY_CONFESSIONS": { "title": "Tiny Confessions", "example": "Harmless secrets and funny habits", "placeholder": "What harmless secret can you finally admit?" },
-          "FUTURE_HEADLINES": { "title": "Future Headlines", "example": "Predictions about the people in the room", "placeholder": "Where will someone here be in ten years?" },
-          "HOUSE_AWARDS": { "title": "House Awards", "example": "Invent an award and nominate someone", "placeholder": "Who deserves an award, and for what?" },
-          "IMPOSSIBLE_CHOICES": { "title": "Impossible Choices", "example": "Difficult, funny either-or questions", "placeholder": "Create an impossible either-or choice…" },
-          "FRIENDLY_CHALLENGES": { "title": "Friendly Challenges", "example": "Quick, harmless challenges for the group", "placeholder": "Give someone a one-minute challenge…" },
-          "WILDCARD": { "title": "Wildcard", "example": "Anything original that fits the room", "placeholder": "Write any question for the room…" },
-          "PEKELEK": { "title": "Pekelek", "example": "Everyone points at whoever fits the description", "placeholder": "Who in the room fits this best?" },
-          "JEG_HAR_ALDRI": { "title": "Never Have I Ever", "example": "Tiny confessions and weird experiences", "placeholder": "What have you never done?" },
-          "RED_FLAG_DEALBREAKER_OK": { "title": "Red Flag, Dealbreaker, OK", "example": "Sort things from yes to no", "placeholder": "What is a clear red flag for you?" },
-          "FUCK_MARRY_KILL": { "title": "Fuck, Marry, Kill...", "example": "Three choices, no perfect answer", "placeholder": "Pick: who, who, and who?" },
-          "LAG_EN_REGEL": { "title": "Make a Rule", "example": "Invent a new rule for the night", "placeholder": "Which rule should apply for the rest of the game?" },
-          "DILEMMA": { "title": "Dilemma", "example": "Two good or bad options", "placeholder": "What would you choose in this dilemma?" },
-          "KATEGORILEK": { "title": "Category Game", "example": "Find words that fit the category", "placeholder": "Which category should test the room?" }
+          "HOT_TAKES": {
+            "title": "Hot Takes",
+            "example": "Opinions someone would defend forever",
+            "placeholder": "What opinion would you defend forever?"
+          },
+          "PLOT_TWISTS": {
+            "title": "Plot Twists",
+            "example": "Unexpected stories and surprising turns",
+            "placeholder": "What is your most unexpected story?"
+          },
+          "TINY_CONFESSIONS": {
+            "title": "Tiny Confessions",
+            "example": "Harmless secrets and funny habits",
+            "placeholder": "What harmless secret can you finally admit?"
+          },
+          "FUTURE_HEADLINES": {
+            "title": "Future Headlines",
+            "example": "Predictions about the people in the room",
+            "placeholder": "Where will someone here be in ten years?"
+          },
+          "HOUSE_AWARDS": {
+            "title": "House Awards",
+            "example": "Invent an award and nominate someone",
+            "placeholder": "Who deserves an award, and for what?"
+          },
+          "IMPOSSIBLE_CHOICES": {
+            "title": "Impossible Choices",
+            "example": "Difficult, funny either-or questions",
+            "placeholder": "Create an impossible either-or choice…"
+          },
+          "FRIENDLY_CHALLENGES": {
+            "title": "Friendly Challenges",
+            "example": "Quick, harmless challenges for the group",
+            "placeholder": "Give someone a one-minute challenge…"
+          },
+          "WILDCARD": {
+            "title": "Wildcard",
+            "example": "Anything original that fits the room",
+            "placeholder": "Write any question for the room…"
+          },
+          "PEKELEK": {
+            "title": "Pekelek",
+            "example": "Everyone points at whoever fits the description",
+            "placeholder": "Who in the room fits this best?"
+          },
+          "JEG_HAR_ALDRI": {
+            "title": "Never Have I Ever",
+            "example": "Tiny confessions and weird experiences",
+            "placeholder": "What have you never done?"
+          },
+          "RED_FLAG_DEALBREAKER_OK": {
+            "title": "Red Flag, Dealbreaker, OK",
+            "example": "Sort things from yes to no",
+            "placeholder": "What is a clear red flag for you?"
+          },
+          "FUCK_MARRY_KILL": {
+            "title": "Fuck, Marry, Kill...",
+            "example": "Three choices, no perfect answer",
+            "placeholder": "Pick: who, who, and who?"
+          },
+          "LAG_EN_REGEL": {
+            "title": "Make a Rule",
+            "example": "Invent a new rule for the night",
+            "placeholder": "Which rule should apply for the rest of the game?"
+          },
+          "DILEMMA": {
+            "title": "Dilemma",
+            "example": "Two good or bad options",
+            "placeholder": "What would you choose in this dilemma?"
+          },
+          "KATEGORILEK": {
+            "title": "Category Game",
+            "example": "Find words that fit the category",
+            "placeholder": "Which category should test the room?"
+          }
         }
       }
     }
@@ -1293,27 +1523,90 @@
     "manageAchievements": "Manage Achievements",
     "manageAchievementsSubtitle": "Turn achievements on or off for your household.",
     "achievementKeys": {
-      "TASK_1":    { "title": "First Step",      "description": "Complete your first task" },
-      "TASK_5":    { "title": "Getting Going",   "description": "Complete 5 tasks" },
-      "TASK_10":   { "title": "Ten Done",        "description": "Complete 10 tasks" },
-      "TASK_25":   { "title": "Household Hero",  "description": "Complete 25 tasks" },
-      "TASK_50":   { "title": "Task Titan",      "description": "Complete 50 tasks" },
-      "STREAK_3":  { "title": "On a Roll",       "description": "Complete tasks 3 days in a row" },
-      "STREAK_7":  { "title": "Week Warrior",    "description": "Complete tasks 7 days in a row" },
-      "STREAK_14": { "title": "Fortnight Force", "description": "Complete tasks 14 days in a row" },
-      "EARLY_BIRD":{ "title": "Early Bird",      "description": "Complete 3 tasks before the due date" },
-      "EARLY_10":  { "title": "Ahead of the Game", "description": "Complete 10 tasks before the due date" },
-      "ON_TIME_10":{ "title": "Right on Time",    "description": "Complete 10 tasks by their due date" },
-      "NO_PENALTY":{ "title": "Clean Record",    "description": "Complete 5 tasks without any penalty" },
-      "CLEANING_5":{ "title": "Clean House",     "description": "Complete 5 cleaning tasks" },
-      "DISHES_5":  { "title": "Dish Destroyer",  "description": "Complete 5 dishwashing tasks" },
-      "TRASH_5":   { "title": "Trash Champion",  "description": "Complete 5 trash tasks" },
-      "RECURRING_10": { "title": "Reliable Roommate", "description": "Complete 10 recurring tasks" },
-      "LEVEL_2":   { "title": "Level Up",        "description": "Reach level 2" },
-      "LEVEL_5":   { "title": "Household Pro",   "description": "Reach level 5" },
-      "XP_100":    { "title": "Century",         "description": "Earn 100 XP" },
-      "XP_500":    { "title": "XP Grinder",      "description": "Earn 500 XP" },
-      "XP_1000":   { "title": "Four Digits",     "description": "Earn 1,000 XP" }
+      "TASK_1": {
+        "title": "First Step",
+        "description": "Complete your first task"
+      },
+      "TASK_5": {
+        "title": "Getting Going",
+        "description": "Complete 5 tasks"
+      },
+      "TASK_10": {
+        "title": "Ten Done",
+        "description": "Complete 10 tasks"
+      },
+      "TASK_25": {
+        "title": "Household Hero",
+        "description": "Complete 25 tasks"
+      },
+      "TASK_50": {
+        "title": "Task Titan",
+        "description": "Complete 50 tasks"
+      },
+      "STREAK_3": {
+        "title": "On a Roll",
+        "description": "Complete tasks 3 days in a row"
+      },
+      "STREAK_7": {
+        "title": "Week Warrior",
+        "description": "Complete tasks 7 days in a row"
+      },
+      "STREAK_14": {
+        "title": "Fortnight Force",
+        "description": "Complete tasks 14 days in a row"
+      },
+      "EARLY_BIRD": {
+        "title": "Early Bird",
+        "description": "Complete 3 tasks before the due date"
+      },
+      "EARLY_10": {
+        "title": "Ahead of the Game",
+        "description": "Complete 10 tasks before the due date"
+      },
+      "ON_TIME_10": {
+        "title": "Right on Time",
+        "description": "Complete 10 tasks by their due date"
+      },
+      "NO_PENALTY": {
+        "title": "Clean Record",
+        "description": "Complete 5 tasks without any penalty"
+      },
+      "CLEANING_5": {
+        "title": "Clean House",
+        "description": "Complete 5 cleaning tasks"
+      },
+      "DISHES_5": {
+        "title": "Dish Destroyer",
+        "description": "Complete 5 dishwashing tasks"
+      },
+      "TRASH_5": {
+        "title": "Trash Champion",
+        "description": "Complete 5 trash tasks"
+      },
+      "RECURRING_10": {
+        "title": "Reliable Roommate",
+        "description": "Complete 10 recurring tasks"
+      },
+      "LEVEL_2": {
+        "title": "Level Up",
+        "description": "Reach level 2"
+      },
+      "LEVEL_5": {
+        "title": "Household Pro",
+        "description": "Reach level 5"
+      },
+      "XP_100": {
+        "title": "Century",
+        "description": "Earn 100 XP"
+      },
+      "XP_500": {
+        "title": "XP Grinder",
+        "description": "Earn 500 XP"
+      },
+      "XP_1000": {
+        "title": "Four Digits",
+        "description": "Earn 1,000 XP"
+      }
     },
     "custom": {
       "builtIn": "Built-in achievements",
@@ -1386,10 +1679,22 @@
       "drinks_multiplier": " · ×{{m}} drinks"
     },
     "presets": {
-      "default": { "label": "Standard", "description": "15 rounds, balanced mix of chaos and stats." },
-      "quick":   { "label": "Quick",    "description": "8 rounds — get in, get merry, get out." },
-      "hardcore":{ "label": "Hardcore", "description": "20 rounds, double drinks, no mercy." },
-      "casual":  { "label": "Casual",   "description": "12 rounds, light sips, stats barely matter." }
+      "default": {
+        "label": "Standard",
+        "description": "15 rounds, balanced mix of chaos and stats."
+      },
+      "quick": {
+        "label": "Quick",
+        "description": "8 rounds — get in, get merry, get out."
+      },
+      "hardcore": {
+        "label": "Hardcore",
+        "description": "20 rounds, double drinks, no mercy."
+      },
+      "casual": {
+        "label": "Casual",
+        "description": "12 rounds, light sips, stats barely matter."
+      }
     },
     "playing": {
       "roundOf": "Round {{current}} of {{total}}",

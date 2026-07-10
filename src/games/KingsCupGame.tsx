@@ -30,7 +30,7 @@ export default function KingsCupGame({ players, onClose }: { players: string[]; 
   const reset = () => { setDeck(shuffledDeck()); setDrawn(null); setTurn(0); setKings(0); };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-background p-5"><div className="mx-auto max-w-md space-y-5">
+    <div className="fixed inset-0 z-[60] overflow-y-auto bg-background p-5"><div className="mx-auto max-w-md space-y-5">
       <div className="flex items-center gap-3"><button onClick={onClose} className="btn-ghost !p-3"><ArrowLeft className="h-5 w-5" /></button><div><p className="eyebrow">{t('social.games.catalog.kingsCup')}</p><h2 className="font-display text-2xl font-extrabold">{t('social.games.turn', { player })}</h2></div></div>
       <div className="flex justify-between text-sm text-muted-foreground"><span>{t('social.games.kings.cardsLeft', { count: deck.length })}</span><span>{t('social.games.kings.kingsDrawn', { count: kings })}</span></div>
       <div className="card flex min-h-80 flex-col items-center justify-center text-center">

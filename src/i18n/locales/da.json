@@ -9,19 +9,52 @@
     "next": "Næste",
     "done": "Forstået",
     "onboarding": {
-      "mode": { "title": "Opret eller bliv medlem", "body": "Start et nyt hjem, eller bliv medlem af bofællernes med deres kode." },
-      "name": { "title": "Navngiv dit hjem", "body": "Vælg et navn, alle genkender." },
-      "rooms": { "title": "Vælg jeres fælles rum", "body": "Tryk på eksempelrum for at tilføje dem, eller tilføj jeres egne. Du kan ændre rengøringstiden for hvert rum — tiden bestemmer XP." },
-      "create": { "title": "Klar til start", "body": "Opret hjemmet, og inviter så de andre." }
+      "mode": {
+        "title": "Opret eller bliv medlem",
+        "body": "Start et nyt hjem, eller bliv medlem af bofællernes med deres kode."
+      },
+      "name": {
+        "title": "Navngiv dit hjem",
+        "body": "Vælg et navn, alle genkender."
+      },
+      "rooms": {
+        "title": "Vælg jeres fælles rum",
+        "body": "Tryk på eksempelrum for at tilføje dem, eller tilføj jeres egne. Du kan ændre rengøringstiden for hvert rum — tiden bestemmer XP."
+      },
+      "create": {
+        "title": "Klar til start",
+        "body": "Opret hjemmet, og inviter så de andre."
+      }
     },
     "steps": {
-      "home": { "title": "Dit udgangspunkt", "body": "Se kollektivet med ét blik — saldi, opgaver og stemningen for ugen." },
-      "tasks": { "title": "Retfærdig fordeling", "body": "Opgaverne roterer jævnt hver uge. Fuldfører du dem, får du XP." },
-      "calendar": { "title": "Planlæg sammen", "body": "En delt kalender til husets begivenheder, gæster og stilletid — synkroniser den med din egen kalender også." },
-      "chat": { "title": "Tal sammen", "body": "Gruppechat for kollektivet: afstemninger, reaktioner, billeder og en venlig tak med kudos." },
-      "economy": { "title": "Del og gør op", "body": "Hold styr på fælles udgifter, gem modtageroplysninger og åbn eksterne betalingsapps, når I betaler hinanden tilbage." },
-      "social": { "title": "Konkurrer og spil", "body": "Klatr op ad ranglisten og start spilaftener sammen." },
-      "profile": { "title": "Dig og indstillingerne", "body": "Tryk her for profil, betalingsmetoder, invitationer og valg for kollektivet." }
+      "home": {
+        "title": "Dit udgangspunkt",
+        "body": "Se kollektivet med ét blik — saldi, opgaver og stemningen for ugen."
+      },
+      "tasks": {
+        "title": "Retfærdig fordeling",
+        "body": "Opgaverne roterer jævnt hver uge. Fuldfører du dem, får du XP."
+      },
+      "calendar": {
+        "title": "Planlæg sammen",
+        "body": "En delt kalender til husets begivenheder, gæster og stilletid — synkroniser den med din egen kalender også."
+      },
+      "chat": {
+        "title": "Tal sammen",
+        "body": "Gruppechat for kollektivet: afstemninger, reaktioner, billeder og en venlig tak med kudos."
+      },
+      "economy": {
+        "title": "Del og gør op",
+        "body": "Hold styr på fælles udgifter, gem modtageroplysninger og åbn eksterne betalingsapps, når I betaler hinanden tilbage."
+      },
+      "social": {
+        "title": "Konkurrer og spil",
+        "body": "Klatr op ad ranglisten og start spilaftener sammen."
+      },
+      "profile": {
+        "title": "Dig og indstillingerne",
+        "body": "Tryk her for profil, betalingsmetoder, invitationer og valg for kollektivet."
+      }
     }
   },
   "languages": {
@@ -364,7 +397,12 @@
     "addSupply": "Tilføj vare",
     "supplyNamePlaceholder": "Varenavn...",
     "shoppingSuggestions": "Almindelige varer",
-    "shoppingTemplates": { "toiletPaper": "Toiletpapir", "dishSoap": "Opvaskemiddel", "trashBags": "Skraldeposer", "laundryDetergent": "Vaskemiddel" },
+    "shoppingTemplates": {
+      "toiletPaper": "Toiletpapir",
+      "dishSoap": "Opvaskemiddel",
+      "trashBags": "Skraldeposer",
+      "laundryDetergent": "Vaskemiddel"
+    },
     "toggleComments": "Vis feedback",
     "editTaskAria": "Rediger opgave",
     "deleteTaskAria": "Slet opgave",
@@ -389,7 +427,11 @@
       "toBuyUnit": "at købe",
       "boughtCount": "{{count}} købt",
       "noneInFilter": "Intet her.",
-      "filters": { "ALL": "Alle", "TO_BUY": "At købe", "BOUGHT": "Købt" }
+      "filters": {
+        "ALL": "Alle",
+        "TO_BUY": "At købe",
+        "BOUGHT": "Købt"
+      }
     },
     "maintenance": {
       "boardTitle": "Vedligeholdelsestavle",
@@ -422,8 +464,18 @@
       "due": "Frist",
       "noDueDate": "Ingen frist",
       "overdue": "Forfalden",
-      "priorities": { "LOW": "Lav", "MEDIUM": "Mellem", "HIGH": "Høj", "URGENT": "Haster" },
-      "statuses": { "OPEN": "Åben", "IN_PROGRESS": "I gang", "BLOCKED": "Blokeret", "DONE": "Færdig" }
+      "priorities": {
+        "LOW": "Lav",
+        "MEDIUM": "Mellem",
+        "HIGH": "Høj",
+        "URGENT": "Haster"
+      },
+      "statuses": {
+        "OPEN": "Åben",
+        "IN_PROGRESS": "I gang",
+        "BLOCKED": "Blokeret",
+        "DONE": "Færdig"
+      }
     }
   },
   "checkin": {
@@ -445,14 +497,26 @@
   },
   "kudos": {
     "typeLabel": "For hvad?",
-    "types": { "THANK_YOU": "Tak", "CLEANEST": "Reneste", "MOST_HELPFUL": "Mest hjælpsom", "PEACEMAKER": "Fredsmægler" },
+    "types": {
+      "THANK_YOU": "Tak",
+      "CLEANEST": "Reneste",
+      "MOST_HELPFUL": "Mest hjælpsom",
+      "PEACEMAKER": "Fredsmægler"
+    },
     "privateNote": "Kun de ser dette — det deles ikke med kollektivet.",
-    "sendTitle": "Send ros", "chooseRoommate": "Vælg en bofælle", "generalHelp": "Generel hjælp",
-    "contextPlaceholder": "Hvad gjorde personen, som hjalp?", "send": "Send ros",
-    "dailyLimit": "Du kan sende op til 3 ros om dagen.", "weeklyTitle": "Ugens positivitet",
-    "weeklyTotal_one": "{{count}} ros delt i denne uge", "weeklyTotal_other": "{{count}} ros delt i denne uge",
-    "weeklyEmpty": "Ingen er blevet takket endnu — vær den første.", "profileBadge": "Modtaget ros",
-    "receivedTotal_one": "{{count}} anerkendelse fra hjemmet", "receivedTotal_other": "{{count}} anerkendelser fra hjemmet"
+    "sendTitle": "Send ros",
+    "chooseRoommate": "Vælg en bofælle",
+    "generalHelp": "Generel hjælp",
+    "contextPlaceholder": "Hvad gjorde personen, som hjalp?",
+    "send": "Send ros",
+    "dailyLimit": "Du kan sende op til 3 ros om dagen.",
+    "weeklyTitle": "Ugens positivitet",
+    "weeklyTotal_one": "{{count}} ros delt i denne uge",
+    "weeklyTotal_other": "{{count}} ros delt i denne uge",
+    "weeklyEmpty": "Ingen er blevet takket endnu — vær den første.",
+    "profileBadge": "Modtaget ros",
+    "receivedTotal_one": "{{count}} anerkendelse fra hjemmet",
+    "receivedTotal_other": "{{count}} anerkendelser fra hjemmet"
   },
   "laundry": {
     "title": "Skal vaske",
@@ -462,9 +526,24 @@
     "message": "Jeg kører en vask på {{temp}}°C ({{type}}). Vær med?",
     "join": "Jeg vil være med",
     "notThisTime": "Ikke denne gang",
-    "types": { "WHITES": "Hvidt", "COLORS": "Kulørt", "DELICATES": "Finvask", "WOOL": "Uld", "SPORTS": "Sportstøj", "TOWELS": "Håndklæder" }
+    "types": {
+      "WHITES": "Hvidt",
+      "COLORS": "Kulørt",
+      "DELICATES": "Finvask",
+      "WOOL": "Uld",
+      "SPORTS": "Sportstøj",
+      "TOWELS": "Håndklæder"
+    }
   },
-  "quietHours": { "title": "Stilletid", "window": "{{start}}–{{end}}", "disabled": "Stilletid er slået fra", "save": "Gem stilletid", "edit": "Rediger", "cancel": "Annuller", "enabledLabel": "Slå stilletid til" },
+  "quietHours": {
+    "title": "Stilletid",
+    "window": "{{start}}–{{end}}",
+    "disabled": "Stilletid er slået fra",
+    "save": "Gem stilletid",
+    "edit": "Rediger",
+    "cancel": "Annuller",
+    "enabledLabel": "Slå stilletid til"
+  },
   "calendar": {
     "eyebrow": "Sammen",
     "title": "Huskalender",
@@ -479,7 +558,10 @@
     "subscribeButton": "Abonnér",
     "subscribeUrlLabel": "Link til kalenderabonnement",
     "newEvent": "Ny begivenhed",
-    "addModes": { "event": "Begivenhed", "guest": "Gæstebesked" },
+    "addModes": {
+      "event": "Begivenhed",
+      "guest": "Gæstebesked"
+    },
     "guestNamePlaceholder": "Gæstens navn...",
     "guestOvernight": "Overnattende gæst",
     "addGuestNotice": "Del gæstebesked",
@@ -535,7 +617,8 @@
     "descriptionLabel": "Hvad drejede det sig om?",
     "amountLabel": "Beløb (kr)",
     "categoryLabel": "Kategori",
-    "splitSummary_one": "Delt med {{count}} person", "splitSummary_other": "Delt med {{count}} personer",
+    "splitSummary_one": "Delt med {{count}} person",
+    "splitSummary_other": "Delt med {{count}} personer",
     "expenseTitlePlaceholder": "Hvad drejede det sig om?",
     "expenseAmountPlaceholder": "Beløb (kr)",
     "splitWith": "Del med",
@@ -639,8 +722,7 @@
         "snusboksen": "Snusboksen",
         "whoAreWe": "Hvem er vi?",
         "guysNight": "Gutteaften",
-        "girlsNight": "Pigeaften",
-        "whoAreWe": "Hvem er vi?"
+        "girlsNight": "Pigeaften"
       },
       "descriptions": {
         "dice": "Kast en virtuel terning, og send turen videre. Perfekt til Opus!",
@@ -720,19 +802,58 @@
         "ready": "Træk det første kort, når I er klar.",
         "draw": "Træk kort",
         "cards": {
-          "A": { "title": "Vandfald", "rule": "Alle begynder at drikke. Ingen stopper, før personen til højre er stoppet." },
-          "2": { "title": "Dig", "rule": "{{player}} vælger nogen, der tager to slurke." },
-          "3": { "title": "Mig", "rule": "{{player}} tager tre slurke." },
-          "4": { "title": "Gulvet", "rule": "Sidste person, der rører gulvet, tager en slurk." },
-          "5": { "title": "Drengene", "rule": "Alle, der identificerer sig som dreng, tager en slurk." },
-          "6": { "title": "Pigerne", "rule": "Alle, der identificerer sig som pige, tager en slurk." },
-          "7": { "title": "Himlen", "rule": "Sidste person, der peger opad, tager en slurk." },
-          "8": { "title": "Makker", "rule": "{{player}} vælger en makker. Når én drikker, drikker begge." },
-          "9": { "title": "Rim", "rule": "{{player}} siger et ord. Fortsæt med rim rundt om bordet; første fejl taber." },
-          "10": { "title": "Kategori", "rule": "{{player}} vælger en kategori. Fortsæt rundt om bordet; første fejl taber." },
-          "J": { "title": "Jeg har aldrig", "rule": "{{player}} siger «Jeg har aldrig …». De, der har gjort det, tager en slurk." },
-          "Q": { "title": "Spørgsmålsmester", "rule": "Svarer du på et spørgsmål fra {{player}}, skal du drikke. Gælder til næste dame." },
-          "K": { "title": "Kongens bæger", "rule": "Hæld lidt i bægeret. Den, der trækker den fjerde konge, skal tage bægeret." }
+          "A": {
+            "title": "Vandfald",
+            "rule": "Alle begynder at drikke. Ingen stopper, før personen til højre er stoppet."
+          },
+          "2": {
+            "title": "Dig",
+            "rule": "{{player}} vælger nogen, der tager to slurke."
+          },
+          "3": {
+            "title": "Mig",
+            "rule": "{{player}} tager tre slurke."
+          },
+          "4": {
+            "title": "Gulvet",
+            "rule": "Sidste person, der rører gulvet, tager en slurk."
+          },
+          "5": {
+            "title": "Drengene",
+            "rule": "Alle, der identificerer sig som dreng, tager en slurk."
+          },
+          "6": {
+            "title": "Pigerne",
+            "rule": "Alle, der identificerer sig som pige, tager en slurk."
+          },
+          "7": {
+            "title": "Himlen",
+            "rule": "Sidste person, der peger opad, tager en slurk."
+          },
+          "8": {
+            "title": "Makker",
+            "rule": "{{player}} vælger en makker. Når én drikker, drikker begge."
+          },
+          "9": {
+            "title": "Rim",
+            "rule": "{{player}} siger et ord. Fortsæt med rim rundt om bordet; første fejl taber."
+          },
+          "10": {
+            "title": "Kategori",
+            "rule": "{{player}} vælger en kategori. Fortsæt rundt om bordet; første fejl taber."
+          },
+          "J": {
+            "title": "Jeg har aldrig",
+            "rule": "{{player}} siger «Jeg har aldrig …». De, der har gjort det, tager en slurk."
+          },
+          "Q": {
+            "title": "Spørgsmålsmester",
+            "rule": "Svarer du på et spørgsmål fra {{player}}, skal du drikke. Gælder til næste dame."
+          },
+          "K": {
+            "title": "Kongens bæger",
+            "rule": "Hæld lidt i bægeret. Den, der trækker den fjerde konge, skal tage bægeret."
+          }
         }
       },
       "categoriesGame": {
@@ -742,7 +863,18 @@
         "out": "Spiller er ude",
         "timeOut": "Tiden er gået",
         "winner": "{{player}} vinder!",
-        "prompts": { "countries": "Lande", "foods": "Madretter", "movies": "Film", "animals": "Dyr", "brands": "Mærker", "songs": "Sange", "cities": "Byer", "thingsInKitchen": "Ting i køkkenet", "excuses": "Dårlige undskyldninger", "houseRules": "Regler i et kollektiv" }
+        "prompts": {
+          "countries": "Lande",
+          "foods": "Madretter",
+          "movies": "Film",
+          "animals": "Dyr",
+          "brands": "Mærker",
+          "songs": "Sange",
+          "cities": "Byer",
+          "thingsInKitchen": "Ting i køkkenet",
+          "excuses": "Dårlige undskyldninger",
+          "houseRules": "Regler i et kollektiv"
+        }
       },
       "charadesGame": {
         "turn": "{{player}} skal mime",
@@ -752,7 +884,28 @@
         "skip": "Spring over",
         "correct": "Rigtigt",
         "nextPlayer": "Tiden er gået – næste spiller",
-        "prompts": { "vacuum": "Støvsuge", "penguin": "Pingvin", "superhero": "Superhelt", "pizza": "Lave pizza", "washingMachine": "Vaskemaskine", "cat": "Kat", "football": "Spille fodbold", "alarmClock": "Vækkeur", "hairdresser": "Frisør", "airplane": "Fly", "ghost": "Spøgelse", "chef": "Kok", "robot": "Robot", "fishing": "Fiske", "selfie": "Tage en selfie", "banana": "Skrælle en banan", "snowman": "Bygge snemand", "guitar": "Spille guitar", "trafficJam": "Trafikprop", "movingDay": "Flyttedag" }
+        "prompts": {
+          "vacuum": "Støvsuge",
+          "penguin": "Pingvin",
+          "superhero": "Superhelt",
+          "pizza": "Lave pizza",
+          "washingMachine": "Vaskemaskine",
+          "cat": "Kat",
+          "football": "Spille fodbold",
+          "alarmClock": "Vækkeur",
+          "hairdresser": "Frisør",
+          "airplane": "Fly",
+          "ghost": "Spøgelse",
+          "chef": "Kok",
+          "robot": "Robot",
+          "fishing": "Fiske",
+          "selfie": "Tage en selfie",
+          "banana": "Skrælle en banan",
+          "snowman": "Bygge snemand",
+          "guitar": "Spille guitar",
+          "trafficJam": "Trafikprop",
+          "movingDay": "Flyttedag"
+        }
       },
       "deckGame": {
         "pickDeck": "Vælg en bunke",
@@ -765,7 +918,11 @@
         "changeDeck": "Skift bunke"
       },
       "whoAreWe": {
-        "deckNames": { "mild": "Mild", "medium": "Medium", "droy": "Drøy" },
+        "deckNames": {
+          "mild": "Mild",
+          "medium": "Medium",
+          "droy": "Drøy"
+        },
         "deckDescriptions": {
           "mild": "Lette spørgsmål for at komme i gang.",
           "medium": "Mere personligt — med lidt krydder.",
@@ -773,105 +930,109 @@
         },
         "decks": {
           "mild": [
-            "Hvem her er definitivt stadig i sengen, når alle andre er oppe?",
+            "Hvem her ligger stadig i sengen, når alle andre er oppe?",
             "Hvem her fungerer ikke uden kaffe eller te om morgenen?",
             "Hvem her bruger altid længst tid på badeværelset?",
             "Hvem her ville glemme at spise, hvis ingen mindede dem om det?",
-            "Hvem her ville spise morgenmad til aftensmad uden at tænke over det?",
-            "Hvem her stjæler altid en bid af andres mad?",
-            "Hvem her er fredsmægleren, når det bliver spændt?",
-            "Hvem her ville ende med at tale til solopgang uden at have planlagt det?",
+            "Hvem her spiser cornflakes til aftensmad uden at blinke?",
+            "Hvem her hugger altid en bid af andres mad?",
+            "Hvem her er fredsmægleren, når stemningen bliver spændt?",
+            "Hvem her ender med at snakke til solopgang uden at planlægge det?",
             "Hvem her ved altid, hvad der foregår i alles liv?",
             "Hvem her ville være alles nødkontakt?",
-            "Hvem her har en færdighed, der ville overraske alle?",
-            "Hvem her ville kunne reparere noget ødelagt med bare det, der er i lejligheden?",
-            "Hvem her giver de bedste råd uden at det bliver akavet?",
+            "Hvem her har en skjult evne, der ville overraske alle?",
+            "Hvem her kunne fikse noget i stykker med kun det, der er i lejligheden?",
+            "Hvem her giver de bedste råd, uden at det bliver akavet?",
             "Hvem her ville overleve længst i et realityprogram?",
             "Hvem her er festens midtpunkt fem minutter efter ankomst?",
-            "Hvem her ville blive ven med alle til en fest inden for en time?",
-            "Hvem her har en afspilningsliste til absolut alle stemninger?",
-            "Hvem her ville lægge alt fra sig for at hjælpe en ven klokken to om natten?",
-            "Hvem her er egentlig den mest sentimentale person i huset?",
-            "Hvem her ville gøre noget pinligt bare for at muntre nogen op?",
-            "Hvem her taler med sig selv, når de tror, ingen hører?",
-            "Hvem her ville tage til udlandet på en impuls og få det til at fungere?",
-            "Hvem her har altid noget snacks gemt på sit værelse?",
-            "Hvem her ville være den første til at mærke, hvis noget var galt med nogen?",
+            "Hvem her bliver venner med alle til en fest inden for en time?",
+            "Hvem her har en playliste til absolut alle stemninger?",
+            "Hvem her ville droppe alt for at hjælpe en ven klokken to om natten?",
+            "Hvem her er egentlig den mest sentimentale i kollektivet?",
+            "Hvem her ville gøre noget pinligt for at muntre nogen op?",
+            "Hvem her taler med sig selv, når de tror, ingen hører det?",
+            "Hvem her ville rejse til udlandet på impuls og få det til at fungere?",
+            "Hvem her har altid snacks gemt på værelset?",
+            "Hvem her mærker først, hvis noget er galt med nogen?",
             "Hvem her har en stemme, der ville passe perfekt til en podcast?",
-            "Hvem her knytter de mest usandsynlige venskaber?",
+            "Hvem her ender med de mest usandsynlige venskaber?",
             "Hvem her ville holde en plante i live længst?",
-            "Hvem her ville være den mest pålidelige i et gruppeprojekt?",
-            "Hvem her har mest brug for et kram, men ville aldrig bede om et?",
-            "Hvem her ville ende som husets uofficielle kok?"
+            "Hvem her er mest pålidelig i et gruppeprojekt?",
+            "Hvem her trænger mest til et kram, men ville aldrig bede om et?",
+            "Hvem her ville blive kollektivets uofficielle kok?"
           ],
           "medium": [
             "Hvem her ville flirte med nogen bare for at se, om de kunne?",
-            "Hvem her har definitivt tjekket sin eks' lokation mindst én gang denne uge?",
-            "Hvem her er mest sandsynlig til at falde for nogen alt for hurtigt?",
-            "Hvem her ville kysse nogen her, hvis lyset gik ud?",
-            "Hvem her har haft en hemmelighed forelskelse i en vens eks alt for længe?",
-            "Hvem her bliver alt for ærlig om sit kærlighedsliv, når de er fulde?",
-            "Hvem her er mest sandsynlig til at blive forelsket i nogen, de absolut ikke burde?",
+            "Hvem her har helt sikkert tjekket eksens lokation mindst én gang i denne uge?",
+            "Hvem her falder for nogen alt for hurtigt?",
+            "Hvem her ville kysse nogen her, hvis lyset gik?",
+            "Hvem her har været lun på en vens eks alt for længe?",
+            "Hvem her bliver alt for ærlig om kærlighedslivet, når de er fulde?",
+            "Hvem her forelsker sig i lige præcis den, de absolut ikke burde?",
             "Hvem her ville være mest eventyrlysten i sengen?",
-            "Hvem her har den mest pinlige dejtingapp-historie?",
-            "Hvem her er mest sandsynlig til at have en crush på nogen i dette rum lige nu?",
+            "Hvem her har den mest pinlige dating-app-historie?",
+            "Hvem her er helt sikkert lun på nogen i dette rum lige nu?",
             "Hvem her har den mest interessante romantiske historik?",
-            "Hvem her ville tage det første skridt uden at tøve?",
-            "Hvem her har haft det længste situationship, der aldrig gik nogen vegne?",
-            "Hvem her er mest sandsynlig til at falde i søvn umiddelbart efter sex?",
-            "Hvem her ville have sex med nogen, de mødte samme dag?",
+            "Hvem her tager det første skridt uden at tøve?",
+            "Hvem her har haft det længste situationship, der aldrig førte til noget?",
+            "Hvem her falder i søvn med det samme efter sex?",
+            "Hvem her ville skrive til eksen efter midnat?",
             "Hvem her sender de mest risikable beskeder efter et par drinks?",
-            "Hvem her er mest sandsynlig til at date nogen, der er meget ældre eller yngre?",
+            "Hvem her ville date nogen meget ældre eller yngre?",
             "Hvem her ville være mest dramatisk efter et brud?",
-            "Hvem her har den dårligste smag i folk, de tiltrækkes af?",
-            "Hvem her er mest sandsynlig til stadig at tænke på en hookup fra måneder siden?",
-            "Hvem her ville overleve længst uden fysisk intimitet?",
-            "Hvem her er mest sandsynlig til at havne i en kompliceret kærlighedssituation?",
+            "Hvem her har den værste type, når det gælder folk, de falder for?",
+            "Hvem her tænker stadig på nogen, de havde en flirt med for måneder siden?",
+            "Hvem her ville klare sig længst uden fysisk nærhed?",
+            "Hvem her ender helt sikkert i en kompliceret kærlighedssituation?",
             "Hvem her har den mest kaotiske romantiske historik?",
-            "Hvem her er mest sandsynlig til at forblive venner med en eks?",
-            "Hvem her har den bedste historie om at blive tilnærmet sig fuldstændig uventet?",
-            "Hvem her er mest sandsynlig til at falde for nogen udelukkende via beskeder?",
-            "Hvem her ville tage det første skridt og straks fortryde det?",
-            "Hvem her ville være den mest gavmilde partner i et forhold?",
-            "Hvem her er mest sandsynlig til at havne i en kompliceret situation?",
-            "Hvem her har det højeste antal i rummet? Alle peger."
+            "Hvem her forbliver venner med en eks?",
+            "Hvem her ville være den mest generøse kæreste?",
+            "Hvem her har den bedste historie om at blive scoret helt uventet?",
+            "Hvem her får følelser bare via beskeder?",
+            "Hvem her er bedst til at snakke nogen rundt til hvad som helst?",
+            "Hvem her ville tage det første skridt og fortryde det med det samme?",
+            "Hvem her flirter uden at være klar over det?"
           ],
           "droy": [
-            "Hvem her ville have sex med nogen i dette rum, hvis det ikke havde nogen konsekvenser?",
-            "Hvem her har den kinkigste side, ingen her kender til?",
-            "Hvem her er mest sandsynlig til at have en one-night stand i aften?",
-            "Hvem her har det mest interessante sted, de nogensinde har haft sex?",
-            "Hvem her ville være højest i sengen?",
-            "Hvem her ville være åben for en venner-med-fordele-situation?",
-            "Hvem her har sendt nøgenbilleder, de straks fortrød?",
-            "Hvem her er mest sandsynlig til allerede at have ligget med nogen i dette hus?",
+            "Hvem her ville tage et one-night stand i nat, hvis chancen bød sig?",
+            "Hvem her har en kinky side, ingen her aner noget om?",
+            "Hvem her har det vildeste sted, de nogensinde har haft sex?",
+            "Hvem her ville være mest højlydt i sengen?",
+            "Hvem her ville være åben for en venner-med-fordele-aftale?",
+            "Hvem her har sendt et nøgenbillede, de fortrød med det samme?",
             "Hvem her har mest at skjule i kamerarullen lige nu?",
-            "Hvem her har haft den mest pinlige morgendagen efter?",
-            "Hvem her er mest sandsynlig til at foreslå noget uventet i sengen?",
-            "Hvem her ville lave en walk of shame med mest selvtillid?",
-            "Hvem her har ligget med mere end én person i den samme vennekreds?",
-            "Hvem her har ladet som om og straks følt sig skyldig bagefter?",
-            "Hvem her ville være helt ærlig om sit antal, hvis de blev spurgt lige nu?",
-            "Hvem her har den mest dramatiske seksuelle misadventure-historie?",
-            "Hvem her er mest sandsynlig til at have sex i aften?",
-            "Hvem her ville være den bedste hookup — ærligt talt?",
-            "Hvem her har en type, der ville overraske alle herinde?",
-            "Hvem her har ligget med nogen i gruppen og aldrig fortalt de andre?",
-            "Hvem her er mest sandsynlig til at have tænkt på nogen herinde på den måde?",
-            "Hvem her har det mest eksplicitte indhold i sine kladder lige nu?",
-            "Hvem her ville håndtere en one-night stand med mest modenhed?",
-            "Hvem her er mest sandsynlig til at have en hemmelig romantisk historik med nogen herinde?",
-            "Hvem her er hemmeligt den kinkigste person herinde?",
-            "Hvem her har gjort noget seksuelt, de ville skamme sig over at indrømme over for denne gruppe?",
-            "Hvem her har den mest kreative undskyldning, de nogensinde har brugt til at komme ud af en seksuel situation?",
-            "Hvem her ville være den mest eventyrlystne partner?",
-            "Hvem her er mest sandsynlig til at tænke på at have sex med nogen herinde lige nu?",
-            "Hvem her er mest sandsynlig til at have en hemmelig romantisk forbindelse med nogen i dette rum?"
+            "Hvem her har haft den mest akavede morgen derpå?",
+            "Hvem her ville foreslå noget uventet i sengen?",
+            "Hvem her ville lave en walk of shame med hovedet højt?",
+            "Hvem her har flirtet med to i den samme vennegruppe?",
+            "Hvem her ville svare helt ærligt på sit tal lige nu?",
+            "Hvem her har den mest dramatiske historie om et seksuelt uheld?",
+            "Hvem her ville være det bedste hookup-valg — helt ærligt?",
+            "Hvem her har en type, der ville chokere absolut alle her?",
+            "Hvem her har det mest eksplicitte i kladdemappen lige nu?",
+            "Hvem her ville håndtere et one-night stand med mest stil?",
+            "Hvem her ville sende en dirty-talk-besked først?",
+            "Hvem her har en fetich, de aldrig ville indrømme ædru?",
+            "Hvem her har haft sex et sted, hvor de nemt kunne være blevet taget?",
+            "Hvem her tænker helt sikkert på nogen her på den måde?",
+            "Hvem her har den længste tørketid ved bordet lige nu?",
+            "Hvem her ville prøve noget, de så på nettet, men aldrig turde foreslå?",
+            "Hvem her har den frækkeste beskedlog ved bordet?",
+            "Hvem her ville sige ja til en date, de ved ender i sengen?",
+            "Hvem her har flirtet sig til noget gratis?",
+            "Hvem her har gjort noget i sengen, de ville skamme sig over at indrømme her?",
+            "Hvem her har den mest kreative undskyldning for at slippe ud af en date?",
+            "Hvem her ville være den mest eventyrlystne kæreste?",
+            "Hvem her har den vildeste hookup-historie, de faktisk tør fortælle?"
           ]
         }
       },
       "guysNight": {
-        "deckNames": { "mild": "Mild", "medium": "Medium", "droy": "Drøy" },
+        "deckNames": {
+          "mild": "Mild",
+          "medium": "Medium",
+          "droy": "Drøy"
+        },
         "deckDescriptions": {
           "mild": "Sjovt, socialt og lidt konkurrencepræget. Perfekt til at varme op.",
           "medium": "Mere personligt — lidt roasting, lidt tilståelser, lidt krydder.",
@@ -880,104 +1041,108 @@
         "decks": {
           "mild": [
             "Peg på hvem der ville overleve længst i skoven uden udstyr.",
-            "Jeg har aldrig sprunget bendag over og derefter gået med shorts.",
-            "Alle der har sendt en 'er du vågen?'-besked den seneste måned drikker.",
-            "Peg på hvem der er mest sandsynlig til at græde til en fodboldkamp.",
-            "Jeg har aldrig ladet som om jeg kendte teksten og fuldstændig rodet den på det værste tidspunkt.",
+            "Jeg har aldrig sprunget over bendag og taget shorts på dagen efter.",
+            "Alle, der har sendt en 'er du vågen?'-besked den seneste måned, drikker.",
+            "Peg på hvem der mest sandsynligt græder til en fodboldkamp.",
+            "Jeg har aldrig ladet som om jeg kunne teksten og kikset på det værst tænkelige tidspunkt.",
             "Bedste imitation af nogen i rummet. Gruppen stemmer — taberen drikker.",
             "Peg på hvem der ville vinde beer pong, hvis livet afhang af det.",
-            "Jeg har aldrig skrevet til en pige og ladet som om jeg bare tjekkede ind.",
-            "Alle der har en uskrevet besked i kladder, de aldrig sendte, drikker.",
-            "Peg på hvem der ville blive slået først i et slagsmål på en bar, de ikke startede.",
-            "Arm wrestling med personen ved siden af dig. Taberen drikker.",
+            "Jeg har aldrig skrevet til nogen og ladet som om det bare var et tjek.",
+            "Alle med en besked i kladde, de aldrig sendte, drikker.",
+            "Peg på hvem der ville blive ramt først i et barslagsmål, de ikke startede.",
+            "Fingerkrog med ham ved siden af dig. Taberen drikker.",
             "Jeg har aldrig meldt mig syg og gået direkte på pubben.",
             "Peg på hvem der har flest ulæste notifikationer lige nu.",
-            "Alle der har ghostet nogen i år drikker.",
-            "Bedste roast af personen til venstre. Ti sekunder. Start.",
-            "Jeg har aldrig startet en gym-fase, der varede under to uger.",
-            "Peg på hvem der er mest sandsynlig til at blive et meme ved en fejl.",
-            "Alle der har spist et fuldt måltid direkte fra gryden drikker.",
-            "Jeg har aldrig memoreret noget fuldstændig ubrugeligt og været stolt af det.",
+            "Alle, der har ghostet nogen i år, drikker.",
+            "Roast ham til venstre. Ti sekunder. Kør.",
+            "Jeg har aldrig startet et træningsprogram, der holdt under to uger.",
+            "Peg på hvem der mest sandsynligt bliver et meme ved et uheld.",
+            "Alle, der har spist et helt måltid direkte fra gryden, drikker.",
+            "Jeg har aldrig terpet noget helt ubrugeligt og været stolt af det.",
             "Peg på hvem der ville klare sig længst uden telefon.",
-            "Alle der ikke kender deres bedste vens faktiske fødselsdag drikker.",
-            "Jeg har aldrig skudt skylden på nogen anden for en lugt, der bestemt var mig.",
-            "Peg på hvem du vil have på dit hold i enhver konkurranse.",
-            "Alle der har løjet om sit tempo på en løbetur drikker.",
-            "Jeg har aldrig takket nej til et slagsmål og hemmeligt følt lettelse.",
+            "Alle, der ikke kender deres bedste vens rigtige fødselsdag, drikker.",
+            "Jeg har aldrig givet en anden skylden for en lugt, der helt klart var mig.",
+            "Peg på hvem du vil have på dit hold i absolut enhver konkurrence.",
+            "Alle, der har løjet om tempoet på en løbetur, drikker.",
+            "Jeg har aldrig sagt nej til et slagsmål og i hemmelighed været lettet.",
             "Peg på hvem der ville give efter først, hvis gruppen ville blive ude længere.",
-            "Alle der har tre eller flere faner åbne lige nu, de aldrig lukker, drikker.",
+            "Alle med tre eller flere faner, de aldrig lukker, drikker.",
             "Jeg har aldrig købt noget udelukkende for at imponere nogen.",
-            "Peg på hvem der er mest sandsynlig til at starte en trend online ved et uheld.",
-            "Alle der spiste rester, der definitivt var for gamle, drikker."
+            "Peg på hvem der mest sandsynligt starter en trend på nettet ved et uheld.",
+            "Alle, der har spist rester, der helt klart var for gamle, drikker."
           ],
           "medium": [
-            "Peg på hvem der har sendt en besked, de straks fortrød.",
-            "Jeg har aldrig ligget med nogen, jeg mødte samme aften.",
-            "Alle der har swipet på nogen og fået set men ikke svar drikker.",
-            "Peg på hvem der er mest sandsynlig til at tage nogen med hjem i aften.",
-            "Jeg har aldrig løjet om grunden til, at et forhold sluttede.",
-            "Fortæl gruppen om dit mest pinlige øjeblik med en pige. Ingen springer over.",
-            "Alle der genuint har fået følelser for en hookup drikker.",
-            "Peg på hvem du synes er den smukkeste i dette rum.",
-            "Jeg har aldrig været med nogen uden at kende deres efternavn.",
-            "Alle der har ladet som om de var mere erfarne, end de var, drikker.",
-            "Peg på hvem der har det højeste antal i rummet.",
-            "Jeg har aldrig haft sex et sted, jeg absolut ikke burde have haft det.",
-            "Alle der har matchet med en eks på en dejtingapp drikker.",
-            "Bedøm alle i rummet fra 1 til 10. Ingen decimaler. Ingen tøven.",
-            "Jeg har aldrig skrevet til nogen, mens jeg var hos nogen andre.",
-            "Peg på hvem der ville klare en walk of shame med mest selvtillid.",
-            "Alle der er sluppet afsted alt for hurtigt og ikke sagt noget drikker.",
-            "Fortæl gruppen, hvilken type du faktisk går efter — ikke hvad du ville indrømme online.",
-            "Jeg har aldrig prøvet at gøre tilnærmelser og fuldstændig fået afslag foran folk.",
+            "Peg på hvem der har sendt en besked, de fortrød med det samme.",
+            "Jeg har aldrig været i seng med nogen, jeg mødte samme aften.",
+            "Alle, der har skrevet til et match og er blevet efterladt på 'læst', drikker.",
+            "Peg på hvem der mest sandsynligt tager nogen med hjem i nat.",
+            "Jeg har aldrig løjet om, hvorfor et forhold sluttede.",
+            "Fortæl gruppen dit mest pinlige øjeblik med en, du var lun på. Ingen spring.",
+            "Alle, der genuint har fået følelser for en flirt, drikker.",
+            "Peg på hvem der giver mest selvtillid til resten af gruppen.",
+            "Jeg har aldrig været sammen med nogen uden at kende deres efternavn.",
+            "Alle, der har ladet som om de var mere erfarne, end de var, drikker.",
+            "Peg på hvem der har den mest imponerende datinghistorik i rummet.",
+            "Jeg har aldrig haft sex et sted, jeg absolut ikke burde.",
+            "Alle, der har matchet med en eks på en dating-app, drikker.",
+            "Giv hver person i rummet ét ærligt ord, der beskriver dem. Ingen tøven.",
+            "Jeg har aldrig skrevet til nogen, mens jeg var hjemme hos en anden.",
+            "Peg på hvem der ville lave en walk of shame med mest selvtillid.",
+            "Alle, der har været alt for hurtige og ikke sagt noget om det, drikker.",
+            "Fortæl gruppen, hvilken type du faktisk går efter — ikke det, du siger online.",
+            "Jeg har aldrig prøvet mig frem og blevet totalt afvist foran folk.",
             "Peg på hvem der ville være mest følelsesmæssigt utilgængelig i et forhold.",
-            "Alle der har sagt 'vi burde gøre det her igen' uden at mene det drikker.",
+            "Alle, der har sagt 'det skal vi gøre igen' uden at mene det, drikker.",
             "Jeg har aldrig tjekket en eks' profil i dag.",
-            "Peg på hvem der er mest sandsynlig til at falde hårdt for den forkerte person.",
-            "Alle der har haft et situationship i mere end seks måneder drikker.",
-            "Jeg har aldrig sagt til en pige, jeg ville ringe, og derefter ikke gjort det.",
-            "Alle der har lagt mere indsats i at få nogen tilbage end i at få dem til at begynde med drikker.",
-            "Jeg har aldrig haft morgensex inden en 9-årsforpligtelse.",
-            "Peg på hvem der hemmeligt er den mest romantiske i rummet.",
-            "Alle der er blevet kaldt 'den følelsesmæssigt utilgængelige' drikker.",
+            "Peg på hvem der mest sandsynligt falder hårdt for den forkerte.",
+            "Alle, der har været i et situationship i mere end seks måneder, drikker.",
+            "Jeg har aldrig sagt til nogen, at jeg ville ringe, og så ikke gjort det.",
+            "Alle, der har lagt mere energi i at få nogen tilbage end i selve forholdet, drikker.",
+            "Jeg har aldrig haft morgensex og alligevel nået noget klokken ni.",
+            "Peg på hvem der i det skjulte er den mest romantiske i rummet.",
+            "Alle, der er blevet kaldt 'den følelsesmæssigt utilgængelige', drikker.",
             "Peg på hvem der har den mest kaotiske situationship-historie lige nu."
           ],
           "droy": [
-            "Peg på hvem der er mest sandsynlig til at have sex i aften.",
-            "Jeg har aldrig befundet mig i en seksuel situation, jeg ikke kunne forklare dengang.",
-            "Alle der har sendt eksplicitte billeder drikker.",
-            "Peg på hvem der er den kinkigste person i rummet.",
-            "Jeg har aldrig haft sex med nogen og holdt det fuldstændig hemmeligt for alle du kender.",
-            "Fortæl gruppen dine ærlige top 3 dealbreakers i sengen. Én slurk, hvis du tøver.",
-            "Alle der har haft sex, mens nogen andre var i rummet, drikker.",
+            "Peg på hvem der mest sandsynligt får noget i nat.",
+            "Jeg har aldrig været i en seksuel situation, jeg ikke kunne forklare på stedet.",
+            "Alle, der har sendt eksplicitte billeder, drikker.",
+            "Peg på hvem der er den mest kinky i rummet.",
+            "Jeg har aldrig været i seng med nogen og holdt det helt hemmeligt for alle, jeg kender.",
+            "Fortæl gruppen dine ærlige top tre dealbreakers i sengen. En slurk, hvis du tøver.",
+            "Alle, der har haft sex, mens en anden var i rummet, drikker.",
             "Peg på hvem der har haft flest partnere på én måned.",
-            "Jeg har aldrig simuleret for at afslutte en situation hurtigere.",
-            "Alle der har haft sex i en bil drikker.",
-            "Peg på hvem der ville være den bedste one-night stand — ærligt talt.",
+            "Jeg har aldrig knebet ud bare for at afslutte noget hurtigere.",
+            "Alle, der har haft sex i en bil, drikker.",
+            "Peg på hvem der ville være det bedste one-night stand — helt ærligt.",
             "Jeg har aldrig haft tanker om nogen i dette rum.",
-            "Beskriv din type fysisk med tre ord. Den mest præcise beskrivelse vinder — de deler drikke ud.",
-            "Alle der har ligget med nogen i sin egen vennekreds drikker.",
+            "Beskriv din type fysisk i tre ord. Mest præcise vinder og uddeler drinks.",
+            "Alle, der har været i seng med nogen fra den samme vennegruppe, drikker.",
             "Jeg har aldrig sagt det forkerte navn i sengen.",
-            "Peg på hvem der ville overleve længst i en no-sex-udfordring.",
-            "Alle der har haft et situationship, de genuint troede ville blive til noget, drikker.",
-            "Jeg har aldrig gjort noget offentligt, som jeg aldrig ville indrømme over for min familie.",
-            "Peg på hvem der har de mest vilde DM'er sendt den seneste måned.",
-            "Alle der har startet noget med nogen og afsluttet det samme aften drikker.",
+            "Peg på hvem der ville overleve længst i en ingen-sex-udfordring.",
+            "Alle, der har haft et situationship, de genuint troede ville blive til noget, drikker.",
+            "Jeg har aldrig gjort noget offentligt, jeg aldrig ville indrømme over for min familie.",
+            "Peg på hvem der har sendt de vildeste DM'er den seneste måned.",
+            "Alle, der har startet noget med nogen og afsluttet det samme aften, drikker.",
             "Jeg har aldrig haft sex med nogen mere end ti år ældre.",
-            "Peg på hvem der ville være den første til at foreslå noget uventet i sengen.",
-            "Fortæl gruppen det vildeste sted, du nogensinde har haft sex. Drik først, så du faktisk siger det.",
-            "Jeg har aldrig brugt sex til at undgå en svær samtale.",
-            "Peg på hvem der har den mest kontroversielle seksuelle mening i rummet.",
-            "Alle der er blevet taget under sex drikker.",
+            "Peg på hvem der ville være først til at foreslå noget uventet i sengen.",
+            "Fortæl gruppen det vildeste sted, du har haft sex. Drik først, så du faktisk siger det.",
+            "Jeg har aldrig brugt sex for at slippe for en svær samtale.",
+            "Peg på hvem der har den mest kontroversielle mening om sex i rummet.",
+            "Alle, der er blevet taget under sex, drikker.",
             "Jeg har aldrig gjort noget i sengen, der overraskede mig selv.",
-            "Peg på hvem der er mest sandsynlig til at have ligget med nogen andre i denne gruppe.",
-            "Alle der har haft mere end én partner inden for 24 timer drikker.",
+            "Peg på hvem der er bedst til at snakke sig ud af en akavet efter-hookup.",
+            "Alle, der har haft mere end én partner inden for 24 timer, drikker.",
             "Jeg har aldrig haft sex på første date — og ville gøre det igen."
           ]
         }
       },
       "girlsNight": {
-        "deckNames": { "mild": "Mild", "medium": "Medium", "droy": "Drøy" },
+        "deckNames": {
+          "mild": "Mild",
+          "medium": "Medium",
+          "droy": "Drøy"
+        },
         "deckDescriptions": {
           "mild": "Sjovt, socialt og lidt kaotisk. Perfekt til at varme op.",
           "medium": "Mere personligt — sladder, følelser og lidt krydder.",
@@ -985,106 +1150,110 @@
         },
         "decks": {
           "mild": [
-            "Peg på hvem der ville overleve længst uden sin telefon.",
+            "Peg på hvem der ville overleve længst uden telefonen.",
             "Jeg har aldrig grædt på toilettet til en fest og gået direkte tilbage for at danse.",
-            "Alle der har beholdt et stykke tøj fra en eks drikker.",
+            "Alle, der har beholdt et stykke tøj fra en eks, drikker.",
             "Peg på hvem der er gruppens uofficielle terapeut.",
-            "Jeg har aldrig ladet som om jeg kunne lide en gave, jeg absolut hadede.",
-            "Bedste kendisimitation — gruppen stemmer og den dårligste drikker.",
-            "Peg på hvem der ville være den første til at glide ind i nogens DM'er.",
-            "Jeg har aldrig stalket nogens Instagram, inden jeg mødte dem.",
-            "Alle der har læst en besked og ventet med at svare for at virke mindre ivrige drikker.",
-            "Peg på hvem der giver de bedste råd, men aldrig følger dem selv.",
-            "Fortæl gruppen om dit mest pinlige offentlige øjeblik. Ingen springer over.",
-            "Jeg har aldrig fundet på en undskyldning for ikke at gå ud og derefter fortrudt det.",
-            "Peg på hvem der ville være den bedste realityprogram-skurk uden at prøve.",
-            "Alle der har skrevet til nogen, de ikke burde, efter et par glas drikker.",
-            "Jeg har aldrig kopieret nogens æstetik og håbet, de ikke ville lægge mærke til det.",
-            "Peg på hvem der er mest sandsynlig til at få alle med på en spontan plan.",
-            "Alle der har meldt sig syg den dag for at slippe for noget drikker.",
+            "Jeg har aldrig ladet som om jeg elskede en gave, jeg egentlig hadede.",
+            "Bedste kendisimitation — gruppen stemmer, og den dårligste drikker.",
+            "Peg på hvem der ville være først til at glide ind i nogens DM.",
+            "Jeg har aldrig stalket nogens Instagram, før jeg mødte dem.",
+            "Alle, der har læst en besked og ventet med at svare for at virke mindre ivrige, drikker.",
+            "Peg på hvem der giver de bedste råd, men aldrig selv følger dem.",
+            "Fortæl gruppen dit mest pinlige offentlige øjeblik. Ingen spring.",
+            "Jeg har aldrig fundet på en undskyldning for at slippe for at gå ud og fortrudt det.",
+            "Peg på hvem der ville være den bedste reality-skurk uden overhovedet at prøve.",
+            "Alle, der har skrevet til nogen, de ikke burde, efter et par glas, drikker.",
+            "Jeg har aldrig kopieret nogens stil og håbet, de ikke opdagede det.",
+            "Peg på hvem der mest sandsynligt får alle med på en spontan plan.",
+            "Alle, der har meldt sig syg den dag for at slippe for noget, drikker.",
             "Jeg har aldrig købt noget, jeg ikke havde råd til, og overbevist mig selv om, at det var det værd.",
             "Peg på hvem der er den mest følelsesmæssigt kaotiske på den bedste måde.",
-            "Alle der har tjekket en besked tre gange, inden de sendte den, drikker.",
+            "Alle, der har tjekket en besked tre gange, før de sendte den, drikker.",
             "Jeg har aldrig forladt en fest uden at sige farvel til nogen.",
-            "Peg på hvem der er mest sandsynlig til at starte en virksomhed fra ingenting og faktisk lykkes.",
-            "Alle der i øjeblikket har et situationship, de ikke har fortalt hele gruppen om, drikker.",
-            "Jeg har aldrig været forelsket i nogen, der overhovedet ikke havde en anelse.",
+            "Peg på hvem der mest sandsynligt starter noget fra ingenting og faktisk lykkes.",
+            "Alle med et situationship, de ikke har fortalt hele gruppen om, drikker.",
+            "Jeg har aldrig været forelsket i nogen, der ikke anede noget.",
             "Peg på hvem der ville håndtere et brud mest dramatisk.",
-            "Alle der har skrevet en besked, slettet den og sendt den tre dage senere drikker.",
-            "Jeg har aldrig været jaloux på en vens forhold og sagt ingenting.",
-            "Peg på hvem der er mest sandsynlig til at græde under et skænderi.",
-            "Alle der har tjekket en eks' profil i dag drikker.",
-            "Jeg har aldrig tænkt på at komme tilbage til en eks i den seneste måned."
+            "Alle, der har skrevet en besked, slettet den og sendt den tre dage senere, drikker.",
+            "Jeg har aldrig været jaloux på en vens forhold uden at sige noget.",
+            "Peg på hvem der mest sandsynligt græder under et skænderi.",
+            "Alle, der har tjekket en eks' profil i dag, drikker.",
+            "Jeg har aldrig overvejet at få en eks tilbage den seneste måned."
           ],
           "medium": [
             "Peg på hvem der har den mest interessante romantiske historik i rummet.",
-            "Jeg har aldrig simuleret at nyde noget i sengen.",
-            "Alle der har sendt et risikabelt billede og straks fortrudt drikker.",
-            "Peg på hvem der ville håndtere en one-night stand med mest elegance.",
-            "Fortæl gruppen: hvad er din faktiske type — ikke den, du lader som om er din type?",
-            "Jeg har aldrig matchet med nogen udelukkende fordi deres hund var med på billederne.",
-            "Alle der har haft et situationship i mere end tre måneder drikker.",
-            "Peg på hvem der er mest sandsynlig til at blive forelsket efter én god samtale.",
-            "Jeg har aldrig forblevet i et forhold for længe på grund af den fysiske side.",
-            "Alle der har aflyste planer for nogen, de var interesserede i, drikker.",
+            "Jeg har aldrig været for genert til at nyde noget i sengen.",
+            "Alle, der har sendt et risikabelt billede og fortrudt med det samme, drikker.",
+            "Peg på hvem der ville håndtere et one-night stand med mest elegance.",
+            "Fortæl gruppen, hvad din type faktisk er — ikke den, du lader som om er din type.",
+            "Jeg har aldrig matchet med nogen, bare fordi hunden var med på billedet.",
+            "Alle, der har været i et situationship i mere end tre måneder, drikker.",
+            "Peg på hvem der mest sandsynligt forelsker sig efter én god samtale.",
+            "Jeg har aldrig blevet i et forhold alt for længe på grund af den fysiske del.",
+            "Alle, der har aflyst planer for nogen, de var interesseret i, drikker.",
             "Peg på hvem der har den mest kaotiske beskedtråd lige nu.",
-            "Jeg har aldrig brugt gråd til at komme ud af et skænderi.",
-            "Fortæl om din værste date nogensinde. Den mest rædselsvækkende vinder — de deler drikke ud.",
-            "Alle der har tænkt på nogen i dette rum romantisk drikker.",
+            "Jeg har aldrig brugt gråd for at slippe ud af et skænderi.",
+            "Fortæl gruppen om din værste date. Den mest rædselsfulde vinder og uddeler drinks.",
+            "Alle, der har tænkt romantisk på nogen i dette rum, drikker.",
             "Jeg har aldrig kysset nogen, jeg vidste havde en kæreste.",
-            "Peg på hvem der er mest sandsynlig til at have et hemmeligt situationship lige nu.",
-            "Alle der har sendt en 'undskyld, faldt i søvn' besked, mens de var fuldt vågne, drikker.",
-            "Jeg har aldrig snoget i en partners telefon.",
-            "Peg på hvem der ville være den bedste partner — ærligt talt.",
-            "Alle der har taget det første skridt og været glade for det drikker.",
-            "Jeg har aldrig fået følelser for nogen, der tydeligvis var utilgængelig.",
-            "Fortæl gruppen det seneste, der faktisk tiltrak dig til nogen — intet med udseende.",
-            "Peg på hvem der har den bedste historie om at blive tilnærmet sig fuldstændig uventet.",
-            "Alle der har sendt en beruset besked til nogen, de kunne lide, og fået et godt svar drikker.",
-            "Jeg har aldrig afsluttet noget med nogen af en grund, jeg aldrig fuldt har forklaret.",
-            "Peg på hvem der er mest sandsynlig til stadig at tænke på en hookup fra måneder siden.",
-            "Alle der har dated nogen, deres venner ikke godkendte, drikker.",
+            "Peg på hvem der mest sandsynligt har et hemmeligt situationship lige nu.",
+            "Alle, der har sendt en 'undskyld, faldt i søvn', mens de var lysvågne, drikker.",
+            "Jeg har aldrig snaget i en partners telefon.",
+            "Peg på hvem der ville være den bedste kæreste — helt ærligt.",
+            "Alle, der har taget det første skridt og været glade for det, drikker.",
+            "Jeg har aldrig fået følelser for nogen, der tydeligt var utilgængelig.",
+            "Fortæl gruppen det seneste, der faktisk tiltrak dig til nogen — ikke udseende.",
+            "Peg på hvem der har den bedste historie om at blive scoret helt uventet.",
+            "Alle, der har sendt en fuld besked til en, de var lun på, og fået god respons, drikker.",
+            "Jeg har aldrig afsluttet noget med nogen af en grund, jeg aldrig helt har forklaret.",
+            "Peg på hvem der stadig tænker på nogen, de havde en flirt med for måneder siden.",
+            "Alle, der har datet nogen, vennerne ikke kunne lide, drikker.",
             "Peg på hvem der giver de bedste kærlighedsråd, men har det mest rodede kærlighedsliv.",
-            "Alle der har et antal, der er højere end hvad de ville indrømme i polite selskab, drikker.",
-            "Jeg har aldrig haft sex og straks ønsket, jeg var et andet sted."
+            "Alle med et tal højere, end de ville indrømme i pænt selskab, drikker.",
+            "Jeg har aldrig haft sex og med det samme ønsket, jeg var et andet sted."
           ],
           "droy": [
-            "Peg på hvem der er mest sandsynlig til at have sex i aften.",
-            "Jeg har aldrig gjort noget i sengen, jeg aldrig ville fortælle min mor.",
-            "Alle der har sendt eksplicitte billeder drikker.",
-            "Fortæl gruppen din mest kontroversielle mening om mænd. Drik først for modighedens skyld.",
-            "Jeg har aldrig haft sex i en situation, hvor det at blive taget var en reel mulighed.",
-            "Peg på hvem der har den kinkigste side, de aldrig har nævnt.",
-            "Alle der har ligget med nogen fra vennekredsen drikker.",
-            "Jeg har aldrig været med mere end én person i løbet af én uge.",
-            "Fortæl gruppen din faktiske fantasi — den, du aldrig har sagt højt.",
-            "Alle der har tænkt på nogen i dette rum på den måde drikker.",
-            "Peg på hvem der ville være bedst i sengen, ærligt talt.",
-            "Jeg har aldrig haft en hookup, der blev til en situation, du måtte håndtere i ugevis.",
-            "Alle der har brugt sex som distraktion fra noget stressende drikker.",
-            "Peg på hvem der har det mest vilde indhold i sin kamerarulle lige nu.",
+            "Peg på hvem der mest sandsynligt får noget i nat.",
+            "Jeg har aldrig gjort noget i sengen, jeg aldrig ville fortælle min mor om.",
+            "Alle, der har sendt eksplicitte billeder, drikker.",
+            "Fortæl gruppen din mest kontroversielle mening om dating. Drik først for mod.",
+            "Jeg har aldrig haft sex et sted, hvor det at blive taget var en reel mulighed.",
+            "Peg på hvem der har den mest kinky side, de aldrig har nævnt.",
+            "Alle, der har været i seng med nogen fra vennegruppen, drikker.",
+            "Jeg har aldrig været sammen med mere end én person på én uge.",
+            "Fortæl gruppen din fantasi — den, du aldrig har sagt højt.",
+            "Alle, der har tænkt på nogen i dette rum på den måde, drikker.",
+            "Peg på hvem der ville være bedst i sengen — helt ærligt.",
+            "Jeg har aldrig haft et hookup, der blev en hel sag, jeg måtte håndtere i ugevis.",
+            "Alle, der har brugt sex som distraktion fra noget stressende, drikker.",
+            "Peg på hvem der har mest at skjule i kamerarullen lige nu.",
             "Jeg har aldrig været højlydt intim et sted, der ikke var helt privat.",
-            "Fortæl gruppen det dristigste træk, du nogensinde har gjort på nogen.",
-            "Alle der har haft sex og straks haft brug for at være alene drikker.",
-            "Peg på hvem der har haft den mest dramatiske morgendagen efter.",
+            "Fortæl gruppen det mest dristige træk, du nogensinde har lavet på nogen.",
+            "Alle, der har haft sex og med det samme havde brug for at være alene, drikker.",
+            "Peg på hvem der har haft den mest dramatiske morgen derpå.",
             "Jeg har aldrig fortrudt en seksuel beslutning og gjort det igen alligevel.",
-            "Alle der har matchet med nogen, ligget med dem og umatchet straks drikker.",
-            "Peg på hvem der har den største hemmelighed, de aldrig ville sige nøgtern i dette rum.",
-            "Jeg har aldrig overnattet et sted, jeg absolut ikke burde have overnattet.",
-            "Alle der har sagt til nogen, at det var godt, når det virkelig ikke var, drikker.",
-            "Fortæl gruppen den dårligste undskyldning, nogen nogensinde har givet dig efter en hookup.",
-            "Jeg har aldrig fået ægte følelser for en venner-med-fordele-situation.",
-            "Peg på hvem der har den mest interessante intime historie i rummet.",
-            "Alle der har været helt ærlige over for en partner om, hvad de vil have i sengen, drikker.",
-            "Jeg har aldrig initieret noget med nogen og vidst, at det var en forfærdelig idé.",
-            "Peg på hvem der ville være den mest eventyrlystne partner.",
-            "Alle der aldrig har haft en virkelig akavet seksuel situation drikker — statistisk umuligt."
+            "Alle, der har matchet med nogen, været i seng med dem og unmatchet med det samme, drikker.",
+            "Peg på hvem der har den største hemmelighed, de aldrig ville fortælle ædru i dette rum.",
+            "Jeg har aldrig overnattet et sted, jeg absolut ikke burde.",
+            "Alle, der har sagt til nogen, at det var godt, når det virkelig ikke var, drikker.",
+            "Fortæl gruppen den dårligste undskyldning, nogen gav dig efter et hookup.",
+            "Jeg har aldrig fået ægte følelser for en ven med fordele.",
+            "Peg på hvem der har den mest interessante intime historik i rummet.",
+            "Alle, der har været helt ærlige om, hvad de vil have i sengen, drikker.",
+            "Jeg har aldrig startet noget med nogen, jeg vidste var en frygtelig idé.",
+            "Peg på hvem der ville være den mest eventyrlystne kæreste.",
+            "Alle, der aldrig har haft en akavet seksuel situation, drikker — statistisk umuligt."
           ]
         }
       },
       "snusboksen": {
         "pickDeck": "Vælg en kortbunke",
-        "deckNames": { "mild": "Mild", "medium": "Medium", "droy": "Drøy" },
+        "deckNames": {
+          "mild": "Mild",
+          "medium": "Medium",
+          "droy": "Drøy"
+        },
         "deckDescriptions": {
           "mild": "Lette spørgsmål for at komme i gang.",
           "medium": "Mere saftige spørgsmål der sætter gang i debatten.",
@@ -1250,21 +1419,81 @@
         "finishedHint": "Alle indsendte spørgsmål har fået deres øjeblik.",
         "backToGames": "Tilbage til spil",
         "categories": {
-          "HOT_TAKES": { "title": "Stærke meninger", "example": "Meninger, nogen ville forsvare for altid", "placeholder": "Hvilken mening ville du forsvare for altid?" },
-          "PLOT_TWISTS": { "title": "Uventede vendinger", "example": "Overraskende historier og mærkelige vendinger", "placeholder": "Hvad er din mest uventede historie?" },
-          "TINY_CONFESSIONS": { "title": "Små tilståelser", "example": "Harmløse hemmeligheder og sjove vaner", "placeholder": "Hvilken harmløs hemmelighed kan du indrømme?" },
-          "FUTURE_HEADLINES": { "title": "Fremtidens overskrifter", "example": "Forudsigelser om folkene i rummet", "placeholder": "Hvor er nogen her om ti år?" },
-          "HOUSE_AWARDS": { "title": "Huspriser", "example": "Find på en pris og nominér nogen", "placeholder": "Hvem fortjener en pris, og for hvad?" },
-          "IMPOSSIBLE_CHOICES": { "title": "Umulige valg", "example": "Svære og sjove enten-eller-spørgsmål", "placeholder": "Lav et umuligt enten-eller-valg…" },
-          "FRIENDLY_CHALLENGES": { "title": "Venlige udfordringer", "example": "Hurtige og harmløse udfordringer", "placeholder": "Giv nogen en et-minuts-udfordring…" },
-          "WILDCARD": { "title": "Joker", "example": "Noget originalt, der passer til rummet", "placeholder": "Skriv et valgfrit spørgsmål til rummet…" },
-          "PEKELEK": { "title": "Pegeleg", "example": "Alle peger på nogen, der passer til beskrivelsen", "placeholder": "Hvem i rummet passer bedst til dette?" },
-          "JEG_HAR_ALDRI": { "title": "Jeg har aldrig", "example": "Små afsløringer og mærkelige oplevelser", "placeholder": "Hvad har du aldrig gjort?" },
-          "RED_FLAG_DEALBREAKER_OK": { "title": "Red flag, dealbreaker, ok", "example": "Sortér ting fra ja til nej", "placeholder": "Hvad er et tydeligt red flag for dig?" },
-          "FUCK_MARRY_KILL": { "title": "Fuck, marry, kill...", "example": "Tre valg, ingen perfekte svar", "placeholder": "Vælg: hvem, hvem og hvem?" },
-          "LAG_EN_REGEL": { "title": "Lav en regel", "example": "En ny regel for aftenen", "placeholder": "Hvilken regel skal gælde resten af spillet?" },
-          "DILEMMA": { "title": "Dilemma", "example": "To dårlige eller gode valg", "placeholder": "Hvad ville du vælge i dette dilemma?" },
-          "KATEGORILEK": { "title": "Kategorileg", "example": "Find ord, der passer til kategorien", "placeholder": "Hvilken kategori vil du teste rummet med?" }
+          "HOT_TAKES": {
+            "title": "Stærke meninger",
+            "example": "Meninger, nogen ville forsvare for altid",
+            "placeholder": "Hvilken mening ville du forsvare for altid?"
+          },
+          "PLOT_TWISTS": {
+            "title": "Uventede vendinger",
+            "example": "Overraskende historier og mærkelige vendinger",
+            "placeholder": "Hvad er din mest uventede historie?"
+          },
+          "TINY_CONFESSIONS": {
+            "title": "Små tilståelser",
+            "example": "Harmløse hemmeligheder og sjove vaner",
+            "placeholder": "Hvilken harmløs hemmelighed kan du indrømme?"
+          },
+          "FUTURE_HEADLINES": {
+            "title": "Fremtidens overskrifter",
+            "example": "Forudsigelser om folkene i rummet",
+            "placeholder": "Hvor er nogen her om ti år?"
+          },
+          "HOUSE_AWARDS": {
+            "title": "Huspriser",
+            "example": "Find på en pris og nominér nogen",
+            "placeholder": "Hvem fortjener en pris, og for hvad?"
+          },
+          "IMPOSSIBLE_CHOICES": {
+            "title": "Umulige valg",
+            "example": "Svære og sjove enten-eller-spørgsmål",
+            "placeholder": "Lav et umuligt enten-eller-valg…"
+          },
+          "FRIENDLY_CHALLENGES": {
+            "title": "Venlige udfordringer",
+            "example": "Hurtige og harmløse udfordringer",
+            "placeholder": "Giv nogen en et-minuts-udfordring…"
+          },
+          "WILDCARD": {
+            "title": "Joker",
+            "example": "Noget originalt, der passer til rummet",
+            "placeholder": "Skriv et valgfrit spørgsmål til rummet…"
+          },
+          "PEKELEK": {
+            "title": "Pegeleg",
+            "example": "Alle peger på nogen, der passer til beskrivelsen",
+            "placeholder": "Hvem i rummet passer bedst til dette?"
+          },
+          "JEG_HAR_ALDRI": {
+            "title": "Jeg har aldrig",
+            "example": "Små afsløringer og mærkelige oplevelser",
+            "placeholder": "Hvad har du aldrig gjort?"
+          },
+          "RED_FLAG_DEALBREAKER_OK": {
+            "title": "Red flag, dealbreaker, ok",
+            "example": "Sortér ting fra ja til nej",
+            "placeholder": "Hvad er et tydeligt red flag for dig?"
+          },
+          "FUCK_MARRY_KILL": {
+            "title": "Fuck, marry, kill...",
+            "example": "Tre valg, ingen perfekte svar",
+            "placeholder": "Vælg: hvem, hvem og hvem?"
+          },
+          "LAG_EN_REGEL": {
+            "title": "Lav en regel",
+            "example": "En ny regel for aftenen",
+            "placeholder": "Hvilken regel skal gælde resten af spillet?"
+          },
+          "DILEMMA": {
+            "title": "Dilemma",
+            "example": "To dårlige eller gode valg",
+            "placeholder": "Hvad ville du vælge i dette dilemma?"
+          },
+          "KATEGORILEK": {
+            "title": "Kategorileg",
+            "example": "Find ord, der passer til kategorien",
+            "placeholder": "Hvilken kategori vil du teste rummet med?"
+          }
         }
       }
     }
@@ -1294,27 +1523,90 @@
     "manageAchievements": "Administrer præstationer",
     "manageAchievementsSubtitle": "Slå præstationer til eller fra for kollektivet",
     "achievementKeys": {
-      "TASK_1":    { "title": "Første skridt",       "description": "Fuldfør din første opgave" },
-      "TASK_5":    { "title": "Godt i gang",         "description": "Fuldfør 5 opgaver" },
-      "TASK_10":   { "title": "Ti fuldført",         "description": "Fuldfør 10 opgaver" },
-      "TASK_25":   { "title": "Kollektivhelt",       "description": "Fuldfør 25 opgaver" },
-      "TASK_50":   { "title": "Opgavetitan",         "description": "Fuldfør 50 opgaver" },
-      "STREAK_3":  { "title": "På stribe",           "description": "Fuldfør opgaver 3 dage i træk" },
-      "STREAK_7":  { "title": "Ugekriger",           "description": "Fuldfør opgaver 7 dage i træk" },
-      "STREAK_14": { "title": "Jernvilje",           "description": "Fuldfør opgaver 14 dage i træk" },
-      "EARLY_BIRD":{ "title": "Morgenfugl",          "description": "Fuldfør 3 opgaver før fristen" },
-      "EARLY_10":  { "title": "På forkant",          "description": "Fuldfør 10 opgaver før fristen" },
-      "ON_TIME_10":{ "title": "Præcis",              "description": "Fuldfør 10 opgaver inden fristen" },
-      "NO_PENALTY":{ "title": "Ren straffeattest",   "description": "Fuldfør 5 opgaver uden straf" },
-      "CLEANING_5":{ "title": "Rent hus",            "description": "Fuldfør 5 rengøringsopgaver" },
-      "DISHES_5":  { "title": "Opvaskeknuser",       "description": "Fuldfør 5 opvaskeopgaver" },
-      "TRASH_5":   { "title": "Skraldemester",       "description": "Fuldfør 5 skraldeopgaver" },
-      "RECURRING_10": { "title": "Pålidelig bofælle", "description": "Fuldfør 10 gentagne opgaver" },
-      "LEVEL_2":   { "title": "Niveau op",           "description": "Nå niveau 2" },
-      "LEVEL_5":   { "title": "Kollektivproff",      "description": "Nå niveau 5" },
-      "XP_100":    { "title": "Hundredeklubben",     "description": "Tjen 100 XP" },
-      "XP_500":    { "title": "XP-maskine",          "description": "Tjen 500 XP" },
-      "XP_1000":   { "title": "XP-legende",          "description": "Tjen 1 000 XP" }
+      "TASK_1": {
+        "title": "Første skridt",
+        "description": "Fuldfør din første opgave"
+      },
+      "TASK_5": {
+        "title": "Godt i gang",
+        "description": "Fuldfør 5 opgaver"
+      },
+      "TASK_10": {
+        "title": "Ti fuldført",
+        "description": "Fuldfør 10 opgaver"
+      },
+      "TASK_25": {
+        "title": "Kollektivhelt",
+        "description": "Fuldfør 25 opgaver"
+      },
+      "TASK_50": {
+        "title": "Opgavetitan",
+        "description": "Fuldfør 50 opgaver"
+      },
+      "STREAK_3": {
+        "title": "På stribe",
+        "description": "Fuldfør opgaver 3 dage i træk"
+      },
+      "STREAK_7": {
+        "title": "Ugekriger",
+        "description": "Fuldfør opgaver 7 dage i træk"
+      },
+      "STREAK_14": {
+        "title": "Jernvilje",
+        "description": "Fuldfør opgaver 14 dage i træk"
+      },
+      "EARLY_BIRD": {
+        "title": "Morgenfugl",
+        "description": "Fuldfør 3 opgaver før fristen"
+      },
+      "EARLY_10": {
+        "title": "På forkant",
+        "description": "Fuldfør 10 opgaver før fristen"
+      },
+      "ON_TIME_10": {
+        "title": "Præcis",
+        "description": "Fuldfør 10 opgaver inden fristen"
+      },
+      "NO_PENALTY": {
+        "title": "Ren straffeattest",
+        "description": "Fuldfør 5 opgaver uden straf"
+      },
+      "CLEANING_5": {
+        "title": "Rent hus",
+        "description": "Fuldfør 5 rengøringsopgaver"
+      },
+      "DISHES_5": {
+        "title": "Opvaskeknuser",
+        "description": "Fuldfør 5 opvaskeopgaver"
+      },
+      "TRASH_5": {
+        "title": "Skraldemester",
+        "description": "Fuldfør 5 skraldeopgaver"
+      },
+      "RECURRING_10": {
+        "title": "Pålidelig bofælle",
+        "description": "Fuldfør 10 gentagne opgaver"
+      },
+      "LEVEL_2": {
+        "title": "Niveau op",
+        "description": "Nå niveau 2"
+      },
+      "LEVEL_5": {
+        "title": "Kollektivproff",
+        "description": "Nå niveau 5"
+      },
+      "XP_100": {
+        "title": "Hundredeklubben",
+        "description": "Tjen 100 XP"
+      },
+      "XP_500": {
+        "title": "XP-maskine",
+        "description": "Tjen 500 XP"
+      },
+      "XP_1000": {
+        "title": "XP-legende",
+        "description": "Tjen 1 000 XP"
+      }
     },
     "custom": {
       "builtIn": "Indbyggede præstationer",
@@ -1387,10 +1679,22 @@
       "drinks_multiplier": " · ×{{m}} drinks"
     },
     "presets": {
-      "default":  { "label": "Standard",   "description": "15 runder, balanceret blanding af kaos og statistik." },
-      "quick":    { "label": "Hurtig",      "description": "8 runder — kom ind, bliv glad, kom ud." },
-      "hardcore": { "label": "Hardcore",    "description": "20 runder, dobbelte drinks, ingen nåde." },
-      "casual":   { "label": "Afslappet",   "description": "12 runder, lette slurke, statistik betyder lidt." }
+      "default": {
+        "label": "Standard",
+        "description": "15 runder, balanceret blanding af kaos og statistik."
+      },
+      "quick": {
+        "label": "Hurtig",
+        "description": "8 runder — kom ind, bliv glad, kom ud."
+      },
+      "hardcore": {
+        "label": "Hardcore",
+        "description": "20 runder, dobbelte drinks, ingen nåde."
+      },
+      "casual": {
+        "label": "Afslappet",
+        "description": "12 runder, lette slurke, statistik betyder lidt."
+      }
     },
     "playing": {
       "roundOf": "Runde {{current}} af {{total}}",

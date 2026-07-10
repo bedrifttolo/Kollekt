@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "../lib/api";
 import { qk } from "../lib/queryKeys";
+import { queryClient as sharedQueryClient } from "../lib/queryClient";
 import { connectCollectiveRealtime } from "../lib/realtime";
 import { useUser } from "../context/UserContext";
 import { formatCurrency, formatDate } from "../i18n/helpers";
@@ -16,8 +17,14 @@ export default function PantTrackerPage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { currentUser } = useUser();
-  const [pantSummary, setPantSummary] = useState<PantSummary | null>(null);
-  const [loading, setLoading] = useState(true);
+  // Seed from the warm React Query cache so re-entering the tab renders instantly instead
+  // of flashing the loading skeleton on every navigation.
+  const [pantSummary, setPantSummary] = useState<PantSummary | null>(
+    () => sharedQueryClient.getQueryData<PantSummary>(qk.pant(currentUser?.name ?? "")) ?? null,
+  );
+  const [loading, setLoading] = useState(
+    () => !sharedQueryClient.getQueryData(qk.pant(currentUser?.name ?? "")),
+  );
   const [addAmount, setAddAmount] = useState("");
   const [editingTotal, setEditingTotal] = useState(false);
   const [editTotalValue, setEditTotalValue] = useState("");
@@ -134,7 +141,7 @@ export default function PantTrackerPage() {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12 }}
+      initial={false}
       animate={{ opacity: 1, y: 0 }}
       className="space-y-5 pt-4"
     >

@@ -39,7 +39,7 @@ export default function SnusboksenGame({ players, onClose }: { players: string[]
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-background p-5">
+    <div className="fixed inset-0 z-[60] overflow-y-auto bg-background p-5">
       <div className="mx-auto max-w-md space-y-5">
         <div className="flex items-center gap-3">
           <button onClick={onClose} className="btn-ghost !p-3"><ArrowLeft className="h-5 w-5" /></button>

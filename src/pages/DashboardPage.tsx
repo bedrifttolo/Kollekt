@@ -9,10 +9,27 @@ import { qk } from '../lib/queryKeys';
 import { useUser } from '../context/UserContext';
 import { formatCurrency, formatDate, formatTime, translateKey } from '../i18n/helpers';
 import { connectCollectiveRealtime } from '../lib/realtime';
-import type { AppUser, DashboardResponse, HouseCheckin } from '../lib/types';
+import type { AppUser, DashboardResponse, HouseCheckin, TaskCategory } from '../lib/types';
 import { AvatarStack, Eyebrow, VibeRing } from '../components/ui-kit';
 import { colorForMember } from '../lib/memberColors';
 import { showHomeBanner, hideHomeBanner } from '../lib/ads';
+
+// Category-specific glyphs so each upcoming task reads at a glance, mirroring the task categories.
+const TASK_CATEGORY_EMOJI: Record<TaskCategory, string> = {
+  CLEANING: '🧹',
+  SMALL_CLEANING: '🧺',
+  VACUUMING: '🌀',
+  MOPPING: '🧽',
+  BATHROOM: '🚿',
+  KITCHEN: '🍳',
+  LAUNDRY: '👕',
+  DISHES: '🍽️',
+  TRASH: '🗑️',
+  DUSTING: '🪶',
+  WINDOWS: '🪟',
+  SHOPPING: '🛒',
+  OTHER: '✅',
+};
 
 const container = {
   hidden: {},
@@ -41,7 +58,7 @@ export default function DashboardPage() {
   const { t: translate } = useTranslation();
   const { currentUser } = useUser();
   const queryClient = useQueryClient();
-  const [onlineCount, setOnlineCount] = useState(0);
+  const [onlineCount, setOnlineCount] = useState<number | null>(null);
   const [mood, setMood] = useState(3);
   const [issue, setIssue] = useState('');
   const [improvement, setImprovement] = useState('');
@@ -84,13 +101,16 @@ export default function DashboardPage() {
     });
   };
 
+  // Keyed on the stable member name (not the currentUser object) so the socket isn't torn
+  // down and reconnected on every unrelated re-render — same presence logic as the chat.
+  const name = currentUser?.name;
   useEffect(() => {
-    if (!currentUser) return;
+    if (!name) return;
     const disconnect = connectCollectiveRealtime(
-      currentUser.name,
+      name,
       (event) => {
         if (['TASK_UPDATED', 'TASK_COMPLETED_LATE', 'EXPENSE_CREATED', 'EVENT_CREATED', 'BALANCES_SETTLED'].includes(event.type)) {
-          void queryClient.invalidateQueries({ queryKey: qk.dashboard(currentUser.name) });
+          void queryClient.invalidateQueries({ queryKey: qk.dashboard(name) });
         }
         if (event.type === 'MEMBER_ONLINE' || event.type === 'MEMBER_OFFLINE') {
           const count = (event.payload as { count?: number })?.count;
@@ -99,7 +119,7 @@ export default function DashboardPage() {
       },
     );
     return disconnect;
-  }, [currentUser, queryClient]);
+  }, [name, queryClient]);
 
   if (isPending || !data) {
     return (
@@ -118,7 +138,7 @@ export default function DashboardPage() {
     hour < 12 ? 'dashboard.greetingMorning' : hour < 18 ? 'dashboard.greetingAfternoon' : 'dashboard.greetingEvening';
 
   return (
-    <motion.div variants={container} initial="hidden" animate="show" className="space-y-5 pt-3 pb-6">
+    <motion.div variants={container} initial={false} animate="show" className="space-y-5 pt-3 pb-6">
       {/* Welcome */}
       <motion.div variants={item}>
         <Eyebrow>{translate('dashboard.today')}</Eyebrow>
@@ -218,7 +238,7 @@ export default function DashboardPage() {
       <motion.div variants={item} className="flex items-center gap-2">
         <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
         <p className="text-[10px] text-muted-foreground">
-          {translate('common.live')} • {onlineCount > 0 ? translate('dashboard.onlineRoommates', { count: onlineCount }) : translate('common.connecting')}
+          {translate('common.live')} • {onlineCount === null ? translate('common.connecting') : translate('dashboard.onlineRoommates', { count: onlineCount })}
         </p>
       </motion.div>
 
@@ -237,8 +257,8 @@ export default function DashboardPage() {
           )}
           {data.upcomingTasks.slice(0, 5).map((task) => (
             <button key={task.id} onClick={() => navigate('/tasks')} className="card !rounded-2xl !p-3.5 flex items-center gap-3 w-full text-left group hover:shadow-md transition-shadow">
-              <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                <CheckSquare className="h-5 w-5 text-primary" />
+              <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 text-xl leading-none">
+                {TASK_CATEGORY_EMOJI[task.category] ?? '✅'}
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold truncate">{task.title}</p>

@@ -214,7 +214,7 @@ export default function GamesPanel() {
       </div>
 
       {rulesGame && (
-        <div className="fixed inset-0 z-50 flex items-end bg-black/35 p-4" onClick={() => setRulesGame(null)}>
+        <div className="fixed inset-0 z-[60] flex items-end bg-black/35 p-4 pb-[calc(env(safe-area-inset-bottom)+1rem)]" onClick={() => setRulesGame(null)}>
           <div className="w-full rounded-2xl border border-border bg-card p-4 shadow-xl" onClick={(event) => event.stopPropagation()}>
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
@@ -241,7 +241,7 @@ export default function GamesPanel() {
       )}
 
       {showPaywall && (
-        <div className="fixed inset-0 z-50 flex items-end bg-black/40 p-4" onClick={() => setShowPaywall(false)}>
+        <div className="fixed inset-0 z-[60] flex items-end bg-black/40 p-4 pb-[calc(env(safe-area-inset-bottom)+1rem)]" onClick={() => setShowPaywall(false)}>
           <div className="w-full rounded-2xl border border-border bg-card p-5 shadow-xl" onClick={(event) => event.stopPropagation()}>
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">

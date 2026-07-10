@@ -17,12 +17,12 @@
   "prompts": [
     {
       "id": 1,
-      "text": "Har du ligget med noen på snaplista di?",
+      "text": "Har du ligget med noen på snapchat-lista di?",
       "kind": "challenge"
     },
     {
       "id": 2,
-      "text": "Hvem er den mest pysete i sengen?",
+      "text": "Hvem her er mest pysete i senga?",
       "kind": "challenge"
     },
     {
@@ -32,147 +32,147 @@
     },
     {
       "id": 4,
-      "text": "Fortell din største hemmelighet",
+      "text": "Fortell den største hemmeligheten din.",
       "kind": "challenge"
     },
     {
       "id": 5,
-      "text": "Spør bestemoren din om hvem som er favorittbarnebarn.",
+      "text": "Ring bestemor og spør hvem som er favorittbarnebarnet.",
       "kind": "challenge"
     },
     {
       "id": 6,
-      "text": "Hvem liker du best i rommet?",
+      "text": "Hvem her liker du best?",
       "kind": "challenge"
     },
     {
       "id": 7,
-      "text": "Hvor er du på skalaen hvor 1 er homo og 10 er hetro?",
+      "text": "På en skala fra 1 til 10, hvor rullete er du egentlig?",
       "kind": "challenge"
     },
     {
       "id": 8,
-      "text": "Kunne du ligget med faren til hosten?",
+      "text": "Kunne du ligget med faren til han som holder festen?",
       "kind": "challenge"
     },
     {
       "id": 9,
-      "text": "Add fem stykker på quick add og send de en snap",
+      "text": "Legg til fem tilfeldige på Quick Add og send dem en snap.",
       "kind": "challenge"
     },
     {
       "id": 10,
-      "text": "Har du hatt 69 drikk 6 slurker",
+      "text": "Har du prøvd 69? Hvis ja, drikk 6 slurker.",
       "kind": "challenge"
     },
     {
       "id": 11,
-      "text": "Gi en shot til hosten",
+      "text": "Gi en shot til han som holder festen.",
       "kind": "challenge"
     },
     {
       "id": 12,
-      "text": "Syng et refreng uten musikk",
+      "text": "Syng et refreng helt uten musikk.",
       "kind": "challenge"
     },
     {
       "id": 13,
-      "text": "Fortell en vits",
+      "text": "Fortell en vits. Hvis ingen ler, drikk.",
       "kind": "challenge"
     },
     {
       "id": 14,
-      "text": "Legg ut en en instastory",
+      "text": "Legg ut en insta-story akkurat nå.",
       "kind": "challenge"
     },
     {
       "id": 15,
-      "text": "Ring et familiemedlem og si du har klamydia",
+      "text": "Ring et familiemedlem og si du nettopp har fått deg leilighet.",
       "kind": "challenge"
     },
     {
       "id": 16,
-      "text": "Lese opp søkelista di på instagram",
+      "text": "Les opp søkehistorikken din på Instagram.",
       "kind": "challenge"
     },
     {
       "id": 17,
-      "text": "Hva pleier du å se på porno?",
+      "text": "Hvilken sjanger går du oftest for på porno?",
       "kind": "challenge"
     },
     {
       "id": 18,
-      "text": "Vis skjermen din til den som sitter til venstre — de velger én kontakt du MÅ sende en uskyldig snap til",
+      "text": "Vis skjermen til han på venstre — de velger én kontakt du MÅ sende en uskyldig snap til.",
       "kind": "challenge"
     },
     {
       "id": 19,
-      "text": "Kjører i kveld på snapstory!",
+      "text": "Legg ut «kjører i kveld 🚗» på snap-storyen.",
       "kind": "challenge"
     },
     {
       "id": 20,
-      "text": "Si de tre øverste du har på snap bestevennlista di",
+      "text": "Si de tre øverste på snap-bestisene dine.",
       "kind": "challenge"
     },
     {
       "id": 21,
-      "text": "Send «streak» til noen du ikke snapper med",
+      "text": "Send «streak?» til noen du aldri snapper med.",
       "kind": "challenge"
     },
     {
       "id": 22,
-      "text": "Svar på den første instastoryen som kommer opp",
+      "text": "Svar på den første insta-storyen som dukker opp.",
       "kind": "challenge"
     },
     {
       "id": 23,
-      "text": "Legg ut et bilde på facebook",
+      "text": "Legg ut et bilde på Facebook.",
       "kind": "challenge"
     },
     {
       "id": 24,
-      "text": "Send live på facebook",
+      "text": "Gå live på Facebook i ti sekunder.",
       "kind": "challenge"
     },
     {
       "id": 25,
-      "text": "Fortell din sex fetish",
+      "text": "Innrøm en fetish, hvis du tør.",
       "kind": "challenge"
     },
     {
       "id": 26,
-      "text": "Fortell om din kleineste sex historie",
+      "text": "Fortell den kleineste sexhistorien din.",
       "kind": "challenge"
     },
     {
       "id": 27,
-      "text": "Pek på den som er størst pyse",
+      "text": "Pek på den største pysa i rommet.",
       "kind": "challenge"
     },
     {
       "id": 28,
-      "text": "Legg ut en tiktok på instagram",
+      "text": "Legg ut en TikTok på Instagram.",
       "kind": "challenge"
     },
     {
       "id": 29,
-      "text": "Send en dm til en kjendis!",
+      "text": "Send en DM til en kjendis.",
       "kind": "challenge"
     },
     {
       "id": 30,
-      "text": "Fortell antall sexpartnere",
+      "text": "Si tallet på personer du har ligget med.",
       "kind": "challenge"
     },
     {
       "id": 31,
-      "text": "Gjett antall sex partnere på den til venstre og den til høyere for deg",
+      "text": "Gjett tallet til han på venstre og han på høyre.",
       "kind": "challenge"
     },
     {
       "id": 32,
-      "text": "Hvem tenker du på når du ser på porno?",
+      "text": "Hvem her tenker du på litt for ofte?",
       "kind": "challenge"
     },
     {
@@ -182,77 +182,77 @@
     },
     {
       "id": 34,
-      "text": "Sett deg i hotseat — gruppa stiller deg 3 spørsmål du MÅ svare ærlig på",
+      "text": "Sett deg i hotseat — gruppa stiller tre spørsmål du MÅ svare ærlig på.",
       "kind": "challenge"
     },
     {
       "id": 35,
-      "text": "Spander/Bland en drink på en fremmed/en i rommet",
+      "text": "Bland en drink til noen i rommet.",
       "kind": "challenge"
     },
     {
       "id": 36,
-      "text": "Bytt antrekk med den til høyre",
+      "text": "Bytt antrekk med han på høyre.",
       "kind": "challenge"
     },
     {
       "id": 37,
-      "text": "La noen snoke på mobilen din",
+      "text": "La noen bla gjennom mobilen din i 30 sekunder.",
       "kind": "challenge"
     },
     {
       "id": 38,
-      "text": "Post en instastory med teksten: «Noen her er forelsket i meg» 👀",
+      "text": "Legg ut en insta-story: «Noen her er forelska i meg 👀»",
       "kind": "challenge"
     },
     {
       "id": 39,
-      "text": "Si noe til personen til venstre som du aldri ville sagt edru",
+      "text": "Si noe til han på venstre som du aldri ville sagt edru.",
       "kind": "challenge"
     },
     {
       "id": 40,
-      "text": "Pek på den som gråt sist",
+      "text": "Pek på den som gråt sist.",
       "kind": "challenge"
     },
     {
       "id": 41,
-      "text": "Stilleleken — alle tier i 60 sekunder, inkludert musikken. Den som snakker tar 5 slurker.",
+      "text": "Stilleleken — alle er stille i 60 sekunder, musikken også. Snakker du, drikk 5 slurker.",
       "kind": "challenge"
     },
     {
       "id": 42,
-      "text": "Drikk ti slurker",
+      "text": "Drikk ti slurker.",
       "kind": "challenge"
     },
     {
       "id": 43,
-      "text": "Gi bort ti slurker",
+      "text": "Del ut ti slurker.",
       "kind": "challenge"
     },
     {
       "id": 44,
-      "text": "Hvor vil du ha sex",
+      "text": "Hvor har du mest lyst til å ha sex?",
       "kind": "challenge"
     },
     {
       "id": 45,
-      "text": "Rareste stedet du har hatt sex",
+      "text": "Rareste stedet du har hatt sex?",
       "kind": "challenge"
     },
     {
       "id": 46,
-      "text": "Hvem dør først?",
+      "text": "Hvem her ryker først i en zombie-apokalypse?",
       "kind": "challenge"
     },
     {
       "id": 47,
-      "text": "La personen til høyre velge én kontakt fra telefonen din — send dem en tilfeldig GIF",
+      "text": "La han på høyre velge en kontakt — send dem en tilfeldig GIF.",
       "kind": "challenge"
     },
     {
       "id": 48,
-      "text": "La gruppa skrive og sende én valgfri melding fra telefonen din",
+      "text": "La gruppa skrive og sende én melding fra mobilen din. Du bestemmer hvem den går til.",
       "kind": "challenge"
     },
     {
@@ -262,142 +262,142 @@
     },
     {
       "id": 50,
-      "text": "Har du hatt anal?",
+      "text": "Team anal eller ikke? Bare ja eller nei.",
       "kind": "challenge"
     },
     {
       "id": 51,
-      "text": "Lag en gruppe med en du vil ha sex med å en du ikke vil ha sex med å skriv, jeg vil ha sex med en av dere.",
+      "text": "Innrøm hvem her du hadde swipet høyre på hvis dere ikke kjente hverandre.",
       "kind": "challenge"
     },
     {
       "id": 52,
-      "text": "Lag en gruppe med ditt verste og beste ligg å skriv det, og deretter leav gruppa",
+      "text": "Beskriv det beste og det verste ligget ditt — uten navn.",
       "kind": "challenge"
     },
     {
       "id": 53,
-      "text": "Fortell om din første sexopplevelse",
+      "text": "Fortell om første gang.",
       "kind": "challenge"
     },
     {
       "id": 54,
-      "text": "Vis på en annen i rommet hvordan du ville gått frem før sex",
+      "text": "Vis på en pute hvordan du legger an før sex.",
       "kind": "challenge"
     },
     {
       "id": 55,
-      "text": "Gjør din beste imitasjon av noen i rommet — alle gjetter hvem",
+      "text": "Gjør din beste imitasjon av noen i rommet — resten gjetter hvem.",
       "kind": "challenge"
     },
     {
       "id": 56,
-      "text": "Hva er ditt beste triks for å få noen i seng",
+      "text": "Hva er det beste flørtetrikset ditt?",
       "kind": "challenge"
     },
     {
       "id": 57,
-      "text": "Fortell om din beste tinderdate",
+      "text": "Fortell om den beste Tinder-daten din.",
       "kind": "challenge"
     },
     {
       "id": 58,
-      "text": "Har du noen gang glemt at du har hatt sex",
+      "text": "Har du noen gang glemt at du har hatt sex?",
       "kind": "challenge"
     },
     {
       "id": 59,
-      "text": "Hvem av dine venninners ex ville du ligget med",
+      "text": "Hvilken av eksene til vennene dine er farligst for deg?",
       "kind": "challenge"
     },
     {
       "id": 60,
-      "text": "Vipps 50kr til nr 7 på lista di",
+      "text": "Vipps 50 kr til nummer 7 i kontaktlista.",
       "kind": "challenge"
     },
     {
       "id": 61,
-      "text": "Ta en shot",
+      "text": "Ta en shot.",
       "kind": "challenge"
     },
     {
       "id": 62,
-      "text": "Ring den neste på vennelisten din, si «Hei, bare ringte for å si at jeg er glad i deg» og legg på",
+      "text": "Ring den neste i kontaktene, si «hei, ringte bare for å si at jeg er glad i deg» og legg på.",
       "kind": "challenge"
     },
     {
       "id": 63,
-      "text": "Hvilket realityprogram kunne du vært med på å hvorfor?",
+      "text": "Hvilket realityprogram kunne du vært med på, og hvorfor?",
       "kind": "challenge"
     },
     {
       "id": 64,
-      "text": "Hvem må ligge i kveld?!",
+      "text": "Hvem her trenger å få seg noe i kveld?",
       "kind": "challenge"
     },
     {
       "id": 65,
-      "text": "Si et sted der du har hatt sex, alle som har ligget på samme stedet må drikke",
+      "text": "Si et sted du har hatt sex — alle som har hatt sex på samme sted drikker.",
       "kind": "challenge"
     },
     {
       "id": 66,
-      "text": "Har du hatt anal i senga til noen her?",
+      "text": "Har du hatt sex i senga til noen som er her nå?",
       "kind": "challenge"
     },
     {
       "id": 67,
-      "text": "Favoritt sex stilling",
+      "text": "Favorittstillingen din?",
       "kind": "challenge"
     },
     {
       "id": 68,
-      "text": "Har du noen gang blitt ferska i å hatt sex, utdyp",
+      "text": "Har du noen gang blitt tatt på fersken? Utdyp.",
       "kind": "challenge"
     },
     {
       "id": 69,
-      "text": "Har du ligget med mer enn 10 personer totalt",
+      "text": "Har du ligget med mer enn ti personer totalt?",
       "kind": "challenge"
     },
     {
       "id": 70,
-      "text": "Når gråt du sist",
+      "text": "Når gråt du sist?",
       "kind": "challenge"
     },
     {
       "id": 71,
-      "text": "Send snap til alle du har ligget med",
+      "text": "Send en «hei, lenge siden 👀» til den siste du lå med.",
       "kind": "challenge"
     },
     {
       "id": 72,
-      "text": "Send en fellesnap til alle på M",
+      "text": "Send en fellessnap til alle som har navn på M.",
       "kind": "challenge"
     },
     {
       "id": 73,
-      "text": "Send en familiesnap",
+      "text": "Send en familiesnap.",
       "kind": "challenge"
     },
     {
       "id": 74,
-      "text": "Hvor lang er tørketiden din",
+      "text": "Hvor lang er tørketiden din akkurat nå?",
       "kind": "challenge"
     },
     {
       "id": 75,
-      "text": "Lik det eldste bildet du finner på Instagram-profilen til personen til venstre for deg",
+      "text": "Lik det eldste bildet du finner på Instagram-profilen til han på venstre.",
       "kind": "challenge"
     },
     {
       "id": 76,
-      "text": "Hvem er den værste du har hatt sex med?",
+      "text": "Hvem er den verste du har ligget med?",
       "kind": "challenge"
     },
     {
       "id": 77,
-      "text": "Pek på hvem som må chugge?",
+      "text": "Pek på hvem som må chugge.",
       "kind": "challenge"
     },
     {
@@ -407,87 +407,87 @@
     },
     {
       "id": 79,
-      "text": "Fortell om din sex fantasi",
+      "text": "Fortell en sexfantasi.",
       "kind": "challenge"
     },
     {
       "id": 80,
-      "text": "Kunne du vært med på ex on the beach",
+      "text": "Kunne du vært med på Ex on the Beach?",
       "kind": "challenge"
     },
     {
       "id": 81,
-      "text": "Hvem trenger psykolog",
+      "text": "Hvem her har mest bruk for en psykolog?",
       "kind": "challenge"
     },
     {
       "id": 82,
-      "text": "Har du hatt skype-sex/ telefon-sex?",
+      "text": "Har du hatt telefonsex?",
       "kind": "challenge"
     },
     {
       "id": 83,
-      "text": "Lese opp søkelista på safari",
+      "text": "Les opp søkehistorikken din i Safari.",
       "kind": "challenge"
     },
     {
       "id": 84,
-      "text": "Send en selfie til den du lå med sist og skriv «rate meg»",
+      "text": "Send en selfie til den siste du lå med og skriv «rate meg».",
       "kind": "challenge"
     },
     {
       "id": 85,
-      "text": "Fortell om det mest pinlige du har gjort for å imponere noen du likte",
+      "text": "Fortell det mest pinlige du har gjort for å imponere noen du likte.",
       "kind": "challenge"
     },
     {
       "id": 86,
-      "text": "Vis oss din beste orgasmelyd",
+      "text": "Gi oss din beste orgasmelyd.",
       "kind": "challenge"
     },
     {
       "id": 87,
-      "text": "Hvem liker du minst i rommet?",
+      "text": "Hvem her liker du minst? (Med glimt i øyet.)",
       "kind": "challenge"
     },
     {
       "id": 88,
-      "text": "Fortell om din avhengighet",
+      "text": "Innrøm en guilty pleasure ingen vet om.",
       "kind": "challenge"
     },
     {
       "id": 89,
-      "text": "Har du hatt sex i sengen til noen i rommet her?",
+      "text": "Har du hatt sex i senga til noen i rommet?",
       "kind": "challenge"
     },
     {
       "id": 90,
-      "text": "Velg en å ta en shot med",
+      "text": "Velg noen å ta en shot med.",
       "kind": "challenge"
     },
     {
       "id": 91,
-      "text": "Hva er det værste du har opplevd",
+      "text": "Hva er det verste du har opplevd?",
       "kind": "challenge"
     },
     {
       "id": 92,
-      "text": "La den til venstre velge en kontakt — send dem en selfie med teksten «Hei! 😊»",
+      "text": "La han på venstre velge en kontakt — send dem en selfie med teksten «Hei! 😊»",
       "kind": "challenge"
     },
     {
       "id": 93,
-      "text": "Rygg mot rygg med personen til høyre. Gruppa stiller dere ett spørsmål, og dere svarer samtidig på 3, 2, 1.",
+      "text": "Rygg mot rygg med han på høyre. Gruppa stiller ett spørsmål, dere svarer samtidig på 3, 2, 1.",
       "kind": "challenge"
     },
     {
       "id": 94,
-      "text": "Fortell din sykeste sex historie",
+      "text": "Fortell den villeste sexhistorien din.",
       "kind": "challenge"
     },
     {
       "id": 95,
-      "text": "Kyss den peneste i rommet",
+      "text": "Gi en oppriktig kompliment til den peneste i rommet.",
       "kind": "challenge"
     },
     {
@@ -497,22 +497,22 @@
     },
     {
       "id": 97,
-      "text": "Har du prompa under sex, ikke fittefis",
+      "text": "Har du prompet under sex? Ærlig nå.",
       "kind": "challenge"
     },
     {
       "id": 98,
-      "text": "Har du noen gang hørt foreldrene dine hatt sex",
+      "text": "Har du noen gang hørt foreldrene dine ha sex?",
       "kind": "challenge"
     },
     {
       "id": 99,
-      "text": "Hvem er morsomst? Klovnen må drikke 5 slurker",
+      "text": "Hvem er morsomst her? Klovnen tar 5 slurker.",
       "kind": "challenge"
     },
     {
       "id": 100,
-      "text": "Lag en gruppe med alle sexpartenere du har hatt",
+      "text": "Hvor mange samtaler har du gående på dating-apper akkurat nå?",
       "kind": "challenge"
     },
     {
@@ -522,230 +522,230 @@
     },
     {
       "id": 102,
-      "text": "Fortell om et hett øyeblikk du aldri vil glemme",
+      "text": "Fortell om et hett øyeblikk du aldri glemmer.",
       "kind": "challenge"
     },
     {
       "id": 103,
-      "text": "Har du tissa på deg under sex før?",
+      "text": "Har du tissa på deg under sex? Ja eller nei.",
       "kind": "challenge"
     },
     {
       "id": 104,
-      "text": "La gruppa sende en valgfri melding til hvem som helst på mobilen di",
+      "text": "La gruppa sende én melding til hvem de vil fra mobilen din.",
       "kind": "challenge"
     },
     {
       "id": 105,
-      "text": "Drikk antall sex-partnere",
+      "text": "Drikk like mange slurker som antallet du har ligget med (maks 10).",
       "kind": "challenge"
     }
   ],
   "translations": {
     "en": {
       "title": "Truth or Chug",
-      "shortTitle": "Chug",
-      "description": "Pick a number, take the challenge, or drink.",
+      "shortTitle": "Truth or Chug",
+      "description": "Pick a number, take the dare. Chicken out and the drinks are on you.",
       "rules": [
         "Say a number from 1 to 105.",
-        "Mark the number when it has been taken if you want to keep track.",
-        "If someone says the same number, they have to chug.",
-        "If you do not do the challenge, drink 5 sips and the challenge stays open for others.",
-        "If you do the challenge, everyone drinks 2 sips.",
-        "The trick is to remember the numbers that have been said so you avoid chugging."
+        "Tick off numbers as they're taken if you want to keep track.",
+        "If someone says a number that's already been said, they chug.",
+        "Skip the challenge? Drink 5 sips and it stays open for the others.",
+        "Do the challenge and EVERYONE drinks 2 sips.",
+        "Trick: remember the numbers that have been said so you don't chug."
       ],
       "prompts": [
         {
           "id": 1,
-          "text": "Have you slept with someone on your Snapchat list?"
+          "text": "Have you hooked up with anyone on your Snapchat list?"
         },
         {
           "id": 2,
-          "text": "Who is the most timid in bed?"
+          "text": "Who here is the biggest chicken in bed?"
         },
         {
           "id": 3,
-          "text": "Who did you sleep with last?"
+          "text": "Who did you hook up with last?"
         },
         {
           "id": 4,
-          "text": "Tell your biggest secret"
+          "text": "Tell us your biggest secret."
         },
         {
           "id": 5,
-          "text": "Ask your grandmother who her favorite grandchild is."
+          "text": "Call your grandma and ask who her favourite grandkid is."
         },
         {
           "id": 6,
-          "text": "Who do you like best in the room?"
+          "text": "Who here do you like the most?"
         },
         {
           "id": 7,
-          "text": "Where are you on a scale where 1 is gay and 10 is straight?"
+          "text": "On a scale of 1 to 10, how much do you actually swing both ways?"
         },
         {
           "id": 8,
-          "text": "Could you sleep with the host's dad?"
+          "text": "Could you hook up with the host's dad?"
         },
         {
           "id": 9,
-          "text": "Add five people from Quick Add and send them a Snap"
+          "text": "Add five random people from Quick Add and send them a snap."
         },
         {
           "id": 10,
-          "text": "If you have done 69, drink 6 sips"
+          "text": "Have you tried 69? If yes, drink 6 sips."
         },
         {
           "id": 11,
-          "text": "Give a shot to the host"
+          "text": "Give a shot to whoever's hosting."
         },
         {
           "id": 12,
-          "text": "Sing a chorus without music"
+          "text": "Sing a chorus with no music at all."
         },
         {
           "id": 13,
-          "text": "Tell a joke"
+          "text": "Tell a joke. If nobody laughs, drink."
         },
         {
           "id": 14,
-          "text": "Post an Instagram story"
+          "text": "Post an Insta story right now."
         },
         {
           "id": 15,
-          "text": "Call a family member and say you have chlamydia"
+          "text": "Call a family member and tell them you just got your own place."
         },
         {
           "id": 16,
-          "text": "Read out your Instagram search list"
+          "text": "Read out your Instagram search history."
         },
         {
           "id": 17,
-          "text": "What do you usually watch in porn?"
+          "text": "What genre do you go for most on porn?"
         },
         {
           "id": 18,
-          "text": "Show your screen to the person on your left — they pick one contact you have to send an innocent snap to"
+          "text": "Show your screen to the person on your left — they pick one contact you HAVE to send an innocent snap to."
         },
         {
           "id": 19,
-          "text": "Post \"I am driving tonight\" on your Snap story!"
+          "text": "Post 'driving tonight 🚗' on your Snap story."
         },
         {
           "id": 20,
-          "text": "Say the top three people on your Snapchat best friends list"
+          "text": "Say your top three Snapchat best friends."
         },
         {
           "id": 21,
-          "text": "Send \"streak\" to someone you do not usually snap"
+          "text": "Send 'streak?' to someone you never snap."
         },
         {
           "id": 22,
-          "text": "Reply to the first Instagram story that appears"
+          "text": "Reply to the first Insta story that pops up."
         },
         {
           "id": 23,
-          "text": "Post a picture on Facebook"
+          "text": "Post a picture on Facebook."
         },
         {
           "id": 24,
-          "text": "Go live on Facebook"
+          "text": "Go live on Facebook for ten seconds."
         },
         {
           "id": 25,
-          "text": "Tell your sex fetish"
+          "text": "Admit a fetish, if you dare."
         },
         {
           "id": 26,
-          "text": "Tell your most awkward sex story"
+          "text": "Tell your most awkward sex story."
         },
         {
           "id": 27,
-          "text": "Point to the person with the biggest pussy"
+          "text": "Point at the biggest scaredy-cat in the room."
         },
         {
           "id": 28,
-          "text": "Post a TikTok on Instagram"
+          "text": "Post a TikTok on Instagram."
         },
         {
           "id": 29,
-          "text": "Send a DM to a celebrity!"
+          "text": "Send a DM to a celebrity."
         },
         {
           "id": 30,
-          "text": "Tell your number of sexual partners"
+          "text": "Say your number."
         },
         {
           "id": 31,
-          "text": "Guess the number of sexual partners of the person to your left and the person to your right"
+          "text": "Guess the number of the person on your left and the one on your right."
         },
         {
           "id": 32,
-          "text": "Who do you think about when you watch porn?"
+          "text": "Who here do you think about a little too often?"
         },
         {
           "id": 33,
-          "text": "Who is the best person you have slept with?"
+          "text": "Who's the best you've ever hooked up with?"
         },
         {
           "id": 34,
-          "text": "Hot seat — the group asks you 3 questions you MUST answer honestly"
+          "text": "Hot seat — the group asks you three questions you MUST answer honestly."
         },
         {
           "id": 35,
-          "text": "Buy or mix a drink for a stranger or someone in the room"
+          "text": "Mix a drink for someone in the room."
         },
         {
           "id": 36,
-          "text": "Swap outfits with the person to your right"
+          "text": "Swap outfits with the person on your right."
         },
         {
           "id": 37,
-          "text": "Let someone snoop through your phone"
+          "text": "Let someone scroll through your phone for 30 seconds."
         },
         {
           "id": 38,
-          "text": "Post an Instagram story saying: 'Someone here is in love with me' 👀"
+          "text": "Post an Insta story: 'Someone here has a crush on me 👀'"
         },
         {
           "id": 39,
-          "text": "Say something to the person on your left that you'd never say sober"
+          "text": "Say something to the person on your left you'd never say sober."
         },
         {
           "id": 40,
-          "text": "Point to the person who cried most recently"
+          "text": "Point at whoever cried most recently."
         },
         {
           "id": 41,
-          "text": "Silence game — everyone is quiet for 60 seconds, music included. Anyone who speaks drinks 5 sips."
+          "text": "Silence game — everyone quiet for 60 seconds, music off. Talk and you drink 5 sips."
         },
         {
           "id": 42,
-          "text": "Drink ten sips"
+          "text": "Drink ten sips."
         },
         {
           "id": 43,
-          "text": "Give away ten sips"
+          "text": "Hand out ten sips."
         },
         {
           "id": 44,
-          "text": "Where do you want to have sex?"
+          "text": "Where do you most want to have sex?"
         },
         {
           "id": 45,
-          "text": "Weirdest place you have had sex"
+          "text": "Weirdest place you've had sex?"
         },
         {
           "id": 46,
-          "text": "Who dies first?"
+          "text": "Who here goes first in a zombie apocalypse?"
         },
         {
           "id": 47,
-          "text": "Let the person on your right pick a contact from your phone — send them a random GIF"
+          "text": "Let the person on your right pick a contact — send them a random GIF."
         },
         {
           "id": 48,
-          "text": "Let the group write and send one message of their choice from your phone"
+          "text": "Let the group write and send one message from your phone. You pick who it goes to."
         },
         {
           "id": 49,
@@ -753,83 +753,83 @@
         },
         {
           "id": 50,
-          "text": "Have you had anal?"
+          "text": "Team anal or not? Just yes or no."
         },
         {
           "id": 51,
-          "text": "Create a group with one person you want to have sex with and one you do not want to have sex with, and write: \"I want to have sex with one of you.\""
+          "text": "Admit who here you'd swipe right on if you didn't know each other."
         },
         {
           "id": 52,
-          "text": "Create a group with your worst and best hookup, write that, then leave the group"
+          "text": "Describe your best and worst hookup — no names."
         },
         {
           "id": 53,
-          "text": "Tell about your first sexual experience"
+          "text": "Tell us about your first time."
         },
         {
           "id": 54,
-          "text": "Show on someone else in the room how you would make a move before sex"
+          "text": "Show on a pillow how you make your move before sex."
         },
         {
           "id": 55,
-          "text": "Do your best impression of someone in the room — everyone guesses who"
+          "text": "Do your best impression of someone in the room — the rest guess who."
         },
         {
           "id": 56,
-          "text": "What is your best trick for getting someone into bed?"
+          "text": "What's your best flirting move?"
         },
         {
           "id": 57,
-          "text": "Tell about your best Tinder date"
+          "text": "Tell us about your best Tinder date."
         },
         {
           "id": 58,
-          "text": "Have you ever forgotten that you had sex?"
+          "text": "Have you ever forgotten you had sex?"
         },
         {
           "id": 59,
-          "text": "Which of your friends' exes would you sleep with?"
+          "text": "Which of your friends' exes is the most dangerous for you?"
         },
         {
           "id": 60,
-          "text": "Vipps or send 50 kr to number 7 on your list"
+          "text": "Send 50 to number 7 in your contacts."
         },
         {
           "id": 61,
-          "text": "Take a shot"
+          "text": "Take a shot."
         },
         {
           "id": 62,
-          "text": "Call the next person on your contacts list, say 'Hey, just calling to say I care about you' and hang up"
+          "text": "Call the next contact, say 'hey, just calling to say I love you' and hang up."
         },
         {
           "id": 63,
-          "text": "Which reality show could you be on and why?"
+          "text": "Which reality show could you go on, and why?"
         },
         {
           "id": 64,
-          "text": "Who needs to get laid tonight?!"
+          "text": "Who here needs to get some tonight?"
         },
         {
           "id": 65,
-          "text": "Name a place where you have had sex; everyone who has had sex in the same place drinks"
+          "text": "Name a place you've had sex — everyone who's done it there drinks."
         },
         {
           "id": 66,
-          "text": "Have you had anal in the bed of someone here?"
+          "text": "Have you had sex in the bed of someone who's here now?"
         },
         {
           "id": 67,
-          "text": "Favorite sex position"
+          "text": "Your favourite position?"
         },
         {
           "id": 68,
-          "text": "Have you ever been caught having sex? Explain"
+          "text": "Have you ever been caught in the act? Spill."
         },
         {
           "id": 69,
-          "text": "Have you slept with more than 10 people total?"
+          "text": "Have you hooked up with more than ten people total?"
         },
         {
           "id": 70,
@@ -837,87 +837,87 @@
         },
         {
           "id": 71,
-          "text": "Send a Snap to everyone you have slept with"
+          "text": "Send 'hey, been a while 👀' to the last person you hooked up with."
         },
         {
           "id": 72,
-          "text": "Send a group Snap to everyone whose name starts with M"
+          "text": "Send a group snap to everyone whose name starts with M."
         },
         {
           "id": 73,
-          "text": "Send a family Snap"
+          "text": "Send a family snap."
         },
         {
           "id": 74,
-          "text": "How long is your dry spell?"
+          "text": "How long is your dry spell right now?"
         },
         {
           "id": 75,
-          "text": "Like the oldest photo you can find on the Instagram profile of the person to your left"
+          "text": "Like the oldest photo on the Instagram profile of the person on your left."
         },
         {
           "id": 76,
-          "text": "Who is the worst person you have had sex with?"
+          "text": "Who's the worst you've hooked up with?"
         },
         {
           "id": 77,
-          "text": "Point to who has to chug"
+          "text": "Point at who has to chug."
         },
         {
           "id": 78,
-          "text": "You must speak English for the rest of the game."
+          "text": "You have to speak English for the rest of the game."
         },
         {
           "id": 79,
-          "text": "Tell your sex fantasy"
+          "text": "Tell us a sex fantasy."
         },
         {
           "id": 80,
-          "text": "Could you be on Ex on the Beach?"
+          "text": "Could you go on Ex on the Beach?"
         },
         {
           "id": 81,
-          "text": "Who needs therapy?"
+          "text": "Who here needs therapy the most?"
         },
         {
           "id": 82,
-          "text": "Have you had Skype sex or phone sex?"
+          "text": "Have you had phone sex?"
         },
         {
           "id": 83,
-          "text": "Read out your Safari search list"
+          "text": "Read out your Safari search history."
         },
         {
           "id": 84,
-          "text": "Send a selfie to the person you last slept with and write \"rate me\""
+          "text": "Send a selfie to the last person you hooked up with and write 'rate me'."
         },
         {
           "id": 85,
-          "text": "Tell the group the most embarrassing thing you've done to impress someone you liked"
+          "text": "Tell us the most embarrassing thing you've done to impress a crush."
         },
         {
           "id": 86,
-          "text": "Give us your best orgasm sound"
+          "text": "Give us your best orgasm sound."
         },
         {
           "id": 87,
-          "text": "Who do you like least in the room?"
+          "text": "Who here do you like the least? (Say it with love.)"
         },
         {
           "id": 88,
-          "text": "Tell about your addiction"
+          "text": "Admit a guilty pleasure no one knows about."
         },
         {
           "id": 89,
-          "text": "Have you had sex in the bed of someone in this room?"
+          "text": "Have you had sex in the bed of anyone in this room?"
         },
         {
           "id": 90,
-          "text": "Choose someone to take a shot with"
+          "text": "Pick someone to take a shot with."
         },
         {
           "id": 91,
-          "text": "What is the worst thing you have experienced?"
+          "text": "What's the worst thing you've been through?"
         },
         {
           "id": 92,
@@ -925,15 +925,15 @@
         },
         {
           "id": 93,
-          "text": "Back to back with the person on your right. The group asks you one question — you both answer on 3, 2, 1 simultaneously."
+          "text": "Back to back with the person on your right. The group asks one question — you answer at the same time on 3, 2, 1."
         },
         {
           "id": 94,
-          "text": "Tell your wildest sex story"
+          "text": "Tell us your wildest sex story."
         },
         {
           "id": 95,
-          "text": "Kiss the prettiest person in the room"
+          "text": "Give a genuine compliment to the best-looking person in the room."
         },
         {
           "id": 96,
@@ -941,7 +941,7 @@
         },
         {
           "id": 97,
-          "text": "Have you farted during sex, not queefing?"
+          "text": "Have you farted during sex? Be honest."
         },
         {
           "id": 98,
@@ -949,31 +949,901 @@
         },
         {
           "id": 99,
-          "text": "Who is funniest? The clown drinks 5 sips"
+          "text": "Who's the funniest here? The clown drinks 5 sips."
         },
         {
           "id": 100,
-          "text": "Create a group with all the sexual partners you have had"
+          "text": "How many chats do you have going on dating apps right now?"
         },
         {
           "id": 101,
-          "text": "The group picks one word you are not allowed to say for the rest of the game. Five sips if you say it."
+          "text": "The group picks one word you CAN'T say for the rest of the game. Five sips if you slip."
         },
         {
           "id": 102,
-          "text": "Tell about a hot moment you will never forget"
+          "text": "Tell us about a hot moment you'll never forget."
         },
         {
           "id": 103,
-          "text": "Have you peed yourself during sex before?"
+          "text": "Have you peed yourself during sex? Yes or no."
         },
         {
           "id": 104,
-          "text": "Let the group send any message to anyone on your phone"
+          "text": "Let the group send one message to whoever they want from your phone."
         },
         {
           "id": 105,
-          "text": "Drink the number of sexual partners you have had"
+          "text": "Drink as many sips as your number (max 10)."
+        }
+      ]
+    },
+    "sv": {
+      "title": "Sanning eller chug",
+      "shortTitle": "Sanning eller chug",
+      "description": "Välj en siffra, ta utmaningen. Fegar du ur får du dricka.",
+      "rules": [
+        "Säg en siffra mellan 1 och 105.",
+        "Bocka av siffror som tagits om du vill hålla koll.",
+        "Säger någon en siffra som redan sagts måste de chugga.",
+        "Hoppar du över utmaningen? Drick 5 klunkar, den står kvar för de andra.",
+        "Gör du utmaningen dricker ALLA 2 klunkar.",
+        "Tips: kom ihåg siffrorna som sagts så slipper du chugga."
+      ],
+      "prompts": [
+        {
+          "id": 1,
+          "text": "Har du legat med någon på din snapchat-lista?"
+        },
+        {
+          "id": 2,
+          "text": "Vem här är störst mes i sängen?"
+        },
+        {
+          "id": 3,
+          "text": "Vem låg du med senast?"
+        },
+        {
+          "id": 4,
+          "text": "Berätta din största hemlighet."
+        },
+        {
+          "id": 5,
+          "text": "Ring mormor och fråga vem som är favoritbarnbarnet."
+        },
+        {
+          "id": 6,
+          "text": "Vem här gillar du bäst?"
+        },
+        {
+          "id": 7,
+          "text": "På en skala 1 till 10, hur mycket åt båda hållen är du egentligen?"
+        },
+        {
+          "id": 8,
+          "text": "Kunde du legat med pappan till den som håller festen?"
+        },
+        {
+          "id": 9,
+          "text": "Lägg till fem slumpmässiga på Quick Add och skicka en snap."
+        },
+        {
+          "id": 10,
+          "text": "Har du testat 69? Om ja, drick 6 klunkar."
+        },
+        {
+          "id": 11,
+          "text": "Ge en shot till den som håller festen."
+        },
+        {
+          "id": 12,
+          "text": "Sjung en refräng helt utan musik."
+        },
+        {
+          "id": 13,
+          "text": "Dra ett skämt. Om ingen skrattar, drick."
+        },
+        {
+          "id": 14,
+          "text": "Lägg upp en insta-story just nu."
+        },
+        {
+          "id": 15,
+          "text": "Ring en familjemedlem och säg att du precis fått egen lägenhet."
+        },
+        {
+          "id": 16,
+          "text": "Läs upp din sökhistorik på Instagram."
+        },
+        {
+          "id": 17,
+          "text": "Vilken genre kör du oftast på när det gäller porr?"
+        },
+        {
+          "id": 18,
+          "text": "Visa skärmen för personen till vänster — de väljer en kontakt du MÅSTE skicka en oskyldig snap till."
+        },
+        {
+          "id": 19,
+          "text": "Lägg upp 'kör ikväll 🚗' på din snap-story."
+        },
+        {
+          "id": 20,
+          "text": "Säg dina tre översta snap-bästisar."
+        },
+        {
+          "id": 21,
+          "text": "Skicka 'streak?' till någon du aldrig snappar med."
+        },
+        {
+          "id": 22,
+          "text": "Svara på den första insta-storyn som dyker upp."
+        },
+        {
+          "id": 23,
+          "text": "Lägg upp en bild på Facebook."
+        },
+        {
+          "id": 24,
+          "text": "Kör live på Facebook i tio sekunder."
+        },
+        {
+          "id": 25,
+          "text": "Erkänn en fetisch, om du vågar."
+        },
+        {
+          "id": 26,
+          "text": "Berätta din pinsammaste sexhistoria."
+        },
+        {
+          "id": 27,
+          "text": "Peka på den största mesen i rummet."
+        },
+        {
+          "id": 28,
+          "text": "Lägg upp en TikTok på Instagram."
+        },
+        {
+          "id": 29,
+          "text": "Skicka ett DM till en kändis."
+        },
+        {
+          "id": 30,
+          "text": "Säg ditt antal."
+        },
+        {
+          "id": 31,
+          "text": "Gissa antalet för personen till vänster och till höger."
+        },
+        {
+          "id": 32,
+          "text": "Vem här tänker du på lite för ofta?"
+        },
+        {
+          "id": 33,
+          "text": "Vem är den bästa du legat med?"
+        },
+        {
+          "id": 34,
+          "text": "Sätt dig i hot seat — gruppen ställer tre frågor du MÅSTE svara ärligt på."
+        },
+        {
+          "id": 35,
+          "text": "Blanda en drink till någon i rummet."
+        },
+        {
+          "id": 36,
+          "text": "Byt outfit med personen till höger."
+        },
+        {
+          "id": 37,
+          "text": "Låt någon bläddra i din mobil i 30 sekunder."
+        },
+        {
+          "id": 38,
+          "text": "Lägg upp en insta-story: 'Någon här är kär i mig 👀'"
+        },
+        {
+          "id": 39,
+          "text": "Säg något till personen till vänster du aldrig sagt nykter."
+        },
+        {
+          "id": 40,
+          "text": "Peka på den som grät senast."
+        },
+        {
+          "id": 41,
+          "text": "Tystnadsleken — alla tysta i 60 sekunder, musiken av. Pratar du, drick 5 klunkar."
+        },
+        {
+          "id": 42,
+          "text": "Drick tio klunkar."
+        },
+        {
+          "id": 43,
+          "text": "Dela ut tio klunkar."
+        },
+        {
+          "id": 44,
+          "text": "Var vill du helst ha sex?"
+        },
+        {
+          "id": 45,
+          "text": "Konstigaste stället du haft sex på?"
+        },
+        {
+          "id": 46,
+          "text": "Vem här ryker först i en zombieapokalyps?"
+        },
+        {
+          "id": 47,
+          "text": "Låt personen till höger välja en kontakt — skicka en slumpmässig GIF."
+        },
+        {
+          "id": 48,
+          "text": "Låt gruppen skriva och skicka ett meddelande från din mobil. Du väljer vem."
+        },
+        {
+          "id": 49,
+          "text": "Har du haft sex utomlands?"
+        },
+        {
+          "id": 50,
+          "text": "Team anal eller inte? Bara ja eller nej."
+        },
+        {
+          "id": 51,
+          "text": "Erkänn vem här du swajpat höger på om ni inte kände varandra."
+        },
+        {
+          "id": 52,
+          "text": "Beskriv ditt bästa och sämsta ligg — inga namn."
+        },
+        {
+          "id": 53,
+          "text": "Berätta om första gången."
+        },
+        {
+          "id": 54,
+          "text": "Visa på en kudde hur du gör en flört innan sex."
+        },
+        {
+          "id": 55,
+          "text": "Gör din bästa imitation av någon i rummet — resten gissar vem."
+        },
+        {
+          "id": 56,
+          "text": "Vad är ditt bästa flörttrick?"
+        },
+        {
+          "id": 57,
+          "text": "Berätta om din bästa Tinder-dejt."
+        },
+        {
+          "id": 58,
+          "text": "Har du någonsin glömt att du haft sex?"
+        },
+        {
+          "id": 59,
+          "text": "Vilken av dina kompisars exar är farligast för dig?"
+        },
+        {
+          "id": 60,
+          "text": "Swisha 50 till nummer 7 i kontaktlistan."
+        },
+        {
+          "id": 61,
+          "text": "Ta en shot."
+        },
+        {
+          "id": 62,
+          "text": "Ring nästa kontakt, säg 'hej, ringde bara för att säga att jag älskar dig' och lägg på."
+        },
+        {
+          "id": 63,
+          "text": "Vilket realityprogram kunde du vara med i, och varför?"
+        },
+        {
+          "id": 64,
+          "text": "Vem här behöver få lite ikväll?"
+        },
+        {
+          "id": 65,
+          "text": "Nämn ett ställe du haft sex på — alla som gjort det där dricker."
+        },
+        {
+          "id": 66,
+          "text": "Har du haft sex i sängen hos någon som är här nu?"
+        },
+        {
+          "id": 67,
+          "text": "Din favoritställning?"
+        },
+        {
+          "id": 68,
+          "text": "Har du någonsin blivit påkommen? Berätta."
+        },
+        {
+          "id": 69,
+          "text": "Har du legat med fler än tio totalt?"
+        },
+        {
+          "id": 70,
+          "text": "När grät du senast?"
+        },
+        {
+          "id": 71,
+          "text": "Skicka 'hej, längesen 👀' till den senaste du låg med."
+        },
+        {
+          "id": 72,
+          "text": "Skicka en gruppsnap till alla vars namn börjar på M."
+        },
+        {
+          "id": 73,
+          "text": "Skicka en familjesnap."
+        },
+        {
+          "id": 74,
+          "text": "Hur lång är din torka just nu?"
+        },
+        {
+          "id": 75,
+          "text": "Gilla den äldsta bilden på Instagram-profilen till personen till vänster."
+        },
+        {
+          "id": 76,
+          "text": "Vem är den sämsta du legat med?"
+        },
+        {
+          "id": 77,
+          "text": "Peka på vem som måste chugga."
+        },
+        {
+          "id": 78,
+          "text": "Du måste prata engelska resten av spelet."
+        },
+        {
+          "id": 79,
+          "text": "Berätta en sexfantasi."
+        },
+        {
+          "id": 80,
+          "text": "Kunde du vara med i Ex on the Beach?"
+        },
+        {
+          "id": 81,
+          "text": "Vem här behöver terapi mest?"
+        },
+        {
+          "id": 82,
+          "text": "Har du haft telefonsex?"
+        },
+        {
+          "id": 83,
+          "text": "Läs upp din sökhistorik i Safari."
+        },
+        {
+          "id": 84,
+          "text": "Skicka en selfie till den senaste du låg med och skriv 'rate mig'."
+        },
+        {
+          "id": 85,
+          "text": "Berätta det pinsammaste du gjort för att imponera på nån du gillade."
+        },
+        {
+          "id": 86,
+          "text": "Ge oss ditt bästa orgasmljud."
+        },
+        {
+          "id": 87,
+          "text": "Vem här gillar du minst? (Säg det med glimten i ögat.)"
+        },
+        {
+          "id": 88,
+          "text": "Erkänn en guilty pleasure ingen känner till."
+        },
+        {
+          "id": 89,
+          "text": "Har du haft sex i sängen hos någon i rummet?"
+        },
+        {
+          "id": 90,
+          "text": "Välj någon att ta en shot med."
+        },
+        {
+          "id": 91,
+          "text": "Vad är det värsta du varit med om?"
+        },
+        {
+          "id": 92,
+          "text": "Låt personen till vänster välja en kontakt — skicka en selfie med 'Hej! 😊'"
+        },
+        {
+          "id": 93,
+          "text": "Rygg mot rygg med personen till höger. Gruppen ställer en fråga — ni svarar samtidigt på 3, 2, 1."
+        },
+        {
+          "id": 94,
+          "text": "Berätta din vildaste sexhistoria."
+        },
+        {
+          "id": 95,
+          "text": "Ge en genuin komplimang till den snyggaste i rummet."
+        },
+        {
+          "id": 96,
+          "text": "Vem i rummet har haft flest hookups? Alla pekar."
+        },
+        {
+          "id": 97,
+          "text": "Har du fjärtat under sex? Var ärlig."
+        },
+        {
+          "id": 98,
+          "text": "Har du någonsin hört dina föräldrar ha sex?"
+        },
+        {
+          "id": 99,
+          "text": "Vem är roligast här? Clownen tar 5 klunkar."
+        },
+        {
+          "id": 100,
+          "text": "Hur många chattar har du igång på dejtingappar just nu?"
+        },
+        {
+          "id": 101,
+          "text": "Gruppen väljer ett ord du INTE får säga resten av spelet. Fem klunkar om du säger det."
+        },
+        {
+          "id": 102,
+          "text": "Berätta om ett hett ögonblick du aldrig glömmer."
+        },
+        {
+          "id": 103,
+          "text": "Har du kissat på dig under sex? Ja eller nej."
+        },
+        {
+          "id": 104,
+          "text": "Låt gruppen skicka ett meddelande till vem de vill från din mobil."
+        },
+        {
+          "id": 105,
+          "text": "Drick lika många klunkar som ditt antal (max 10)."
+        }
+      ]
+    },
+    "da": {
+      "title": "Sandhed eller chug",
+      "shortTitle": "Sandhed eller chug",
+      "description": "Vælg et tal, tag udfordringen. Kniber du ud, må du drikke.",
+      "rules": [
+        "Sig et tal fra 1 til 105.",
+        "Kryds tal af, når de er taget, hvis du vil holde styr.",
+        "Siger nogen et tal, der allerede er sagt, skal de chugge.",
+        "Springer du udfordringen over? Drik 5 slurke, den står åben for de andre.",
+        "Gør du udfordringen, drikker ALLE 2 slurke.",
+        "Tip: husk tallene, der er sagt, så du undgår at chugge."
+      ],
+      "prompts": [
+        {
+          "id": 1,
+          "text": "Har du været i seng med nogen på din snapchat-liste?"
+        },
+        {
+          "id": 2,
+          "text": "Hvem her er den største kylling i sengen?"
+        },
+        {
+          "id": 3,
+          "text": "Hvem var du i seng med sidst?"
+        },
+        {
+          "id": 4,
+          "text": "Fortæl din største hemmelighed."
+        },
+        {
+          "id": 5,
+          "text": "Ring mormor og spørg, hvem der er yndlingsbarnebarn."
+        },
+        {
+          "id": 6,
+          "text": "Hvem her kan du bedst lide?"
+        },
+        {
+          "id": 7,
+          "text": "På en skala fra 1 til 10, hvor meget går du begge veje?"
+        },
+        {
+          "id": 8,
+          "text": "Kunne du være i seng med værtens far?"
+        },
+        {
+          "id": 9,
+          "text": "Tilføj fem tilfældige fra Quick Add og send dem en snap."
+        },
+        {
+          "id": 10,
+          "text": "Har du prøvet 69? Hvis ja, drik 6 slurke."
+        },
+        {
+          "id": 11,
+          "text": "Giv en shot til værten."
+        },
+        {
+          "id": 12,
+          "text": "Syng et omkvæd helt uden musik."
+        },
+        {
+          "id": 13,
+          "text": "Fortæl en vittighed. Griner ingen, så drik."
+        },
+        {
+          "id": 14,
+          "text": "Læg en insta-story lige nu."
+        },
+        {
+          "id": 15,
+          "text": "Ring et familiemedlem og sig, du lige har fået egen lejlighed."
+        },
+        {
+          "id": 16,
+          "text": "Læs din søgehistorik på Instagram højt."
+        },
+        {
+          "id": 17,
+          "text": "Hvilken genre vælger du oftest, når det er porno?"
+        },
+        {
+          "id": 18,
+          "text": "Vis skærmen til personen til venstre — de vælger én kontakt, du SKAL sende en uskyldig snap til."
+        },
+        {
+          "id": 19,
+          "text": "Læg 'kører i aften 🚗' på din snap-story."
+        },
+        {
+          "id": 20,
+          "text": "Sig dine tre øverste snap-bedstevenner."
+        },
+        {
+          "id": 21,
+          "text": "Send 'streak?' til en, du aldrig snapper med."
+        },
+        {
+          "id": 22,
+          "text": "Svar på den første insta-story, der dukker op."
+        },
+        {
+          "id": 23,
+          "text": "Læg et billede op på Facebook."
+        },
+        {
+          "id": 24,
+          "text": "Gå live på Facebook i ti sekunder."
+        },
+        {
+          "id": 25,
+          "text": "Indrøm en fetich, hvis du tør."
+        },
+        {
+          "id": 26,
+          "text": "Fortæl din mest akavede sexhistorie."
+        },
+        {
+          "id": 27,
+          "text": "Peg på den største kylling i rummet."
+        },
+        {
+          "id": 28,
+          "text": "Læg en TikTok op på Instagram."
+        },
+        {
+          "id": 29,
+          "text": "Send en DM til en kendis."
+        },
+        {
+          "id": 30,
+          "text": "Sig dit tal."
+        },
+        {
+          "id": 31,
+          "text": "Gæt tallet for personen til venstre og til højre."
+        },
+        {
+          "id": 32,
+          "text": "Hvem her tænker du på lidt for ofte?"
+        },
+        {
+          "id": 33,
+          "text": "Hvem er den bedste, du har været i seng med?"
+        },
+        {
+          "id": 34,
+          "text": "Sæt dig i hot seat — gruppen stiller tre spørgsmål, du SKAL svare ærligt på."
+        },
+        {
+          "id": 35,
+          "text": "Bland en drink til nogen i rummet."
+        },
+        {
+          "id": 36,
+          "text": "Byt tøj med personen til højre."
+        },
+        {
+          "id": 37,
+          "text": "Lad nogen bladre i din mobil i 30 sekunder."
+        },
+        {
+          "id": 38,
+          "text": "Læg en insta-story: 'Nogen her er forelsket i mig 👀'"
+        },
+        {
+          "id": 39,
+          "text": "Sig noget til personen til venstre, du aldrig ville sige ædru."
+        },
+        {
+          "id": 40,
+          "text": "Peg på den, der græd senest."
+        },
+        {
+          "id": 41,
+          "text": "Stilhedslegen — alle stille i 60 sekunder, musikken slukket. Taler du, drik 5 slurke."
+        },
+        {
+          "id": 42,
+          "text": "Drik ti slurke."
+        },
+        {
+          "id": 43,
+          "text": "Uddel ti slurke."
+        },
+        {
+          "id": 44,
+          "text": "Hvor har du mest lyst til at have sex?"
+        },
+        {
+          "id": 45,
+          "text": "Det mærkeligste sted, du har haft sex?"
+        },
+        {
+          "id": 46,
+          "text": "Hvem her ryger først i en zombieapokalypse?"
+        },
+        {
+          "id": 47,
+          "text": "Lad personen til højre vælge en kontakt — send dem en tilfældig GIF."
+        },
+        {
+          "id": 48,
+          "text": "Lad gruppen skrive og sende én besked fra din mobil. Du vælger modtageren."
+        },
+        {
+          "id": 49,
+          "text": "Har du haft sex i udlandet?"
+        },
+        {
+          "id": 50,
+          "text": "Team anal eller ej? Bare ja eller nej."
+        },
+        {
+          "id": 51,
+          "text": "Indrøm, hvem her du ville swipe til højre på, hvis I ikke kendte hinanden."
+        },
+        {
+          "id": 52,
+          "text": "Beskriv dit bedste og værste ligg — ingen navne."
+        },
+        {
+          "id": 53,
+          "text": "Fortæl om første gang."
+        },
+        {
+          "id": 54,
+          "text": "Vis på en pude, hvordan du lægger an før sex."
+        },
+        {
+          "id": 55,
+          "text": "Lav din bedste imitation af nogen i rummet — resten gætter hvem."
+        },
+        {
+          "id": 56,
+          "text": "Hvad er dit bedste flirtetrick?"
+        },
+        {
+          "id": 57,
+          "text": "Fortæl om din bedste Tinder-date."
+        },
+        {
+          "id": 58,
+          "text": "Har du nogensinde glemt, at du har haft sex?"
+        },
+        {
+          "id": 59,
+          "text": "Hvilken af dine venners eks'er er farligst for dig?"
+        },
+        {
+          "id": 60,
+          "text": "MobilePay 50 til nummer 7 i kontaktlisten."
+        },
+        {
+          "id": 61,
+          "text": "Tag en shot."
+        },
+        {
+          "id": 62,
+          "text": "Ring den næste kontakt, sig 'hej, ringer bare for at sige, jeg elsker dig' og læg på."
+        },
+        {
+          "id": 63,
+          "text": "Hvilket realityprogram kunne du være med i, og hvorfor?"
+        },
+        {
+          "id": 64,
+          "text": "Hvem her trænger til at få noget i aften?"
+        },
+        {
+          "id": 65,
+          "text": "Nævn et sted, du har haft sex — alle, der har gjort det der, drikker."
+        },
+        {
+          "id": 66,
+          "text": "Har du haft sex i sengen hos nogen, der er her nu?"
+        },
+        {
+          "id": 67,
+          "text": "Din yndlingsstilling?"
+        },
+        {
+          "id": 68,
+          "text": "Er du nogensinde blevet taget på fersk gerning? Uddyb."
+        },
+        {
+          "id": 69,
+          "text": "Har du været i seng med mere end ti i alt?"
+        },
+        {
+          "id": 70,
+          "text": "Hvornår græd du sidst?"
+        },
+        {
+          "id": 71,
+          "text": "Send 'hej, længe siden 👀' til den sidste, du var i seng med."
+        },
+        {
+          "id": 72,
+          "text": "Send en gruppesnap til alle, hvis navn starter med M."
+        },
+        {
+          "id": 73,
+          "text": "Send en familiesnap."
+        },
+        {
+          "id": 74,
+          "text": "Hvor lang er din tørketid lige nu?"
+        },
+        {
+          "id": 75,
+          "text": "Synes godt om det ældste billede på Instagram-profilen til personen til venstre."
+        },
+        {
+          "id": 76,
+          "text": "Hvem er den værste, du har været i seng med?"
+        },
+        {
+          "id": 77,
+          "text": "Peg på, hvem der skal chugge."
+        },
+        {
+          "id": 78,
+          "text": "Du skal tale engelsk resten af spillet."
+        },
+        {
+          "id": 79,
+          "text": "Fortæl en sexfantasi."
+        },
+        {
+          "id": 80,
+          "text": "Kunne du være med i Ex on the Beach?"
+        },
+        {
+          "id": 81,
+          "text": "Hvem her har mest brug for en psykolog?"
+        },
+        {
+          "id": 82,
+          "text": "Har du haft telefonsex?"
+        },
+        {
+          "id": 83,
+          "text": "Læs din søgehistorik i Safari højt."
+        },
+        {
+          "id": 84,
+          "text": "Send en selfie til den sidste, du var i seng med, og skriv 'rate mig'."
+        },
+        {
+          "id": 85,
+          "text": "Fortæl det mest pinlige, du har gjort for at imponere en, du var lun på."
+        },
+        {
+          "id": 86,
+          "text": "Giv os din bedste orgasmelyd."
+        },
+        {
+          "id": 87,
+          "text": "Hvem her kan du mindst lide? (Sig det med et glimt i øjet.)"
+        },
+        {
+          "id": 88,
+          "text": "Indrøm en guilty pleasure, ingen kender til."
+        },
+        {
+          "id": 89,
+          "text": "Har du haft sex i sengen hos nogen i rummet?"
+        },
+        {
+          "id": 90,
+          "text": "Vælg nogen at tage en shot med."
+        },
+        {
+          "id": 91,
+          "text": "Hvad er det værste, du har oplevet?"
+        },
+        {
+          "id": 92,
+          "text": "Lad personen til venstre vælge en kontakt — send dem en selfie med 'Hej! 😊'"
+        },
+        {
+          "id": 93,
+          "text": "Ryg mod ryg med personen til højre. Gruppen stiller ét spørgsmål — I svarer samtidig på 3, 2, 1."
+        },
+        {
+          "id": 94,
+          "text": "Fortæl din vildeste sexhistorie."
+        },
+        {
+          "id": 95,
+          "text": "Giv en ægte kompliment til den flotteste i rummet."
+        },
+        {
+          "id": 96,
+          "text": "Hvem i rummet har haft flest hookups? Alle peger."
+        },
+        {
+          "id": 97,
+          "text": "Har du pruttet under sex? Vær ærlig."
+        },
+        {
+          "id": 98,
+          "text": "Har du nogensinde hørt dine forældre have sex?"
+        },
+        {
+          "id": 99,
+          "text": "Hvem er sjovest her? Klovnen tager 5 slurke."
+        },
+        {
+          "id": 100,
+          "text": "Hvor mange chats har du kørende på dating-apps lige nu?"
+        },
+        {
+          "id": 101,
+          "text": "Gruppen vælger ét ord, du IKKE må sige resten af spillet. Fem slurke, hvis du siger det."
+        },
+        {
+          "id": 102,
+          "text": "Fortæl om et hedt øjeblik, du aldrig glemmer."
+        },
+        {
+          "id": 103,
+          "text": "Har du tisset i bukserne under sex? Ja eller nej."
+        },
+        {
+          "id": 104,
+          "text": "Lad gruppen sende én besked til hvem de vil fra din mobil."
+        },
+        {
+          "id": 105,
+          "text": "Drik lige så mange slurke som dit tal (maks 10)."
         }
       ]
     }
