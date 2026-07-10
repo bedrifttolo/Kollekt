@@ -22,14 +22,16 @@ void i18n
   .use(initReactI18next)
   .init({
     resources,
-    fallbackLng: 'en',
+    fallbackLng: 'no',
     supportedLngs: SUPPORTED_LANGUAGES,
     nonExplicitSupportedLngs: true,
     load: 'languageOnly',
     returnNull: false,
     debug: false,
     detection: {
-      order: ['localStorage', 'navigator', 'htmlTag'],
+      // Only honour a language the user has explicitly chosen; a fresh install starts in
+      // Norwegian (fallbackLng) rather than following the device locale.
+      order: ['localStorage'],
       caches: ['localStorage'],
       lookupLocalStorage: LANGUAGE_STORAGE_KEY,
     },
@@ -46,7 +48,7 @@ function syncDocumentLanguage(language: string) {
   document.documentElement.lang = language;
 }
 
-syncDocumentLanguage(i18n.resolvedLanguage ?? i18n.language ?? 'en');
+syncDocumentLanguage(i18n.resolvedLanguage ?? i18n.language ?? 'no');
 i18n.on('languageChanged', syncDocumentLanguage);
 
 export default i18n;

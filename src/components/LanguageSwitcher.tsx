@@ -14,7 +14,7 @@ export default function LanguageSwitcher({ className }: { className?: string }) 
   const { i18n, t } = useTranslation();
   const currentLanguage = (SUPPORTED_LANGUAGES.includes(i18n.resolvedLanguage as SupportedLanguage)
     ? i18n.resolvedLanguage
-    : 'en') as SupportedLanguage;
+    : 'no') as SupportedLanguage;
 
   return (
     <div
