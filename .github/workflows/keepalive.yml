@@ -21,7 +21,7 @@ jobs:
         run: |
           for attempt in 1 2 3 4 5; do
             code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 120 \
-              https://kollekt-backend.onrender.com/api/health || echo "000")
+              https://kollekt-backend-7mdp.onrender.com/api/health || echo "000")
             echo "Attempt $attempt -> HTTP $code"
             if [ "$code" = "200" ]; then
               echo "Backend is awake."

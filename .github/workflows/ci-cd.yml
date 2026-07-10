@@ -122,7 +122,7 @@ jobs:
         id: tags
         run: |
           HUB="thomastolo/kollekt-frontend"
-          GHCR="ghcr.io/thomastolo/kollekt-frontend"
+          GHCR="ghcr.io/bedrifttolo/kollekt-frontend"
           if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
             VERSION="${{ github.ref_name }}"
             echo "tags=${HUB}:${VERSION},${HUB}:latest,${GHCR}:${VERSION},${GHCR}:latest" >> "$GITHUB_OUTPUT"
@@ -167,7 +167,7 @@ jobs:
         id: tags
         run: |
           HUB="thomastolo/kollekt-backend"
-          GHCR="ghcr.io/thomastolo/kollekt-backend"
+          GHCR="ghcr.io/bedrifttolo/kollekt-backend"
           if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
             VERSION="${{ github.ref_name }}"
             echo "tags=${HUB}:${VERSION},${HUB}:latest,${GHCR}:${VERSION},${GHCR}:latest" >> "$GITHUB_OUTPUT"
