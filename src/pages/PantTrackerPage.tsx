@@ -10,7 +10,7 @@ import { queryClient as sharedQueryClient } from "../lib/queryClient";
 import { connectCollectiveRealtime } from "../lib/realtime";
 import { useUser } from "../context/UserContext";
 import { formatCurrency, formatDate } from "../i18n/helpers";
-import type { PantSummary } from "../lib/types";
+import type { PantSummary, PantEntry } from "../lib/types";
 import { Eyebrow, OverflowMenu, ProgressBar } from "../components/ui-kit";
 
 export default function PantTrackerPage() {
@@ -70,14 +70,19 @@ export default function PantTrackerPage() {
   const handleAdd = async () => {
     const parsed = Math.round(Number(addAmount));
     if (!Number.isFinite(parsed) || parsed === 0) return;
-    await api.post("/economy/pant", {
-      bottles: parsed,
-      amount: parsed,
-      addedBy: name,
-      date: new Date().toISOString().split("T")[0],
-    });
+    const body = { bottles: parsed, amount: parsed, addedBy: name, date: new Date().toISOString().split("T")[0] };
+    // Optimistic: reflect the new entry and running total at once; fetchPant reconciles.
+    const tempId = -Date.now();
+    const optimistic: PantEntry = { id: tempId, ...body };
+    setPantSummary((prev) => (prev ? { ...prev, currentAmount: prev.currentAmount + parsed, entries: [optimistic, ...prev.entries] } : prev));
     setAddAmount("");
-    fetchPant();
+    try {
+      await api.post("/economy/pant", body);
+      fetchPant();
+    } catch {
+      setPantSummary((prev) => (prev ? { ...prev, currentAmount: prev.currentAmount - parsed, entries: prev.entries.filter((e) => e.id !== tempId) } : prev));
+      setAddAmount(String(parsed));
+    }
   };
 
   const handleEditTotal = async () => {

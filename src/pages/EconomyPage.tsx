@@ -116,7 +116,7 @@ export default function EconomyPage() {
 
   const handleAddExpense = async () => {
     if (!canAddExpense) return;
-    await api.post<Expense>('/economy/expenses', {
+    const body = {
       description: newTitle.trim(),
       amount: Math.round(parsedNewAmount),
       paidBy: name,
@@ -124,10 +124,24 @@ export default function EconomyPage() {
       date: new Date().toISOString().split('T')[0],
       participantNames: newSplit.length > 0 ? newSplit : [name],
       ...(newDeadline ? { deadlineDate: newDeadline } : {}),
-    });
+    };
+    const draft = { newTitle, newAmount, newCategory, newSplit, newDeadline };
+    // Optimistic: show the expense row and close the form at once. Balances stay server-owned
+    // and refresh when fetchSummary lands; the temp row is normalised away by the refetch.
+    const tempId = -Date.now();
+    const optimistic: Expense = { id: tempId, ...body };
+    setSummary((prev) => (prev ? { ...prev, expenses: [optimistic, ...prev.expenses] } : prev));
     setNewTitle(''); setNewAmount(''); setNewCategory('Other'); setNewSplit(members); setNewDeadline('');
     setShowAdd(false);
-    fetchSummary();
+    try {
+      await api.post<Expense>('/economy/expenses', body);
+      fetchSummary();
+    } catch {
+      setSummary((prev) => (prev ? { ...prev, expenses: prev.expenses.filter((e) => e.id !== tempId) } : prev));
+      setNewTitle(draft.newTitle); setNewAmount(draft.newAmount); setNewCategory(draft.newCategory);
+      setNewSplit(draft.newSplit); setNewDeadline(draft.newDeadline);
+      setShowAdd(true);
+    }
   };
 
   const startEdit = (expense: Expense) => {

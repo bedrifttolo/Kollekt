@@ -171,6 +171,20 @@
     padding-top: env(safe-area-inset-top, 0px);
     margin-bottom: calc(-6.25rem - env(safe-area-inset-bottom, 0px));
   }
+  /* When the on-screen keyboard is up, the bottom nav is hidden, so pages reclaim the space
+     it (and its reserved padding) used to occupy — inputs dock flush above the keyboard. */
+  html.keyboard-open .app-bottom-nav { display: none; }
+  html.keyboard-open .safe-content-bottom { padding-bottom: 0; }
+  html.keyboard-open .app-screen,
+  html.keyboard-open .app-screen-full { margin-bottom: 0; }
+  html.keyboard-open .app-screen {
+    height: calc(100vh - 4rem - 0.5rem - env(safe-area-inset-top, 0px));
+    height: calc(100dvh - 4rem - 0.5rem - env(safe-area-inset-top, 0px));
+  }
+  html.keyboard-open .app-screen-full {
+    height: calc(100vh - 0.5rem - env(safe-area-inset-bottom, 0px));
+    height: calc(100dvh - 0.5rem - env(safe-area-inset-bottom, 0px));
+  }
   .mark { position: relative; display: inline; z-index: 0; }
   .mark::after { content: ''; position: absolute; z-index: -1; left: -.04em; right: -.04em; bottom: .03em; height: .34em; background: var(--secondary); }
   .eyebrow { display: flex; align-items: center; gap: .55rem; color: var(--muted-foreground); font-size: .7rem; font-weight: 800; letter-spacing: .15em; text-transform: uppercase; }

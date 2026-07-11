@@ -23,7 +23,7 @@ const CollektGamePage = lazy(() => import('./pages/CollektGamePage'));
 // Guard for auth-only pages that don't need a collective (create-household)
 function AuthOnlyRoute({ children }: { children: React.ReactNode }) {
   const { currentUser, isLoading } = useUser();
-  if (isLoading) return (
+  if (isLoading && !currentUser) return (
     <div className="min-h-screen bg-background flex items-center justify-center">
       <div className="h-8 w-8 rounded-full gradient-primary animate-pulse" />
     </div>
@@ -35,7 +35,7 @@ function AuthOnlyRoute({ children }: { children: React.ReactNode }) {
 // Guard for login page: redirect already-authed users
 function GuestOnlyRoute({ children }: { children: React.ReactNode }) {
   const { currentUser, isLoading } = useUser();
-  if (isLoading) return (
+  if (isLoading && !currentUser) return (
     <div className="min-h-screen bg-background flex items-center justify-center">
       <div className="h-8 w-8 rounded-full gradient-primary animate-pulse" />
     </div>

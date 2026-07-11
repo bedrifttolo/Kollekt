@@ -166,21 +166,36 @@ export default function RanksPanel() {
   const handleCreateAchievement = async () => {
     const target = Number.parseInt(customTarget, 10);
     if (!customTitle.trim() || !customDescription.trim() || !Number.isInteger(target) || target < 1) return;
+    const body = {
+      title: customTitle.trim(),
+      description: customDescription.trim(),
+      metric: customMetric,
+      target,
+      taskCategory: customMetric === 'CATEGORY_COMPLETIONS' ? customCategory : null,
+      icon: customIcon,
+    };
+    const draft = { customTitle, customDescription, customTarget, customIcon };
+    // Optimistic: show the achievement and clear the form immediately, then reconcile.
+    const tempId = -Date.now();
+    const optimistic: Achievement = {
+      id: tempId, key: `custom-${tempId}`, title: body.title, description: body.description,
+      icon: customIcon, unlocked: false, progress: 0, total: target, custom: true, createdBy: name,
+    };
+    setAchievements((current) => [...current, optimistic]);
+    setCustomTitle('');
+    setCustomDescription('');
+    setCustomTarget('5');
+    setCustomIcon('sparkles');
     setSavingAchievement(true);
     try {
-      const created = await api.post<Achievement>(`/achievements/custom?memberName=${encodeURIComponent(name)}`, {
-        title: customTitle.trim(),
-        description: customDescription.trim(),
-        metric: customMetric,
-        target,
-        taskCategory: customMetric === 'CATEGORY_COMPLETIONS' ? customCategory : null,
-        icon: customIcon,
-      });
-      setAchievements((current) => [...current, created]);
-      setCustomTitle('');
-      setCustomDescription('');
-      setCustomTarget('5');
-      setCustomIcon('sparkles');
+      const created = await api.post<Achievement>(`/achievements/custom?memberName=${encodeURIComponent(name)}`, body);
+      setAchievements((current) => current.map((a) => (a.id === tempId ? created : a)));
+    } catch {
+      setAchievements((current) => current.filter((a) => a.id !== tempId));
+      setCustomTitle(draft.customTitle);
+      setCustomDescription(draft.customDescription);
+      setCustomTarget(draft.customTarget);
+      setCustomIcon(draft.customIcon);
     } finally {
       setSavingAchievement(false);
     }

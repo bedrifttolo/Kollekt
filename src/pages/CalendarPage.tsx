@@ -171,23 +171,30 @@ export default function CalendarPage() {
   const handleAdd = async () => {
     if (!newTitle.trim()) return;
     const date = `${year}-${String(month + 1).padStart(2, "0")}-${String(selectedDay).padStart(2, "0")}`;
+    const tempId = -Date.now();
     if (addMode === "guest") {
       if (!newEndTime) return;
-      const created = await api.post<GuestNotice>("/guest-notices", {
-        guestName: newTitle,
-        date,
-        startTime: newTime,
-        endTime: newEndTime,
-        overnight: overnightGuest,
-      });
-      setGuestNotices((previous) => [...previous, created]);
+      const body = { guestName: newTitle, date, startTime: newTime, endTime: newEndTime, overnight: overnightGuest };
+      const draft = { newTitle, newEndTime, overnightGuest };
+      const optimistic: GuestNotice = { id: tempId, ...body, createdBy: name, overlapsQuietHours: false };
+      setGuestNotices((previous) => [...previous, optimistic]);
       setNewTitle("");
       setNewEndTime("");
       setOvernightGuest(false);
       setShowAdd(false);
+      try {
+        const created = await api.post<GuestNotice>("/guest-notices", body);
+        setGuestNotices((previous) => previous.map((g) => (g.id === tempId ? created : g)));
+      } catch {
+        setGuestNotices((previous) => previous.filter((g) => g.id !== tempId));
+        setNewTitle(draft.newTitle);
+        setNewEndTime(draft.newEndTime);
+        setOvernightGuest(draft.overnightGuest);
+        setShowAdd(true);
+      }
       return;
     }
-    const created = await api.post<CalendarEvent>("/events", {
+    const body = {
       title: newTitle,
       date,
       time: newTime,
@@ -195,19 +202,27 @@ export default function CalendarPage() {
       type: newType,
       organizer: name,
       attendees: 1,
-    });
-    setEvents((prev) => [...prev, created]);
-    void addEventToDeviceCalendar({
-      title: newTitle,
-      date,
-      time: newTime,
-      endTime: newEndTime || null,
-    });
+    };
+    const draft = { newTitle, newTime, newEndTime, newType };
+    const optimistic: CalendarEvent = { id: tempId, ...body, joining: [], passing: [] };
+    setEvents((prev) => [...prev, optimistic]);
+    void addEventToDeviceCalendar({ title: newTitle, date, time: newTime, endTime: newEndTime || null });
     setNewTitle("");
     setNewTime("12:00");
     setNewEndTime("");
     setNewType("OTHER");
     setShowAdd(false);
+    try {
+      const created = await api.post<CalendarEvent>("/events", body);
+      setEvents((prev) => prev.map((e) => (e.id === tempId ? created : e)));
+    } catch {
+      setEvents((prev) => prev.filter((e) => e.id !== tempId));
+      setNewTitle(draft.newTitle);
+      setNewTime(draft.newTime);
+      setNewEndTime(draft.newEndTime);
+      setNewType(draft.newType);
+      setShowAdd(true);
+    }
   };
 
   const handleDelete = async (id: number) => {

@@ -367,26 +367,46 @@ export default function ChatPage() {
   const sendPoll = async () => {
     const opts = pollOptions.filter((o) => o.trim());
     if (!pollQuestion.trim() || opts.length < 2) return;
-    await api.post('/chat/polls', { question: pollQuestion, options: opts });
+    const question = pollQuestion;
+    const draftOptions = pollOptions;
+    // Close the form at once; the poll appears when the refetch lands. Restore on failure.
     setPollQuestion('');
     setPollOptions(['', '']);
     setShowPollForm(false);
-    fetchMessages();
+    try {
+      await api.post('/chat/polls', { question, options: opts });
+      fetchMessages();
+    } catch {
+      setPollQuestion(question);
+      setPollOptions(draftOptions);
+      setShowPollForm(true);
+    }
   };
 
   const sendKudos = async () => {
     if (!kudosReceiver) return;
-    await api.post<Kudo>('/kudos', {
+    const body = {
       receiver: kudosReceiver,
       type: kudosType,
       context: kudosContext.trim() || t(`kudos.types.${kudosType}`),
       taskId: kudosTaskId ? Number(kudosTaskId) : null,
-    });
+    };
+    const draft = { kudosReceiver, kudosType, kudosContext, kudosTaskId };
+    // Close the form immediately; kudos is delivered to the receiver server-side. Restore on failure.
     setKudosReceiver('');
     setKudosType('THANK_YOU');
     setKudosContext('');
     setKudosTaskId('');
     setShowKudosForm(false);
+    try {
+      await api.post<Kudo>('/kudos', body);
+    } catch {
+      setKudosReceiver(draft.kudosReceiver);
+      setKudosType(draft.kudosType);
+      setKudosContext(draft.kudosContext);
+      setKudosTaskId(draft.kudosTaskId);
+      setShowKudosForm(true);
+    }
   };
 
   const votePoll = async (messageId: number, optionId: number) => {
