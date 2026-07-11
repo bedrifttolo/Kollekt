@@ -73,7 +73,7 @@ export default function BottomNav() {
   }, [location.pathname, notifications, seenKey]);
 
   return (
-    <nav className="fixed bottom-0 left-3 right-3 z-50 safe-bottom">
+    <nav className="app-bottom-nav fixed bottom-0 left-3 right-3 z-50 safe-bottom">
       <div className="flex items-center justify-around h-17 max-w-xl mx-auto px-2 mb-2 rounded-[1.45rem] bg-sidebar text-sidebar-foreground border border-sidebar-border shadow-[0_12px_34px_rgba(9,25,16,.24)]">
         {tabs.map((tab) => {
           const isActive =

@@ -1,4 +1,4 @@
-import { Suspense } from 'react';
+import { Suspense, useEffect } from 'react';
 import { Outlet, Navigate, useLocation } from 'react-router-dom';
 import AppHeader from './AppHeader';
 import BottomNav from './BottomNav';
@@ -22,7 +22,37 @@ export default function AppLayout() {
   // header would just duplicate it and cost the messages a full row of space.
   const hideHeader = pathname === '/chat';
 
-  if (isLoading) {
+  // While the on-screen keyboard is up, mark the root so the fixed bottom nav hides and
+  // inputs dock directly above the keyboard (iOS resizes the webview natively). Focus
+  // moving between two text fields keeps the class on (checked after the event settles).
+  useEffect(() => {
+    const opensKeyboard = (el: EventTarget | null): boolean => {
+      if (el instanceof HTMLTextAreaElement) return true;
+      if (el instanceof HTMLElement && el.isContentEditable) return true;
+      if (el instanceof HTMLInputElement) {
+        return !['button', 'submit', 'reset', 'checkbox', 'radio', 'file', 'range', 'color', 'image'].includes(el.type);
+      }
+      return false;
+    };
+    const root = document.documentElement;
+    const onFocusIn = (e: FocusEvent) => {
+      if (opensKeyboard(e.target)) root.classList.add('keyboard-open');
+    };
+    const onFocusOut = () => {
+      window.setTimeout(() => {
+        if (!opensKeyboard(document.activeElement)) root.classList.remove('keyboard-open');
+      }, 0);
+    };
+    document.addEventListener('focusin', onFocusIn);
+    document.addEventListener('focusout', onFocusOut);
+    return () => {
+      document.removeEventListener('focusin', onFocusIn);
+      document.removeEventListener('focusout', onFocusOut);
+      root.classList.remove('keyboard-open');
+    };
+  }, []);
+
+  if (isLoading && !currentUser) {
     return (
       <div className="app-viewport bg-background flex items-center justify-center">
         <div className="h-8 w-8 rounded-full gradient-primary animate-pulse" />

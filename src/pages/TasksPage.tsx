@@ -450,18 +450,25 @@ function TasksMain() {
 
   const handleShoppingAdd = async () => {
     if (!newShoppingName.trim()) return;
-    const created = await api.post<ShoppingItem>('/tasks/shopping', {
-      item: newShoppingName,
-      addedBy: name,
-    });
-    setShopping((prev) => [...prev, created]);
+    const item = newShoppingName.trim();
+    const tempId = -Date.now();
+    const optimistic: ShoppingItem = { id: tempId, item, addedBy: name, completed: false };
+    setShopping((prev) => [...prev, optimistic]);
     setNewShoppingName('');
     setShowShoppingAdd(false);
+    try {
+      const created = await api.post<ShoppingItem>('/tasks/shopping', { item, addedBy: name });
+      setShopping((prev) => prev.map((i) => (i.id === tempId ? created : i)));
+    } catch {
+      setShopping((prev) => prev.filter((i) => i.id !== tempId));
+      setNewShoppingName(item);
+      setShowShoppingAdd(true);
+    }
   };
 
   const handleMaintenanceAdd = async () => {
     if (!newMaintenanceTitle.trim()) return;
-    const created = await api.post<MaintenanceTicket>('/maintenance/tickets', {
+    const body = {
       title: newMaintenanceTitle,
       description: newMaintenanceDescription,
       priority: newMaintenancePriority,
@@ -469,8 +476,24 @@ function TasksMain() {
       dueDate: newMaintenanceDue || null,
       costEstimate: newMaintenanceCost ? Number(newMaintenanceCost) : null,
       splitParticipants: newMaintenanceCost ? newMaintenanceSplit : [],
-    });
-    setMaintenanceTickets((previous) => [...previous, created]);
+    };
+    const draft = {
+      newMaintenanceTitle, newMaintenanceDescription, newMaintenanceAssignee,
+      newMaintenanceDue, newMaintenanceCost, newMaintenanceSplit,
+    };
+    const tempId = -Date.now();
+    const now = new Date().toISOString();
+    const optimistic: MaintenanceTicket = {
+      id: tempId,
+      ...body,
+      status: 'OPEN',
+      createdBy: name,
+      createdAt: now,
+      updatedAt: now,
+      overdue: false,
+      statusHistory: [],
+    };
+    setMaintenanceTickets((previous) => [...previous, optimistic]);
     setNewMaintenanceTitle('');
     setNewMaintenanceDescription('');
     setNewMaintenanceAssignee('');
@@ -478,6 +501,19 @@ function TasksMain() {
     setNewMaintenanceCost('');
     setNewMaintenanceSplit([]);
     setShowMaintenanceAdd(false);
+    try {
+      const created = await api.post<MaintenanceTicket>('/maintenance/tickets', body);
+      setMaintenanceTickets((previous) => previous.map((m) => (m.id === tempId ? created : m)));
+    } catch {
+      setMaintenanceTickets((previous) => previous.filter((m) => m.id !== tempId));
+      setNewMaintenanceTitle(draft.newMaintenanceTitle);
+      setNewMaintenanceDescription(draft.newMaintenanceDescription);
+      setNewMaintenanceAssignee(draft.newMaintenanceAssignee);
+      setNewMaintenanceDue(draft.newMaintenanceDue);
+      setNewMaintenanceCost(draft.newMaintenanceCost);
+      setNewMaintenanceSplit(draft.newMaintenanceSplit);
+      setShowMaintenanceAdd(true);
+    }
   };
 
   // Completing a ticket asks for the final cost, then files any paid amount as an economy expense.
@@ -688,12 +724,42 @@ function TasksMain() {
       setTasksState((prev) =>
         prev.map((task) => (task.id === editingId ? { ...task, ...body } : task)),
       );
-    } else {
-      const created = await api.post<Task>('/tasks', body);
-      setTasksState((prev) => [...prev, created]);
+      resetForm();
+      return;
     }
 
+    // Optimistic create: show the task immediately and close the form, then swap the
+    // temp row for the server's version. Rolls back and restores the draft on failure.
+    const draft = { newTitle, newAssignee, newDue, newCategory, newXp, newRecurrence };
+    const tempId = -Date.now();
+    const optimistic: Task = {
+      id: tempId,
+      title: body.title,
+      assignee: body.assignee,
+      dueDate: body.dueDate,
+      category: body.category,
+      completed: false,
+      xp: body.xp,
+      penaltyXp: 0,
+      recurrenceRule: body.recurrenceRule,
+      feedbacks: [],
+    };
+    setTasksState((prev) => sortTasks([...prev, optimistic]));
     resetForm();
+    try {
+      const created = await api.post<Task>('/tasks', body);
+      // Drop the temp row and any copy a realtime TASK_CREATED already added.
+      setTasksState((prev) => sortTasks([...prev.filter((t) => t.id !== tempId && t.id !== created.id), created]));
+    } catch {
+      setTasksState((prev) => prev.filter((t) => t.id !== tempId));
+      setNewTitle(draft.newTitle);
+      setNewAssignee(draft.newAssignee);
+      setNewDue(draft.newDue);
+      setNewCategory(draft.newCategory);
+      setNewXp(draft.newXp);
+      setNewRecurrence(draft.newRecurrence);
+      setShowAdd(true);
+    }
   };
 
   const readFeedbackFile = (file: File) => {
