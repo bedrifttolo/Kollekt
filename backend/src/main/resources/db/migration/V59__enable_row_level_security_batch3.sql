@@ -13,34 +13,62 @@ alter table task_history enable row level security;
 alter table kudos enable row level security;
 alter table event_attendance enable row level security;
 
--- NOTE: `flyway_schema_history` is deliberately absent and cannot be added here.
--- Flyway holds `select * from flyway_schema_history for update` on a separate
--- connection for the whole migration run; `alter table` needs ACCESS EXCLUSIVE,
--- which conflicts with that row lock, so the statement blocks until it hits the
--- statement timeout and the migration fails. Enable RLS on it out-of-band instead:
---     alter table public.flyway_schema_history enable row level security;
--- run once from the Supabase SQL editor. The revoke below already removes all
--- PostgREST access to it in the meantime.
-alter table flyway_schema_history enable row level security;
+-- `flyway_schema_history` is deliberately NOT touched anywhere in this file.
+-- Flyway keeps `select * from flyway_schema_history for update` open on a second
+-- connection for the whole migration run. Anything needing a conflicting lock on
+-- that table blocks until the statement timeout aborts the migration, so it must
+-- be handled out-of-band (see KOLLEKT_OVERVIEW.md).
 
--- Defence in depth: revoke PostgREST role grants (only exist on Supabase).
--- If these roles exist, strip all table/sequence access so API exposure is blocked
--- even if RLS is accidentally disabled. These roles don't exist on plain Postgres.
+-- Defence in depth: strip the grants Supabase hands the PostgREST roles, so these
+-- tables stay unreachable even if RLS is ever switched off. The roles only exist on
+-- Supabase, hence the lookup. RLS above is the actual protection — this block is
+-- hardening, so a short lock_timeout plus per-statement error handling makes sure it
+-- can never take the deploy down.
 do $$
+declare
+    tbl      record;
+    grantees text;
 begin
-    if exists (select 1 from pg_roles where rolname = 'anon') then
-        revoke all on all tables in schema public from anon;
-        revoke all on all sequences in schema public from anon;
-        -- Future migrations must not re-expose tables.
-        execute format('alter default privileges for role %I in schema public revoke all on tables from anon', current_user);
-        execute format('alter default privileges for role %I in schema public revoke all on sequences from anon', current_user);
+    select string_agg(quote_ident(rolname), ', ')
+      into grantees
+      from pg_roles
+     where rolname in ('anon', 'authenticated');
+
+    if grantees is null then
+        return; -- plain local Postgres: no PostgREST roles to revoke from
     end if;
-    if exists (select 1 from pg_roles where rolname = 'authenticated') then
-        revoke all on all tables in schema public from authenticated;
-        revoke all on all sequences in schema public from authenticated;
-        -- Future migrations must not re-expose tables.
-        execute format('alter default privileges for role %I in schema public revoke all on tables from authenticated', current_user);
-        execute format('alter default privileges for role %I in schema public revoke all on sequences from authenticated', current_user);
-    end if;
+
+    -- Surface a blocked table as a catchable lock_not_available instead of burning
+    -- the statement timeout. Scoped to this migration's transaction.
+    set local lock_timeout = '3s';
+
+    for tbl in
+        select tablename
+          from pg_tables
+         where schemaname = 'public'
+           and tablename <> 'flyway_schema_history'
+    loop
+        begin
+            execute format('revoke all on public.%I from %s', tbl.tablename, grantees);
+        exception when lock_not_available then
+            raise notice 'revoke skipped, % is locked', tbl.tablename;
+        end;
+    end loop;
+
+    begin
+        execute format('revoke all on all sequences in schema public from %s', grantees);
+    exception when lock_not_available then
+        raise notice 'sequence revoke skipped, object locked';
+    end;
+
+    -- Future migrations must not re-expose their tables.
+    execute format(
+        'alter default privileges for role %I in schema public revoke all on tables from %s',
+        current_user, grantees
+    );
+    execute format(
+        'alter default privileges for role %I in schema public revoke all on sequences from %s',
+        current_user, grantees
+    );
 end
 $$;
