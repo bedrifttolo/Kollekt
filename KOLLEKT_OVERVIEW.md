@@ -188,14 +188,18 @@ owner too and would break the backend.
 The split across three migrations is historical, not meaningful: the first attempt failed and
 `V57`/`V58` had already been recorded, so their checksums are frozen and they can't be merged.
 
-**`flyway_schema_history` is the one table RLS can't be enabled on from a migration.** Flyway
-keeps `select * from flyway_schema_history for update` open on a second connection for the
-entire run; `alter table` wants ACCESS EXCLUSIVE, which that row lock blocks, so the statement
-hangs until the statement timeout aborts the migration. `V59`'s revoke already strips the
-PostgREST roles' access to it; enabling RLS itself has to be run out-of-band:
+**`flyway_schema_history` is the one table no migration can touch.** Flyway keeps
+`select * from flyway_schema_history for update` open on a second connection for the entire
+run, so anything needing a conflicting lock on it — `alter table`, and `revoke` too — hangs
+until the statement timeout aborts the migration. `V59` therefore skips it in both its RLS
+list and its revoke loop. Run these two statements once from the Supabase SQL editor, while
+no deploy is in flight:
 ```sql
 alter table public.flyway_schema_history enable row level security;
+revoke all on public.flyway_schema_history from anon, authenticated;
 ```
+Until then that table stays reachable through PostgREST. It holds only migration names and
+checksums, but write access would let anyone corrupt Flyway's state, so don't leave it.
 
 ---
 
