@@ -22,7 +22,7 @@ Originally a student project (DAT251) based on a Figma export.
 - **Frontend:** React 18 + TypeScript, Vite, Tailwind, react-router-dom, TanStack Query, i18next, framer-motion.
 - **Mobile:** Capacitor iOS/Android shells (app id `no.kollekt.app`).
 - **Backend:** Spring Boot (Kotlin), package `com.kollekt`. Layered **api → service → repository → domain**.
-- **Database:** PostgreSQL (Supabase in prod; local Postgres in Docker Compose), Flyway migrations (**V1 → V57**).
+- **Database:** PostgreSQL (Supabase in prod; local Postgres in Docker Compose), Flyway migrations (**V1 → V59**).
 - **Realtime:** WebSockets. **No Redis, no Kafka** (both removed — tokens moved to PostgreSQL `auth_tokens`, stats computed on demand).
 - **DevOps:** Docker / Docker Compose / GitHub Actions → Docker Hub.
 
@@ -49,7 +49,7 @@ Originally a student project (DAT251) based on a Figma export.
 ### Backend (`backend/`, `com.kollekt`)
 
 - Entry: `KollektApplication.kt`. Controllers in `api/` (DTOs in `api/dto/ApiModels.kt`), business logic in `service/` (`*Operations` / `*Service` classes), Spring Data JPA in `repository/`, JPA entities in `domain/`, security/websocket/CORS in `config/`.
-- Flyway migrations in `backend/src/main/resources/db/migration` (`V1` baseline → `V57`).
+- Flyway migrations in `backend/src/main/resources/db/migration` (`V1` baseline → `V59`).
 - Tests under `backend/src/test`: `service/*Test`, `api/*ContractTest`, `acceptance/*` (user-story acceptance tests, see `user-story-test-mapping.md`).
 
 ## Common commands
