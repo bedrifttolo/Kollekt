@@ -172,17 +172,30 @@ Recent feature era (V34–V59):
 - **V50** small-cleaning task category · **V51** student-living improvements · **V52** task history
 - **V53** custom achievement icon · **V54** chat message recipient · **V55** performance indexes
 - **V56** event attendance (join/pass RSVP)
-- **V57–V59** row-level security on every `public` table (see "RLS" below, split into 3 migrations to avoid timeout)
+- **V57–V59** row-level security on every `public` table (see "RLS" below)
 
-**RLS.** Supabase exposes the whole `public` schema through PostgREST, so `V57–V59` enable
-row-level security on all 37 tables, split across 3 migrations for performance on Supabase's free tier
-(each migration does 12–14 tables). They define **no policies** — that denies the `anon` /
-`authenticated` API roles outright, while the JDBC role that owns the tables still bypasses
-RLS, leaving authorization exactly where it already lives (the Kotlin API layer). `V59` also
-revokes all grants from the PostgREST roles as defence-in-depth. Kollekt never calls Supabase directly, so nothing legitimate loses access. **Any new migration that
-creates a table must end with `alter table <name> enable row level security;`**, otherwise the
-Supabase linter flags it as publicly readable again. Do not add `force row level security` —
-it applies policies to the owner too and would break the backend.
+**RLS.** Supabase exposes the whole `public` schema through PostgREST, so `V57`–`V59` enable
+row-level security on all 36 application tables and define **no policies** — that denies the
+`anon` / `authenticated` API roles outright, while the JDBC role that owns the tables still
+bypasses RLS, leaving authorization exactly where it already lives (the Kotlin API layer).
+`V59` also revokes every grant those two roles hold and clears the matching default
+privileges, so future tables aren't re-exposed. Kollekt never calls Supabase directly, so
+nothing legitimate loses access. **Any new migration that creates a table must end with
+`alter table <name> enable row level security;`**, otherwise the Supabase linter flags it as
+publicly readable again. Do not add `force row level security` — it applies policies to the
+owner too and would break the backend.
+
+The split across three migrations is historical, not meaningful: the first attempt failed and
+`V57`/`V58` had already been recorded, so their checksums are frozen and they can't be merged.
+
+**`flyway_schema_history` is the one table RLS can't be enabled on from a migration.** Flyway
+keeps `select * from flyway_schema_history for update` open on a second connection for the
+entire run; `alter table` wants ACCESS EXCLUSIVE, which that row lock blocks, so the statement
+hangs until the statement timeout aborts the migration. `V59`'s revoke already strips the
+PostgREST roles' access to it; enabling RLS itself has to be run out-of-band:
+```sql
+alter table public.flyway_schema_history enable row level security;
+```
 
 ---
 

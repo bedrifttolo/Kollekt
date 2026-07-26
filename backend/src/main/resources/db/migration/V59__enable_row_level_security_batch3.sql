@@ -12,6 +12,15 @@ alter table maintenance_ticket_status_history enable row level security;
 alter table task_history enable row level security;
 alter table kudos enable row level security;
 alter table event_attendance enable row level security;
+
+-- NOTE: `flyway_schema_history` is deliberately absent and cannot be added here.
+-- Flyway holds `select * from flyway_schema_history for update` on a separate
+-- connection for the whole migration run; `alter table` needs ACCESS EXCLUSIVE,
+-- which conflicts with that row lock, so the statement blocks until it hits the
+-- statement timeout and the migration fails. Enable RLS on it out-of-band instead:
+--     alter table public.flyway_schema_history enable row level security;
+-- run once from the Supabase SQL editor. The revoke below already removes all
+-- PostgREST access to it in the meantime.
 alter table flyway_schema_history enable row level security;
 
 -- Defence in depth: revoke PostgREST role grants (only exist on Supabase).
