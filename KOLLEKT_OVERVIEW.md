@@ -161,9 +161,9 @@ Member, Collective, Room, TaskItem, TaskFeedback, TaskSwapRequest, ShoppingItem,
 - `WebConfig` (CORS etc.)
 
 ### Database (`/resources/db/migration`)
-Flyway migrations, **V1 baseline → V57**. `V1` defines the core tables; later migrations layer on features. Core era (selected): task recurrence (V10), penalty XP (V11), notifications (V12–13), chat reactions/polls/images/replies (V14, V15, V18, V31), Google Calendar (V19), monthly prize (V20), task feedback (V21), notification prefs (V23), pant goal (V25), expense deadlines (V26), personal settlements (V27), achievement config (V30), token store (V32, `auth_tokens` — replaced Redis), push device tokens (V33). "Smart assignment" scaffolding spans V4–V9.
+Flyway migrations, **V1 baseline → V59**. `V1` defines the core tables; later migrations layer on features. Core era (selected): task recurrence (V10), penalty XP (V11), notifications (V12–13), chat reactions/polls/images/replies (V14, V15, V18, V31), Google Calendar (V19), monthly prize (V20), task feedback (V21), notification prefs (V23), pant goal (V25), expense deadlines (V26), personal settlements (V27), achievement config (V30), token store (V32, `auth_tokens` — replaced Redis), push device tokens (V33). "Smart assignment" scaffolding spans V4–V9.
 
-Recent feature era (V34–V57):
+Recent feature era (V34–V59):
 - **V34** social identities · **V35** prompt-relay rooms · **V36** member color · **V37** collective address
 - **V38** task recurrence series · **V39** custom achievements · **V40** friendships
 - **V41** member payment handles (Vipps/MobilePay/PayPal/bank) · **V42** task-swap requests
@@ -172,13 +172,14 @@ Recent feature era (V34–V57):
 - **V50** small-cleaning task category · **V51** student-living improvements · **V52** task history
 - **V53** custom achievement icon · **V54** chat message recipient · **V55** performance indexes
 - **V56** event attendance (join/pass RSVP)
-- **V57** row-level security on every `public` table (see "RLS" below)
+- **V57–V59** row-level security on every `public` table (see "RLS" below, split into 3 migrations to avoid timeout)
 
-**RLS.** Supabase exposes the whole `public` schema through PostgREST, so `V57` enables
-row-level security on every table and defines **no policies** — that denies the `anon` /
+**RLS.** Supabase exposes the whole `public` schema through PostgREST, so `V57–V59` enable
+row-level security on all 37 tables, split across 3 migrations for performance on Supabase's free tier
+(each migration does 12–14 tables). They define **no policies** — that denies the `anon` /
 `authenticated` API roles outright, while the JDBC role that owns the tables still bypasses
-RLS, leaving authorization exactly where it already lives (the Kotlin API layer). Kollekt
-never calls Supabase directly, so nothing legitimate loses access. **Any new migration that
+RLS, leaving authorization exactly where it already lives (the Kotlin API layer). `V59` also
+revokes all grants from the PostgREST roles as defence-in-depth. Kollekt never calls Supabase directly, so nothing legitimate loses access. **Any new migration that
 creates a table must end with `alter table <name> enable row level security;`**, otherwise the
 Supabase linter flags it as publicly readable again. Do not add `force row level security` —
 it applies policies to the owner too and would break the backend.
