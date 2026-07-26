@@ -105,11 +105,15 @@ export function UserProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!currentUser?.name) return;
     const name = currentUser.name;
-    const disconnect = connectCollectiveRealtime(name, (event) => {
-      if (event.type === 'NOTIFICATION_CREATED') {
-        fetchNotifications(name);
-      }
-    });
+    const disconnect = connectCollectiveRealtime(
+      name,
+      (event) => {
+        if (event.type === 'NOTIFICATION_CREATED') {
+          fetchNotifications(name);
+        }
+      },
+      { onReconnected: () => fetchNotifications(name) },
+    );
     return disconnect;
   }, [currentUser?.name, fetchNotifications]);
 

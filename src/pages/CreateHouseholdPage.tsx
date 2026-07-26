@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ChevronUp, Plus, RefreshCw, X } from 'lucide-react';
+import { DEFAULT_ROOM_ICON, ROOM_TYPE_ICONS } from '../lib/categoryIcons';
 import { useTranslation } from 'react-i18next';
 import { api, getUserMessage } from '../lib/api';
 import { useUser } from '../context/UserContext';
@@ -9,7 +10,7 @@ import type { AppUser } from '../lib/types';
 import { BrandMark, Field } from '../components/ui-kit';
 import TourOverlay, { type TourStep } from '../components/TourOverlay';
 
-type RoomDraft = { id: number; emoji: string; name: string; minutes: string };
+type RoomDraft = { id: number; iconKey: string; name: string; minutes: string };
 
 const CODE_LENGTH = 6;
 
@@ -21,16 +22,16 @@ const ONBOARDING_TOUR_STEPS: TourStep[] = [
 ];
 
 // Common shared rooms offered as one-tap suggestions, with realistic clean times (min = XP).
-const ROOM_SUGGESTIONS: Array<{ key: string; emoji: string; minutes: string }> = [
-  { key: 'kitchen', emoji: '🍳', minutes: '20' },
-  { key: 'bathroom', emoji: '🚿', minutes: '15' },
-  { key: 'livingRoom', emoji: '🛋️', minutes: '10' },
-  { key: 'toilet', emoji: '🚽', minutes: '10' },
-  { key: 'hallway', emoji: '🚪', minutes: '10' },
-  { key: 'laundry', emoji: '🧺', minutes: '10' },
-  { key: 'diningRoom', emoji: '🍽️', minutes: '10' },
-  { key: 'balcony', emoji: '🪴', minutes: '10' },
-  { key: 'stairs', emoji: '🧹', minutes: '10' },
+const ROOM_SUGGESTIONS: Array<{ key: string; minutes: string }> = [
+  { key: 'kitchen', minutes: '20' },
+  { key: 'bathroom', minutes: '15' },
+  { key: 'livingRoom', minutes: '10' },
+  { key: 'toilet', minutes: '10' },
+  { key: 'hallway', minutes: '10' },
+  { key: 'laundry', minutes: '10' },
+  { key: 'diningRoom', minutes: '10' },
+  { key: 'balcony', minutes: '10' },
+  { key: 'stairs', minutes: '10' },
 ];
 
 export default function CreateHouseholdPage() {
@@ -52,11 +53,11 @@ export default function CreateHouseholdPage() {
   const xpFor = (minutes: string) => Math.max(1, parseInt(minutes, 10) || 0);
 
   const addRoom = () =>
-    setRooms((p) => [...p, { id: roomId.current++, emoji: '🧹', name: '', minutes: '15' }]);
-  const addSuggested = (s: { key: string; emoji: string; minutes: string }) =>
+    setRooms((p) => [...p, { id: roomId.current++, iconKey: 'custom', name: '', minutes: '15' }]);
+  const addSuggested = (s: { key: string; minutes: string }) =>
     setRooms((p) => [
       ...p,
-      { id: roomId.current++, emoji: s.emoji, name: t(`createHousehold.defaultRooms.${s.key}`), minutes: s.minutes },
+      { id: roomId.current++, iconKey: s.key, name: t(`createHousehold.defaultRooms.${s.key}`), minutes: s.minutes },
     ]);
   const suggestions = ROOM_SUGGESTIONS.filter(
     (s) => !rooms.some((r) => r.name.trim().toLowerCase() === t(`createHousehold.defaultRooms.${s.key}`).toLowerCase()),
@@ -201,9 +202,13 @@ export default function CreateHouseholdPage() {
 
               {roomsOpen && (
                 <div className="mt-3 space-y-3">
-                  {rooms.map((room) => (
+                  {rooms.map((room) => {
+                    const RoomIcon = ROOM_TYPE_ICONS[room.iconKey] ?? DEFAULT_ROOM_ICON;
+                    return (
                     <div key={room.id} className="field flex items-center gap-3">
-                      <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-muted text-xl">{room.emoji}</span>
+                      <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-muted">
+                        <RoomIcon className="h-5 w-5 text-muted-foreground" />
+                      </span>
                       <div className="min-w-0 flex-1">
                         <input
                           value={room.name}
@@ -230,30 +235,34 @@ export default function CreateHouseholdPage() {
                       <button
                         type="button"
                         onClick={() => removeRoom(room.id)}
-                        className="grid h-7 w-7 shrink-0 place-items-center rounded-lg text-muted-foreground hover:bg-muted"
+                        className="grid h-11 w-11 shrink-0 place-items-center rounded-lg text-muted-foreground hover:bg-muted"
                         aria-label={t('createHousehold.removeRoom')}
                       >
                         <X className="h-4 w-4" />
                       </button>
                     </div>
-                  ))}
+                    );
+                  })}
 
                   {suggestions.length > 0 && (
                     <div>
                       <p className="mb-2 text-xs font-semibold text-muted-foreground">{t('createHousehold.roomExamplesLabel')}</p>
                       <div className="flex flex-wrap gap-2">
-                        {suggestions.map((s) => (
+                        {suggestions.map((s) => {
+                          const SuggestionIcon = ROOM_TYPE_ICONS[s.key] ?? DEFAULT_ROOM_ICON;
+                          return (
                           <button
                             key={s.key}
                             type="button"
                             onClick={() => addSuggested(s)}
-                            className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-primary/40 bg-primary/5 px-3 py-1.5 text-sm font-bold text-foreground transition-colors hover:bg-primary/10"
+                            className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-dashed border-primary/40 bg-primary/5 px-3 py-2 text-sm font-bold text-foreground transition-colors hover:bg-primary/10"
                           >
                             <Plus className="h-3.5 w-3.5 text-primary" />
-                            <span>{s.emoji}</span>
+                            <SuggestionIcon className="h-4 w-4 text-muted-foreground" />
                             {t(`createHousehold.defaultRooms.${s.key}`)}
                           </button>
-                        ))}
+                          );
+                        })}
                       </div>
                     </div>
                   )}

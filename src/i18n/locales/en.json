@@ -578,7 +578,10 @@
     "startTime": "Start",
     "endTimeOptional": "End (optional)",
     "editEvent": "Edit Event",
-    "attendance": { "join": "Join", "pass": "Pass" },
+    "attendance": {
+      "join": "Join",
+      "pass": "Pass"
+    },
     "deleteEvent": "Delete event",
     "saveChanges": "Save changes"
   },
@@ -604,7 +607,16 @@
     "gifPickerTitle": "Starter GIFs",
     "togglePollForm": "Toggle poll form",
     "imageAlt": "Shared image",
-    "closeImage": "Close image"
+    "closeImage": "Close image",
+    "reactions": {
+      "like": "Like",
+      "love": "Love",
+      "laugh": "Laugh",
+      "celebrate": "Celebrate",
+      "fire": "Fire",
+      "sad": "Sad",
+      "dislike": "Dislike"
+    }
   },
   "economy": {
     "title": "Economy",
@@ -693,8 +705,8 @@
       "premium": "Premium",
       "unlock": "Unlock",
       "paywall": {
-        "title": "Unlock all games",
-        "body": "Subscribe to unlock the full game hub, including Guys' Night and Girls' Night. Kollekt, 100 Questions, Who Are We?, Dice and Spin the Wheel stay free.",
+        "title": "Unlock premium",
+        "body": "Subscribe to unlock the full game hub and real GIFs in chat.",
         "subscribe": "Subscribe",
         "restore": "Restore purchases",
         "disclosure": "Auto-renewing subscription billed through your App Store account. Cancel anytime in Settings. Terms and Privacy Policy apply.",

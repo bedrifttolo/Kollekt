@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Play, Users, Clock, Info, X, Lock } from 'lucide-react';
+import { Play, Users, Clock, Info, X, Lock, Dices } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -8,6 +8,7 @@ import { qk } from '../../lib/queryKeys';
 import type { AppUser } from '../../lib/types';
 import { useUser } from '../../context/UserContext';
 import { useGamesSubscription, isGameLocked } from '../../lib/purchases';
+import SubscriptionPaywall from '../../components/SubscriptionPaywall';
 import { GAME_CATALOG, GAME_CATEGORIES, tonightsPick, type GameCategoryFilter, type GameEntry } from '../../games/catalog';
 import PlayerSetup from '../../games/PlayerSetup';
 import PromptGame from '../../games/PromptGame';
@@ -33,8 +34,7 @@ export default function GamesPanel() {
   const [sessionPlayers, setSessionPlayers] = useState<string[]>([]);
   const [notice, setNotice] = useState<string | null>(null);
   const [showPaywall, setShowPaywall] = useState(false);
-  const [paywallBusy, setPaywallBusy] = useState(false);
-  const { isSubscriber, available, purchase, restore } = useGamesSubscription();
+  const { isSubscriber } = useGamesSubscription();
 
   const name = currentUser?.name ?? '';
   const pick = useMemo(() => tonightsPick(), []);
@@ -87,38 +87,14 @@ export default function GamesPanel() {
     setTimeout(() => setNotice(null), 1800);
   };
 
-  const handleSubscribe = async () => {
-    if (!available) { flash(t('social.games.paywall.unavailable')); return; }
-    setPaywallBusy(true);
-    try {
-      const ok = await purchase();
-      if (ok) setShowPaywall(false);
-    } catch {
-      flash(t('social.games.paywall.unavailable'));
-    } finally {
-      setPaywallBusy(false);
-    }
-  };
-
-  const handleRestore = async () => {
-    if (!available) { flash(t('social.games.paywall.unavailable')); return; }
-    setPaywallBusy(true);
-    try {
-      const ok = await restore();
-      if (ok) setShowPaywall(false);
-      else flash(t('social.games.paywall.nothingToRestore'));
-    } catch {
-      flash(t('social.games.paywall.unavailable'));
-    } finally {
-      setPaywallBusy(false);
-    }
-  };
-
   return (
     <div className="space-y-4">
       {/* Tonight's pick */}
       <div className="househero">
-        <p className="eyebrow !text-white/65">{t('social.games.tonightsPick')} 🎲</p>
+        <p className="eyebrow !text-white/65 flex items-center gap-1.5">
+          {t('social.games.tonightsPick')}
+          <Dices className="h-3.5 w-3.5" />
+        </p>
         <h3 className="font-display text-3xl font-extrabold tracking-[-.03em] mt-1">{t(`social.games.catalog.${pick.titleKey}`)}</h3>
         <p className="mt-2 text-sm text-white/75">{t(`social.games.descriptions.${pick.descriptionKey}`)}</p>
         <div className="mt-3 flex flex-wrap gap-2">
@@ -149,7 +125,10 @@ export default function GamesPanel() {
               filter === c.id ? 'bg-primary text-primary-foreground' : 'bg-card border border-border text-muted-foreground'
             }`}
           >
-            {t(`social.games.categories.${c.id}`)}{c.emoji ? ` ${c.emoji}` : ''}
+            <span className="inline-flex items-center gap-1.5">
+              {t(`social.games.categories.${c.id}`)}
+              {c.icon && <c.icon className="h-3.5 w-3.5" />}
+            </span>
           </button>
         ))}
       </div>
@@ -185,7 +164,9 @@ export default function GamesPanel() {
               </div>
             </div>
             <div>
-              <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-xl bg-muted text-2xl">{game.emoji}</div>
+              <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-xl bg-muted">
+                <game.icon className="h-5 w-5 text-muted-foreground" />
+              </div>
               <p className="font-display font-extrabold leading-tight">{t(`social.games.catalog.${game.titleKey}`)}</p>
               <p className="mt-1 text-xs leading-snug text-muted-foreground">{t(`social.games.descriptions.${game.descriptionKey}`)}</p>
               <p className="mt-1 text-xs text-muted-foreground">
@@ -219,7 +200,10 @@ export default function GamesPanel() {
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">{t('social.games.howToPlay')}</p>
-                <h3 className="mt-1 font-display text-xl font-extrabold">{rulesGame.emoji} {t(`social.games.catalog.${rulesGame.titleKey}`)}</h3>
+                <h3 className="mt-1 flex items-center gap-2 font-display text-xl font-extrabold">
+                  <rulesGame.icon className="h-5 w-5 shrink-0 text-muted-foreground" />
+                  {t(`social.games.catalog.${rulesGame.titleKey}`)}
+                </h3>
               </div>
               <button onClick={() => setRulesGame(null)} className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-muted" aria-label={t('common.cancel')}>
                 <X className="h-4 w-4" />
@@ -240,38 +224,7 @@ export default function GamesPanel() {
         </div>
       )}
 
-      {showPaywall && (
-        <div className="fixed inset-0 z-[60] flex items-end bg-black/40 p-4 pb-[calc(env(safe-area-inset-bottom)+1rem)]" onClick={() => setShowPaywall(false)}>
-          <div className="w-full rounded-2xl border border-border bg-card p-5 shadow-xl" onClick={(event) => event.stopPropagation()}>
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <p className="text-xs font-bold uppercase tracking-wide text-secondary-foreground">{t('social.games.premium')}</p>
-                <h3 className="mt-1 font-display text-xl font-extrabold">{t('social.games.paywall.title')}</h3>
-              </div>
-              <button onClick={() => setShowPaywall(false)} className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-muted" aria-label={t('common.cancel')}>
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{t('social.games.paywall.body')}</p>
-            <button
-              onClick={() => void handleSubscribe()}
-              disabled={paywallBusy}
-              className="mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 text-sm font-bold text-primary-foreground disabled:opacity-50"
-            >
-              {t('social.games.paywall.subscribe')}
-            </button>
-            <button
-              onClick={() => void handleRestore()}
-              disabled={paywallBusy}
-              className="mt-2 min-h-11 w-full text-center text-xs font-semibold text-primary disabled:opacity-50"
-            >
-              {t('social.games.paywall.restore')}
-            </button>
-            <p className="mt-3 text-[10px] leading-snug text-muted-foreground">{t('social.games.paywall.disclosure')}</p>
-            {!available && <p className="mt-2 text-[10px] font-semibold text-muted-foreground">{t('social.games.paywall.unavailable')}</p>}
-          </div>
-        </div>
-      )}
+      {showPaywall && <SubscriptionPaywall onClose={() => setShowPaywall(false)} />}
 
       {activeGame === 'spin-the-wheel' && (
         <SpinTheWheel members={members} onClose={() => setActiveGame(null)} />

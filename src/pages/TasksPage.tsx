@@ -28,6 +28,7 @@ import {
   Repeat2,
   Wrench,
   AlertTriangle,
+  Lightbulb,
 } from 'lucide-react';
 import { api } from '../lib/api';
 import { capturePhotoFile, nativeCameraAvailable } from '../lib/camera';
@@ -35,8 +36,9 @@ import { useUser } from '../context/UserContext';
 import { connectCollectiveRealtime } from '../lib/realtime';
 import { tapFeedback } from '../lib/haptics';
 import { formatDate, formatDateTime, translateKey } from '../i18n/helpers';
-import type { Task, ShoppingItem, TaskCategory, TaskSwapRequest, MaintenanceTicket, MaintenancePriority, MaintenanceStatus } from '../lib/types';
+import type { AppUser, Task, ShoppingItem, TaskCategory, TaskSwapRequest, MaintenanceTicket, MaintenancePriority, MaintenanceStatus } from '../lib/types';
 import { AddSheet, Eyebrow, Fab, OverflowMenu, ProgressBar } from '../components/ui-kit';
+import { TASK_CATEGORY_ICONS } from '../lib/categoryIcons';
 
 const CATEGORIES: TaskCategory[] = ['CLEANING', 'SMALL_CLEANING', 'VACUUMING', 'MOPPING', 'BATHROOM', 'KITCHEN', 'LAUNDRY', 'DISHES', 'TRASH', 'DUSTING', 'WINDOWS', 'OTHER'];
 const RECURRENCE_OPTIONS = ['NONE', 'DAILY', 'WEEKLY', 'MONTHLY'] as const;
@@ -123,9 +125,10 @@ function TaskEditor({
             <button
               type="button"
               onClick={() => setNewAssignee(suggestedAssignee)}
-              className="text-left text-[11px] font-medium text-primary"
+              className="flex items-center gap-1 text-left text-[11px] font-medium text-primary"
             >
-              💡 {t('tasks.fairSuggestion', { name: suggestedAssignee })}
+              <Lightbulb className="h-3.5 w-3.5 shrink-0" />
+              {t('tasks.fairSuggestion', { name: suggestedAssignee })}
             </button>
           )}
         </label>
@@ -204,7 +207,6 @@ function TasksMain() {
   const [maintenanceTickets, setMaintenanceTickets] = useState<MaintenanceTicket[]>(
     () => cachedTaskBundle()?.maintenanceRes ?? [],
   );
-  const [members, setMembers] = useState<string[]>([]);
   const [filter, setFilter] = useState<TaskFilter>('ALL');
   const [searchParams] = useSearchParams();
   const [tab, setTab] = useState<'tasks' | 'shopping' | 'maintenance'>(
@@ -266,6 +268,13 @@ function TasksMain() {
   const taskOverridesRef = useRef<Map<number, Task>>(new Map());
 
   const name = currentUser?.name ?? '';
+
+  const { data: collectiveMembers = [] } = useQuery({
+    queryKey: qk.members(name),
+    enabled: !!name,
+    queryFn: () => api.get<AppUser[]>(`/members/collective?memberName=${encodeURIComponent(name)}`),
+  });
+  const members = collectiveMembers.map((member) => member.name);
   const memberOptions = members.length > 0 ? members : [name];
 
   // Fairness nudge: suggest the housemate with the fewest open tasks when creating a task.
@@ -399,52 +408,50 @@ function TasksMain() {
     await queryClient.invalidateQueries({ queryKey: qk.tasks(name) });
   };
 
-  useEffect(() => {
-    if (!name) return;
-    api.get<{ name: string }[]>(`/members/collective?memberName=${encodeURIComponent(name)}`)
-      .then((response) => setMembers(response.map((member) => member.name)))
-      .catch(() => {});
-  }, [name]);
 
   useEffect(() => {
     if (!name) return;
-    const disconnect = connectCollectiveRealtime(name, (event) => {
-      if (event.type === 'TASK_UPDATED') {
-        const payload = event.payload as
-          | { updatedBy?: string; task?: Task }
-          | undefined;
-        if (payload?.updatedBy === name) return;
-      }
-
-      if (event.type === 'TASK_UPDATED' || event.type === 'TASK_CREATED') {
-        const nextTask = extractTaskFromRealtimeEvent(event);
-        if (nextTask) upsertTask(nextTask);
-        return;
-      }
-
-      if (event.type === 'TASK_DELETED') {
-        const payload = event.payload as { id?: number } | undefined;
-        if (payload?.id !== undefined) {
-          setTasksState((prev) => prev.filter((task) => task.id !== payload.id));
+    const disconnect = connectCollectiveRealtime(
+      name,
+      (event) => {
+        if (event.type === 'TASK_UPDATED') {
+          const payload = event.payload as
+            | { updatedBy?: string; task?: Task }
+            | undefined;
+          if (payload?.updatedBy === name) return;
         }
-        return;
-      }
 
-      if (
-        [
-          'SHOPPING_UPDATED',
-          'SHOPPING_ITEM_CREATED',
-          'SHOPPING_ITEM_TOGGLED',
-          'SHOPPING_ITEM_DELETED',
-          'SHOPPING_ITEM_UPDATED',
-          'SHOPPING_ITEM_BOUGHT',
-          'MAINTENANCE_UPDATED',
-          'MAINTENANCE_DELETED',
-        ].includes(event.type)
-      ) {
-        void fetchAll();
-      }
-    });
+        if (event.type === 'TASK_UPDATED' || event.type === 'TASK_CREATED') {
+          const nextTask = extractTaskFromRealtimeEvent(event);
+          if (nextTask) upsertTask(nextTask);
+          return;
+        }
+
+        if (event.type === 'TASK_DELETED') {
+          const payload = event.payload as { id?: number } | undefined;
+          if (payload?.id !== undefined) {
+            setTasksState((prev) => prev.filter((task) => task.id !== payload.id));
+          }
+          return;
+        }
+
+        if (
+          [
+            'SHOPPING_UPDATED',
+            'SHOPPING_ITEM_CREATED',
+            'SHOPPING_ITEM_TOGGLED',
+            'SHOPPING_ITEM_DELETED',
+            'SHOPPING_ITEM_UPDATED',
+            'SHOPPING_ITEM_BOUGHT',
+            'MAINTENANCE_UPDATED',
+            'MAINTENANCE_DELETED',
+          ].includes(event.type)
+        ) {
+          void fetchAll();
+        }
+      },
+      { onReconnected: () => void fetchAll() },
+    );
     return disconnect;
   }, [name]);
 
@@ -1156,6 +1163,7 @@ function TasksMain() {
               const isOverdue = isOverdueTask(task);
               const isPenalized = (task.penaltyXp ?? 0) < 0;
               const taskIsPending = pendingTaskIds.has(task.id);
+              const CategoryIcon = TASK_CATEGORY_ICONS[task.category] ?? CheckCircle2;
 
               return (
                 <Fragment key={task.id}>
@@ -1189,6 +1197,10 @@ function TasksMain() {
                           {task.title}
                         </p>
                         <div className="mt-3 flex flex-wrap items-center gap-2">
+                          <span className="flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-xs font-semibold text-muted-foreground">
+                            <CategoryIcon className="h-3.5 w-3.5" />
+                            {translateKey('common.taskCategories', task.category)}
+                          </span>
                           <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
                             isOverdue
                               ? 'bg-destructive/15 text-destructive'
@@ -1671,7 +1683,7 @@ function TasksMain() {
                         </button>
                         <button
                           onClick={() => setEditingShopId(null)}
-                          className="h-8 w-8 rounded-lg glass flex items-center justify-center"
+                          className="h-11 w-11 rounded-lg glass flex items-center justify-center"
                           aria-label={t('common.back')}
                         >
                           <X className="h-3 w-3 text-muted-foreground" />
@@ -1808,7 +1820,7 @@ function TasksMain() {
             >
               <div className="flex items-center justify-between">
                 <h3 className="font-display text-lg font-bold">{t('tasks.maintenance.completeTitle')}</h3>
-                <button onClick={() => setCompletingTicket(null)} className="grid h-8 w-8 place-items-center rounded-full bg-muted"><X className="h-4 w-4" /></button>
+                <button onClick={() => setCompletingTicket(null)} aria-label={t('common.cancel')} className="grid h-11 w-11 place-items-center rounded-full bg-muted"><X className="h-4 w-4" /></button>
               </div>
               <p className="text-sm text-muted-foreground">{t('tasks.maintenance.completeSubtitle', { title: completingTicket.title })}</p>
               <label className="block space-y-1">

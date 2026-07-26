@@ -578,7 +578,10 @@
     "startTime": "Start",
     "endTimeOptional": "Slutt (valgfritt)",
     "editEvent": "Rediger hendelse",
-    "attendance": { "join": "Blir med", "pass": "Står over" },
+    "attendance": {
+      "join": "Blir med",
+      "pass": "Står over"
+    },
     "deleteEvent": "Slett hendelse",
     "saveChanges": "Lagre endringer"
   },
@@ -604,7 +607,16 @@
     "gifPickerTitle": "Start-GIFer",
     "togglePollForm": "Vis eller skjul avstemning",
     "imageAlt": "Delt bilde",
-    "closeImage": "Lukk bilde"
+    "closeImage": "Lukk bilde",
+    "reactions": {
+      "like": "Liker",
+      "love": "Elsker",
+      "laugh": "Ler",
+      "celebrate": "Feirer",
+      "fire": "Fyr",
+      "sad": "Trist",
+      "dislike": "Liker ikke"
+    }
   },
   "economy": {
     "title": "Økonomi",
@@ -693,8 +705,8 @@
       "premium": "Premium",
       "unlock": "Lås opp",
       "paywall": {
-        "title": "Lås opp alle spill",
-        "body": "Abonner for å låse opp hele spillsamlingen, inkludert Guttastemning og Jentekveld. Kollekt, 100 spørsmål, Hvem er vi?, Terning og Lykkehjulet er alltid gratis.",
+        "title": "Lås opp premium",
+        "body": "Abonner for å låse opp hele spillsamlingen og ekte GIF-er i chatten.",
         "subscribe": "Abonner",
         "restore": "Gjenopprett kjøp",
         "disclosure": "Fornyes automatisk og belastes App Store-kontoen din. Avbryt når som helst i Innstillinger. Vilkår og personvern gjelder.",

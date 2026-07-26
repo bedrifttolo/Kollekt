@@ -7,7 +7,13 @@ import {
   Trash2,
   Pencil,
   CalendarPlus,
+  Check,
+  CircleCheckBig,
+  UserX,
+  MessageCircle,
+  House,
 } from "lucide-react";
+import { EVENT_TYPE_ICONS } from "../lib/categoryIcons";
 import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { api, API_BASE } from "../lib/api";
@@ -41,19 +47,6 @@ const typeColors: Record<EventType, string> = {
   TRIP: "bg-primary",
   OTHER: "bg-primary",
 };
-const typeEmoji: Record<EventType, string> = {
-  PARTY: "🎉",
-  MOVIE: "🎬",
-  DINNER: "🍝",
-  GAME_NIGHT: "🎲",
-  CLEANING: "🧹",
-  SPORTS: "⚽",
-  BIRTHDAY: "🎂",
-  MEETING: "📋",
-  TRIP: "🧳",
-  OTHER: "📌",
-};
-
 function toDateString(date: Date) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 }
@@ -79,7 +72,6 @@ export default function CalendarPage() {
         qk.calendar(currentUser?.name ?? ""),
       )?.guestResponse ?? [],
   );
-  const [checkin, setCheckin] = useState<HouseCheckin | null>(null);
   const [showAdd, setShowAdd] = useState(false);
   const [addMode, setAddMode] = useState<"event" | "guest">("event");
   const [newTitle, setNewTitle] = useState("");
@@ -120,6 +112,16 @@ export default function CalendarPage() {
     setLoading(false);
   }, [calendarBundle]);
 
+  // Shares Dashboard's cache entry, so navigating between the two doesn't refire the POST.
+  const { data: checkin } = useQuery({
+    queryKey: qk.checkin(name),
+    enabled: !!currentUser,
+    queryFn: async () => {
+      const collective = await api.get<{ collectiveId: number }>(`/onboarding/collectives/code/${currentUser!.id}`);
+      return api.post<HouseCheckin>(`/collectives/${collective.collectiveId}/checkins/generate`, {});
+    },
+  });
+
   const fetchEvents = async () => {
     if (!name) return;
     await queryClient.invalidateQueries({ queryKey: qk.calendar(name) });
@@ -127,12 +129,6 @@ export default function CalendarPage() {
 
   useEffect(() => {
     if (!name) return;
-    if (currentUser) {
-      api.get<{ collectiveId: number }>(`/onboarding/collectives/code/${currentUser.id}`)
-        .then((collective) => api.post<HouseCheckin>(`/collectives/${collective.collectiveId}/checkins/generate`, {}))
-        .then(setCheckin)
-        .catch(() => {});
-    }
     api
       .get<{ path: string }>(
         `/events/calendar-feed?memberName=${encodeURIComponent(name)}`,
@@ -143,13 +139,17 @@ export default function CalendarPage() {
 
   useEffect(() => {
     if (!name) return;
-    const disconnect = connectCollectiveRealtime(name, (event) => {
-      if (
-        ["EVENT_CREATED", "EVENT_DELETED", "EVENT_UPDATED", "GUEST_NOTICE_CREATED"].includes(event.type)
-      ) {
-        fetchEvents();
-      }
-    });
+    const disconnect = connectCollectiveRealtime(
+      name,
+      (event) => {
+        if (
+          ["EVENT_CREATED", "EVENT_DELETED", "EVENT_UPDATED", "GUEST_NOTICE_CREATED"].includes(event.type)
+        ) {
+          fetchEvents();
+        }
+      },
+      { onReconnected: () => fetchEvents() },
+    );
     return disconnect;
   }, [name]);
 
@@ -309,7 +309,7 @@ export default function CalendarPage() {
 
       {checkin && (
         <div className="flex items-center gap-3 rounded-[1.1rem] border border-primary/25 bg-primary/5 p-3">
-          <span className="text-xl">💬</span>
+          <MessageCircle className="h-5 w-5 shrink-0 text-primary" />
           <div>
             <p className="text-sm font-bold">{t("checkin.calendarTitle")}</p>
             <p className="text-[10px] text-muted-foreground">{formatDate(checkin.weekStart)} · {t("checkin.recurring")}</p>
@@ -460,16 +460,19 @@ export default function CalendarPage() {
                   </label>
                 )}
                 {addMode === "event" && <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                  {EVENT_TYPES.map((eventType) => (
+                  {EVENT_TYPES.map((eventType) => {
+                    const TypeIcon = EVENT_TYPE_ICONS[eventType];
+                    return (
                     <button
                       key={eventType}
                       onClick={() => setNewType(eventType)}
-                      className={`min-h-11 min-w-0 rounded-lg px-2 py-2 text-[10px] font-medium transition-all ${newType === eventType ? "gradient-primary text-primary-foreground" : "glass text-muted-foreground"}`}
+                      className={`flex min-h-11 min-w-0 items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-[10px] font-medium transition-all ${newType === eventType ? "gradient-primary text-primary-foreground" : "glass text-muted-foreground"}`}
                     >
-                      {typeEmoji[eventType]}{" "}
-                      {translateKey("common.eventTypes", eventType)}
+                      <TypeIcon className="h-3.5 w-3.5 shrink-0" />
+                      <span className="truncate">{translateKey("common.eventTypes", eventType)}</span>
                     </button>
-                  ))}
+                    );
+                  })}
                 </div>}
                 <button
                   onClick={handleAdd}
@@ -490,7 +493,7 @@ export default function CalendarPage() {
 
         {dayGuests.map((notice) => (
           <div key={`guest-${notice.id}`} className={`event !flex items-center gap-3 !p-3.5 ${notice.overlapsQuietHours ? "border-secondary/60" : ""}`}>
-            <span className="text-2xl">🏠</span>
+            <House className="h-6 w-6 shrink-0 text-primary" />
             <div className="min-w-0 flex-1">
               <h4 className="text-[15px] font-bold">{t("calendar.guestVisit", { guest: notice.guestName })}</h4>
               <p className="text-xs text-muted-foreground">{formatTime(notice.startTime)}–{formatTime(notice.endTime)} · {notice.createdBy}</p>
@@ -520,7 +523,13 @@ export default function CalendarPage() {
             <div className="min-w-0 flex-1">
               <div className="flex items-start gap-2">
                 <div className="min-w-0 flex-1">
-                  <h4 className="text-[15px] font-bold leading-snug">{e.title} {typeEmoji[e.type]}</h4>
+                  <h4 className="flex items-center gap-1.5 text-[15px] font-bold leading-snug">
+                    {e.title}
+                    {(() => {
+                      const TypeIcon = EVENT_TYPE_ICONS[e.type];
+                      return <TypeIcon className="h-4 w-4 shrink-0 text-muted-foreground" />;
+                    })()}
+                  </h4>
                   <p className="mt-0.5 text-xs text-muted-foreground">
                     {e.description || e.organizer}
                   </p>
@@ -558,15 +567,16 @@ export default function CalendarPage() {
                 <div className="flex shrink-0 gap-1.5">
                   <button
                     onClick={() => void handleAttendance(e, "JOINING")}
-                    className={`rounded-full px-2.5 py-1 text-[11px] font-semibold transition-colors ${
+                    className={`flex min-h-11 items-center gap-1 rounded-full px-3 py-2 text-xs font-semibold transition-colors ${
                       e.joining.includes(name) ? "gradient-primary text-primary-foreground" : "glass text-muted-foreground"
                     }`}
                   >
-                    ✓ {t("calendar.attendance.join")}
+                    <Check className="h-3.5 w-3.5 shrink-0" />
+                    {t("calendar.attendance.join")}
                   </button>
                   <button
                     onClick={() => void handleAttendance(e, "PASSING")}
-                    className={`rounded-full px-2.5 py-1 text-[11px] font-semibold transition-colors ${
+                    className={`min-h-11 rounded-full px-3 py-2 text-xs font-semibold transition-colors ${
                       e.passing.includes(name) ? "bg-muted text-foreground" : "glass text-muted-foreground"
                     }`}
                   >
@@ -575,10 +585,20 @@ export default function CalendarPage() {
                 </div>
               </div>
               {(e.joining.length > 0 || e.passing.length > 0) && (
-                <p className="mt-1.5 text-[11px] text-muted-foreground">
-                  {e.joining.length > 0 && <>✅ {e.joining.join(", ")}</>}
-                  {e.joining.length > 0 && e.passing.length > 0 && " · "}
-                  {e.passing.length > 0 && <>🙅 {e.passing.join(", ")}</>}
+                <p className="mt-1.5 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11px] text-muted-foreground">
+                  {e.joining.length > 0 && (
+                    <span className="inline-flex items-center gap-1">
+                      <CircleCheckBig className="h-3 w-3 shrink-0" />
+                      {e.joining.join(", ")}
+                    </span>
+                  )}
+                  {e.joining.length > 0 && e.passing.length > 0 && <span>·</span>}
+                  {e.passing.length > 0 && (
+                    <span className="inline-flex items-center gap-1">
+                      <UserX className="h-3 w-3 shrink-0" />
+                      {e.passing.join(", ")}
+                    </span>
+                  )}
                 </p>
               )}
             </div>
@@ -607,7 +627,11 @@ export default function CalendarPage() {
                   <p className="text-sm font-semibold">
                     {t("calendar.editEvent")}
                   </p>
-                  <button onClick={() => setEditingEvent(null)}>
+                  <button
+                    onClick={() => setEditingEvent(null)}
+                    aria-label={t("common.cancel")}
+                    className="grid h-11 w-11 shrink-0 place-items-center rounded-full"
+                  >
                     <X className="h-4 w-4 text-muted-foreground" />
                   </button>
                 </div>
@@ -642,16 +666,19 @@ export default function CalendarPage() {
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                  {EVENT_TYPES.map((eventType) => (
+                  {EVENT_TYPES.map((eventType) => {
+                    const TypeIcon = EVENT_TYPE_ICONS[eventType];
+                    return (
                     <button
                       key={eventType}
                       onClick={() => setEditType(eventType)}
-                      className={`min-h-10 min-w-0 rounded-lg px-2 py-1.5 text-[10px] font-medium transition-all ${editType === eventType ? "gradient-primary text-primary-foreground" : "glass text-muted-foreground"}`}
+                      className={`flex min-h-11 min-w-0 items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-[10px] font-medium transition-all ${editType === eventType ? "gradient-primary text-primary-foreground" : "glass text-muted-foreground"}`}
                     >
-                      {typeEmoji[eventType]}{" "}
-                      {translateKey("common.eventTypes", eventType)}
+                      <TypeIcon className="h-3.5 w-3.5 shrink-0" />
+                      <span className="truncate">{translateKey("common.eventTypes", eventType)}</span>
                     </button>
-                  ))}
+                    );
+                  })}
                 </div>
                 <button
                   onClick={handleEditSave}

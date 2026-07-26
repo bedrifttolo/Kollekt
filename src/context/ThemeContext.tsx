@@ -13,8 +13,8 @@ function initialTheme(): Theme {
 }
 
 const STATUS_BAR_COLOR: Record<Theme, string> = {
-  light: '#F1EEE2',
-  dark: '#0D1912',
+  light: '#FFFFFF',
+  dark: '#060A09',
   pink: '#FDEEF4',
 };
 

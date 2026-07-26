@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowUpRight, ArrowDownLeft, Check, Recycle, ChevronRight, X, Users, Pencil, Trash2, Copy, ExternalLink } from 'lucide-react';
+import { ArrowUpRight, ArrowDownLeft, Check, Recycle, ChevronRight, X, Users, Pencil, Trash2, Copy, ExternalLink, CircleCheckBig } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api';
@@ -10,7 +10,7 @@ import { queryClient as sharedQueryClient } from '../lib/queryClient';
 import { useUser } from '../context/UserContext';
 import { formatCurrency, formatDate, translateKey } from '../i18n/helpers';
 import { connectCollectiveRealtime } from '../lib/realtime';
-import type { EconomySummary, Expense, PayOption } from '../lib/types';
+import type { AppUser, EconomySummary, Expense, PayOption } from '../lib/types';
 import { Eyebrow, Fab, OverflowMenu } from '../components/ui-kit';
 import { colorForMember } from '../lib/memberColors';
 import { availableMethods, hasAnyMethod, openPaymentLink } from '../lib/paymentLinks';
@@ -33,7 +33,6 @@ export default function EconomyPage() {
   const [summary, setSummary] = useState<EconomySummary | null>(
     () => sharedQueryClient.getQueryData<EconomySummary>(qk.economy(currentUser?.name ?? '')) ?? null,
   );
-  const [members, setMembers] = useState<string[]>([]);
   const [showAdd, setShowAdd] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [newAmount, setNewAmount] = useState('');
@@ -60,6 +59,23 @@ export default function EconomyPage() {
   const [settlementAcknowledged, setSettlementAcknowledged] = useState(false);
 
   const name = currentUser?.name ?? '';
+
+  const { data: collectiveMembers = [] } = useQuery({
+    queryKey: qk.members(name),
+    enabled: !!name,
+    queryFn: () => api.get<AppUser[]>(`/members/collective?memberName=${encodeURIComponent(name)}`),
+  });
+  const members = collectiveMembers.map((member) => member.name);
+
+  // Seed the even split once the roster first loads. Guarded so a later refetch can't wipe
+  // a split the user is in the middle of editing.
+  const splitSeeded = useRef(false);
+  useEffect(() => {
+    if (splitSeeded.current || collectiveMembers.length === 0) return;
+    splitSeeded.current = true;
+    setNewSplit(collectiveMembers.map((member) => member.name));
+  }, [collectiveMembers]);
+
   const parsedNewAmount = Number(newAmount);
   const canAddExpense = newTitle.trim().length > 0 && Number.isFinite(parsedNewAmount) && parsedNewAmount >= 1 && (members.length === 0 || newSplit.length > 0);
 
@@ -90,24 +106,18 @@ export default function EconomyPage() {
     await queryClient.invalidateQueries({ queryKey: qk.economy(name) });
   };
 
-  useEffect(() => {
-    if (!name) return;
-    api.get<{ name: string }[]>(`/members/collective?memberName=${encodeURIComponent(name)}`)
-      .then((res) => {
-        const names = res.map((m) => m.name);
-        setMembers(names);
-        setNewSplit(names);
-      })
-      .catch(() => {});
-  }, [name]);
 
   useEffect(() => {
     if (!name) return;
-    const disconnect = connectCollectiveRealtime(name, (event) => {
-      if (['EXPENSE_CREATED', 'EXPENSE_UPDATED', 'EXPENSE_DELETED', 'BALANCES_SETTLED', 'PANT_ADDED'].includes(event.type)) {
-        fetchSummary();
-      }
-    });
+    const disconnect = connectCollectiveRealtime(
+      name,
+      (event) => {
+        if (['EXPENSE_CREATED', 'EXPENSE_UPDATED', 'EXPENSE_DELETED', 'BALANCES_SETTLED', 'PANT_ADDED'].includes(event.type)) {
+          fetchSummary();
+        }
+      },
+      { onReconnected: () => fetchSummary() },
+    );
     return disconnect;
   }, [name]);
 
@@ -230,11 +240,14 @@ export default function EconomyPage() {
         <p className={`font-display text-3xl font-bold ${oweAmount > 0 ? 'text-destructive' : getAmount > 0 ? 'text-primary' : 'text-foreground'}`}>
           {oweAmount > 0 ? `- ${formatCurrency(oweAmount)}` : getAmount > 0 ? `+ ${formatCurrency(getAmount)}` : formatCurrency(0)}
         </p>
-        <p className="text-xs text-white/70 mt-1">
+        <p className="mt-1 flex items-center gap-1.5 text-xs text-white/70">
           {hasPayOptions && selectedPayOption ? t('economy.owe', { name: selectedPayOption.name, amount: formatCurrency(selectedPayOption.amount) })
           : oweAmount > 0 && fallbackCreditor ? t('economy.owe', { name: fallbackCreditor.name, amount: formatCurrency(oweAmount) })
           : getAmount > 0 ? t('economy.othersOweYou')
-          : `${t('economy.allSettled')} ✅`}
+          : <>
+              <CircleCheckBig className="h-3.5 w-3.5 shrink-0" />
+              {t('economy.allSettled')}
+            </>}
         </p>
         {hasPayOptions && selectedPayOption && (
           <div className="mt-4 space-y-2.5">
@@ -280,7 +293,11 @@ export default function EconomyPage() {
                   <p className="text-sm font-semibold">{t('economy.pay.title', { name: selectedPayOption.name })}</p>
                   <p className="text-xs text-muted-foreground">{t('economy.pay.subtitle', { amount: formatCurrency(selectedPayOption.amount) })}</p>
                 </div>
-                <button onClick={() => setShowPaySheet(false)} aria-label={t('common.cancel')}>
+                <button
+                  onClick={() => setShowPaySheet(false)}
+                  aria-label={t('common.cancel')}
+                  className="grid h-11 w-11 shrink-0 place-items-center rounded-full"
+                >
                   <X className="h-4 w-4 text-muted-foreground" />
                 </button>
               </div>
@@ -358,7 +375,7 @@ export default function EconomyPage() {
             <div className="glass rounded-xl p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <p className="text-sm font-semibold">{t('economy.newExpense')}</p>
-                <button onClick={() => setShowAdd(false)}><X className="h-4 w-4 text-muted-foreground" /></button>
+                <button onClick={() => setShowAdd(false)} aria-label={t('common.cancel')} className="grid h-11 w-11 shrink-0 place-items-center rounded-full"><X className="h-4 w-4 text-muted-foreground" /></button>
               </div>
               <label className="block space-y-1"><span className="text-xs font-semibold text-muted-foreground">{t('economy.descriptionLabel')}</span><input value={newTitle} onChange={(e) => setNewTitle(e.target.value)} placeholder={t('economy.expenseTitlePlaceholder')} autoFocus className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" /></label>
               <label className="block space-y-1"><span className="text-xs font-semibold text-muted-foreground">{t('economy.amountLabel')}</span><input type="number" min="1" step="1" inputMode="decimal" value={newAmount} onChange={(e) => setNewAmount(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && canAddExpense && void handleAddExpense()} placeholder={t('economy.expenseAmountPlaceholder')} className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" /></label>
@@ -369,7 +386,7 @@ export default function EconomyPage() {
                   <div className="flex gap-2 flex-wrap">
                     {members.map((m) => (
                       <button key={m} onClick={() => toggleSplit(m)}
-                        className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                        className={`min-h-11 px-3 py-2 rounded-full text-xs font-medium transition-all ${
                           newSplit.includes(m) ? 'gradient-primary text-primary-foreground' : 'glass text-muted-foreground'
                         }`}>
                         {m}
@@ -420,8 +437,15 @@ export default function EconomyPage() {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-medium truncate">{b.name}</p>
-                <p className={`text-sm font-bold ${b.amount >= 0 ? 'text-primary' : 'text-destructive'}`}>
-                  {b.amount === 0 ? `${t('economy.settled')} ✓` : `${b.amount > 0 ? '+' : '-'} ${formatCurrency(Math.abs(b.amount))}`}
+                <p className={`flex items-center gap-1 text-sm font-bold ${b.amount >= 0 ? 'text-primary' : 'text-destructive'}`}>
+                  {b.amount === 0 ? (
+                    <>
+                      {t('economy.settled')}
+                      <Check className="h-3.5 w-3.5 shrink-0" />
+                    </>
+                  ) : (
+                    `${b.amount > 0 ? '+' : '-'} ${formatCurrency(Math.abs(b.amount))}`
+                  )}
                 </p>
               </div>
             </motion.div>
