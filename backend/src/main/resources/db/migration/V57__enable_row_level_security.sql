@@ -12,46 +12,64 @@
 -- FORCE ROW LEVEL SECURITY, which would apply the policies to the owner too and
 -- would break the backend. Authorization stays where it already lives: the API layer.
 
--- 1. Enable RLS on every table we own in `public` (includes flyway_schema_history).
-do $$
-declare
-    tbl record;
-begin
-    for tbl in
-        select c.relname
-        from pg_class c
-        join pg_namespace n on n.oid = c.relnamespace
-        where n.nspname = 'public'
-          and c.relkind = 'r'
-          and not c.relrowsecurity
-          and pg_has_role(current_user, c.relowner, 'USAGE')
-    loop
-        execute format('alter table public.%I enable row level security', tbl.relname);
-    end loop;
-end
-$$;
+-- Enable RLS on every table in public (no policies = deny for anon/authenticated).
+alter table flyway_schema_history enable row level security;
+alter table house_rules enable row level security;
+alter table achievements enable row level security;
+alter table events enable row level security;
+alter table invitations enable row level security;
+alter table pant_entries enable row level security;
+alter table settlement_checkpoints enable row level security;
+alter table expense_participants enable row level security;
+alter table rooms enable row level security;
+alter table chat_messages enable row level security;
+alter table collectives enable row level security;
+alter table notifications enable row level security;
+alter table shopping_items enable row level security;
+alter table expenses enable row level security;
+alter table task_feedback enable row level security;
+alter table personal_settlements enable row level security;
+alter table collective_enabled_achievements enable row level security;
+alter table auth_tokens enable row level security;
+alter table push_device_tokens enable row level security;
+alter table social_identities enable row level security;
+alter table party_game_rooms enable row level security;
+alter table party_game_participants enable row level security;
+alter table party_game_questions enable row level security;
+alter table tasks enable row level security;
+alter table friendships enable row level security;
+alter table house_checkins enable row level security;
+alter table task_swap_requests enable row level security;
+alter table checkin_responses enable row level security;
+alter table members enable row level security;
+alter table custom_achievements enable row level security;
+alter table house_rule_ack enable row level security;
+alter table guest_notices enable row level security;
+alter table collective_quiet_hours enable row level security;
+alter table maintenance_ticket enable row level security;
+alter table maintenance_ticket_status_history enable row level security;
+alter table task_history enable row level security;
+alter table kudos enable row level security;
+alter table event_attendance enable row level security;
 
--- 2. Defence in depth: strip the blanket grants Supabase hands to the PostgREST roles,
---    so the tables are unreachable even if RLS is ever turned off again. These roles do
---    not exist on a plain local Postgres, hence the guard.
+-- Defence in depth: revoke PostgREST role grants (only exist on Supabase).
+-- If these roles exist, strip all table/sequence access so API exposure is blocked
+-- even if RLS is accidentally disabled. These roles don't exist on plain Postgres.
 do $$
-declare
-    api_role text;
 begin
-    foreach api_role in array array['anon', 'authenticated'] loop
-        if exists (select 1 from pg_roles where rolname = api_role) then
-            execute format('revoke all on all tables in schema public from %I', api_role);
-            execute format('revoke all on all sequences in schema public from %I', api_role);
-            -- Future tables (later Flyway migrations) must not be re-exposed either.
-            execute format(
-                'alter default privileges for role %I in schema public revoke all on tables from %I',
-                current_user, api_role
-            );
-            execute format(
-                'alter default privileges for role %I in schema public revoke all on sequences from %I',
-                current_user, api_role
-            );
-        end if;
-    end loop;
+    if exists (select 1 from pg_roles where rolname = 'anon') then
+        revoke all on all tables in schema public from anon;
+        revoke all on all sequences in schema public from anon;
+        -- Future migrations must not re-expose tables.
+        execute format('alter default privileges for role %I in schema public revoke all on tables from anon', current_user);
+        execute format('alter default privileges for role %I in schema public revoke all on sequences from anon', current_user);
+    end if;
+    if exists (select 1 from pg_roles where rolname = 'authenticated') then
+        revoke all on all tables in schema public from authenticated;
+        revoke all on all sequences in schema public from authenticated;
+        -- Future migrations must not re-expose tables.
+        execute format('alter default privileges for role %I in schema public revoke all on tables from authenticated', current_user);
+        execute format('alter default privileges for role %I in schema public revoke all on sequences from authenticated', current_user);
+    end if;
 end
 $$;
