@@ -22,7 +22,7 @@ Originally a student project (DAT251) based on a Figma export.
 - **Frontend:** React 18 + TypeScript, Vite, Tailwind, react-router-dom, TanStack Query, i18next, framer-motion.
 - **Mobile:** Capacitor iOS/Android shells (app id `no.kollekt.app`).
 - **Backend:** Spring Boot (Kotlin), package `com.kollekt`. Layered **api → service → repository → domain**.
-- **Database:** PostgreSQL (Supabase in prod; local Postgres in Docker Compose), Flyway migrations (**V1 → V50**).
+- **Database:** PostgreSQL (Supabase in prod; local Postgres in Docker Compose), Flyway migrations (**V1 → V57**).
 - **Realtime:** WebSockets. **No Redis, no Kafka** (both removed — tokens moved to PostgreSQL `auth_tokens`, stats computed on demand).
 - **DevOps:** Docker / Docker Compose / GitHub Actions → Docker Hub.
 
@@ -49,7 +49,7 @@ Originally a student project (DAT251) based on a Figma export.
 ### Backend (`backend/`, `com.kollekt`)
 
 - Entry: `KollektApplication.kt`. Controllers in `api/` (DTOs in `api/dto/ApiModels.kt`), business logic in `service/` (`*Operations` / `*Service` classes), Spring Data JPA in `repository/`, JPA entities in `domain/`, security/websocket/CORS in `config/`.
-- Flyway migrations in `backend/src/main/resources/db/migration` (`V1` baseline → `V50`).
+- Flyway migrations in `backend/src/main/resources/db/migration` (`V1` baseline → `V57`).
 - Tests under `backend/src/test`: `service/*Test`, `api/*ContractTest`, `acceptance/*` (user-story acceptance tests, see `user-story-test-mapping.md`).
 
 ## Common commands
@@ -77,6 +77,7 @@ npm run mobile:run:android    # sync + run on Android emulator/device
 ## Conventions & gotchas
 
 - **Add a game:** append to `GAME_CATALOG` in `src/games/catalog.ts`, add i18n keys, and wire the component + launch branch in `GamesPanel.tsx`. Do **not** add HTTP calls for game content — it is bundled from `othergames/`.
+- **Every new table needs RLS:** Supabase publishes the whole `public` schema over PostgREST, so `V57` turned on row-level security (with **no** policies) for every table — the `anon`/`authenticated` API roles are denied outright while the table-owning JDBC role bypasses RLS, keeping authorization in the API layer. End any migration that creates a table with `alter table <name> enable row level security;`. Never use `force row level security` — it would apply the (empty) policy set to the owner and break the backend.
 - **Types are a manual contract mirror:** changes to backend DTOs (`ApiModels.kt`) should be reflected in `src/lib/types.ts`.
 - **Env files:** web dev uses `.env` (with `/api` proxy); mobile uses `.env.mobile` (absolute HTTPS URL). Examples committed as `*.example`.
 - **Realtime pattern:** when adding a feature that changes shared state, emit a WS event server-side and refetch client-side rather than pushing full payloads over the socket.
