@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Image as ImageIcon, BarChart3, X, Smile, Reply, HeartHandshake, ChevronDown, WashingMachine, Film, Plus } from 'lucide-react';
+import { Send, Image as ImageIcon, BarChart3, X, Smile, Reply, HeartHandshake, ChevronDown, WashingMachine, Film, Lock, Plus, ThumbsUp, ThumbsDown, Heart, Laugh, PartyPopper, Flame, Frown, MessageCircle, type LucideIcon } from 'lucide-react';
 
 type LaundryType = 'WHITES' | 'COLORS' | 'DELICATES' | 'WOOL' | 'SPORTS' | 'TOWELS';
 const LAUNDRY_TYPES: LaundryType[] = ['WHITES', 'COLORS', 'DELICATES', 'WOOL', 'SPORTS', 'TOWELS'];
@@ -15,44 +15,66 @@ import { useUser } from '../context/UserContext';
 import { formatDateTime, formatTime } from '../i18n/helpers';
 import { connectCollectiveRealtime } from '../lib/realtime';
 import { tapFeedback } from '../lib/haptics';
+import { useGamesSubscription } from '../lib/purchases';
+import SubscriptionPaywall from '../components/SubscriptionPaywall';
 import type { AppUser, ChatMessage, CheckinSummary, HouseCheckin, Kudo, KudoType, Task } from '../lib/types';
 
 const KUDO_TYPES: KudoType[] = ['THANK_YOU', 'CLEANEST', 'MOST_HELPFUL', 'PEACEMAKER'];
 import { AddSheet, AvatarStack } from '../components/ui-kit';
 import { colorForMember } from '../lib/memberColors';
 
-const REACTION_EMOJIS = [
-  '👍', '❤️', '😂', '🎉', '😮', '😢', '😡', '🔥',
-  '👏', '🙌', '💯', '👎', '🤔', '😍', '🥰', '😭',
-  '🤯', '😎', '🫶', '✅', '👀', '🤝', '💀', '🙏',
+// The backend validates reactions against a fixed emoji allowlist and stores them as emoji
+// strings, so the emoji stays the wire format — icons are presentation only.
+const REACTIONS: Array<{ emoji: string; icon: LucideIcon; labelKey: string }> = [
+  { emoji: '👍', icon: ThumbsUp, labelKey: 'chat.reactions.like' },
+  { emoji: '❤️', icon: Heart, labelKey: 'chat.reactions.love' },
+  { emoji: '😂', icon: Laugh, labelKey: 'chat.reactions.laugh' },
+  { emoji: '🎉', icon: PartyPopper, labelKey: 'chat.reactions.celebrate' },
+  { emoji: '🔥', icon: Flame, labelKey: 'chat.reactions.fire' },
+  { emoji: '😢', icon: Frown, labelKey: 'chat.reactions.sad' },
+  { emoji: '👎', icon: ThumbsDown, labelKey: 'chat.reactions.dislike' },
 ];
 
+const REACTION_ICON_BY_EMOJI = new Map(REACTIONS.map((r) => [r.emoji, r.icon]));
+
+// Sticker glyphs are the lucide icon paths inlined as strings: the sticker is serialised to a
+// standalone SVG data URL and uploaded as an image, so it can't hold a React component, and
+// pulling in react-dom/server to render one added ~70kB to this chunk. Paths are lucide's
+// 24x24 originals — refresh them from the matching icon if lucide is upgraded.
 const STARTER_GIFS = [
-  { id: 'cheers', emoji: '🥂', bg: '#2F6F5E', fg: '#FFF8D7' },
-  { id: 'laugh', emoji: '😂', bg: '#F7C948', fg: '#18332C' },
-  { id: 'party', emoji: '🎉', bg: '#E65A7A', fg: '#FFF8D7' },
-  { id: 'fire', emoji: '🔥', bg: '#F97316', fg: '#FFF8D7' },
-  { id: 'yes', emoji: '✅', bg: '#4F9D69', fg: '#FFF8D7' },
-  { id: 'eyes', emoji: '👀', bg: '#5B7CFA', fg: '#FFF8D7' },
-  { id: 'mindBlown', emoji: '🤯', bg: '#8B5CF6', fg: '#FFF8D7' },
-  { id: 'love', emoji: '❤️', bg: '#BE3455', fg: '#FFF8D7' },
-  { id: 'nope', emoji: '🙅', bg: '#56616B', fg: '#FFF8D7' },
-  { id: 'clean', emoji: '🧽', bg: '#00A6A6', fg: '#FFF8D7' },
+  { id: 'cheers', bg: '#2F6F5E', fg: '#FFF8D7', paths: `<path d="M5.116 4.104A1 1 0 0 1 6.11 3h11.78a1 1 0 0 1 .994 1.105L17.19 20.21A2 2 0 0 1 15.2 22H8.8a2 2 0 0 1-2-1.79z"/><path d="M6 12a5 5 0 0 1 6 0 5 5 0 0 0 6 0"/>` },
+  { id: 'laugh', bg: '#F7C948', fg: '#18332C', paths: `<circle cx="12" cy="12" r="10"/><path d="M18 13a6 6 0 0 1-6 5 6 6 0 0 1-6-5h12Z"/><line x1="9" x2="9.01" y1="9" y2="9"/><line x1="15" x2="15.01" y1="9" y2="9"/>` },
+  { id: 'party', bg: '#E65A7A', fg: '#FFF8D7', paths: `<path d="M5.8 11.3 2 22l10.7-3.79"/><path d="M4 3h.01"/><path d="M22 8h.01"/><path d="M15 2h.01"/><path d="M22 20h.01"/><path d="m22 2-2.24.75a2.9 2.9 0 0 0-1.96 3.12c.1.86-.57 1.63-1.45 1.63h-.38c-.86 0-1.6.6-1.76 1.44L14 10"/><path d="m22 13-.82-.33c-.86-.34-1.82.2-1.98 1.11c-.11.7-.72 1.22-1.43 1.22H17"/><path d="m11 2 .33.82c.34.86-.2 1.82-1.11 1.98C9.52 4.9 9 5.52 9 6.23V7"/><path d="M11 13c1.93 1.93 2.83 4.17 2 5-.83.83-3.07-.07-5-2-1.93-1.93-2.83-4.17-2-5 .83-.83 3.07.07 5 2Z"/>` },
+  { id: 'fire', bg: '#F97316', fg: '#FFF8D7', paths: `<path d="M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4"/>` },
+  { id: 'yes', bg: '#4F9D69', fg: '#FFF8D7', paths: `<path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/>` },
+  { id: 'eyes', bg: '#5B7CFA', fg: '#FFF8D7', paths: `<path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/>` },
+  { id: 'mindBlown', bg: '#8B5CF6', fg: '#FFF8D7', paths: `<path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/>` },
+  { id: 'love', bg: '#BE3455', fg: '#FFF8D7', paths: `<path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5"/>` },
+  { id: 'nope', bg: '#56616B', fg: '#FFF8D7', paths: `<path d="M18 6 6 18"/><path d="m6 6 12 12"/>` },
+  { id: 'clean', bg: '#00A6A6', fg: '#FFF8D7', paths: `<path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"/><path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97"/>` },
 ];
 
-function starterGifDataUrl({ emoji, bg, fg }: (typeof STARTER_GIFS)[number]) {
+const GIF_ICON_SIZE = 96;
+const LUCIDE_VIEWBOX = 24;
+
+function starterGifDataUrl({ paths, bg, fg }: (typeof STARTER_GIFS)[number]) {
+  const scale = GIF_ICON_SIZE / LUCIDE_VIEWBOX;
+  const half = GIF_ICON_SIZE / 2;
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="320" height="220" viewBox="0 0 320 220">
     <rect width="320" height="220" rx="32" fill="${bg}"/>
     <circle cx="160" cy="110" r="72" fill="${fg}" opacity=".18">
       <animate attributeName="r" values="56;78;56" dur="1.15s" repeatCount="indefinite"/>
     </circle>
-    <text x="160" y="132" text-anchor="middle" font-size="86">
+    <g transform="translate(160 110)">
       <animateTransform attributeName="transform" type="scale" values="1;1.16;1" dur="1.15s" additive="sum" repeatCount="indefinite"/>
-      ${emoji}
-    </text>
+      <g transform="translate(${-half} ${-half}) scale(${scale})" fill="none" stroke="${fg}" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+        ${paths}
+      </g>
+    </g>
   </svg>`;
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 }
+
 export default function ChatPage() {
   const { t } = useTranslation();
   const { currentUser } = useUser();
@@ -69,6 +91,8 @@ export default function ChatPage() {
   const [showPollForm, setShowPollForm] = useState(false);
   const [showLaundryForm, setShowLaundryForm] = useState(false);
   const [showGifPicker, setShowGifPicker] = useState(false);
+  const [showPaywall, setShowPaywall] = useState(false);
+  const { isSubscriber } = useGamesSubscription();
   const [laundryType, setLaundryType] = useState<LaundryType>('COLORS');
   const [laundryTemp, setLaundryTemp] = useState(40);
   const [showKudosForm, setShowKudosForm] = useState(false);
@@ -197,6 +221,12 @@ export default function ChatPage() {
           const count = (event.payload as { count?: number })?.count;
           if (count !== undefined) setOnlineCount(count);
         }
+      },
+      {
+        onReconnected: () => {
+          void fetchMessages(activeThreadRef.current);
+          void fetchCheckinSummary();
+        },
       },
     );
     return disconnect;
@@ -485,7 +515,7 @@ export default function ChatPage() {
           data-tour="profile"
           onClick={() => navigate('/profile')}
           style={currentUser ? { backgroundColor: colorForMember(currentUser.name, currentUser.color) } : undefined}
-          className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-border text-sm font-bold text-white"
+          className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-border text-base font-bold text-white"
           aria-label={t('header.profile')}
         >
           {currentUser?.name[0]?.toUpperCase()}
@@ -526,7 +556,10 @@ export default function ChatPage() {
             className="flex w-full items-center justify-between gap-3 p-3 text-left"
           >
             <div className="min-w-0">
-              <h3 className="font-display text-sm font-bold truncate">💬 {t('checkin.summaryTitle')}</h3>
+              <h3 className="flex items-center gap-1.5 font-display text-sm font-bold truncate">
+                <MessageCircle className="h-4 w-4 shrink-0" />
+                {t('checkin.summaryTitle')}
+              </h3>
               <p className="text-[10px] text-muted-foreground">{t('checkin.progress', { count: checkinSummary.responseCount, total: checkinSummary.memberCount })}</p>
             </div>
             <div className="flex shrink-0 items-center gap-2">
@@ -614,7 +647,10 @@ export default function ChatPage() {
                   )}
                   {message.poll && (
                     <div className="mt-1 space-y-2.5">
-                      <p className="font-display text-base font-bold">📊 {message.poll.question}</p>
+                      <p className="flex items-center gap-1.5 font-display text-base font-bold">
+                        <BarChart3 className="h-4 w-4 shrink-0" />
+                        {message.poll.question}
+                      </p>
                       {message.poll.options.map((opt) => {
                         const total = message.poll!.options.reduce((s, o) => s + o.users.length, 0);
                         const votes = opt.users.length;
@@ -641,10 +677,13 @@ export default function ChatPage() {
 	                  <div className={`px-1 flex gap-1 flex-wrap ${isSelf ? 'justify-end' : 'justify-start'}`}>
 	                    {message.reactions.map((r) => {
 	                      const reacted = r.users.includes(name);
+	                      // Reactions sent before the icon set existed fall back to their emoji.
+	                      const ReactionIcon = REACTION_ICON_BY_EMOJI.get(r.emoji);
 	                      return (
 	                        <button key={r.emoji} onClick={() => chooseReaction(message.id, r.emoji)}
-	                          className={`min-h-11 rounded-full border px-3 py-2 text-xs ${reacted ? 'border-primary/40 bg-primary/20' : 'border-border bg-card'}`}>
-	                          {r.emoji} {r.users.length}
+	                          className={`flex min-h-11 items-center gap-1.5 rounded-full border px-3 py-2 text-xs ${reacted ? 'border-primary/40 bg-primary/20' : 'border-border bg-card'}`}>
+	                          {ReactionIcon ? <ReactionIcon className="h-3.5 w-3.5 shrink-0" /> : r.emoji}
+	                          {r.users.length}
 	                        </button>
 	                      );
 	                    })}
@@ -804,8 +843,17 @@ export default function ChatPage() {
               <ImageIcon className="h-5 w-5 text-muted-foreground" />
               <span className="text-[9px] font-medium text-muted-foreground">{t('chat.sendImage')}</span>
             </button>
-            <button onMouseDown={(e) => e.preventDefault()} onClick={() => { setShowGifPicker((v) => !v); setShowActionBar(false); }} className="flex min-h-11 shrink-0 flex-col items-center gap-1 rounded-xl px-3 py-2 hover:bg-muted/60" aria-label={t('chat.sendGif')}>
-              <Film className="h-5 w-5 text-muted-foreground" />
+            <button
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => {
+                setShowActionBar(false);
+                if (!isSubscriber) { setShowPaywall(true); return; }
+                setShowGifPicker((v) => !v);
+              }}
+              className="flex min-h-11 shrink-0 flex-col items-center gap-1 rounded-xl px-3 py-2 hover:bg-muted/60"
+              aria-label={t('chat.sendGif')}
+            >
+              {isSubscriber ? <Film className="h-5 w-5 text-muted-foreground" /> : <Lock className="h-5 w-5 text-muted-foreground" />}
               <span className="text-[9px] font-medium text-muted-foreground">GIF</span>
             </button>
             <button onMouseDown={(e) => e.preventDefault()} onClick={() => { setShowPollForm((v) => !v); setShowActionBar(false); }} className="flex min-h-11 shrink-0 flex-col items-center gap-1 rounded-xl px-3 py-2 hover:bg-muted/60" aria-label={t('chat.togglePollForm')}>
@@ -920,14 +968,15 @@ export default function ChatPage() {
               className="w-full max-w-xs rounded-2xl border border-border bg-card p-3 shadow-xl"
               onClick={(event) => event.stopPropagation()}
             >
-              <div className="grid grid-cols-6 gap-1">
-                {REACTION_EMOJIS.map((emoji) => (
+              <div className="grid grid-cols-4 gap-1">
+                {REACTIONS.map((reaction) => (
                   <button
-                    key={emoji}
-                    onClick={() => chooseReaction(reactionPickerMessage.id, emoji)}
-                    className="grid h-11 w-11 place-items-center rounded-xl text-lg transition-transform hover:scale-110 hover:bg-muted"
+                    key={reaction.emoji}
+                    onClick={() => chooseReaction(reactionPickerMessage.id, reaction.emoji)}
+                    aria-label={t(reaction.labelKey)}
+                    className="grid h-12 w-12 place-items-center rounded-xl transition-transform hover:scale-110 hover:bg-muted"
                   >
-                    {emoji}
+                    <reaction.icon className="h-5 w-5" />
                   </button>
                 ))}
               </div>
@@ -961,6 +1010,8 @@ export default function ChatPage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {showPaywall && <SubscriptionPaywall onClose={() => setShowPaywall(false)} />}
     </motion.div>
   );
 }

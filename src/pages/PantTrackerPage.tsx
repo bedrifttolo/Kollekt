@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Recycle, Target, Edit3, Check, X, Plus, Pencil, Trash2 } from "lucide-react";
+import { ArrowLeft, Recycle, Target, Edit3, Check, X, Plus, Pencil, Trash2, PartyPopper } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "../lib/api";
@@ -59,11 +59,15 @@ export default function PantTrackerPage() {
 
   useEffect(() => {
     if (!name) return;
-    const disconnect = connectCollectiveRealtime(name, (event) => {
-      if (["PANT_ADDED", "PANT_UPDATED", "PANT_DELETED"].includes(event.type)) {
-        fetchPant();
-      }
-    });
+    const disconnect = connectCollectiveRealtime(
+      name,
+      (event) => {
+        if (["PANT_ADDED", "PANT_UPDATED", "PANT_DELETED"].includes(event.type)) {
+          fetchPant();
+        }
+      },
+      { onReconnected: () => fetchPant() },
+    );
     return disconnect;
   }, [name]);
 
@@ -277,8 +281,9 @@ export default function PantTrackerPage() {
             </button>
           </div>
         ) : (
-          <p className="font-display font-bold text-lg">
-            {t("pant.goalTitle")} 🎉
+          <p className="flex items-center gap-1.5 font-display font-bold text-lg">
+            {t("pant.goalTitle")}
+            <PartyPopper className="h-4 w-4 shrink-0 text-primary" />
           </p>
         )}
         <div className="flex items-center justify-between text-xs text-muted-foreground mt-1 mb-2">
@@ -286,10 +291,15 @@ export default function PantTrackerPage() {
           <span>{t("pant.goal", { amount: formatCurrency(goal) })}</span>
         </div>
         <ProgressBar value={progress} />
-        <p className="text-xs text-muted-foreground mt-2">
-          {progress >= 100
-            ? `🎉 ${t("pant.goalReached")}`
-            : t("pant.bottlesToGo", { count: Math.ceil((goal - earned) / 1) })}
+        <p className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground">
+          {progress >= 100 ? (
+            <>
+              <PartyPopper className="h-3.5 w-3.5 shrink-0 text-primary" />
+              {t("pant.goalReached")}
+            </>
+          ) : (
+            t("pant.bottlesToGo", { count: Math.ceil((goal - earned) / 1) })
+          )}
         </p>
       </div>
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { TrendingUp, Flame, Star, Pencil, X, SlidersHorizontal, Plus, Trash2, Check, StarHalf, Home, Trophy, Zap, Award, Sparkles, Heart, Crown, Medal, Target, Rocket, Leaf, Sun, type LucideIcon } from 'lucide-react';
+import { TrendingUp, Flame, Star, Pencil, X, SlidersHorizontal, Plus, Trash2, Check, StarHalf, Home, Trophy, Zap, Award, Sparkles, Heart, Crown, Medal, Target, Rocket, Leaf, Sun, Gift, type LucideIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../lib/api';
@@ -116,11 +116,15 @@ export default function RanksPanel() {
 
   useEffect(() => {
     if (!name) return;
-    return connectCollectiveRealtime(name, (event) => {
-      if (['TASK_UPDATED', 'TASK_CREATED', 'TASK_DELETED', 'EXPENSE_CREATED', 'BALANCES_SETTLED', 'ACHIEVEMENT_CONFIG_UPDATED'].includes(event.type)) {
-        void fetchData(period);
-      }
-    });
+    return connectCollectiveRealtime(
+      name,
+      (event) => {
+        if (['TASK_UPDATED', 'TASK_CREATED', 'TASK_DELETED', 'EXPENSE_CREATED', 'BALANCES_SETTLED', 'ACHIEVEMENT_CONFIG_UPDATED'].includes(event.type)) {
+          void fetchData(period);
+        }
+      },
+      { onReconnected: () => void fetchData(period) },
+    );
   }, [name, period]);
 
   const handleSetPrize = async () => {
@@ -247,7 +251,7 @@ export default function RanksPanel() {
 
       {/* Monthly prize (lemon card) */}
       <div className="flex items-start gap-3 rounded-[1.35rem] bg-secondary/25 p-4">
-        <span className="text-2xl leading-none">🎁</span>
+        <Gift className="h-6 w-6 shrink-0 text-secondary-foreground" />
         <div className="min-w-0 flex-1">
           {showPrize ? (
             <div className="space-y-2">
@@ -357,7 +361,7 @@ export default function RanksPanel() {
             <h3 className="text-sm font-semibold text-muted-foreground flex items-center gap-1">
               <Star className="h-3.5 w-3.5" /> {t('leaderboard.achievements')}
             </h3>
-            <button onClick={handleOpenAchievementConfig} className="grid h-7 w-7 place-items-center rounded-lg bg-card">
+            <button onClick={handleOpenAchievementConfig} aria-label={t('leaderboard.manageAchievements')} className="grid h-11 w-11 place-items-center rounded-lg bg-card">
               <SlidersHorizontal className="h-3.5 w-3.5 text-muted-foreground" />
             </button>
           </div>
@@ -406,7 +410,7 @@ export default function RanksPanel() {
                     {memberStats && <p className="text-[10px] text-muted-foreground">{t('leaderboard.levelShort', { level: memberStats.level })} · #{memberStats.rank}</p>}
                   </div>
                 </div>
-                <button onClick={() => setSelectedMember(null)} className="grid h-8 w-8 place-items-center rounded-xl bg-card"><X className="h-4 w-4" /></button>
+                <button onClick={() => setSelectedMember(null)} aria-label={t('common.cancel')} className="grid h-11 w-11 place-items-center rounded-xl bg-card"><X className="h-4 w-4" /></button>
               </div>
               {memberStatsLoading && <div className="grid grid-cols-3 gap-2 animate-pulse">{[...Array(6)].map((_, i) => <div key={i} className="h-14 bg-muted/30 rounded-lg" />)}</div>}
               {memberStats && !memberStatsLoading && (
@@ -443,7 +447,7 @@ export default function RanksPanel() {
                   <p className="font-semibold">{t('leaderboard.manageAchievements')}</p>
                   <p className="text-[10px] text-muted-foreground">{t('leaderboard.manageAchievementsSubtitle')}</p>
                 </div>
-                <button onClick={() => setShowAchievementConfig(false)} className="grid h-8 w-8 place-items-center rounded-xl bg-card shrink-0"><X className="h-4 w-4" /></button>
+                <button onClick={() => setShowAchievementConfig(false)} aria-label={t('common.cancel')} className="grid h-11 w-11 place-items-center rounded-xl bg-card shrink-0"><X className="h-4 w-4" /></button>
               </div>
               <div className="overflow-y-auto px-5 pb-5">
                 {catalogLoading && <div className="space-y-2 animate-pulse">{[...Array(5)].map((_, i) => <div key={i} className="h-12 bg-muted/30 rounded-lg" />)}</div>}
@@ -505,7 +509,7 @@ export default function RanksPanel() {
                                 onClick={() => setCustomIcon(key)}
                                 aria-label={key}
                                 aria-pressed={customIcon === key}
-                                className={`grid h-9 w-9 place-items-center rounded-xl border transition-colors ${customIcon === key ? 'gradient-primary border-transparent text-primary-foreground' : 'border-border bg-card text-muted-foreground'}`}
+                                className={`grid h-11 w-11 place-items-center rounded-xl border transition-colors ${customIcon === key ? 'gradient-primary border-transparent text-primary-foreground' : 'border-border bg-card text-muted-foreground'}`}
                               >
                                 <Icon className="h-4 w-4" />
                               </button>

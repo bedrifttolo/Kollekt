@@ -80,7 +80,7 @@ export default function RoomPromptGame({ onClose }: { onClose: () => void }) {
             <p className="eyebrow">{t('social.games.promptRelay.eyebrow')}</p>
             <h2 className="mt-1 font-display text-2xl font-extrabold">{t('social.games.catalog.promptRelay')}</h2>
           </div>
-          <button onClick={onClose} className="grid h-10 w-10 place-items-center rounded-full border border-border bg-card" aria-label={t('common.cancel')}><X className="h-4 w-4" /></button>
+          <button onClick={onClose} className="grid h-11 w-11 place-items-center rounded-full border border-border bg-card" aria-label={t('common.cancel')}><X className="h-4 w-4" /></button>
         </div>
         <div className="flex flex-1 flex-col justify-center gap-4 px-5">
           <div className="househero">
@@ -124,7 +124,7 @@ export default function RoomPromptGame({ onClose }: { onClose: () => void }) {
             {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}{room.code}
           </button>
         </div>
-        <button onClick={onClose} className="grid h-10 w-10 place-items-center rounded-full border border-border bg-card" aria-label={t('common.cancel')}><X className="h-4 w-4" /></button>
+        <button onClick={onClose} className="grid h-11 w-11 place-items-center rounded-full border border-border bg-card" aria-label={t('common.cancel')}><X className="h-4 w-4" /></button>
       </div>
 
       <div className="flex-1 overflow-y-auto px-5 py-5">

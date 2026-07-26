@@ -1,10 +1,10 @@
 import { useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowLeft, RotateCcw, ShieldAlert, Trash2 } from 'lucide-react';
+import { ArrowLeft, RotateCcw, ShieldAlert, Trash2, Dice1, Dice2, Dice3, Dice4, Dice5, Dice6 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { tapFeedback } from '../lib/haptics';
 
-const DIE_FACES = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+const DIE_FACE_ICONS = [Dice1, Dice2, Dice3, Dice4, Dice5, Dice6];
 const STARTING_COUNTS = Array.from({ length: 10 }, (_, index) => index + 1);
 
 export default function LiarsDiceGame({ onClose }: { onClose: () => void }) {
@@ -89,7 +89,10 @@ export default function LiarsDiceGame({ onClose }: { onClose: () => void }) {
 
             {dice.length > 0 ? (
               <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-                <div className="flex flex-wrap justify-center gap-2">{dice.map((value, index) => <span key={`${index}-${value}`} className={`grid h-16 w-16 place-items-center rounded-2xl border text-5xl leading-none shadow-sm ${value === 1 ? 'border-secondary bg-secondary/20 text-secondary-foreground' : 'border-border bg-card text-primary'}`}>{DIE_FACES[value - 1]}</span>)}</div>
+                <div className="flex flex-wrap justify-center gap-2">{dice.map((value, index) => {
+                  const Face = DIE_FACE_ICONS[value - 1];
+                  return <span key={`${index}-${value}`} className={`grid h-16 w-16 place-items-center rounded-2xl border shadow-sm ${value === 1 ? 'border-secondary bg-secondary/20 text-secondary-foreground' : 'border-border bg-card text-primary'}`}><Face className="h-9 w-9" strokeWidth={1.75} /></span>;
+                })}</div>
                 <p className="text-center text-xs font-medium text-muted-foreground">{t('social.games.liarsDice.wildHint')}</p>
                 <div className="grid grid-cols-5 gap-1.5">{[2, 3, 4, 5, 6].map((face) => <div key={face} className="rounded-xl bg-card p-2 text-center"><p className="text-xs text-muted-foreground">{face}s</p><p className="font-display text-xl font-extrabold">{dice.filter((value) => value === 1 || value === face).length}</p></div>)}</div>
               </motion.div>

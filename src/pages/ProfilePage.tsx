@@ -19,6 +19,7 @@ import {
   ArrowLeft,
   ScrollText,
   AlertTriangle,
+  Sparkles,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -48,9 +49,9 @@ import LanguageSwitcher from "../components/LanguageSwitcher";
 import { MEMBER_COLORS, colorForMember } from "../lib/memberColors";
 import { connectCollectiveRealtime } from "../lib/realtime";
 
-const STATUS_OPTIONS: { value: MemberStatus; emoji: string }[] = [
-  { value: "ACTIVE", emoji: "🟢" },
-  { value: "AWAY", emoji: "🟡" },
+const STATUS_OPTIONS: { value: MemberStatus; dotClass: string }[] = [
+  { value: "ACTIVE", dotClass: "bg-emerald-500" },
+  { value: "AWAY", dotClass: "bg-amber-500" },
 ];
 
 // Mirrors ALL_NOTIFICATION_TYPES in NotificationService.kt so every notification the backend can
@@ -278,11 +279,21 @@ export default function ProfilePage() {
       "ACHIEVEMENT_CONFIG_UPDATED",
       "HOUSE_RULES_UPDATED",
     ]);
-    return connectCollectiveRealtime(name, (event) => {
-      if (refreshEvents.has(event.type)) void loadStatsAndAchievements();
-      if (event.type === "HOUSE_RULES_UPDATED") void loadHouseRules();
-      if (event.type === "KUDOS_CREATED") void loadKudos();
-    });
+    return connectCollectiveRealtime(
+      name,
+      (event) => {
+        if (refreshEvents.has(event.type)) void loadStatsAndAchievements();
+        if (event.type === "HOUSE_RULES_UPDATED") void loadHouseRules();
+        if (event.type === "KUDOS_CREATED") void loadKudos();
+      },
+      {
+        onReconnected: () => {
+          void loadStatsAndAchievements();
+          void loadHouseRules();
+          void loadKudos();
+        },
+      },
+    );
   }, [name, loadStatsAndAchievements, loadHouseRules, loadKudos]);
 
   const saveHouseRules = async () => {
@@ -565,8 +576,9 @@ export default function ProfilePage() {
                   onClick={() => void handleStatusChange(status.value)}
                   className={`min-h-20 rounded-lg px-3 py-2 text-left transition-all disabled:opacity-60 ${selected ? "bg-card shadow-sm ring-1 ring-primary/30" : "text-muted-foreground hover:bg-card/50"}`}
                 >
-                  <span className="block text-sm font-semibold">
-                    {status.emoji} {translateKey("common.memberStatus", status.value)}
+                  <span className="flex items-center gap-1.5 text-sm font-semibold">
+                    <span className={`inline-block h-2 w-2 shrink-0 rounded-full ${status.dotClass}`} />
+                    {translateKey("common.memberStatus", status.value)}
                   </span>
                   <span className="mt-1 block text-[10px] leading-snug">
                     {t(`profile.status.${status.value.toLowerCase()}Description`)}
@@ -659,7 +671,7 @@ export default function ProfilePage() {
       )}
 
       <div className="card flex items-center gap-3">
-        <span className="text-2xl">✨</span>
+        <Sparkles className="h-6 w-6 shrink-0 text-primary" />
         <div className="flex-1">
           <p className="text-sm font-semibold">{t("kudos.profileBadge")}</p>
           <p className="text-xs text-muted-foreground">{t("kudos.receivedTotal", { count: receivedKudos })}</p>
@@ -680,9 +692,10 @@ export default function ProfilePage() {
                   {member.name[0]?.toUpperCase()}
                 </span>
                 {member.name}
-                <span className="text-[9px]" aria-label={translateKey("common.memberStatus", member.status)}>
-                  {member.status === "ACTIVE" ? "🟢" : "🟡"}
-                </span>
+                <span
+                  aria-label={translateKey("common.memberStatus", member.status)}
+                  className={`inline-block h-2 w-2 shrink-0 rounded-full ${member.status === "ACTIVE" ? "bg-emerald-500" : "bg-amber-500"}`}
+                />
               </span>
             ))}
           </div>

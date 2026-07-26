@@ -578,7 +578,10 @@
     "startTime": "Start",
     "endTimeOptional": "Slut (valfritt)",
     "editEvent": "Redigera händelse",
-    "attendance": { "join": "Hänger med", "pass": "Passar" },
+    "attendance": {
+      "join": "Hänger med",
+      "pass": "Passar"
+    },
     "deleteEvent": "Ta bort händelse",
     "saveChanges": "Spara ändringar"
   },
@@ -604,7 +607,16 @@
     "gifPickerTitle": "Start-GIFar",
     "togglePollForm": "Visa eller dölj omröstning",
     "imageAlt": "Delad bild",
-    "closeImage": "Stäng bild"
+    "closeImage": "Stäng bild",
+    "reactions": {
+      "like": "Gilla",
+      "love": "Älskar",
+      "laugh": "Skrattar",
+      "celebrate": "Firar",
+      "fire": "Eld",
+      "sad": "Ledsen",
+      "dislike": "Ogilla"
+    }
   },
   "economy": {
     "title": "Ekonomi",
@@ -693,8 +705,8 @@
       "premium": "Premium",
       "unlock": "Lås upp",
       "paywall": {
-        "title": "Lås upp alla spel",
-        "body": "Prenumerera för att låsa upp hela spelsamlingen, inklusive Killkväll och Tjejkväll. Kollekt, 100 frågor, Vilka är vi?, Tärning och Lyckohjulet är alltid gratis.",
+        "title": "Lås upp premium",
+        "body": "Prenumerera för att låsa upp hela spelsamlingen och riktiga GIF-ar i chatten.",
         "subscribe": "Prenumerera",
         "restore": "Återställ köp",
         "disclosure": "Förnyas automatiskt och debiteras via ditt App Store-konto. Avbryt när som helst i Inställningar. Villkor och integritetspolicy gäller.",

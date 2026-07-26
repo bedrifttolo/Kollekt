@@ -78,7 +78,7 @@ export default function PromptGame({
             <Users className="h-3 w-3" /> {t('social.games.setup.editPlayers', { count: players.length })}
           </button>
         </div>
-        <button onClick={onClose} className="grid h-10 w-10 place-items-center rounded-full border border-border bg-card" aria-label={t('common.cancel')}>
+        <button onClick={onClose} className="grid h-11 w-11 place-items-center rounded-full border border-border bg-card" aria-label={t('common.cancel')}>
           <X className="h-4 w-4" />
         </button>
       </div>

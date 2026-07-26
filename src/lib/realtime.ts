@@ -1,5 +1,4 @@
 import { API_BASE, getAccessToken } from './api';
-import { queryClient } from './queryClient';
 
 export interface RealtimeEvent {
   type: string;
@@ -10,6 +9,12 @@ export interface RealtimeEvent {
 
 interface RealtimeOptions {
   onConnected?: () => void;
+  /**
+   * Fired on re-connect only (not the first connect). The socket was dead, so events may
+   * have been missed — callers refetch their own queries. Deliberately scoped per caller:
+   * a blanket cache invalidation here made every later navigation refetch from scratch.
+   */
+  onReconnected?: () => void;
 }
 
 function buildWsUrl(memberName: string, token: string): string {
@@ -45,12 +50,8 @@ export function connectCollectiveRealtime(
     }
     socket = new WebSocket(buildWsUrl(memberName, token));
     socket.onopen = () => {
-      // A reconnect means the socket was dead (backgrounded / network switch) and we may
-      // have missed events published in the meantime. Refetch active queries so the UI
-      // can't keep showing stale data. Skipped on the first connect — the caller's own
-      // queries have just loaded.
       if (hasConnected) {
-        void queryClient.invalidateQueries();
+        options?.onReconnected?.();
       }
       hasConnected = true;
       options?.onConnected?.();

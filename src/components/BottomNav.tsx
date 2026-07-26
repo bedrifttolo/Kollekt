@@ -73,8 +73,8 @@ export default function BottomNav() {
   }, [location.pathname, notifications, seenKey]);
 
   return (
-    <nav className="app-bottom-nav fixed bottom-0 left-3 right-3 z-50 safe-bottom">
-      <div className="flex items-center justify-around h-17 max-w-xl mx-auto px-2 mb-2 rounded-[1.45rem] bg-sidebar text-sidebar-foreground border border-sidebar-border shadow-[0_12px_34px_rgba(9,25,16,.24)]">
+    <nav className="app-bottom-nav fixed bottom-0 left-2 right-2 z-50 safe-bottom">
+      <div role="tablist" className="flex items-center justify-around h-[4.75rem] max-w-xl mx-auto px-1 mb-2 rounded-[1.45rem] bg-sidebar text-sidebar-foreground border border-sidebar-border shadow-[0_12px_34px_rgba(9,25,16,.24)]">
         {tabs.map((tab) => {
           const isActive =
             tab.path === '/'
@@ -85,26 +85,29 @@ export default function BottomNav() {
           return (
             <button
               key={tab.path}
+              role="tab"
+              aria-selected={isActive}
+              aria-current={isActive ? 'page' : undefined}
               data-tour={`nav-${tab.tour}`}
               onClick={() => navigate(tab.path)}
-              className="relative flex flex-1 flex-col items-center gap-0.5 py-2 px-1 rounded-xl transition-colors"
+              className="relative flex flex-1 flex-col items-center justify-center gap-1 self-stretch px-1 rounded-xl transition-colors"
               aria-label={t(tab.labelKey)}
             >
               {isActive && (
                 <motion.div
                   layoutId="tab-indicator"
-                  className="absolute -top-0.5 w-6 h-1 rounded-full bg-sidebar-primary"
+                  className="absolute top-1.5 w-6 h-1 rounded-full bg-sidebar-primary"
                   transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                 />
               )}
               <span className="relative">
                 <tab.icon
-                  className={`h-5 w-5 transition-colors ${
+                  className={`h-6 w-6 transition-colors ${
                     isActive ? 'text-sidebar-primary' : 'text-sidebar-foreground/60'
                   }`}
                 />
                 {hasBadge && (
-                  <span className="absolute -top-1 -right-1.5 h-2.5 w-2.5 rounded-full bg-destructive border-2 border-sidebar" />
+                  <span className="absolute -top-1 -right-1.5 h-3 w-3 rounded-full bg-destructive border-2 border-sidebar" />
                 )}
               </span>
               <span

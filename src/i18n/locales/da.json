@@ -578,7 +578,10 @@
     "startTime": "Start",
     "endTimeOptional": "Slut (valgfrit)",
     "editEvent": "Rediger begivenhed",
-    "attendance": { "join": "Deltager", "pass": "Springer over" },
+    "attendance": {
+      "join": "Deltager",
+      "pass": "Springer over"
+    },
     "deleteEvent": "Slet begivenhed",
     "saveChanges": "Gem ændringer"
   },
@@ -604,7 +607,16 @@
     "gifPickerTitle": "Start-GIF'er",
     "togglePollForm": "Vis eller skjul afstemning",
     "imageAlt": "Delt billede",
-    "closeImage": "Luk billede"
+    "closeImage": "Luk billede",
+    "reactions": {
+      "like": "Synes godt om",
+      "love": "Elsker",
+      "laugh": "Griner",
+      "celebrate": "Fejrer",
+      "fire": "Ild",
+      "sad": "Trist",
+      "dislike": "Synes ikke om"
+    }
   },
   "economy": {
     "title": "Økonomi",
@@ -693,8 +705,8 @@
       "premium": "Premium",
       "unlock": "Lås op",
       "paywall": {
-        "title": "Lås op for alle spil",
-        "body": "Abonnér for at låse op for hele spilsamlingen, inklusiv Gutteaften og Pigeaften. Kollekt, 100 spørgsmål, Hvem er vi?, Terning og Lykkehjulet er altid gratis.",
+        "title": "Lås op for premium",
+        "body": "Abonnér for at låse op for hele spilsamlingen og rigtige GIF'er i chatten.",
         "subscribe": "Abonnér",
         "restore": "Gendan køb",
         "disclosure": "Fornyes automatisk og trækkes via din App Store-konto. Annullér når som helst i Indstillinger. Vilkår og privatlivspolitik gælder.",

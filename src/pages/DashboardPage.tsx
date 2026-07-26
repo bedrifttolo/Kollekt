@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { CheckSquare, Calendar, Wallet, Zap, ShoppingCart, MessageCircleHeart } from 'lucide-react';
+import { CheckSquare, Calendar, Wallet, Zap, ShoppingCart, MessageCircleHeart, Leaf, PartyPopper, CircleCheckBig } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api';
@@ -9,27 +9,11 @@ import { qk } from '../lib/queryKeys';
 import { useUser } from '../context/UserContext';
 import { formatCurrency, formatDate, formatTime, translateKey } from '../i18n/helpers';
 import { connectCollectiveRealtime } from '../lib/realtime';
-import type { AppUser, DashboardResponse, HouseCheckin, TaskCategory } from '../lib/types';
+import type { AppUser, DashboardResponse, HouseCheckin } from '../lib/types';
+import { TASK_CATEGORY_ICONS } from '../lib/categoryIcons';
 import { AvatarStack, Eyebrow, VibeRing } from '../components/ui-kit';
 import { colorForMember } from '../lib/memberColors';
 import { showHomeBanner, hideHomeBanner } from '../lib/ads';
-
-// Category-specific glyphs so each upcoming task reads at a glance, mirroring the task categories.
-const TASK_CATEGORY_EMOJI: Record<TaskCategory, string> = {
-  CLEANING: '🧹',
-  SMALL_CLEANING: '🧺',
-  VACUUMING: '🌀',
-  MOPPING: '🧽',
-  BATHROOM: '🚿',
-  KITCHEN: '🍳',
-  LAUNDRY: '👕',
-  DISHES: '🍽️',
-  TRASH: '🗑️',
-  DUSTING: '🪶',
-  WINDOWS: '🪟',
-  SHOPPING: '🛒',
-  OTHER: '✅',
-};
 
 const container = {
   hidden: {},
@@ -117,6 +101,7 @@ export default function DashboardPage() {
           if (count !== undefined) setOnlineCount(count);
         }
       },
+      { onReconnected: () => void queryClient.invalidateQueries({ queryKey: qk.dashboard(name) }) },
     );
     return disconnect;
   }, [name, queryClient]);
@@ -143,7 +128,8 @@ export default function DashboardPage() {
       <motion.div variants={item}>
         <Eyebrow>{translate('dashboard.today')}</Eyebrow>
         <h2 className="font-display text-[2.55rem] leading-[.98] font-extrabold tracking-[-.04em] mt-2">
-          {translate(greetingKey, { name: currentUser?.name })} <span className="mark">🌿</span>
+          {translate(greetingKey, { name: currentUser?.name })}{' '}
+          <Leaf className="mark inline h-8 w-8 align-baseline" strokeWidth={2.5} />
         </h2>
       </motion.div>
 
@@ -251,14 +237,16 @@ export default function DashboardPage() {
         <div className="space-y-2">
           {data.upcomingTasks.length === 0 && (
             <div className="rounded-2xl border border-border bg-card p-4 text-center">
-              <p className="text-2xl mb-1">🎉</p>
+              <PartyPopper className="mx-auto mb-1 h-6 w-6 text-primary" />
               <p className="text-sm font-medium">{translate('dashboard.noUpcomingTasks')}</p>
             </div>
           )}
-          {data.upcomingTasks.slice(0, 5).map((task) => (
+          {data.upcomingTasks.slice(0, 5).map((task) => {
+            const CategoryIcon = TASK_CATEGORY_ICONS[task.category] ?? CircleCheckBig;
+            return (
             <button key={task.id} onClick={() => navigate('/tasks')} className="card !rounded-2xl !p-3.5 flex items-center gap-3 w-full text-left group hover:shadow-md transition-shadow">
-              <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 text-xl leading-none">
-                {TASK_CATEGORY_EMOJI[task.category] ?? '✅'}
+              <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                <CategoryIcon className="h-5 w-5 text-primary" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold truncate">{task.title}</p>
@@ -266,7 +254,8 @@ export default function DashboardPage() {
               </div>
               <span className="shrink-0 rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-bold text-primary">+{task.xp} XP</span>
             </button>
-          ))}
+            );
+          })}
         </div>
       </motion.div>
 
