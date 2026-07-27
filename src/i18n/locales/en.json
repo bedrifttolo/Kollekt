@@ -153,21 +153,20 @@
     },
     "taskAssignmentReasons": {
       "LATE": "Completed late"
-    }
+    },
+    "close": "Close"
   },
   "errors": {
     "network": "Couldn't connect right now. Please try again in a moment.",
     "sessionExpired": "Your session has expired. Sign in again and try once more.",
+    "rateLimited": "Too many attempts. Try again in {{seconds}}s.",
     "forbidden": "You don't have access to this right now.",
     "notFound": "What you're looking for wasn't found.",
     "invalidCredentials": "Your username or password is incorrect.",
     "alreadyExists": "This already exists.",
     "alreadyInCollective": "You're already part of a household.",
     "invalidJoinCode": "That code doesn't look right. Check it and try again.",
-    "generic": "Something went wrong. Please try again.",
-    "invalidEmail": "Please enter a valid email address.",
-    "passwordTooShort": "Password must be at least 8 characters.",
-    "passwordsMismatch": "Passwords do not match."
+    "generic": "Something went wrong. Please try again."
   },
   "header": {
     "pageTitles": {
@@ -204,65 +203,21 @@
     "games": "Games"
   },
   "auth": {
-    "loginTab": "Log in",
-    "signUpTab": "Register",
-    "fullName": "Full name",
-    "username": "Username",
-    "identifier": "Email or username",
-    "emailAddress": "Email address",
-    "password": "Password",
-    "logIn": "Log in",
-    "createAccount": "Create account",
     "pleaseWait": "Please wait...",
     "wakingServer": "Waking up the server — this can take up to a minute…",
-    "inviteHint": "Got an email invite? Check your inbox for a link to join automatically.",
-    "showPassword": "Show password",
-    "hidePassword": "Hide password",
-    "continueWith": "or continue with",
-    "google": "Google",
-    "apple": "Apple",
     "tagline": "Shared living simplified",
     "taglineSub": "made by students, for students",
     "headingLead": "Welcome",
     "headingMark": "home.",
-    "forgotPassword": "Forgot password?",
-    "buildLabel": "New build · v0.1",
-    "labels": {
-      "name": "Name",
-      "email": "Email",
-      "password": "Password",
-      "confirmPassword": "Confirm password",
-      "usernameOrEmail": "Username or Email"
-    },
-    "placeholders": {
-      "name": "Your name",
-      "email": "you@email.com",
-      "password": "Your password",
-      "newPassword": "Make it good",
-      "confirmPassword": "Repeat your password",
-      "usernameOrEmail": "Username or email"
-    },
     "terms": {
-      "prefix": "By joining you agree to the house rules &",
-      "link": "terms"
+      "prefix": "By continuing you agree to our",
+      "terms": "Terms of Use",
+      "and": "and",
+      "privacy": "Privacy Policy"
     },
-    "forgot": {
-      "headingLead": "Reset",
-      "headingMark": "access.",
-      "subtitle": "Enter your email and we'll send you a reset link.",
-      "submit": "Send reset link",
-      "sent": "If an account exists for that email, a reset link is on its way.",
-      "backToLogin": "Back to log in"
-    },
-    "reset": {
-      "headingLead": "New",
-      "headingMark": "password.",
-      "subtitle": "Choose a new password for your account.",
-      "submit": "Update password",
-      "success": "Password updated. You can log in now.",
-      "invalidToken": "This reset link is invalid or has expired.",
-      "backToLogin": "Back to log in"
-    }
+    "continueWith_apple": "Continue with Apple",
+    "continueWith_google": "Continue with Google",
+    "noProviders": "Sign-in is not configured for this build. Please contact support."
   },
   "createHousehold": {
     "headingPre": "Set up",
@@ -307,7 +262,16 @@
     "errors": {
       "addRoom": "Add at least one room",
       "createFailure": "Couldn't create household",
-      "joinFailure": "Couldn't join household"
+      "joinFailure": "Couldn't join household",
+      "nameRequired": "Please enter a name.",
+      "nameFailure": "Couldn't save that name. Try another one."
+    },
+    "nameStep": {
+      "heading": "What should we call you?",
+      "subtitle": "This is the name your housemates see on tasks, expenses and chat. You can't change it once you join a household.",
+      "label": "Display name",
+      "placeholder": "Your name",
+      "continue": "Continue"
     }
   },
   "dashboard": {
@@ -450,12 +414,12 @@
       "priorityLabel": "Priority",
       "assigneeLabel": "Responsible (optional)",
       "dueDateLabel": "Due date (optional)",
-      "costLabel": "Estimated cost (optional)",
+      "costLaterHint": "No price yet — you enter what it cost when you mark it repaired, and it is split then.",
       "titlePlaceholder": "What needs fixing?",
       "descriptionPlaceholder": "Describe the issue...",
-      "costPlaceholder": "Cost estimate (NOK)",
+      "costPlaceholder": "Amount paid (NOK)",
       "splitLabel": "Split cost with",
-      "splitHint": "When the ticket is completed, the cost is split between these people on the economy page.",
+      "splitHint": "This amount is split between these people and added to the economy page.",
       "completeTitle": "Complete ticket",
       "completeSubtitle": "Enter the final cost for \"{{title}}\". If it cost money, choose who shares it.",
       "actualCostLabel": "Final cost (NOK)",
@@ -481,7 +445,8 @@
         "BLOCKED": "Blocked",
         "DONE": "Done"
       }
-    }
+    },
+    "moreOptions": "More options"
   },
   "checkin": {
     "title": "Weekly house check-in",
@@ -616,7 +581,15 @@
       "fire": "Fire",
       "sad": "Sad",
       "dislike": "Dislike"
-    }
+    },
+    "background": {
+      "label": "Wallpaper",
+      "change": "Change wallpaper",
+      "remove": "Remove wallpaper"
+    },
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "newDivider": "New"
   },
   "economy": {
     "title": "Economy",
@@ -660,9 +633,22 @@
       "appNotInstalled": "App not installed — the details were copied so you can pay another way.",
       "copy": "Copy",
       "noMethods": "No payment method is saved. Pay another way agreed with this housemate, then confirm below.",
-      "acknowledge": "I have completed this payment outside Kollekt and understand Kollekt cannot verify the transfer.",
       "markSettled": "Mark as settled in Kollekt",
-      "disclaimer": "Kollekt stores receiving details and opens external payment apps only. It does not process, initiate, hold, or verify money transfers."
+      "disclaimer": "Kollekt stores receiving details and opens external payment apps only. It does not process, initiate, hold, or verify money transfers.",
+      "didYouPay": "Did you pay {{name}}?",
+      "notYet": "Not yet"
+    },
+    "stats": {
+      "monthTotal": "Total this month",
+      "yourShare": "Your share {{amount}}",
+      "emptyMonth": "No expenses logged this month.",
+      "previousMonth": "Previous month",
+      "nextMonth": "Next month",
+      "monthsLabel": "Spending by month"
+    },
+    "setupPayment": {
+      "title": "Nobody can pay you back yet",
+      "body": "Add a Vipps number or bank account so housemates can settle up."
     }
   },
   "pant": {
@@ -1514,7 +1500,8 @@
             "placeholder": "Which category should test the room?"
           }
         }
-      }
+      },
+      "restart": "Restart"
     }
   },
   "leaderboard": {
@@ -1949,14 +1936,6 @@
       "send": "Send Invite",
       "sent": "Invite Sent!"
     },
-    "resetPassword": {
-      "title": "Reset Password",
-      "subtitle": "Update your account password",
-      "newPassword": "New password",
-      "confirmPassword": "Confirm password",
-      "update": "Update Password",
-      "updated": "Password Updated!"
-    },
     "friends": {
       "title": "Friends",
       "subtitle": "Friends you can invite to games and events.",
@@ -1983,9 +1962,6 @@
       "quietHoursSaved": "Quiet hours saved"
     },
     "errors": {
-      "passwordTooShort": "Password must be at least 8 characters",
-      "passwordsMismatch": "Passwords do not match",
-      "passwordUpdateFailed": "Failed to update password",
       "addFriendFailed": "Could not add friend",
       "removeFriendFailed": "Could not remove friend",
       "statusUpdateFailed": "Could not update status",

@@ -34,10 +34,13 @@ const iconFor = (key: string): LucideIcon => ACHIEVEMENT_ICONS[key] ?? Sparkles;
 
 // Podium presentation per finishing place (1st, 2nd, 3rd).
 const barHeight: Record<number, string> = { 1: 'h-48', 2: 'h-36', 3: 'h-28' };
+// Podium colour comes from the tone ramp rather than tints of primary/accent/destructive, so the
+// three places read as a set instead of three unrelated states. Fixed by rank, which is the whole
+// point of a podium — here rank *is* the entity.
 const barTone: Record<number, string> = {
-  1: 'from-secondary/40 to-secondary/10',
-  2: 'from-accent/35 to-accent/10',
-  3: 'from-destructive/25 to-destructive/5',
+  1: 'tone-tile tone-butter',
+  2: 'tone-tile tone-peri',
+  3: 'tone-tile tone-blush',
 };
 const avatarTone: Record<number, string> = {
   1: 'bg-primary text-primary-foreground',
@@ -45,9 +48,9 @@ const avatarTone: Record<number, string> = {
   3: 'bg-accent text-accent-foreground',
 };
 const badgeTone: Record<number, string> = {
-  1: 'bg-secondary text-secondary-foreground',
-  2: 'bg-accent text-accent-foreground',
-  3: 'bg-destructive text-destructive-foreground',
+  1: 'tone-tile tone-sage',
+  2: 'tone-tile tone-mint',
+  3: 'tone-tile tone-lilac',
 };
 
 function daysToMonthEnd(): number {
@@ -238,7 +241,7 @@ export default function RanksPanel() {
                   {user.rank}
                 </span>
               </div>
-              <div className={`${barHeight[user.rank] ?? 'h-28'} w-full rounded-t-3xl bg-gradient-to-b ${barTone[user.rank] ?? 'from-muted to-muted'} flex flex-col items-center justify-end pb-4 pt-8`}>
+              <div className={`${barHeight[user.rank] ?? 'h-28'} w-full rounded-t-3xl ${barTone[user.rank] ?? 'bg-muted'} flex flex-col items-center justify-end pb-4 pt-8`}>
                 <p className="font-display text-2xl font-extrabold tabular-nums">{user.xp}</p>
                 <p className="mt-1 text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
                   {user.name} · {t('leaderboard.levelShort', { level: user.level })}

@@ -7,26 +7,26 @@
 
 :root {
   color-scheme: light;
-  --background: #ffffff;
-  --foreground: #16262c;
+  --background: #f7f2ec;
+  --foreground: #14100e;
   --card: #ffffff;
-  --card-foreground: #16262c;
+  --card-foreground: #14100e;
   --popover: #ffffff;
-  --popover-foreground: #16262c;
+  --popover-foreground: #14100e;
   --primary: #16262c;
   --primary-foreground: #ffffff;
   --secondary: #6366f1;
   --secondary-foreground: #ffffff;
-  --muted: #f2f2f0;
-  --muted-foreground: #6b7280;
+  --muted: #efe7df;
+  --muted-foreground: #6f6459;
   --accent: #c7b7ee;
   --accent-foreground: #16262c;
   --destructive: #b84d6d;
   --destructive-foreground: #ffffff;
-  --border: #e6e6e3;
-  --input: #e6e6e3;
+  --border: #e4d9ce;
+  --input: #e4d9ce;
   --ring: #16262c;
-  --glass-border: #e6e6e3;
+  --glass-border: #e4d9ce;
   --sidebar: #16262c;
   --sidebar-foreground: #ffffff;
   --sidebar-primary: #6366f1;
@@ -36,7 +36,67 @@
   --sidebar-border: #34474d;
   --sidebar-ring: #6366f1;
   --radius: 1.25rem;
-  --shadow: 0 8px 28px rgba(22, 38, 44, 0.10);
+  --shadow: 0 8px 28px rgba(60, 44, 30, 0.09);
+  /* Hero surfaces (.househero/.wallet/.gamehero) are a single deep tone rather than a gradient,
+     so the white-on-hero text every caller already uses is guaranteed to read. */
+  --hero: #16262c;
+  --hero-foreground: #f4f2ea;
+  --hero-positive: #7df0b4;
+  --hero-negative: #ffb3c4;
+
+  /* Pastel tone ramp — the app's categorical palette. Every category tile, stat card, chart
+     segment and accent surface picks from these six rather than tinting --primary/--accent, so
+     one screen can show six distinct things without inventing a colour. Each tone ships with the
+     foreground that is legible on it; use them in pairs via the .tone-* classes below. */
+  --tone-peri: #b9bef5;
+  --tone-peri-fg: #24264d;
+  --tone-butter: #efd98a;
+  --tone-butter-fg: #4a3b12;
+  --tone-mint: #b7dcc9;
+  --tone-mint-fg: #17402f;
+  --tone-blush: #f0d6cc;
+  --tone-blush-fg: #4d2c20;
+  --tone-sage: #8c9b6a;
+  --tone-sage-fg: #1d2411;
+  --tone-lilac: #cfc0ee;
+  --tone-lilac-fg: #2e2247;
+
+  /* Expense-category identity colours. A *data* palette, deliberately separate from the --tone-*
+     ramp above: tones are decorative fills for large tiles, these carry meaning in charts and so
+     must survive colour-vision deficiency at small mark sizes. Validated with the dataviz
+     palette checker (all-pairs, light surface): normal-vision ΔE >= 15 on every pair, chroma and
+     lightness in band. "Other" is a residual bucket rather than a real category, so it takes a
+     neutral — which also removes a warm hue that no 6-hue set could separate cleanly.
+     Keep the assignment fixed: a category's colour must never depend on its rank. */
+  --cat-groceries: #1baf7a;
+  --cat-bills: #2a78d6;
+  --cat-cleaning: #4a3aa7;
+  --cat-entertainment: #e87ba4;
+  --cat-food: #eda100;
+  --cat-other: #6f6459;
+
+  /* Layout constants. All three are consumed by .app-screen/.app-screen-full below; each mirrors
+     a hard-coded value in a component, so they must be changed together:
+       --app-header-h  AppHeader's inner bar (h-16)
+       --app-nav-h     BottomNav's footprint excluding the safe-area inset (h-[4.75rem] + mb-2)
+       --app-main-pt   <main>'s pt-2 in AppLayout */
+  --app-header-h: 4rem;
+  --app-nav-h: 5.25rem;
+  --app-main-pt: 0.5rem;
+
+  /* Radius scale. Component classes below pick from these instead of each declaring its own
+     value — that drift is what forced the `card !rounded-2xl` style overrides across the pages. */
+  --r-sm: 0.75rem;
+  --r-md: 1rem;
+  --r-lg: 1.15rem;
+  --r-xl: 1.35rem;
+  --r-2xl: 1.7rem;
+
+  /* Display type scale, consumed by .display-xl/lg/md/sm. */
+  --text-display-xl: 2.75rem;
+  --text-display-lg: 2.55rem;
+  --text-display-md: 2.25rem;
+  --text-display-sm: 2rem;
 }
 
 .dark {
@@ -70,6 +130,31 @@
   --sidebar-border: #223029;
   --sidebar-ring: #818cf8;
   --shadow: 0 12px 36px rgba(0, 0, 0, 0.5);
+  --hero: #101b17;
+  --hero-foreground: #f1eee2;
+  --hero-positive: #6ee7a8;
+  --hero-negative: #ff9fb5;
+  /* Same six hues, pushed to the saturation they need to register against a near-black page —
+     the light pastels turn to mud here. Foregrounds flip to dark for the same reason. */
+  --tone-peri: #7c86f0;
+  --tone-peri-fg: #0b0d24;
+  --tone-butter: #e8c44e;
+  --tone-butter-fg: #2b2205;
+  --tone-mint: #5fd3a0;
+  --tone-mint-fg: #04231a;
+  --tone-blush: #f09fb4;
+  --tone-blush-fg: #3a0c18;
+  --tone-sage: #9cb06b;
+  --tone-sage-fg: #131a08;
+  --tone-lilac: #b79aee;
+  --tone-lilac-fg: #1c1030;
+  /* Re-stepped for the dark card surface, not flipped: validated separately against #0e1513. */
+  --cat-groceries: #1ca875;
+  --cat-bills: #4a9be0;
+  --cat-cleaning: #9b5fd6;
+  --cat-entertainment: #c04a78;
+  --cat-food: #c98500;
+  --cat-other: #8a9490;
 }
 
 .pink {
@@ -103,6 +188,25 @@
   --sidebar-border: #d4628c;
   --sidebar-ring: #ffd9e7;
   --shadow: 0 10px 32px rgba(150, 40, 80, 0.10);
+  --hero: #7d2547;
+  --hero-foreground: #fff2f7;
+  --hero-positive: #8ef0be;
+  --hero-negative: #ffc2d2;
+  /* Warmed towards the pink page so the ramp reads as part of this theme, not borrowed from light. */
+  --tone-peri: #c3c6f2;
+  --tone-peri-fg: #2a2c52;
+  --tone-butter: #f2de9e;
+  --tone-butter-fg: #4b3c14;
+  --tone-mint: #bfe3d0;
+  --tone-mint-fg: #17402f;
+  --tone-blush: #f7c9d8;
+  --tone-blush-fg: #55202f;
+  --tone-sage: #a9b78a;
+  --tone-sage-fg: #23290f;
+  --tone-lilac: #ddcbf2;
+  --tone-lilac-fg: #33254c;
+  /* --cat-* deliberately inherits the light values: this theme's card (#fff5fa) is near-white, so
+     the palette validated against a white surface still holds. */
 }
 
 @theme inline {
@@ -137,7 +241,7 @@
   }
   button, input, textarea, select { font: inherit; }
   input, textarea, select { color: var(--foreground); }
-  ::selection { background: var(--secondary); color: #16262c; }
+  ::selection { background: var(--secondary); color: var(--secondary-foreground); }
 }
 
 @layer utilities {
@@ -147,7 +251,7 @@
     box-shadow: var(--shadow);
   }
   .glass-strong { -webkit-backdrop-filter: blur(22px); backdrop-filter: blur(22px); }
-  .gradient-primary { background: linear-gradient(135deg, var(--primary), color-mix(in srgb, var(--accent) 72%, var(--primary))); }
+  .gradient-primary { background: var(--primary); }
   .gradient-warm { background: linear-gradient(135deg, var(--secondary), #e99a5c); }
   .text-gradient { color: var(--primary); background: none; }
   .glow-primary, .glow-accent { box-shadow: var(--shadow); }
@@ -155,19 +259,21 @@
   .safe-top { padding-top: env(safe-area-inset-top, 0px); }
   .safe-content-bottom { padding-bottom: calc(6.25rem + env(safe-area-inset-bottom, 0px)); }
   .app-viewport { min-height: 100vh; min-height: 100dvh; }
-  /* A page that fills exactly the space between the sticky header (4rem + safe-top) and the fixed
-     bottom nav (4.75rem + safe-bottom), so the page itself never body-scrolls and only its inner
-     scroll area moves. The negative margin cancels the .safe-content-bottom padding on <main>. */
+  /* A page that fills exactly the space between the sticky header (4rem + safe-top) and the top of
+     the fixed bottom nav, so the page itself never body-scrolls and only its inner scroll area
+     moves. The subtracted terms are everything between the viewport edges and this box: the header,
+     <main>'s pt-2, and the nav's full footprint — miss one and the nav clips the page's last row.
+     The negative margin cancels the .safe-content-bottom padding on <main>. */
   .app-screen {
-    height: calc(100vh - 4rem - 0.5rem - 4.75rem - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
-    height: calc(100dvh - 4rem - 0.5rem - 4.75rem - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+    height: calc(100vh - var(--app-header-h) - var(--app-main-pt) - var(--app-nav-h) - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+    height: calc(100dvh - var(--app-header-h) - var(--app-main-pt) - var(--app-nav-h) - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
     margin-bottom: calc(-6.25rem - env(safe-area-inset-bottom, 0px));
   }
   /* Like .app-screen, but for a page rendered without the sticky app header (chat): the page
      owns the full height above the bottom nav and pads the status bar inset itself. */
   .app-screen-full {
-    height: calc(100vh - 0.5rem - 4.75rem - env(safe-area-inset-bottom, 0px));
-    height: calc(100dvh - 0.5rem - 4.75rem - env(safe-area-inset-bottom, 0px));
+    height: calc(100vh - var(--app-main-pt) - var(--app-nav-h) - env(safe-area-inset-bottom, 0px));
+    height: calc(100dvh - var(--app-main-pt) - var(--app-nav-h) - env(safe-area-inset-bottom, 0px));
     padding-top: env(safe-area-inset-top, 0px);
     margin-bottom: calc(-6.25rem - env(safe-area-inset-bottom, 0px));
   }
@@ -178,13 +284,36 @@
   html.keyboard-open .app-screen,
   html.keyboard-open .app-screen-full { margin-bottom: 0; }
   html.keyboard-open .app-screen {
-    height: calc(100vh - 4rem - 0.5rem - env(safe-area-inset-top, 0px));
-    height: calc(100dvh - 4rem - 0.5rem - env(safe-area-inset-top, 0px));
+    height: calc(100vh - var(--app-header-h) - var(--app-main-pt) - env(safe-area-inset-top, 0px));
+    height: calc(100dvh - var(--app-header-h) - var(--app-main-pt) - env(safe-area-inset-top, 0px));
   }
   html.keyboard-open .app-screen-full {
-    height: calc(100vh - 0.5rem - env(safe-area-inset-bottom, 0px));
-    height: calc(100dvh - 0.5rem - env(safe-area-inset-bottom, 0px));
+    height: calc(100vh - var(--app-main-pt) - env(safe-area-inset-bottom, 0px));
+    height: calc(100dvh - var(--app-main-pt) - env(safe-area-inset-bottom, 0px));
   }
+  /* Page titles. Every screen used to pick its own arbitrary size (2.55/2.4/2.25/2rem) alongside
+     the same four modifiers; these bundle the whole treatment so the scale stays a scale. */
+  .display-xl, .display-lg, .display-md, .display-sm {
+    font-family: var(--font-display); font-weight: 800; letter-spacing: -.04em; line-height: .98;
+  }
+  /* Reserved for the full-bleed auth/onboarding screens, which have no header competing with them. */
+  .display-xl { font-size: var(--text-display-xl); letter-spacing: -.05em; line-height: .96; }
+  .display-lg { font-size: var(--text-display-lg); }
+  .display-md { font-size: var(--text-display-md); }
+  .display-sm { font-size: var(--text-display-sm); }
+
+  /* Categorical surface. Pair with a .tone-* modifier, which supplies the fill and the foreground
+     that is legible on it in every theme: <div className="tone-tile tone-mint"> */
+  .tone-tile { background: var(--tone, var(--muted)); color: var(--tone-fg, var(--foreground)); }
+  .tone-peri { --tone: var(--tone-peri); --tone-fg: var(--tone-peri-fg); }
+  .tone-butter { --tone: var(--tone-butter); --tone-fg: var(--tone-butter-fg); }
+  .tone-mint { --tone: var(--tone-mint); --tone-fg: var(--tone-mint-fg); }
+  .tone-blush { --tone: var(--tone-blush); --tone-fg: var(--tone-blush-fg); }
+  .tone-sage { --tone: var(--tone-sage); --tone-fg: var(--tone-sage-fg); }
+  .tone-lilac { --tone: var(--tone-lilac); --tone-fg: var(--tone-lilac-fg); }
+  /* A quieter wash of the same tone, for large areas where a full-strength fill would shout. */
+  .tone-soft { background: color-mix(in srgb, var(--tone, var(--muted)) 38%, var(--card)); color: var(--foreground); }
+
   .mark { position: relative; display: inline; z-index: 0; }
   .mark::after { content: ''; position: absolute; z-index: -1; left: -.04em; right: -.04em; bottom: .03em; height: .34em; background: var(--secondary); }
   .eyebrow { display: flex; align-items: center; gap: .55rem; color: var(--muted-foreground); font-size: .7rem; font-weight: 800; letter-spacing: .15em; text-transform: uppercase; }
@@ -194,27 +323,36 @@
 
 @layer components {
   .page-enter { animation: page-enter 260ms ease-out; }
-  .card { background: var(--card); border: 1px solid var(--border); border-radius: 1.35rem; padding: 1rem; box-shadow: var(--shadow); }
-  .btn-pine, .btn-lemon, .btn-ghost { min-height: 3rem; border-radius: 1rem; padding: .75rem 1rem; font-weight: 750; display: inline-flex; align-items: center; justify-content: center; gap: .5rem; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--r-xl); padding: 1rem; box-shadow: var(--shadow); }
+  .btn-pine, .btn-lemon, .btn-ghost { min-height: 3rem; border-radius: var(--r-md); padding: .75rem 1rem; font-weight: 750; display: inline-flex; align-items: center; justify-content: center; gap: .5rem; }
   .btn-pine { background: var(--primary); color: var(--primary-foreground); }
   .btn-lemon { background: var(--secondary); color: var(--secondary-foreground); }
   .btn-ghost { background: var(--card); color: var(--foreground); border: 1px solid var(--border); }
-  .seg { display: flex; gap: .25rem; padding: .3rem; background: var(--muted); border-radius: 1.1rem; }
-  .field { background: var(--card); border: 1px solid var(--border); border-radius: 1.15rem; min-height: 4.1rem; padding: .75rem 1rem; }
-  .househero, .wallet, .gamehero { background: linear-gradient(125deg, var(--primary), color-mix(in srgb, var(--accent) 65%, var(--primary))); color: #fffdf2; border-radius: 1.7rem; padding: 1.25rem; box-shadow: var(--shadow); }
+  .seg { display: flex; gap: .25rem; padding: .3rem; background: var(--muted); border-radius: var(--r-lg); }
+  .field { background: var(--card); border: 1px solid var(--border); border-radius: var(--r-lg); min-height: 4.1rem; padding: .75rem 1rem; }
+  .househero, .wallet, .gamehero { background: var(--hero); color: var(--hero-foreground); border-radius: var(--r-2xl); padding: 1.25rem; box-shadow: var(--shadow); }
+  /* Amount colours for text sitting on a hero surface. The theme `--primary`/`--destructive` are
+     tuned for the page background and can collide with the hero itself (in the light theme
+     `--primary` *is* the hero colour), so on-hero amounts use their own light tints. */
+  .hero-amount-positive { color: var(--hero-positive); }
+  .hero-amount-negative { color: var(--hero-negative); }
   .bignum { font-family: var(--font-display); font-size: clamp(2.6rem, 12vw, 4.5rem); font-weight: 800; letter-spacing: -.06em; line-height: .9; }
-  .podium { background: var(--card); border: 1px solid var(--border); border-radius: 1.6rem; padding: 1rem; box-shadow: var(--shadow); }
+  .podium { background: var(--card); border: 1px solid var(--border); border-radius: var(--r-2xl); padding: 1rem; box-shadow: var(--shadow); }
   .gamegrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
-  .gcard { min-height: 8.25rem; border-radius: 1.25rem; border: 1px solid var(--border); background: var(--card); padding: 1rem; text-align: left; box-shadow: var(--shadow); }
-  .task { border-radius: 1.15rem; border: 1px solid var(--border); background: var(--card); padding: .9rem; box-shadow: var(--shadow); }
-  .event { border-radius: 1.15rem; border: 1px solid var(--border); background: var(--card); padding: .85rem; box-shadow: var(--shadow); }
+  .gcard { min-height: 8.25rem; border-radius: var(--r-xl); border: 1px solid var(--border); background: var(--card); padding: 1rem; text-align: left; box-shadow: var(--shadow); }
+  .task { border-radius: var(--r-lg); border: 1px solid var(--border); background: var(--card); padding: .9rem; box-shadow: var(--shadow); }
+  .event { border-radius: var(--r-lg); border: 1px solid var(--border); background: var(--card); padding: .85rem; box-shadow: var(--shadow); }
   .msg { display: flex; }
-  .bub { border-radius: 1.2rem; padding: .65rem .9rem; }
-  .stat-tile { border-radius: 1rem; padding: .8rem; background: color-mix(in srgb, white 12%, transparent); }
+  .bub { border-radius: var(--r-xl); padding: .65rem .9rem; }
+  .stat-tile { border-radius: var(--r-md); padding: .8rem; background: color-mix(in srgb, white 12%, transparent); }
   .pill { border-radius: 999px; padding: .3rem .65rem; font-size: .72rem; font-weight: 700; }
   .pill-pine { background: color-mix(in srgb, var(--primary) 15%, transparent); color: var(--primary); }
-  .pill-sky { background: color-mix(in srgb, var(--accent) 22%, transparent); color: var(--accent-foreground); }
-  .pill-lemon { background: color-mix(in srgb, var(--secondary) 28%, transparent); color: var(--secondary-foreground); }
+  /* --accent-foreground is dark in every theme, which vanished against this wash once the wash
+     itself sat on a dark page. Same reasoning as .pill-lemon below. */
+  .pill-sky { background: color-mix(in srgb, var(--accent) 22%, transparent); color: var(--foreground); }
+  /* --secondary-foreground is white, which is what belongs on a *solid* secondary button. On this
+     28% wash it left the label unreadable, so the pill takes the page foreground instead. */
+  .pill-lemon { background: color-mix(in srgb, var(--secondary) 28%, transparent); color: var(--foreground); }
   .pill-berry { background: color-mix(in srgb, var(--destructive) 16%, transparent); color: var(--destructive); }
   .check { width: 1.35rem; height: 1.35rem; border: 2px solid var(--muted-foreground); border-radius: .4rem; }
   .vibe { display: flex; align-items: center; gap: 1rem; }
@@ -239,4 +377,12 @@ button.w-full:not(.flex):not(.grid):not(.inline-flex) { display: flex; align-ite
 button:not(:disabled) { cursor: pointer; transition: filter 150ms ease, transform 150ms ease; }
 @media (hover: hover) and (pointer: fine) { button:not(:disabled):hover { filter: brightness(1.04); transform: translateY(-1px); } }
 button:not(:disabled):active { transform: scale(.97); }
+/* iOS paints a grey block over any tapped element by default, which reads as lag on every button
+   and list row. The :active transform above is the intended press feedback. */
+button, a, label, [role="tab"], [role="button"] { -webkit-tap-highlight-color: transparent; }
+/* Keep a flick inside the list it started in — without this iOS chains the momentum to the page
+   and rubber-bands the whole screen once an inner list hits its end. */
+.overflow-y-auto, .overflow-x-auto { overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+.scrollbar-none { scrollbar-width: none; }
+.scrollbar-none::-webkit-scrollbar { display: none; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; } }

@@ -8,12 +8,25 @@ const googleIosClientId = import.meta.env.VITE_GOOGLE_IOS_CLIENT_ID?.trim() ?? '
 const appleClientId = import.meta.env.VITE_APPLE_CLIENT_ID?.trim() ?? '';
 let initialized: Promise<void> | null = null;
 
+/**
+ * The providers this build can actually complete a login with, in display order.
+ *
+ * Apple comes first: it is the native option on iOS, and Apple's guidelines require it to be shown
+ * at least as prominently as any other provider. It is offered on every platform — on the web the
+ * plugin runs the Sign in with Apple JS popup, which needs VITE_APPLE_CLIENT_ID to hold an Apple
+ * *Services ID* (not the iOS bundle id) whose Return URL matches the deployed origin. The backend
+ * accepts a list, so the bundle id and the Services ID can both be registered.
+ *
+ * Since email/password sign-in was removed, an empty result means nobody can get in — the login
+ * screen surfaces that as an error rather than rendering a screen with no way forward.
+ */
 export function getSocialProviders(): SocialProvider[] {
   const platform = Capacitor.getPlatform();
   const providers: SocialProvider[] = [];
-  if (googleClientId && platform !== 'ios') providers.push('google');
-  if (googleClientId && googleIosClientId && appleClientId && platform === 'ios') providers.push('google');
-  if (appleClientId && platform === 'ios') providers.push('apple');
+  if (appleClientId) providers.push('apple');
+  // On iOS the Google SDK needs its own iOS client id alongside the web one; without it the login
+  // call throws at runtime, so don't render a button that cannot succeed.
+  if (googleClientId && (platform !== 'ios' || googleIosClientId)) providers.push('google');
   return providers;
 }
 

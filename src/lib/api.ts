@@ -95,6 +95,18 @@ function sanitizeMessage(message: string, fallback: string): string {
     return t('errors.network', fallback);
   }
 
+  // Checked before the generic 401/JWT branch below: a rejected username+password is a
+  // credentials problem, not an expired session, and telling someone to "sign in again" when
+  // signing in is exactly what just failed sends them in a loop. The backend words this
+  // "Invalid name or password" (AccountOperations.login), so match that, not "invalid credentials".
+  if (
+    lower.includes('invalid credentials') ||
+    lower.includes('invalid name or password') ||
+    lower.includes('has no password configured')
+  ) {
+    return t('errors.invalidCredentials', fallback);
+  }
+
   if (
     lower.includes('401') ||
     lower.includes('unauthorized') ||
@@ -110,10 +122,6 @@ function sanitizeMessage(message: string, fallback: string): string {
 
   if (lower.includes('404') || lower.includes('not found')) {
     return t('errors.notFound', fallback);
-  }
-
-  if (lower.includes('invalid credentials')) {
-    return t('errors.invalidCredentials', fallback);
   }
 
   if (lower.includes('already exists') || lower.includes('duplicate')) {
@@ -159,18 +167,47 @@ interface AuthRefreshResponse {
   refreshToken: string;
 }
 
-async function tryRefreshTokens(): Promise<boolean> {
+/**
+ * Refresh tokens are single-use: the server revokes the presented token and issues a new pair.
+ * So two concurrent refreshes are not merely wasteful — the second one presents a token the
+ * first already burned, gets rejected, and (before this guard existed) wiped the session of a
+ * perfectly healthy user. The dashboard fires many requests at once, so a stale access token
+ * reliably produced exactly that race. Every caller shares one in-flight refresh instead.
+ */
+let refreshInFlight: Promise<boolean> | null = null;
+
+function tryRefreshTokens(): Promise<boolean> {
+  refreshInFlight ??= performRefresh().finally(() => {
+    refreshInFlight = null;
+  });
+  return refreshInFlight;
+}
+
+async function performRefresh(): Promise<boolean> {
   const refreshToken = await getRefreshToken();
   if (!refreshToken) return false;
 
-  const response = await fetch(`${API_BASE}/onboarding/refresh`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ refreshToken }),
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE}/onboarding/refresh`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refreshToken }),
+    });
+  } catch {
+    // Offline or the request was aborted — keep the tokens and let the caller surface the
+    // original failure rather than a refresh error the user can do nothing about.
+    return false;
+  }
 
+  // Only a genuine rejection of the refresh token means the session is over. A 429 from the
+  // auth rate limiter (which covers /api/onboarding/*), a 5xx, or a dropped connection are all
+  // transient — throwing the tokens away there logs the user out of a still-valid session and,
+  // because their retries are throttled too, locks them out until the window clears.
   if (!response.ok) {
-    await Promise.all([clearAccessToken(), clearRefreshToken()]);
+    if (response.status === 401 || response.status === 403) {
+      await Promise.all([clearAccessToken(), clearRefreshToken()]);
+    }
     return false;
   }
 
@@ -182,8 +219,45 @@ async function tryRefreshTokens(): Promise<boolean> {
   return true;
 }
 
-async function request<T>(path: string, init?: RequestInit, retryOnAuthFailure = true): Promise<T> {
+/** Seconds of remaining validity below which an access token is treated as already stale. */
+const REFRESH_SKEW_SECONDS = 300;
+
+/** Reads `exp` out of a JWT without verifying it — the server is the only authority on validity;
+ *  this is purely a scheduling hint. Returns null for anything unparseable. */
+function accessTokenExpiry(token: string): number | null {
+  const payload = token.split('.')[1];
+  if (!payload) return null;
+  try {
+    const json = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+    const exp = (JSON.parse(json) as { exp?: unknown }).exp;
+    return typeof exp === 'number' ? exp : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Refreshes ahead of expiry so requests aren't spent discovering the token is dead. Without this
+ * every wake-up costs a guaranteed 401 round-trip first, and the WebSocket — which has no retry
+ * path of its own — just fails its handshake.
+ */
+export async function ensureFreshAccessToken(): Promise<string | null> {
   const token = await getAccessToken();
+  if (!token) return null;
+  const exp = accessTokenExpiry(token);
+  if (exp === null) return token;
+  if (exp - Date.now() / 1000 > REFRESH_SKEW_SECONDS) return token;
+  // A failed pre-emptive refresh must not fail the caller's request: this runs before request()'s
+  // own error handling, so a rejection here would surface as a raw error instead of a readable
+  // one. Fall through with whatever token is stored and let the normal 401 path deal with it.
+  await tryRefreshTokens().catch(() => false);
+  return getAccessToken();
+}
+
+async function request<T>(path: string, init?: RequestInit, retryOnAuthFailure = true): Promise<T> {
+  // Refresh before spending the request when the token is about to lapse. The refresh endpoint
+  // itself must not recurse through this.
+  const token = path === '/onboarding/refresh' ? await getAccessToken() : await ensureFreshAccessToken();
   const authHeader = token ? { Authorization: `Bearer ${token}` } : {};
   let response: Response;
 
@@ -225,6 +299,17 @@ async function request<T>(path: string, init?: RequestInit, retryOnAuthFailure =
     if (refreshed) {
       return request<T>(path, init, false);
     }
+  }
+
+  // The auth rate limiter answers with Retry-After but an empty body, so without this the user
+  // would just get the generic error and no idea that waiting is what fixes it.
+  if (response.status === 429) {
+    const retryAfter = Number(response.headers.get('Retry-After'));
+    const seconds = Number.isFinite(retryAfter) && retryAfter > 0 ? Math.ceil(retryAfter) : 60;
+    throw new Error(i18n.t('errors.rateLimited', {
+      defaultValue: 'Too many attempts. Try again in {{seconds}}s.',
+      seconds,
+    }));
   }
 
   if (!response.ok) {

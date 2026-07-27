@@ -1,18 +1,24 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Image as ImageIcon, BarChart3, X, Smile, Reply, HeartHandshake, ChevronDown, WashingMachine, Film, Lock, Plus, ThumbsUp, ThumbsDown, Heart, Laugh, PartyPopper, Flame, Frown, MessageCircle, type LucideIcon } from 'lucide-react';
+import { Send, Image as ImageIcon, BarChart3, X, Smile, Reply, HeartHandshake, ChevronDown, WashingMachine, Film, Lock, Plus, ThumbsUp, ThumbsDown, Heart, Laugh, PartyPopper, Flame, Frown, MessageCircle, Wallpaper, type LucideIcon } from 'lucide-react';
 
 type LaundryType = 'WHITES' | 'COLORS' | 'DELICATES' | 'WOOL' | 'SPORTS' | 'TOWELS';
 const LAUNDRY_TYPES: LaundryType[] = ['WHITES', 'COLORS', 'DELICATES', 'WOOL', 'SPORTS', 'TOWELS'];
+
+/** How tall the composer may grow before it starts scrolling instead. */
+const MAX_COMPOSER_ROWS = 4;
 const LAUNDRY_TEMPS = [30, 40, 60, 90];
 import { useTranslation } from 'react-i18next';
 import { api } from '../lib/api';
 import { qk } from '../lib/queryKeys';
 import { queryClient as sharedQueryClient } from '../lib/queryClient';
 import { capturePhotoFile, nativeCameraAvailable } from '../lib/camera';
+import { clearChatBackground, getChatBackground, pickChatBackgroundFile, saveChatBackground } from '../lib/chatBackground';
+import { getLastSeenMessageId, setLastSeenMessageId } from '../lib/chatSeen';
+import { decorateMessages, newestMessageId } from '../lib/chatThread';
 import { useUser } from '../context/UserContext';
-import { formatDateTime, formatTime } from '../i18n/helpers';
+import { formatDate, formatDateTime, formatTime } from '../i18n/helpers';
 import { connectCollectiveRealtime } from '../lib/realtime';
 import { tapFeedback } from '../lib/haptics';
 import { useGamesSubscription } from '../lib/purchases';
@@ -86,7 +92,6 @@ export default function ChatPage() {
   );
   const [members, setMembers] = useState<AppUser[]>([]);
   const [input, setInput] = useState('');
-  const [inputFocused, setInputFocused] = useState(false);
   const [showActionBar, setShowActionBar] = useState(false);
   const [showPollForm, setShowPollForm] = useState(false);
   const [showLaundryForm, setShowLaundryForm] = useState(false);
@@ -114,6 +119,13 @@ export default function ChatPage() {
   const [checkinSummary, setCheckinSummary] = useState<CheckinSummary | null>(null);
   const [checkinExpanded, setCheckinExpanded] = useState(false);
   const [mention, setMention] = useState<{ query: string; start: number } | null>(null);
+  // Snapshot of the seen-cursor taken when the thread opened. Held in state rather than read live
+  // so the "NY" divider stays anchored while the user reads, instead of disappearing as soon as
+  // we park the cursor at the newest message.
+  const [seenCursor, setSeenCursor] = useState<number | null>(null);
+  // Device-local chat wallpaper. Seeded synchronously so it paints with the first frame instead
+  // of flashing the plain background first.
+  const [background, setBackground] = useState<string | null>(() => getChatBackground(currentUser?.name ?? ''));
   // null = the household thread; otherwise the member name of the 1:1 private thread.
   const [activeThread, setActiveThread] = useState<string | null>(null);
   const activeThreadRef = useRef<string | null>(null);
@@ -124,8 +136,8 @@ export default function ChatPage() {
     value == null ? '' : Number.isInteger(value) ? String(value) : value.toFixed(1);
   const bottomRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const messageInputRef = useRef<HTMLInputElement>(null);
-  const inputBlurTimeoutRef = useRef<number | null>(null);
+  const backgroundInputRef = useRef<HTMLInputElement>(null);
+  const messageInputRef = useRef<HTMLTextAreaElement>(null);
   const longPressRef = useRef<{ timer: number | null; messageId: number | null; startX: number; startY: number }>({
     timer: null,
     messageId: null,
@@ -148,6 +160,20 @@ export default function ChatPage() {
     : [];
   const actionMenuMessage = actionMenuMessageId != null ? messageById.get(actionMenuMessageId) : undefined;
   const reactionPickerMessage = expandedReactionId != null ? messageById.get(expandedReactionId) : undefined;
+  /** Label for a day-separator chip: "Today"/"Yesterday" near the present, an absolute date
+   *  further back — the relative words are what people actually scan for. */
+  const formatDayDivider = (value: string) => {
+    const messageDate = new Date(value);
+    const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+    const dayDelta = Math.round((startOfDay(new Date()) - startOfDay(messageDate)) / 86_400_000);
+    if (dayDelta === 0) return t('chat.today');
+    if (dayDelta === 1) return t('chat.yesterday');
+    // Inside the last week the weekday alone is unambiguous; older than that needs the date.
+    return dayDelta < 7
+      ? formatDate(value, { weekday: 'long' })
+      : formatDate(value, { weekday: 'short', day: 'numeric', month: 'short' });
+  };
+
   const formatMessageTimestamp = (value: string) => {
     const messageDate = new Date(value);
     const now = new Date();
@@ -232,19 +258,38 @@ export default function ChatPage() {
     return disconnect;
   }, [name]);
 
+  // The initial state ran before the session restored, so pick the wallpaper up once the member
+  // name is known (and swap it when a different member signs in on this device).
+  useEffect(() => {
+    setBackground(getChatBackground(name));
+  }, [name]);
+
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // Re-read the cursor whenever the thread changes, before any new messages land.
+  useEffect(() => {
+    setSeenCursor(getLastSeenMessageId(name, activeThread));
+  }, [name, activeThread]);
+
+  // Park the cursor at the newest message once the thread is on screen. The divider itself is
+  // driven by the snapshot above, so writing here doesn't make it jump away mid-read.
+  useEffect(() => {
+    const newest = newestMessageId(messages);
+    if (newest === null || !name) return;
+    setLastSeenMessageId(name, activeThread, newest);
+  }, [messages, name, activeThread]);
+
   useEffect(() => {
     return () => {
       clearLongPress();
-      if (inputBlurTimeoutRef.current != null) window.clearTimeout(inputBlurTimeoutRef.current);
     };
   }, []);
 
   const sendMessage = async () => {
     if (!input.trim()) return;
+    if (messageInputRef.current) messageInputRef.current.style.height = 'auto';
     const text = input;
     const replyToMessageId = replyingToId;
     const thread = activeThreadRef.current;
@@ -292,10 +337,20 @@ export default function ChatPage() {
     return null;
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
     setInput(value);
     setMention(detectMention(value, e.target.selectionStart ?? value.length));
+    autoGrow(e.target);
+  };
+
+  /** Grows the composer with its content up to MAX_COMPOSER_ROWS, then scrolls internally.
+   *  Height has to be reset first or the scrollHeight only ever ratchets upwards. */
+  const autoGrow = (el: HTMLTextAreaElement) => {
+    el.style.height = 'auto';
+    const lineHeight = parseFloat(getComputedStyle(el).lineHeight) || 20;
+    const padding = el.offsetHeight - el.clientHeight + 20;
+    el.style.height = `${Math.min(el.scrollHeight, lineHeight * MAX_COMPOSER_ROWS + padding)}px`;
   };
 
   const insertMention = (member: string) => {
@@ -479,6 +534,26 @@ export default function ChatPage() {
     fetchMessages();
   };
 
+  const applyBackgroundFile = async (file: File) => {
+    const saved = await saveChatBackground(name, file);
+    if (saved) setBackground(saved);
+    if (backgroundInputRef.current) backgroundInputRef.current.value = '';
+  };
+
+  const handleChangeBackground = async () => {
+    if (nativeCameraAvailable()) {
+      const file = await pickChatBackgroundFile();
+      if (file) await applyBackgroundFile(file);
+    } else {
+      backgroundInputRef.current?.click();
+    }
+  };
+
+  const handleClearBackground = () => {
+    clearChatBackground(name);
+    setBackground(null);
+  };
+
   if (loading) {
     return (
       <div className="app-screen-full flex flex-col animate-pulse space-y-3">
@@ -585,22 +660,46 @@ export default function ChatPage() {
         </div>
       )}
 
-      {/* Message list */}
-      <div className="min-h-0 flex-1 space-y-4 overflow-y-auto py-4 pr-1" onTouchStart={handleSwipeStart} onTouchEnd={handleSwipeEnd}>
-        {messages.map((message, i) => {
+      {/* Message list. The negative margin lets the wallpaper bleed past <main>'s px-4 to the
+          screen edges; the scroller puts the same padding back so bubbles keep their inset. */}
+      <div className="relative -mx-4 min-h-0 flex-1 overflow-hidden sm:-mx-6">
+        {background && (
+          <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+            <img src={background} alt="" className="h-full w-full object-cover" />
+            {/* Theme-aware scrim so sender names and reply chips stay legible over any photo. */}
+            <div className="absolute inset-0 bg-background/55" />
+          </div>
+        )}
+        <div className="relative h-full overflow-y-auto px-4 py-4 sm:px-6" onTouchStart={handleSwipeStart} onTouchEnd={handleSwipeEnd}>
+        {decorateMessages(messages, seenCursor).map(({ message, isFirstOfGroup, isLastOfGroup, startsNewDay, startsUnread }, i) => {
           const isSelf = message.sender === name;
           const senderColor = colorForMember(message.sender, memberColorMap.get(message.sender));
           const replyTarget = message.replyToMessageId != null ? messageById.get(message.replyToMessageId) : undefined;
           return (
+            <div key={message.id}>
+              {startsNewDay && (
+                <div className="flex justify-center py-3">
+                  <span className="rounded-full bg-foreground/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[.1em] text-muted-foreground backdrop-blur-sm">
+                    {formatDayDivider(message.timestamp)}
+                  </span>
+                </div>
+              )}
+              {startsUnread && (
+                <div className="flex justify-center py-3">
+                  <span className="rounded-full bg-foreground px-3 py-1 text-[10px] font-extrabold uppercase tracking-[.14em] text-background">
+                    {t('chat.newDivider')}
+                  </span>
+                </div>
+              )}
             <motion.div
-              key={message.id}
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: Math.min(i * 0.02, 0.3) }}
-              className={`flex ${isSelf ? 'justify-end' : 'justify-start'}`}
+              /* Tight inside a run, roomy between runs — the grouping is carried by the gap. */
+              className={`flex ${isSelf ? 'justify-end' : 'justify-start'} ${isFirstOfGroup && !startsNewDay && !startsUnread ? 'mt-3' : 'mt-0.5'}`}
             >
               <div className="max-w-[82%] space-y-1">
-                {!isSelf && <p className="px-1 text-xs font-bold" style={{ color: senderColor }}>{message.sender}</p>}
+                {!isSelf && isFirstOfGroup && <p className="px-1 text-xs font-bold" style={{ color: senderColor }}>{message.sender}</p>}
                 {replyTarget && (
                   <div
                     className={`mx-1 rounded-lg px-2.5 py-1.5 text-[10px] leading-tight border ${
@@ -618,10 +717,10 @@ export default function ChatPage() {
                   </div>
                 )}
 	                <div
-	                  className={`select-none px-4 py-3 ${
+	                  className={`select-none px-4 py-3 rounded-[--r-xl] ${
 	                    isSelf
-	                      ? 'rounded-[1.35rem] rounded-br-md bg-primary text-primary-foreground'
-	                      : 'rounded-[1.35rem] rounded-bl-md border border-border bg-card'
+	                      ? `bg-primary text-primary-foreground ${isLastOfGroup ? 'rounded-br-md' : 'rounded-br-[--r-sm]'}`
+	                      : `border border-border bg-card ${isLastOfGroup ? 'rounded-bl-md' : 'rounded-bl-[--r-sm]'}`
 	                  }`}
 	                  style={!isSelf ? { borderLeftColor: senderColor, borderLeftWidth: 3 } : undefined}
 	                  onPointerDown={(event) => startMessagePress(message.id, event)}
@@ -668,9 +767,11 @@ export default function ChatPage() {
                       })}
                     </div>
                   )}
-                  <p className={`text-[9px] mt-1 ${isSelf ? 'text-primary-foreground/60' : 'text-muted-foreground'}`}>
-                    {formatMessageTimestamp(message.timestamp)}
-                  </p>
+                  {isLastOfGroup && (
+                    <p className={`text-[9px] mt-1 ${isSelf ? 'text-primary-foreground/60' : 'text-muted-foreground'}`}>
+                      {formatMessageTimestamp(message.timestamp)}
+                    </p>
+                  )}
                 </div>
 
 	                {message.reactions.length > 0 && (
@@ -691,9 +792,11 @@ export default function ChatPage() {
 	                )}
 	              </div>
             </motion.div>
+            </div>
           );
         })}
         <div ref={bottomRef} />
+        </div>
       </div>
 
       {/* Poll form */}
@@ -818,8 +921,9 @@ export default function ChatPage() {
         </div>
       )}
 
-      {/* Input bar */}
-      <div className="relative">
+      {/* Input bar. pb-2 keeps the composer off the bottom nav's rounded top edge (and off the
+          keyboard once the nav hides) instead of sitting flush against it. */}
+      <div className="relative pb-2">
         {mention && mentionCandidates.length > 0 && (
           <div className="absolute bottom-full left-0 right-0 mb-2 z-30 max-h-52 overflow-y-auto rounded-2xl border border-border bg-popover p-1 shadow-xl">
             {mentionCandidates.map((member) => (
@@ -839,10 +943,6 @@ export default function ChatPage() {
         {/* Action bar — revealed by the + button */}
         {!isDirect && showActionBar && (
           <div className="mb-2 flex gap-2 overflow-x-auto rounded-2xl border border-border bg-card px-3 py-2 shadow-sm">
-            <button onMouseDown={(e) => e.preventDefault()} onClick={() => { void handlePickImage(); setShowActionBar(false); }} className="flex min-h-11 shrink-0 flex-col items-center gap-1 rounded-xl px-3 py-2 hover:bg-muted/60" aria-label={t('chat.sendImage')}>
-              <ImageIcon className="h-5 w-5 text-muted-foreground" />
-              <span className="text-[9px] font-medium text-muted-foreground">{t('chat.sendImage')}</span>
-            </button>
             <button
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => {
@@ -868,11 +968,34 @@ export default function ChatPage() {
               <HeartHandshake className="h-5 w-5 text-primary" />
               <span className="text-[9px] font-medium text-muted-foreground">{t('kudos.sendTitle')}</span>
             </button>
+            <button
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => { setShowActionBar(false); void handleChangeBackground(); }}
+              className="flex min-h-11 shrink-0 flex-col items-center gap-1 rounded-xl px-3 py-2 hover:bg-muted/60"
+              aria-label={t('chat.background.change')}
+            >
+              <Wallpaper className="h-5 w-5 text-muted-foreground" />
+              <span className="text-[9px] font-medium text-muted-foreground">{t('chat.background.label')}</span>
+            </button>
+            {background && (
+              <button
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => { setShowActionBar(false); handleClearBackground(); }}
+                className="flex min-h-11 shrink-0 flex-col items-center gap-1 rounded-xl px-3 py-2 hover:bg-muted/60"
+                aria-label={t('chat.background.remove')}
+              >
+                <X className="h-5 w-5 text-muted-foreground" />
+                <span className="text-[9px] font-medium text-muted-foreground">{t('chat.background.remove')}</span>
+              </button>
+            )}
           </div>
         )}
         <div className="flex gap-2 rounded-[1.35rem] border border-border bg-card p-2 shadow-sm">
           <input ref={fileInputRef} type="file" accept="image/*" capture="environment"
             className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) sendImage(f); }} />
+          {/* Web fallback for the wallpaper picker; native uses the Camera plugin's own sheet. */}
+          <input ref={backgroundInputRef} type="file" accept="image/*"
+            className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) void applyBackgroundFile(f); }} />
           {!isDirect && (
             <button
               onMouseDown={(e) => e.preventDefault()}
@@ -883,27 +1006,32 @@ export default function ChatPage() {
               <Plus className={`h-5 w-5 transition-transform ${showActionBar ? 'rotate-45' : ''}`} />
             </button>
           )}
-          <input
+          {/* Camera lives in the composer rather than behind "+": sending a photo is the most
+              common non-text action, and this makes it one tap instead of two. */}
+          <button
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => void handlePickImage()}
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-muted"
+            aria-label={t('chat.sendImage')}
+          >
+            <ImageIcon className="h-5 w-5 text-muted-foreground" />
+          </button>
+          <textarea
             ref={messageInputRef}
             value={input}
+            rows={1}
             onChange={handleInputChange}
-            onFocus={() => {
-              if (inputBlurTimeoutRef.current != null) window.clearTimeout(inputBlurTimeoutRef.current);
-              setInputFocused(true);
-              setShowActionBar(false);
-            }}
-            onBlur={() => {
-              inputBlurTimeoutRef.current = window.setTimeout(() => setInputFocused(false), 140);
-            }}
+            onFocus={() => setShowActionBar(false)}
             onKeyDown={(e) => {
               if (mention && mentionCandidates.length > 0) {
                 if (e.key === 'Enter') { e.preventDefault(); insertMention(mentionCandidates[0]); return; }
                 if (e.key === 'Escape') { setMention(null); return; }
               }
-              if (e.key === 'Enter' && !e.shiftKey) sendMessage();
+              // Enter sends; Shift+Enter is the newline, which is why this is a textarea now.
+              if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
             }}
             placeholder={t('chat.messagePlaceholder')}
-            className="min-w-36 flex-1 rounded-full bg-muted px-4 py-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+            className="min-w-36 flex-1 resize-none self-center rounded-[--r-xl] bg-muted px-4 py-2.5 text-sm leading-snug placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
           />
           <button onClick={sendMessage} className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-primary" aria-label={t('common.send')}>
             <Send className="h-4 w-4 text-primary-foreground" />

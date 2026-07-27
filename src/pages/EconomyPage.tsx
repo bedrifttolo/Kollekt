@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowUpRight, ArrowDownLeft, Check, Recycle, ChevronRight, X, Users, Pencil, Trash2, Copy, ExternalLink, CircleCheckBig } from 'lucide-react';
+import { ArrowUpRight, ArrowDownLeft, Check, Recycle, ChevronRight, ChevronLeft, X, Users, Pencil, Trash2, Copy, ExternalLink, CircleCheckBig, Wallet } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api';
@@ -10,10 +10,29 @@ import { queryClient as sharedQueryClient } from '../lib/queryClient';
 import { useUser } from '../context/UserContext';
 import { formatCurrency, formatDate, translateKey } from '../i18n/helpers';
 import { connectCollectiveRealtime } from '../lib/realtime';
-import type { AppUser, EconomySummary, Expense, PayOption } from '../lib/types';
+import type { AppUser, EconomySummary, Expense, PaymentHandles, PayOption } from '../lib/types';
 import { Eyebrow, Fab, OverflowMenu } from '../components/ui-kit';
 import { colorForMember } from '../lib/memberColors';
-import { availableMethods, hasAnyMethod, openPaymentLink } from '../lib/paymentLinks';
+import {
+  availableMethods,
+  clipboardPayload,
+  hasAnyMethod,
+  needsManualEntry,
+  openPaymentLink,
+  type PaymentMethod,
+} from '../lib/paymentLinks';
+import { onAppResume } from '../lib/appLifecycle';
+import CategoryBars from '../components/charts/CategoryBars';
+import MonthStrip from '../components/charts/MonthStrip';
+import {
+  breakdownForMonth,
+  latestMonthKey,
+  monthlyTotals,
+  parseMonthKey,
+  shiftMonthKey,
+  EXPENSE_CATEGORIES as CANONICAL_CATEGORIES,
+} from '../lib/expenseStats';
+import { formatMonthYear } from '../i18n/helpers';
 
 const PROVIDER_LABELS: Record<string, string> = {
   vipps: 'Vipps',
@@ -22,7 +41,8 @@ const PROVIDER_LABELS: Record<string, string> = {
   bank: 'economy.pay.bankTransfer',
 };
 
-const EXPENSE_CATEGORIES = ['Groceries', 'Bills', 'Cleaning', 'Entertainment', 'Food', 'Other'];
+// Single source of truth, shared with the stats layer and matched by the V60 CHECK constraint.
+const EXPENSE_CATEGORIES: readonly string[] = CANONICAL_CATEGORIES;
 
 export default function EconomyPage() {
   const navigate = useNavigate();
@@ -43,6 +63,9 @@ export default function EconomyPage() {
   );
   const [settling, setSettling] = useState(false);
   const [showAllExpenses, setShowAllExpenses] = useState(false);
+  // null until the summary lands, then defaults to the newest month that actually has expenses —
+  // a household that logs sporadically shouldn't open on an empty "this month".
+  const [statsMonth, setStatsMonth] = useState<string | null>(null);
   const [newDeadline, setNewDeadline] = useState('');
   const [editingExpenseId, setEditingExpenseId] = useState<number | null>(null);
   const [editTitle, setEditTitle] = useState('');
@@ -56,9 +79,19 @@ export default function EconomyPage() {
   const [showPaySheet, setShowPaySheet] = useState(false);
   const [copiedValue, setCopiedValue] = useState<string | null>(null);
   const [payOpenFailed, setPayOpenFailed] = useState<string | null>(null);
-  const [settlementAcknowledged, setSettlementAcknowledged] = useState(false);
+  // True from the moment we hand off to a payment app until the user answers the confirmation
+  // prompt on their way back. Replaces the old acknowledge-checkbox + separate-button pair.
+  const [awaitingReturn, setAwaitingReturn] = useState(false);
 
   const name = currentUser?.name ?? '';
+
+  // Whether *you* can be paid. The only related message today (economy.pay.noMethods) is shown to
+  // the debtor about the creditor — i.e. to the one person who cannot fix it.
+  const { data: myHandles } = useQuery({
+    queryKey: qk.profilePayments(name),
+    enabled: !!name,
+    queryFn: () => api.get<PaymentHandles>(`/members/payment-handles?memberName=${encodeURIComponent(name)}`),
+  });
 
   const { data: collectiveMembers = [] } = useQuery({
     queryKey: qk.members(name),
@@ -121,6 +154,13 @@ export default function EconomyPage() {
     return disconnect;
   }, [name]);
 
+  // Coming back into the app after a hand-off is the moment to ask whether the payment happened.
+  // Without this the user has to remember to reopen Kollekt and find the button.
+  useEffect(() => {
+    if (!awaitingReturn) return;
+    return onAppResume(() => setShowPaySheet(true));
+  }, [awaitingReturn]);
+
   const toggleSplit = (member: string) =>
     setNewSplit((prev) => prev.includes(member) ? prev.filter((m) => m !== member) : [...prev, member]);
 
@@ -180,22 +220,15 @@ export default function EconomyPage() {
   };
 
   const handleMarkSettled = async () => {
-    if (!selectedPayOption || !settlementAcknowledged) return;
+    if (!selectedPayOption) return;
     setSettling(true);
     try {
       await api.post('/economy/settle-with', { creditorName: selectedPayOption.name });
       setShowPaySheet(false);
-      setSettlementAcknowledged(false);
+      setAwaitingReturn(false);
       fetchSummary();
     } catch {}
     setSettling(false);
-  };
-
-  const handlePayCreditor = () => {
-    if (!selectedPayOption) return;
-    setSettlementAcknowledged(false);
-    setPayOpenFailed(null);
-    setShowPaySheet(true);
   };
 
   const copyValue = async (value: string) => {
@@ -206,17 +239,64 @@ export default function EconomyPage() {
     } catch {}
   };
 
-  const handleOpenPayment = async (provider: string, url: string, value: string) => {
+  /**
+   * Hands off to the payment app, putting the recipient and amount on the clipboard first —
+   * Vipps and MobilePay open cold with nothing pre-filled, so those two fields have to be typed
+   * and the clipboard is the only way to carry them across.
+   */
+  const handoffTo = async (method: PaymentMethod, amount: number) => {
     setPayOpenFailed(null);
-    const opened = await openPaymentLink(url).catch(() => false);
+    if (needsManualEntry(method)) await copyValue(clipboardPayload(method, amount));
+    if (!method.url) return true;
+    const opened = await openPaymentLink(method.url).catch(() => false);
     if (!opened) {
-      // Payment app not installed — copy the handle so the user can pay another way.
-      setPayOpenFailed(provider);
-      await copyValue(value);
+      // App not installed. The handle is already copied, so the user can still pay another way.
+      setPayOpenFailed(method.provider);
+      if (!needsManualEntry(method)) await copyValue(method.value);
     }
+    return opened;
   };
 
-  if (loading || !summary) {
+  /**
+   * The primary CTA. When the creditor registered exactly one payment method there is nothing to
+   * choose, so the sheet is skipped entirely and we go straight to their app — the flow the user
+   * actually wants is two taps: this one, then confirming on the way back.
+   */
+  const handlePayCreditor = async () => {
+    if (!selectedPayOption) return;
+    setPayOpenFailed(null);
+    const methods = availableMethods(selectedPayOption.handles, selectedPayOption.amount);
+    if (methods.length !== 1) {
+      setShowPaySheet(true);
+      return;
+    }
+    const opened = await handoffTo(methods[0], selectedPayOption.amount);
+    // Only arm the confirmation once we actually left the app; otherwise the user never went
+    // anywhere and would be asked whether they paid out of nowhere.
+    if (opened) setAwaitingReturn(true);
+    else setShowPaySheet(true);
+  };
+
+  const handleOpenPayment = async (method: PaymentMethod, amount: number) => {
+    const opened = await handoffTo(method, amount);
+    if (opened) setAwaitingReturn(true);
+  };
+
+  // Everything the stats section needs is derived from summary.expenses, which /economy/summary
+  // already returns in full — no extra request. Memoised so realtime refetches of unrelated parts
+  // of the summary don't re-aggregate the whole history on every render.
+  // Declared above the early return so the hook order stays stable while loading.
+  const expenses = summary?.expenses;
+  const activeMonth = statsMonth ?? latestMonthKey(expenses ?? []);
+  const stats = useMemo(() => {
+    if (!expenses) return null;
+    return {
+      breakdown: breakdownForMonth(expenses, activeMonth, name),
+      months: monthlyTotals(expenses, activeMonth, 6, name),
+    };
+  }, [expenses, activeMonth, name]);
+
+  if (loading || !summary || !stats) {
     return <div className="space-y-3 pt-4 animate-pulse">{[...Array(4)].map((_, i) => <div key={i} className="glass rounded-2xl h-20" />)}</div>;
   }
 
@@ -231,13 +311,16 @@ export default function EconomyPage() {
     <motion.div initial={false} animate={{ opacity: 1, y: 0 }} className="space-y-5 pt-4">
       <div>
         <Eyebrow>{t('economy.eyebrow')}</Eyebrow>
-        <h2 className="mt-2 font-display text-[2.4rem] font-extrabold leading-none tracking-[-.04em]">{t('economy.titleLineOne')} <span className="mark">{t('economy.titleLineTwo')}</span></h2>
+        <h2 className="mt-2 display-md">{t('economy.titleLineOne')} <span className="mark">{t('economy.titleLineTwo')}</span></h2>
       </div>
 
       {/* Balance card */}
       <div className="wallet">
         <p className="text-xs font-bold uppercase tracking-[.16em] text-white/65 mb-1">{t('economy.yourBalance')}</p>
-        <p className={`font-display text-3xl font-bold ${oweAmount > 0 ? 'text-destructive' : getAmount > 0 ? 'text-primary' : 'text-foreground'}`}>
+        {/* Amount colours come from the hero palette, not the page palette: `text-foreground` and
+            `text-primary` are both the hero's own colour in the light theme, which made a settled
+            balance disappear into the card. A zero balance just inherits the hero foreground. */}
+        <p className={`font-display text-3xl font-bold ${oweAmount > 0 ? 'hero-amount-negative' : getAmount > 0 ? 'hero-amount-positive' : ''}`}>
           {oweAmount > 0 ? `- ${formatCurrency(oweAmount)}` : getAmount > 0 ? `+ ${formatCurrency(getAmount)}` : formatCurrency(0)}
         </p>
         <p className="mt-1 flex items-center gap-1.5 text-xs text-white/70">
@@ -266,7 +349,7 @@ export default function EconomyPage() {
               </select>
             )}
             <div>
-              <button onClick={handlePayCreditor} disabled={settling || !selectedPayOption}
+              <button onClick={() => void handlePayCreditor()} disabled={settling || !selectedPayOption}
                 className="btn-lemon w-full disabled:opacity-60">
                 <Check className="h-4 w-4" /> {t('economy.payAmountTo', { name: selectedPayOption.name, amount: formatCurrency(selectedPayOption.amount) })}
               </button>
@@ -290,7 +373,11 @@ export default function EconomyPage() {
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-semibold">{t('economy.pay.title', { name: selectedPayOption.name })}</p>
+                  <p className="text-sm font-semibold">
+                    {awaitingReturn
+                      ? t('economy.pay.didYouPay', { name: selectedPayOption.name })
+                      : t('economy.pay.title', { name: selectedPayOption.name })}
+                  </p>
                   <p className="text-xs text-muted-foreground">{t('economy.pay.subtitle', { amount: formatCurrency(selectedPayOption.amount) })}</p>
                 </div>
                 <button
@@ -302,7 +389,7 @@ export default function EconomyPage() {
                 </button>
               </div>
 
-              <div className="space-y-2">
+              {!awaitingReturn && (<div className="space-y-2">
                 {!hasAnyMethod(selectedPayOption.handles) && (
                   <p className="rounded-xl bg-muted/50 p-3 text-sm text-muted-foreground">
                     {t('economy.pay.noMethods')}
@@ -327,7 +414,7 @@ export default function EconomyPage() {
                         </button>
                         {m.url && (
                           <button
-                            onClick={() => void handleOpenPayment(m.provider, m.url!, m.value)}
+                            onClick={() => void handleOpenPayment(m, selectedPayOption.amount)}
                             className="rounded-lg gradient-primary px-3 py-2 text-xs font-semibold text-primary-foreground flex items-center gap-1.5 shrink-0"
                           >
                             <ExternalLink className="h-3.5 w-3.5" /> {t('economy.pay.open')}
@@ -340,27 +427,26 @@ export default function EconomyPage() {
                     </div>
                   );
                 })}
-              </div>
+              </div>)}
 
-              <p className="text-[10px] text-muted-foreground">{t('economy.pay.disclaimer')}</p>
-
-              <label className="flex items-start gap-2 rounded-xl bg-muted/40 p-3 text-xs text-muted-foreground">
-                <input
-                  type="checkbox"
-                  checked={settlementAcknowledged}
-                  onChange={(event) => setSettlementAcknowledged(event.target.checked)}
-                  className="mt-0.5 h-4 w-4 shrink-0"
-                />
-                <span>{t('economy.pay.acknowledge')}</span>
-              </label>
+              {!awaitingReturn && <p className="text-[10px] text-muted-foreground">{t('economy.pay.disclaimer')}</p>}
 
               <button
                 onClick={() => void handleMarkSettled()}
-                disabled={settling || !settlementAcknowledged}
+                disabled={settling}
                 className="w-full gradient-primary rounded-xl py-2.5 text-sm font-semibold text-primary-foreground flex items-center justify-center gap-2 disabled:opacity-60"
               >
                 <Check className="h-4 w-4" /> {t('economy.pay.markSettled')}
               </button>
+
+              {awaitingReturn && (
+                <button
+                  onClick={() => { setShowPaySheet(false); setAwaitingReturn(false); }}
+                  className="w-full rounded-xl py-2 text-sm font-semibold text-muted-foreground"
+                >
+                  {t('economy.pay.notYet')}
+                </button>
+              )}
             </motion.div>
           </motion.div>
         )}
@@ -404,6 +490,57 @@ export default function EconomyPage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {myHandles && !hasAnyMethod(myHandles) && (
+        <button
+          onClick={() => navigate('/profile?section=payment')}
+          className="flex w-full items-center gap-3 rounded-[--r-lg] border border-dashed border-primary/40 bg-primary/5 p-3.5 text-left"
+        >
+          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-[--r-sm] bg-primary/15 text-primary">
+            <Wallet className="h-4 w-4" />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-sm font-bold">{t('economy.setupPayment.title')}</span>
+            <span className="block text-xs text-muted-foreground">{t('economy.setupPayment.body')}</span>
+          </span>
+          <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+        </button>
+      )}
+
+      {/* Spending stats — where the household's money went, and how this month compares. All
+          derived client-side from summary.expenses; see src/lib/expenseStats.ts. */}
+      <section className="card space-y-4">
+        <div className="flex items-center justify-between gap-2">
+          <button
+            type="button"
+            onClick={() => setStatsMonth(shiftMonthKey(activeMonth, -1))}
+            aria-label={t('economy.stats.previousMonth')}
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-muted text-muted-foreground"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          <div className="min-w-0 text-center">
+            <p className="truncate font-display text-lg font-extrabold">
+              {formatMonthYear(parseMonthKey(activeMonth).year, parseMonthKey(activeMonth).monthIndex)}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {t('economy.stats.yourShare', { amount: formatCurrency(stats.breakdown.yourShare) })}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setStatsMonth(shiftMonthKey(activeMonth, 1))}
+            aria-label={t('economy.stats.nextMonth')}
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-muted text-muted-foreground"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
+
+        <MonthStrip months={stats.months} selectedKey={activeMonth} onSelect={setStatsMonth} />
+
+        <CategoryBars categories={stats.breakdown.categories} total={stats.breakdown.total} />
+      </section>
 
       {/* Pant card */}
       <button onClick={() => navigate('/economy/pant')}

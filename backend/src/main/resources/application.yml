@@ -51,13 +51,16 @@ app:
     # with a verified sender once SMTP credentials are configured.
     enabled: ${APP_MAIL_ENABLED:false}
     from: ${APP_MAIL_FROM:Kollekt <no-reply@kollekt.no>}
-  password-reset:
-    token-validity-seconds: ${APP_PASSWORD_RESET_TOKEN_VALIDITY_SECONDS:3600}
   security:
     jwt-secret: ${APP_SECURITY_JWT_SECRET:change-me-to-a-long-random-secret-at-least-32-chars}
     token-validity-seconds: ${APP_SECURITY_TOKEN_VALIDITY_SECONDS:3600}
-    refresh-token-validity-seconds: ${APP_SECURITY_REFRESH_TOKEN_VALIDITY_SECONDS:1209600}
-    # Max unauthenticated onboarding requests (login/register/refresh/password-reset) per IP per minute.
+    # One year. Refresh tokens are single-use and re-issued with a full window on every use, so
+    # this is an idle timeout, not a session cap: it only signs out someone who has not opened
+    # the app in that long. Two weeks meant a fortnight away from the app looked like a bug.
+    refresh-token-validity-seconds: ${APP_SECURITY_REFRESH_TOKEN_VALIDITY_SECONDS:31536000}
+    # Max unauthenticated sign-in attempts per IP per minute. Token refresh is deliberately
+    # exempt (see AuthRateLimitFilter) — it is an authenticated client keeping a live session,
+    # and throttling it reads to the user as being logged out.
     auth-rate-limit-per-minute: ${APP_SECURITY_AUTH_RATE_LIMIT_PER_MINUTE:10}
   google:
     client-id: ${GOOGLE_CLIENT_ID:}

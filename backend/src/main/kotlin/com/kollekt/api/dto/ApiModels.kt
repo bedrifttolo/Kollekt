@@ -380,30 +380,14 @@ data class FriendDto(
     val name: String,
 )
 
-data class CreateUserRequest(
-    val name: String,
-    val email: String,
-    val password: String,
-)
-
-data class LoginRequest(
-    val name: String,
-    val password: String,
-)
-
 data class SocialLoginRequest(
     val idToken: String,
     val nonce: String? = null,
     val displayName: String? = null,
 )
 
-data class PasswordResetRequest(
-    val email: String,
-)
-
-data class PasswordResetConfirmRequest(
-    val token: String,
-    val newPassword: String,
+data class UpdateDisplayNameRequest(
+    val name: String,
 )
 
 data class AuthResponse(
@@ -477,10 +461,14 @@ data class CreateExpenseRequest(
     val recurrenceDayOfMonth: Int? = null,
 )
 
+/** `date` and `participantNames` are optional: omitting either keeps the stored value, so callers
+ *  that only edit description/amount/category keep working unchanged. */
 data class UpdateExpenseRequest(
     val description: String,
     val amount: Int,
     val category: String,
+    val date: LocalDate? = null,
+    val participantNames: List<String>? = null,
 )
 
 data class PantEntryDto(

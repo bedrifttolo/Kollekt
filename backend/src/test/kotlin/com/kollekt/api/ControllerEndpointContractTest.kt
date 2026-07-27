@@ -8,7 +8,6 @@ import com.kollekt.api.dto.CreateCustomAchievementRequest
 import com.kollekt.api.dto.CreateEventRequest
 import com.kollekt.api.dto.CreateMessageRequest
 import com.kollekt.api.dto.CreatePantEntryRequest
-import com.kollekt.api.dto.CreateUserRequest
 import com.kollekt.api.dto.EconomySummaryDto
 import com.kollekt.api.dto.EventDto
 import com.kollekt.api.dto.ExpenseDto
@@ -35,7 +34,6 @@ import com.kollekt.service.CollectiveOperations
 import com.kollekt.service.EconomyOperations
 import com.kollekt.service.EventOperations
 import com.kollekt.service.MemberOperations
-import com.kollekt.service.PasswordResetService
 import com.kollekt.service.ShoppingOperations
 import com.kollekt.service.SocialAuthService
 import com.kollekt.service.StatsService
@@ -91,8 +89,6 @@ class ControllerEndpointContractTest {
 
     @MockitoBean lateinit var socialAuthService: SocialAuthService
 
-    @MockitoBean lateinit var passwordResetService: PasswordResetService
-
     @MockitoBean lateinit var collectiveOperations: CollectiveOperations
 
     @MockitoBean lateinit var taskOperations: TaskOperations
@@ -114,61 +110,6 @@ class ControllerEndpointContractTest {
     @MockitoBean lateinit var tokenStoreService: TokenStoreService
 
     @MockitoBean lateinit var invitationRepository: InvitationRepository
-
-    @Test
-    fun `onboarding create user uses api onboarding users endpoint`() {
-        val request = CreateUserRequest(name = "Kasper", email = "kasper@example.com", password = "verysecure")
-        whenever(accountOperations.createUser(request))
-            .thenReturn(
-                AuthResponse(
-                    accessToken = "token",
-                    refreshToken = "refresh-token",
-                    tokenType = "Bearer",
-                    expiresIn = 3600,
-                    user = UserDto(id = 1, name = "Kasper", collectiveCode = null),
-                ),
-            )
-
-        mockMvc
-            .perform(
-                post("/api/onboarding/users")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .with(csrf())
-                    .with(jwt().jwt { it.subject("Kasper") })
-                    .content("""{"name":"Kasper","email":"kasper@example.com","password":"verysecure"}"""),
-            ).andExpect(status().isCreated)
-            .andExpect(jsonPath("$.user.name").value("Kasper"))
-
-        verify(accountOperations).createUser(request)
-    }
-
-    @Test
-    fun `password reset request uses api onboarding password-reset request endpoint`() {
-        mockMvc
-            .perform(
-                post("/api/onboarding/password-reset/request")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .with(csrf())
-                    .with(jwt().jwt { it.subject("Kasper") })
-                    .content("""{"email":"kasper@example.com"}"""),
-            ).andExpect(status().isNoContent)
-
-        verify(passwordResetService).requestReset("kasper@example.com")
-    }
-
-    @Test
-    fun `password reset confirm uses api onboarding password-reset confirm endpoint`() {
-        mockMvc
-            .perform(
-                post("/api/onboarding/password-reset/confirm")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .with(csrf())
-                    .with(jwt().jwt { it.subject("Kasper") })
-                    .content("""{"token":"raw-token","newPassword":"brand-new-pass"}"""),
-            ).andExpect(status().isNoContent)
-
-        verify(passwordResetService).confirmReset("raw-token", "brand-new-pass")
-    }
 
     @Test
     fun `onboarding collective code uses api onboarding collectives code endpoint`() {
@@ -797,22 +738,6 @@ class ControllerEndpointContractTest {
             .andExpect(jsonPath("$.error").value("Invalid status"))
 
         verify(memberOperations, never()).updateMemberStatus(any(), any(), any())
-    }
-
-    @Test
-    fun `member reset password validates identifier and password`() {
-        mockMvc
-            .perform(
-                patch("/api/members/reset-password")
-                    .param("memberName", "Kasper")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .with(csrf())
-                    .with(jwt().jwt { it.subject("Kasper") })
-                    .content("""{"newPassword":""}"""),
-            ).andExpect(status().isBadRequest)
-            .andExpect(jsonPath("$.error").value("Password must be at least 8 characters"))
-
-        verify(accountOperations, never()).resetPassword(any(), any())
     }
 
     @Test

@@ -45,13 +45,13 @@ class TokenService(
         val jwt = decodeRefreshJwt(refreshToken)
         val tokenType = jwt.getClaimAsString("token_type")
         if (tokenType != "refresh") {
-            throw IllegalArgumentException("Invalid refresh token")
+            throw InvalidRefreshTokenException("Invalid refresh token")
         }
 
-        val jti = jwt.id ?: throw IllegalArgumentException("Invalid refresh token")
+        val jti = jwt.id ?: throw InvalidRefreshTokenException("Invalid refresh token")
         val subject = jwt.subject
         if (!tokenStoreService.isRefreshTokenActive(jti, subject)) {
-            throw IllegalArgumentException("Refresh token is invalid or expired")
+            throw InvalidRefreshTokenException()
         }
 
         tokenStoreService.revokeRefreshToken(jti)
@@ -79,7 +79,7 @@ class TokenService(
         try {
             jwtDecoder.decode(token)
         } catch (_: JwtException) {
-            throw IllegalArgumentException("Invalid refresh token")
+            throw InvalidRefreshTokenException("Invalid refresh token")
         }
 
     private fun issueAccessToken(member: Member): SignedToken {

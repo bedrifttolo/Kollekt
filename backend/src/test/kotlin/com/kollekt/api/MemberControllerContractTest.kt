@@ -1,6 +1,5 @@
 package com.kollekt.api
 
-import com.kollekt.service.AccountOperations
 import com.kollekt.service.CollectiveOperations
 import com.kollekt.service.MemberOperations
 import com.kollekt.service.TokenStoreService
@@ -30,8 +29,6 @@ class MemberControllerContractTest {
     @MockitoBean lateinit var memberOperations: MemberOperations
 
     @MockitoBean lateinit var collectiveOperations: CollectiveOperations
-
-    @MockitoBean lateinit var accountOperations: AccountOperations
 
     @MockitoBean lateinit var tokenStoreService: TokenStoreService
 
@@ -91,36 +88,6 @@ class MemberControllerContractTest {
     }
 
     @Test
-    fun `member reset password forwards authenticated member and password`() {
-        mockMvc
-            .perform(
-                patch("/api/members/reset-password")
-                    .param("memberName", "Kasper")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .with(csrf())
-                    .with(jwt().jwt { it.subject("Kasper") })
-                    .content("""{"newPassword":"new-secret"}"""),
-            ).andExpect(status().isOk)
-
-        verify(accountOperations).resetPassword("Kasper", "new-secret")
-    }
-
-    @Test
-    fun `member reset password rejects a different authenticated member`() {
-        mockMvc
-            .perform(
-                patch("/api/members/reset-password")
-                    .param("memberName", "Emma")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .with(csrf())
-                    .with(jwt().jwt { it.subject("Kasper") })
-                    .content("""{"newPassword":"new-secret"}"""),
-            ).andExpect(status().isForbidden)
-
-        verify(accountOperations, never()).resetPassword(any(), any())
-    }
-
-    @Test
     fun `member delete delegates when token subject matches member`() {
         mockMvc
             .perform(
@@ -171,20 +138,5 @@ class MemberControllerContractTest {
             ).andExpect(status().isBadRequest)
 
         verify(memberOperations, never()).addFriend(any(), any())
-    }
-
-    @Test
-    fun `member reset password rejects missing new password`() {
-        mockMvc
-            .perform(
-                patch("/api/members/reset-password")
-                    .param("memberName", "Kasper")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .with(csrf())
-                    .with(jwt().jwt { it.subject("Kasper") })
-                    .content("""{}"""),
-            ).andExpect(status().isBadRequest)
-
-        verify(accountOperations, never()).resetPassword(any(), any())
     }
 }

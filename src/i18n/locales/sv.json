@@ -153,21 +153,20 @@
     },
     "taskAssignmentReasons": {
       "LATE": "Slutförd sent"
-    }
+    },
+    "close": "Stäng"
   },
   "errors": {
     "network": "Kunde inte ansluta just nu. Försök igen om en stund.",
     "sessionExpired": "Din session har gått ut. Logga in igen och försök på nytt.",
+    "rateLimited": "För många försök. Försök igen om {{seconds}} sek.",
     "forbidden": "Du har inte åtkomst till detta just nu.",
     "notFound": "Det du letar efter hittades inte.",
     "invalidCredentials": "Namnet eller lösenordet stämmer inte.",
     "alreadyExists": "Detta finns redan.",
     "alreadyInCollective": "Du är redan med i ett kollektiv.",
     "invalidJoinCode": "Koden ser inte rätt ut. Kontrollera den och försök igen.",
-    "generic": "Något gick fel. Försök igen.",
-    "invalidEmail": "Ange en giltig e-postadress.",
-    "passwordTooShort": "Lösenordet måste vara minst 8 tecken.",
-    "passwordsMismatch": "Lösenorden stämmer inte överens."
+    "generic": "Något gick fel. Försök igen."
   },
   "header": {
     "pageTitles": {
@@ -204,65 +203,21 @@
     "games": "Spel"
   },
   "auth": {
-    "loginTab": "Logga in",
-    "signUpTab": "Registrera",
-    "fullName": "Fullständigt namn",
-    "username": "Användarnamn",
-    "identifier": "E-post eller användarnamn",
-    "emailAddress": "E-postadress",
-    "password": "Lösenord",
-    "logIn": "Logga in",
-    "createAccount": "Skapa konto",
     "pleaseWait": "Vänta lite...",
     "wakingServer": "Väcker servern — det kan ta upp till en minut…",
-    "inviteHint": "Har du fått en inbjudan via e-post? Kolla inkorgen efter en länk som låter dig gå med automatiskt.",
-    "showPassword": "Visa lösenord",
-    "hidePassword": "Dölj lösenord",
-    "continueWith": "eller fortsätt med",
-    "google": "Google",
-    "apple": "Apple",
     "tagline": "Kollektivliv, förenklat",
     "taglineSub": "gjort av studenter, för studenter",
     "headingLead": "Välkommen",
     "headingMark": "hem.",
-    "forgotPassword": "Glömt lösenord?",
-    "buildLabel": "Ny build · v0.1",
-    "labels": {
-      "name": "Namn",
-      "email": "E-post",
-      "password": "Lösenord",
-      "confirmPassword": "Bekräfta lösenord",
-      "usernameOrEmail": "Användarnamn eller e-post"
-    },
-    "placeholders": {
-      "name": "Ditt namn",
-      "email": "du@epost.se",
-      "password": "Ditt lösenord",
-      "newPassword": "Gör det starkt",
-      "confirmPassword": "Upprepa lösenordet",
-      "usernameOrEmail": "Användarnamn eller e-post"
-    },
     "terms": {
-      "prefix": "Genom att gå med godkänner du husreglerna och",
-      "link": "villkoren"
+      "prefix": "Genom att fortsätta godkänner du våra",
+      "terms": "användarvillkor",
+      "and": "och",
+      "privacy": "integritetspolicy"
     },
-    "forgot": {
-      "headingLead": "Återställ",
-      "headingMark": "åtkomst.",
-      "subtitle": "Skriv in din e-post så skickar vi en länk för återställning.",
-      "submit": "Skicka länk",
-      "sent": "Om det finns ett konto för den e-posten är en länk på väg.",
-      "backToLogin": "Tillbaka till inloggning"
-    },
-    "reset": {
-      "headingLead": "Nytt",
-      "headingMark": "lösenord.",
-      "subtitle": "Välj ett nytt lösenord för ditt konto.",
-      "submit": "Uppdatera lösenord",
-      "success": "Lösenordet är uppdaterat. Du kan logga in nu.",
-      "invalidToken": "Den här länken är ogiltig eller har gått ut.",
-      "backToLogin": "Tillbaka till inloggning"
-    }
+    "continueWith_apple": "Fortsätt med Apple",
+    "continueWith_google": "Fortsätt med Google",
+    "noProviders": "Inloggning är inte konfigurerad i den här versionen. Kontakta supporten."
   },
   "createHousehold": {
     "headingPre": "Skapa",
@@ -307,7 +262,16 @@
     "errors": {
       "addRoom": "Lägg till minst ett rum",
       "createFailure": "Kunde inte skapa kollektiv",
-      "joinFailure": "Kunde inte gå med i kollektivet"
+      "joinFailure": "Kunde inte gå med i kollektivet",
+      "nameRequired": "Ange ett namn.",
+      "nameFailure": "Kunde inte spara namnet. Prova ett annat."
+    },
+    "nameStep": {
+      "heading": "Vad ska vi kalla dig?",
+      "subtitle": "Det här är namnet kollektivet ser på sysslor, utgifter och i chatten. Du kan inte ändra det efter att du gått med i ett kollektiv.",
+      "label": "Visningsnamn",
+      "placeholder": "Ditt namn",
+      "continue": "Fortsätt"
     }
   },
   "dashboard": {
@@ -450,12 +414,12 @@
       "priorityLabel": "Prioritet",
       "assigneeLabel": "Ansvarig (valfritt)",
       "dueDateLabel": "Förfallodatum (valfritt)",
-      "costLabel": "Beräknad kostnad (valfritt)",
+      "costLaterHint": "Inget pris än — du anger vad det kostade när du markerar det som lagat, och då delas det.",
       "titlePlaceholder": "Vad behöver lagas?",
       "descriptionPlaceholder": "Beskriv problemet...",
-      "costPlaceholder": "Kostnadsuppskattning (kr)",
+      "costPlaceholder": "Betalt belopp (kr)",
       "splitLabel": "Dela kostnaden med",
-      "splitHint": "När ärendet är klart delas kostnaden mellan dessa på ekonomisidan.",
+      "splitHint": "Beloppet delas mellan dessa och läggs till på ekonomisidan.",
       "completeTitle": "Slutför ärende",
       "completeSubtitle": "Ange den slutliga kostnaden för ”{{title}}”. Om det kostade pengar, välj vilka som delar den.",
       "actualCostLabel": "Slutlig kostnad (kr)",
@@ -481,7 +445,8 @@
         "BLOCKED": "Blockerad",
         "DONE": "Klar"
       }
-    }
+    },
+    "moreOptions": "Fler val"
   },
   "checkin": {
     "title": "Veckans husavstämning",
@@ -616,7 +581,15 @@
       "fire": "Eld",
       "sad": "Ledsen",
       "dislike": "Ogilla"
-    }
+    },
+    "background": {
+      "label": "Bakgrund",
+      "change": "Byt bakgrund",
+      "remove": "Ta bort bakgrund"
+    },
+    "today": "I dag",
+    "yesterday": "I går",
+    "newDivider": "Ny"
   },
   "economy": {
     "title": "Ekonomi",
@@ -660,9 +633,22 @@
       "appNotInstalled": "Appen är inte installerad — uppgifterna kopierades så att du kan betala på ett annat sätt.",
       "copy": "Kopiera",
       "noMethods": "Ingen betalningsmetod är sparad. Betala på ett annat sätt som ni har kommit överens om och bekräfta sedan nedan.",
-      "acknowledge": "Jag har slutfört betalningen utanför Kollekt och förstår att Kollekt inte kan verifiera överföringen.",
       "markSettled": "Markera som uppgjort i Kollekt",
-      "disclaimer": "Kollekt sparar mottagningsuppgifter och öppnar endast externa betalappar. Kollekt behandlar, startar, förvarar eller verifierar inte penningöverföringar."
+      "disclaimer": "Kollekt sparar mottagningsuppgifter och öppnar endast externa betalappar. Kollekt behandlar, startar, förvarar eller verifierar inte penningöverföringar.",
+      "didYouPay": "Betalade du {{name}}?",
+      "notYet": "Inte än"
+    },
+    "stats": {
+      "monthTotal": "Totalt denna månad",
+      "yourShare": "Din andel {{amount}}",
+      "emptyMonth": "Inga utgifter denna månad.",
+      "previousMonth": "Föregående månad",
+      "nextMonth": "Nästa månad",
+      "monthsLabel": "Utgifter per månad"
+    },
+    "setupPayment": {
+      "title": "Ingen kan betala tillbaka till dig än",
+      "body": "Lägg till Swish-nummer eller kontonummer så kollektivet kan göra upp."
     }
   },
   "pant": {
@@ -1514,7 +1500,8 @@
             "placeholder": "Vilken kategori vill du testa rummet med?"
           }
         }
-      }
+      },
+      "restart": "Börja om"
     }
   },
   "leaderboard": {
@@ -1949,14 +1936,6 @@
       "send": "Skicka inbjudan",
       "sent": "Inbjudan skickad!"
     },
-    "resetPassword": {
-      "title": "Återställ lösenord",
-      "subtitle": "Uppdatera lösenordet för ditt konto",
-      "newPassword": "Nytt lösenord",
-      "confirmPassword": "Bekräfta lösenord",
-      "update": "Uppdatera lösenord",
-      "updated": "Lösenord uppdaterat!"
-    },
     "friends": {
       "title": "Vänner",
       "subtitle": "Vänner du kan bjuda in till spel och aktiviteter.",
@@ -1983,9 +1962,6 @@
       "quietHoursSaved": "Tyst tid sparad"
     },
     "errors": {
-      "passwordTooShort": "Lösenordet måste vara minst 8 tecken",
-      "passwordsMismatch": "Lösenorden matchar inte",
-      "passwordUpdateFailed": "Kunde inte uppdatera lösenordet",
       "addFriendFailed": "Kunde inte lägga till vän",
       "removeFriendFailed": "Kunde inte ta bort vän",
       "statusUpdateFailed": "Kunde inte uppdatera status",

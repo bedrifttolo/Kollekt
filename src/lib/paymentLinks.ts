@@ -48,6 +48,25 @@ export function hasAnyMethod(handles: PaymentHandles | undefined): boolean {
 }
 
 /**
+ * What to put on the clipboard before handing off to a payment app.
+ *
+ * Vipps and MobilePay open on their own home screen with nothing pre-filled — their public
+ * schemes carry no recipient or amount — so the user has to type both. Copying the handle alone
+ * (what we did before, and only on failure) still left them re-reading the amount from memory.
+ * The recipient is the one field the app can't guess, so it leads.
+ */
+export function clipboardPayload(method: PaymentMethod, amount: number): string {
+  const rounded = Number.isFinite(amount) && amount > 0 ? Math.round(amount) : null;
+  if (method.provider === 'paypal' || rounded === null) return method.value;
+  return `${method.value} — ${rounded}`;
+}
+
+/** True when the app being opened cannot pre-fill, so the user must paste the details in. */
+export function needsManualEntry(method: PaymentMethod): boolean {
+  return method.provider === 'vipps' || method.provider === 'mobilepay' || method.provider === 'bank';
+}
+
+/**
  * Opens a payment link, using the in-app browser for https and the app scheme for native
  * deep-links. Returns false when the target app is not installed (the schemes are declared
  * in LSApplicationQueriesSchemes / the Android <queries> manifest so canOpenUrl is allowed),

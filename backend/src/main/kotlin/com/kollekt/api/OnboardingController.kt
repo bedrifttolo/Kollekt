@@ -4,24 +4,21 @@ import com.kollekt.api.dto.AuthResponse
 import com.kollekt.api.dto.CollectiveCodeDto
 import com.kollekt.api.dto.CollectiveDto
 import com.kollekt.api.dto.CreateCollectiveRequest
-import com.kollekt.api.dto.CreateUserRequest
 import com.kollekt.api.dto.JoinCollectiveRequest
-import com.kollekt.api.dto.LoginRequest
 import com.kollekt.api.dto.LogoutRequest
-import com.kollekt.api.dto.PasswordResetConfirmRequest
-import com.kollekt.api.dto.PasswordResetRequest
 import com.kollekt.api.dto.RefreshTokenRequest
 import com.kollekt.api.dto.SocialLoginRequest
+import com.kollekt.api.dto.UpdateDisplayNameRequest
 import com.kollekt.api.dto.UserDto
 import com.kollekt.service.AccountOperations
 import com.kollekt.service.CollectiveOperations
-import com.kollekt.service.PasswordResetService
 import com.kollekt.service.SocialAuthService
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -35,19 +32,7 @@ class OnboardingController(
     private val accountOperations: AccountOperations,
     private val collectiveOperations: CollectiveOperations,
     private val socialAuthService: SocialAuthService,
-    private val passwordResetService: PasswordResetService,
 ) {
-    @PostMapping("/users")
-    @ResponseStatus(HttpStatus.CREATED)
-    fun createUser(
-        @RequestBody request: CreateUserRequest,
-    ): AuthResponse = accountOperations.createUser(request)
-
-    @PostMapping("/login")
-    fun login(
-        @RequestBody request: LoginRequest,
-    ): AuthResponse = accountOperations.login(request)
-
     @PostMapping("/oauth/{provider}")
     fun socialLogin(
         @PathVariable provider: String,
@@ -59,26 +44,21 @@ class OnboardingController(
         @RequestBody request: RefreshTokenRequest,
     ): AuthResponse = accountOperations.refreshToken(request)
 
-    @PostMapping("/password-reset/request")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    fun requestPasswordReset(
-        @RequestBody request: PasswordResetRequest,
-    ) {
-        passwordResetService.requestReset(request.email)
-    }
-
-    @PostMapping("/password-reset/confirm")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    fun confirmPasswordReset(
-        @RequestBody request: PasswordResetConfirmRequest,
-    ) {
-        passwordResetService.confirmReset(request.token, request.newPassword)
-    }
-
     @GetMapping("/me")
     fun getCurrentUser(
         @AuthenticationPrincipal jwt: Jwt,
     ): UserDto = accountOperations.getUserByName(jwt.subject)
+
+    /**
+     * Lets a freshly created social account pick its display name, before it joins a collective.
+     * Returns a new token pair — the access token's subject is the member name, so the caller's
+     * current token stops resolving the moment the rename lands.
+     */
+    @PatchMapping("/me/name")
+    fun updateDisplayName(
+        @AuthenticationPrincipal jwt: Jwt,
+        @RequestBody request: UpdateDisplayNameRequest,
+    ): AuthResponse = accountOperations.updateDisplayName(jwt.subject, request.name)
 
     @PostMapping("/logout")
     @ResponseStatus(HttpStatus.NO_CONTENT)

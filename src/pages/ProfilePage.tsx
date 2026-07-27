@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Mail,
-  Key,
   LogOut,
   Trash2,
   ArrowRightLeft,
@@ -94,18 +93,17 @@ export default function ProfilePage() {
   } = useUser();
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteSent, setInviteSent] = useState(false);
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [pwError, setPwError] = useState("");
-  const [pwSuccess, setPwSuccess] = useState(false);
   const [codeCopied, setCodeCopied] = useState(false);
   const [expandNotifPrefs, setExpandNotifPrefs] = useState(false);
   const [notifPrefs, setNotifPrefs] = useState<NotificationPreferences>({});
   const [expandInvite, setExpandInvite] = useState(false);
-  const [expandPayment, setExpandPayment] = useState(false);
+  const [expandPayment, setExpandPayment] = useState(
+    // Opened by the economy page's "nobody can pay you back" nudge, which links here with
+    // ?section=payment. Collapsed by default otherwise.
+    () => new URLSearchParams(window.location.search).get('section') === 'payment',
+  );
   const [paymentHandles, setPaymentHandles] = useState<PaymentHandles>({});
   const [paymentSaving, setPaymentSaving] = useState(false);
-  const [expandPassword, setExpandPassword] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [myStats, setMyStats] = useState<LeaderboardPlayer | null>(null);
   const [achievementsUnlocked, setAchievementsUnlocked] = useState(0);
@@ -119,7 +117,6 @@ export default function ProfilePage() {
   const [colorSaving, setColorSaving] = useState(false);
   const [copyingCode, setCopyingCode] = useState(false);
   const [leaving, setLeaving] = useState(false);
-  const [passwordSaving, setPasswordSaving] = useState(false);
   const [collectiveId, setCollectiveId] = useState<number | null>(null);
   const [houseRules, setHouseRules] = useState<HouseRules | null>(null);
   const [showRulesEditor, setShowRulesEditor] = useState(false);
@@ -435,35 +432,6 @@ export default function ProfilePage() {
     }
   };
 
-  const handleResetPassword = async () => {
-    setPwError("");
-    if (newPassword.length < 8) {
-      setPwError(t("profile.errors.passwordTooShort"));
-      return;
-    }
-    if (newPassword !== confirmPassword) {
-      setPwError(t("profile.errors.passwordsMismatch"));
-      return;
-    }
-    try {
-      setPasswordSaving(true);
-      await api.patch(
-        `/members/reset-password?memberName=${encodeURIComponent(name)}`,
-        { newPassword },
-      );
-      setNewPassword("");
-      setConfirmPassword("");
-      setPwSuccess(true);
-      setTimeout(() => setPwSuccess(false), 3000);
-    } catch (error: unknown) {
-      setPwError(
-        getUserMessage(error, t("profile.errors.passwordUpdateFailed")),
-      );
-    } finally {
-      setPasswordSaving(false);
-    }
-  };
-
   const handleCopyCode = async () => {
     if (!currentUser?.collectiveCode || copyingCode) return;
     setCopyingCode(true);
@@ -529,7 +497,7 @@ export default function ProfilePage() {
       </button>
       <div>
         <Eyebrow>{t("profile.eyebrow")}</Eyebrow>
-        <h2 className="mt-2 font-display text-[2.35rem] font-extrabold leading-none tracking-[-.04em]">{t("profile.title")}</h2>
+        <h2 className="mt-2 display-md">{t("profile.title")}</h2>
       </div>
       {profileLoadFailed && (
         <p className="rounded-xl bg-destructive/10 px-3 py-2 text-xs text-destructive">
@@ -1072,71 +1040,6 @@ export default function ProfilePage() {
                     </>
                   ) : (
                     inviteSaving ? t("profile.loading.sending") : t("profile.inviteRoommates.send")
-                  )}
-                </button>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-
-      <div className="glass rounded-2xl overflow-hidden">
-        <button
-          onClick={() => setExpandPassword((value) => !value)}
-          className="w-full flex items-center gap-3 p-4"
-        >
-          <div className="h-9 w-9 rounded-xl bg-secondary/20 flex items-center justify-center shrink-0">
-            <Key className="h-4 w-4 text-secondary" />
-          </div>
-          <div className="flex-1 text-left">
-            <p className="text-sm font-semibold">
-              {t("profile.resetPassword.title")}
-            </p>
-            <p className="text-[10px] text-muted-foreground">
-              {t("profile.resetPassword.subtitle")}
-            </p>
-          </div>
-          <ChevronDown
-            className={`h-4 w-4 text-muted-foreground transition-transform ${expandPassword ? "rotate-180" : ""}`}
-          />
-        </button>
-
-        <AnimatePresence>
-          {expandPassword && (
-            <motion.div
-              initial={{ height: 0 }}
-              animate={{ height: "auto" }}
-              exit={{ height: 0 }}
-              className="overflow-hidden"
-            >
-              <div className="px-4 pb-4 space-y-2">
-                <input
-                  value={newPassword}
-                  onChange={(event) => setNewPassword(event.target.value)}
-                  type="password"
-                  placeholder={t("profile.resetPassword.newPassword")}
-                  className="w-full bg-muted/50 rounded-xl px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                />
-                <input
-                  value={confirmPassword}
-                  onChange={(event) => setConfirmPassword(event.target.value)}
-                  type="password"
-                  placeholder={t("profile.resetPassword.confirmPassword")}
-                  className="w-full bg-muted/50 rounded-xl px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                />
-                {pwError && <p className="text-xs text-destructive">{pwError}</p>}
-                <button
-                  onClick={() => void handleResetPassword()}
-                  disabled={passwordSaving}
-                  className="w-full gradient-primary rounded-xl py-2 text-sm font-semibold text-primary-foreground flex items-center justify-center gap-2 disabled:opacity-60"
-                >
-                  {pwSuccess ? (
-                    <>
-                      <Check className="h-4 w-4" />
-                      {t("profile.resetPassword.updated")}
-                    </>
-                  ) : (
-                    passwordSaving ? t("profile.loading.saving") : t("profile.resetPassword.update")
                   )}
                 </button>
               </div>

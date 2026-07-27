@@ -17,7 +17,6 @@ const EconomyPage = lazy(() => import('./pages/EconomyPage'));
 const PantTrackerPage = lazy(() => import('./pages/PantTrackerPage'));
 const SocialPage = lazy(() => import('./pages/SocialPage'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
-const ResetPasswordPage = lazy(() => import('./pages/ResetPasswordPage'));
 const CollektGamePage = lazy(() => import('./pages/CollektGamePage'));
 
 // Guard for auth-only pages that don't need a collective (create-household)
@@ -59,7 +58,6 @@ function AppRoutes() {
     <Suspense fallback={<RouteFallback />}>
       <Routes>
       <Route path="/login" element={<GuestOnlyRoute><LoginPage /></GuestOnlyRoute>} />
-      <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route
         path="/create-household"
         element={<AuthOnlyRoute><CreateHouseholdPage /></AuthOnlyRoute>}

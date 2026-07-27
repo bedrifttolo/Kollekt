@@ -3,10 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ChevronUp, Plus, RefreshCw, X } from 'lucide-react';
 import { DEFAULT_ROOM_ICON, ROOM_TYPE_ICONS } from '../lib/categoryIcons';
+import { toneByIndex, toneByKey, toneClass } from '../lib/tones';
 import { useTranslation } from 'react-i18next';
-import { api, getUserMessage } from '../lib/api';
+import { api, getUserMessage, setAccessToken, setRefreshToken } from '../lib/api';
 import { useUser } from '../context/UserContext';
-import type { AppUser } from '../lib/types';
+import type { AppUser, AuthResponse } from '../lib/types';
 import { BrandMark, Field } from '../components/ui-kit';
 import TourOverlay, { type TourStep } from '../components/TourOverlay';
 
@@ -40,6 +41,11 @@ export default function CreateHouseholdPage() {
   const { currentUser, setCurrentUser, handleLogout } = useUser();
 
   const roomId = useRef(0);
+  // Apple and Google can't be relied on for a usable display name, so a fresh account confirms
+  // one here — the last moment it is safe to change, before any collective-scoped row references
+  // the member by name. Prefilled with whatever the provider gave us.
+  const [step, setStep] = useState<'name' | 'household'>('name');
+  const [displayName, setDisplayName] = useState(currentUser?.name ?? '');
   const [mode, setMode] = useState<'create' | 'join'>('create');
   const [houseName, setHouseName] = useState('');
   const [address, setAddress] = useState('');
@@ -135,6 +141,34 @@ export default function CreateHouseholdPage() {
     }
   };
 
+  const handleConfirmName = async () => {
+    if (!currentUser) return;
+    const name = displayName.trim();
+    if (!name) {
+      setError(t('createHousehold.errors.nameRequired'));
+      return;
+    }
+    if (name === currentUser.name) {
+      setStep('household');
+      return;
+    }
+
+    setError('');
+    setLoading(true);
+    try {
+      const res = await api.patch<AuthResponse>('/onboarding/me/name', { name });
+      // The access token's subject is the member name, so the tokens we hold went stale the
+      // instant the rename landed. Store the new pair before anything else calls the API.
+      await Promise.all([setAccessToken(res.accessToken), setRefreshToken(res.refreshToken)]);
+      setCurrentUser(res.user);
+      setStep('household');
+    } catch (err: unknown) {
+      setError(getUserMessage(err, t('createHousehold.errors.nameFailure')));
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const goBackToAuth = async () => {
     await handleLogout();
     navigate('/login', { replace: true });
@@ -152,7 +186,38 @@ export default function CreateHouseholdPage() {
           <span className="font-display text-2xl font-extrabold text-primary dark:text-secondary">Kollekt</span>
         </div>
 
-        <h1 className="mt-7 font-display text-[2.75rem] leading-[.96] font-extrabold tracking-[-.05em]">
+        {step === 'name' ? (
+          <div className="mt-7 flex flex-1 flex-col">
+            <h1 className="display-xl">{t('createHousehold.nameStep.heading')}</h1>
+            <p className="mt-3 text-base text-muted-foreground">{t('createHousehold.nameStep.subtitle')}</p>
+
+            <div className="mt-6">
+              <Field
+                label={t('createHousehold.nameStep.label')}
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+                placeholder={t('createHousehold.nameStep.placeholder')}
+                autoComplete="name"
+                maxLength={40}
+                autoFocus
+                onKeyDown={(e) => { if (e.key === 'Enter') void handleConfirmName(); }}
+              />
+            </div>
+
+            {error && <p className="mt-3 text-center text-sm text-destructive">{error}</p>}
+
+            <button
+              type="button"
+              onClick={() => void handleConfirmName()}
+              disabled={loading || !displayName.trim()}
+              className="btn-pine mt-4 w-full font-bold disabled:opacity-60"
+            >
+              {loading ? t('auth.pleaseWait') : t('createHousehold.nameStep.continue')}
+            </button>
+          </div>
+        ) : (
+        <>
+        <h1 className="mt-7 display-xl">
           {t('createHousehold.headingPre')} <span className="mark">{t('createHousehold.headingMark1')}</span>{' '}
           <span className="mark">{t('createHousehold.headingMark2')}</span>
         </h1>
@@ -202,12 +267,14 @@ export default function CreateHouseholdPage() {
 
               {roomsOpen && (
                 <div className="mt-3 space-y-3">
-                  {rooms.map((room) => {
+                  {rooms.map((room, roomIndex) => {
                     const RoomIcon = ROOM_TYPE_ICONS[room.iconKey] ?? DEFAULT_ROOM_ICON;
                     return (
                     <div key={room.id} className="field flex items-center gap-3">
-                      <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-muted">
-                        <RoomIcon className="h-5 w-5 text-muted-foreground" />
+                      {/* Cycled by position so a list of rooms reads as a set of distinct places
+                          rather than a column of identical grey tiles. */}
+                      <span className={`tone-tile grid h-11 w-11 shrink-0 place-items-center rounded-[--r-sm] ${toneClass(toneByIndex(roomIndex))}`}>
+                        <RoomIcon className="h-5 w-5" />
                       </span>
                       <div className="min-w-0 flex-1">
                         <input
@@ -250,15 +317,16 @@ export default function CreateHouseholdPage() {
                       <div className="flex flex-wrap gap-2">
                         {suggestions.map((s) => {
                           const SuggestionIcon = ROOM_TYPE_ICONS[s.key] ?? DEFAULT_ROOM_ICON;
+                          // Keyed rather than indexed so a room keeps its colour as the list filters.
                           return (
                           <button
                             key={s.key}
                             type="button"
                             onClick={() => addSuggested(s)}
-                            className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-dashed border-primary/40 bg-primary/5 px-3 py-2 text-sm font-bold text-foreground transition-colors hover:bg-primary/10"
+                            className={`tone-tile inline-flex min-h-11 items-center gap-1.5 rounded-full px-3 py-2 text-sm font-bold ${toneClass(toneByKey(s.key))}`}
                           >
-                            <Plus className="h-3.5 w-3.5 text-primary" />
-                            <SuggestionIcon className="h-4 w-4 text-muted-foreground" />
+                            <Plus className="h-3.5 w-3.5" />
+                            <SuggestionIcon className="h-4 w-4" />
                             {t(`createHousehold.defaultRooms.${s.key}`)}
                           </button>
                           );
@@ -339,12 +407,17 @@ export default function CreateHouseholdPage() {
             </button>
           </div>
         )}
+        </>
+        )}
 
         <button type="button" onClick={goBackToAuth} className="mt-auto pt-8 pb-2 text-center text-sm font-bold text-muted-foreground">
           {t('createHousehold.backToAuth')}
         </button>
       </motion.div>
-      {mode === 'create' && <TourOverlay steps={ONBOARDING_TOUR_STEPS} storageKey="kollekt_onboarding_tour_v2" />}
+      {/* The tour spotlights elements that only exist on the household step. */}
+      {step === 'household' && mode === 'create' && (
+        <TourOverlay steps={ONBOARDING_TOUR_STEPS} storageKey="kollekt_onboarding_tour_v2" />
+      )}
     </div>
   );
 }

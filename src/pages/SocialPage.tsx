@@ -13,7 +13,7 @@ export default function SocialPage() {
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-5 pt-3 pb-6">
       <div>
         <Eyebrow>{t('social.eyebrow')}</Eyebrow>
-        <h2 className="mt-2 font-display text-[2.55rem] leading-[.98] font-extrabold tracking-[-.04em]">
+        <h2 className="mt-2 display-lg">
           {t('social.title')}
         </h2>
       </div>

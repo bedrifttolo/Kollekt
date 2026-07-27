@@ -142,7 +142,7 @@ class TokenServiceTest {
 
         whenever(jwtDecoder.decode("access-token")).doReturn(accessJwt)
 
-        assertThrows<IllegalArgumentException> {
+        assertThrows<InvalidRefreshTokenException> {
             tokenService.rotateRefreshToken("access-token")
         }
     }
@@ -164,7 +164,7 @@ class TokenServiceTest {
         whenever(jwtDecoder.decode("refresh-token")).doReturn(refreshJwt)
         whenever(tokenStoreService.isRefreshTokenActive("jti-456", "Kasper")).doReturn(false)
 
-        assertThrows<IllegalArgumentException> {
+        assertThrows<InvalidRefreshTokenException> {
             tokenService.rotateRefreshToken("refresh-token")
         }
     }
@@ -173,7 +173,7 @@ class TokenServiceTest {
     fun `rotateRefreshToken throws when jwt decode fails`() {
         whenever(jwtDecoder.decode(any())).doAnswer { throw JwtException("bad token") }
 
-        assertThrows<IllegalArgumentException> {
+        assertThrows<InvalidRefreshTokenException> {
             tokenService.rotateRefreshToken("garbage")
         }
     }
