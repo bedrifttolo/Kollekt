@@ -22,6 +22,7 @@ import SnusboksenGame from '../../games/SnusboksenGame';
 import DiceGame from '../../games/DiceGame';
 import LiarsDiceGame from '../../games/LiarsDiceGame';
 import DeckGame from '../../games/DeckGame';
+import { toneByKey, toneClass } from '../../lib/tones';
 
 export default function GamesPanel() {
   const { t } = useTranslation();
@@ -145,7 +146,7 @@ export default function GamesPanel() {
             className={`group card !p-4 text-left flex flex-col gap-3 ${game.playable ? '' : 'opacity-70'}`}
           >
             <div className="flex min-w-0 items-start justify-between gap-2">
-              <span className="min-w-0 truncate rounded-full bg-muted px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
+              <span className={`tone-tile min-w-0 truncate rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-wide ${toneClass(toneByKey(game.category))}`}>
                 {t(`social.games.categories.${game.category}`)}
               </span>
               <div className="flex shrink-0 items-center gap-1">
@@ -164,8 +165,9 @@ export default function GamesPanel() {
               </div>
             </div>
             <div>
-              <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-xl bg-muted">
-                <game.icon className="h-5 w-5 text-muted-foreground" />
+              {/* Keyed on the game id so a tile keeps its colour as the category filter changes. */}
+              <div className={`tone-tile mb-2 flex h-10 w-10 items-center justify-center rounded-[--r-sm] ${toneClass(toneByKey(game.id))}`}>
+                <game.icon className="h-5 w-5" />
               </div>
               <p className="font-display font-extrabold leading-tight">{t(`social.games.catalog.${game.titleKey}`)}</p>
               <p className="mt-1 text-xs leading-snug text-muted-foreground">{t(`social.games.descriptions.${game.descriptionKey}`)}</p>

@@ -31,7 +31,7 @@ export async function initNativeShell(): Promise<void> {
   try {
     await StatusBar.setStyle({ style: Style.Dark });
     if (Capacitor.getPlatform() === 'android') {
-      await StatusBar.setBackgroundColor({ color: '#FFFFFF' });
+      await StatusBar.setBackgroundColor({ color: '#F7F2EC' });
     }
   } catch {
     // Status bar plugin unavailable on this platform; ignore.

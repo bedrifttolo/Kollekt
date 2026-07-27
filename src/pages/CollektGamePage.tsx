@@ -712,7 +712,7 @@ export default function CollektGamePage() {
         )}
         <div>
           <Eyebrow>{t('games.subtitle')}</Eyebrow>
-          <h2 className="font-display text-[2.25rem] leading-none font-extrabold tracking-[-.04em]">{t('kollektGame.title')}</h2>
+          <h2 className="display-md">{t('kollektGame.title')}</h2>
           <p className="text-xs text-muted-foreground">{phaseSubtitle}</p>
         </div>
       </div>

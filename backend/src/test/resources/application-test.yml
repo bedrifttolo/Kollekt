@@ -18,8 +18,6 @@ spring:
 # Minimal app properties so beans can resolve in the test context.
 app:
   frontend-url: http://localhost:5173
-  password-reset:
-    token-validity-seconds: 3600
   security:
     jwt-secret: test-jwt-secret-that-is-at-least-32-characters-long
     token-validity-seconds: 3600

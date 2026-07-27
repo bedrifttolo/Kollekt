@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { api, getAccessToken, logoutSession, deleteNotification, deleteAllNotifications } from '../lib/api';
+import { onAppResume } from '../lib/appLifecycle';
 import { prefetchMainData } from '../lib/prefetch';
 import { connectCollectiveRealtime } from '../lib/realtime';
 import { registerPushNotifications, unregisterPushNotifications } from '../lib/pushNotifications';
@@ -101,6 +102,23 @@ export function UserProvider({ children }: { children: ReactNode }) {
     });
     return () => window.cancelAnimationFrame(frame);
   }, [currentUser?.name]);
+
+  // Coming back from the background refreshes the token (inside onAppResume) and then re-syncs
+  // the state that has no other way to catch up: the user record, and anything the WebSocket
+  // pushed while the socket was down. Query data has its own staleness rules.
+  useEffect(() => {
+    if (!currentUser?.name) return;
+    const name = currentUser.name;
+    return onAppResume(() => {
+      void api.get<AppUser>('/onboarding/me')
+        .then((user) => {
+          setCurrentUserState(user);
+          localStorage.setItem('kollekt-user', JSON.stringify(user));
+        })
+        .catch(() => undefined);
+      fetchNotifications(name);
+    });
+  }, [currentUser?.name, fetchNotifications]);
 
   useEffect(() => {
     if (!currentUser?.name) return;

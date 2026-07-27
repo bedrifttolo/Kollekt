@@ -153,21 +153,20 @@
     },
     "taskAssignmentReasons": {
       "LATE": "Fuldført sent"
-    }
+    },
+    "close": "Luk"
   },
   "errors": {
     "network": "Kunne ikke oprette forbindelse lige nu. Prøv igen om lidt.",
     "sessionExpired": "Din session er udløbet. Log ind igen og prøv på ny.",
+    "rateLimited": "For mange forsøg. Prøv igen om {{seconds}} sek.",
     "forbidden": "Du har ikke adgang til dette lige nu.",
     "notFound": "Det, du leder efter, blev ikke fundet.",
     "invalidCredentials": "Navnet eller adgangskoden passer ikke.",
     "alreadyExists": "Dette findes allerede.",
     "alreadyInCollective": "Du er allerede med i et kollektiv.",
     "invalidJoinCode": "Koden ser ikke rigtig ud. Tjek den og prøv igen.",
-    "generic": "Noget gik galt. Prøv igen.",
-    "invalidEmail": "Angiv en gyldig e-mailadresse.",
-    "passwordTooShort": "Adgangskoden skal være mindst 8 tegn.",
-    "passwordsMismatch": "Adgangskoderne stemmer ikke overens."
+    "generic": "Noget gik galt. Prøv igen."
   },
   "header": {
     "pageTitles": {
@@ -204,65 +203,21 @@
     "games": "Spil"
   },
   "auth": {
-    "loginTab": "Log ind",
-    "signUpTab": "Tilmeld",
-    "fullName": "Fulde navn",
-    "username": "Brugernavn",
-    "identifier": "E-mail eller brugernavn",
-    "emailAddress": "E-mailadresse",
-    "password": "Adgangskode",
-    "logIn": "Log ind",
-    "createAccount": "Opret konto",
     "pleaseWait": "Vent lidt...",
     "wakingServer": "Vækker serveren — det kan tage op til et minut…",
-    "inviteHint": "Har du fået en invitation på e-mail? Tjek indbakken for et link, der lader dig blive medlem automatisk.",
-    "showPassword": "Vis adgangskode",
-    "hidePassword": "Skjul adgangskode",
-    "continueWith": "eller fortsæt med",
-    "google": "Google",
-    "apple": "Apple",
     "tagline": "Kollektivliv, forenklet",
     "taglineSub": "lavet af studerende, for studerende",
     "headingLead": "Velkommen",
     "headingMark": "hjem.",
-    "forgotPassword": "Glemt adgangskode?",
-    "buildLabel": "Ny build · v0.1",
-    "labels": {
-      "name": "Navn",
-      "email": "E-mail",
-      "password": "Adgangskode",
-      "confirmPassword": "Bekræft adgangskode",
-      "usernameOrEmail": "Brugernavn eller e-mail"
-    },
-    "placeholders": {
-      "name": "Dit navn",
-      "email": "dig@epost.dk",
-      "password": "Din adgangskode",
-      "newPassword": "Gør den stærk",
-      "confirmPassword": "Gentag adgangskoden",
-      "usernameOrEmail": "Brugernavn eller e-mail"
-    },
     "terms": {
-      "prefix": "Ved at blive medlem accepterer du husreglerne og",
-      "link": "vilkårene"
+      "prefix": "Ved at fortsætte accepterer du vores",
+      "terms": "brugsvilkår",
+      "and": "og",
+      "privacy": "privatlivspolitik"
     },
-    "forgot": {
-      "headingLead": "Nulstil",
-      "headingMark": "adgang.",
-      "subtitle": "Indtast din e-mail, så sender vi dig et link til nulstilling.",
-      "submit": "Send link",
-      "sent": "Hvis der findes en konto for den e-mail, er et link på vej.",
-      "backToLogin": "Tilbage til login"
-    },
-    "reset": {
-      "headingLead": "Ny",
-      "headingMark": "adgangskode.",
-      "subtitle": "Vælg en ny adgangskode til din konto.",
-      "submit": "Opdater adgangskode",
-      "success": "Adgangskoden er opdateret. Du kan logge ind nu.",
-      "invalidToken": "Dette link er ugyldigt eller udløbet.",
-      "backToLogin": "Tilbage til login"
-    }
+    "continueWith_apple": "Fortsæt med Apple",
+    "continueWith_google": "Fortsæt med Google",
+    "noProviders": "Login er ikke konfigureret i denne version. Kontakt support."
   },
   "createHousehold": {
     "headingPre": "Sæt op",
@@ -307,7 +262,16 @@
     "errors": {
       "addRoom": "Tilføj mindst ét rum",
       "createFailure": "Kunne ikke oprette kollektiv",
-      "joinFailure": "Kunne ikke blive medlem af kollektivet"
+      "joinFailure": "Kunne ikke blive medlem af kollektivet",
+      "nameRequired": "Indtast et navn.",
+      "nameFailure": "Kunne ikke gemme navnet. Prøv et andet."
+    },
+    "nameStep": {
+      "heading": "Hvad skal vi kalde dig?",
+      "subtitle": "Det er navnet kollektivet ser på opgaver, udgifter og i chatten. Du kan ikke ændre det, når du er blevet en del af et kollektiv.",
+      "label": "Visningsnavn",
+      "placeholder": "Dit navn",
+      "continue": "Fortsæt"
     }
   },
   "dashboard": {
@@ -450,12 +414,12 @@
       "priorityLabel": "Prioritet",
       "assigneeLabel": "Ansvarlig (valgfrit)",
       "dueDateLabel": "Frist (valgfrit)",
-      "costLabel": "Anslået pris (valgfrit)",
+      "costLaterHint": "Ingen pris endnu — du indtaster hvad det kostede, når du markerer den som repareret, og så deles den.",
       "titlePlaceholder": "Hvad skal repareres?",
       "descriptionPlaceholder": "Beskriv problemet...",
-      "costPlaceholder": "Prisoverslag (kr)",
+      "costPlaceholder": "Betalt beløb (kr)",
       "splitLabel": "Del udgiften med",
-      "splitHint": "Når sagen er fuldført, deles udgiften mellem disse på økonomisiden.",
+      "splitHint": "Beløbet deles mellem disse og føjes til økonomisiden.",
       "completeTitle": "Fuldfør sag",
       "completeSubtitle": "Indtast den endelige pris for “{{title}}”. Hvis det kostede penge, vælg hvem der deler den.",
       "actualCostLabel": "Endelig pris (kr)",
@@ -481,7 +445,8 @@
         "BLOCKED": "Blokeret",
         "DONE": "Færdig"
       }
-    }
+    },
+    "moreOptions": "Flere valg"
   },
   "checkin": {
     "title": "Ugentligt hustjek",
@@ -616,7 +581,15 @@
       "fire": "Ild",
       "sad": "Trist",
       "dislike": "Synes ikke om"
-    }
+    },
+    "background": {
+      "label": "Baggrund",
+      "change": "Skift baggrund",
+      "remove": "Fjern baggrund"
+    },
+    "today": "I dag",
+    "yesterday": "I går",
+    "newDivider": "Ny"
   },
   "economy": {
     "title": "Økonomi",
@@ -660,9 +633,22 @@
       "appNotInstalled": "Appen er ikke installeret — oplysningerne blev kopieret, så du kan betale på en anden måde.",
       "copy": "Kopiér",
       "noMethods": "Ingen betalingsmetode er gemt. Betal på en anden måde, I har aftalt, og bekræft derefter nedenfor.",
-      "acknowledge": "Jeg har fuldført betalingen uden for Kollekt og forstår, at Kollekt ikke kan bekræfte overførslen.",
       "markSettled": "Markér som gjort op i Kollekt",
-      "disclaimer": "Kollekt gemmer modtageroplysninger og åbner kun eksterne betalingsapps. Kollekt behandler, starter, opbevarer eller bekræfter ikke pengeoverførsler."
+      "disclaimer": "Kollekt gemmer modtageroplysninger og åbner kun eksterne betalingsapps. Kollekt behandler, starter, opbevarer eller bekræfter ikke pengeoverførsler.",
+      "didYouPay": "Betalte du {{name}}?",
+      "notYet": "Ikke endnu"
+    },
+    "stats": {
+      "monthTotal": "I alt denne måned",
+      "yourShare": "Din andel {{amount}}",
+      "emptyMonth": "Ingen udgifter denne måned.",
+      "previousMonth": "Forrige måned",
+      "nextMonth": "Næste måned",
+      "monthsLabel": "Forbrug pr. måned"
+    },
+    "setupPayment": {
+      "title": "Ingen kan betale dig tilbage endnu",
+      "body": "Tilføj MobilePay-nummer eller kontonummer, så kollektivet kan gøre op."
     }
   },
   "pant": {
@@ -1514,7 +1500,8 @@
             "placeholder": "Hvilken kategori vil du teste rummet med?"
           }
         }
-      }
+      },
+      "restart": "Start forfra"
     }
   },
   "leaderboard": {
@@ -1949,14 +1936,6 @@
       "send": "Send invitation",
       "sent": "Invitation sendt!"
     },
-    "resetPassword": {
-      "title": "Nulstil adgangskode",
-      "subtitle": "Opdater adgangskoden til din konto",
-      "newPassword": "Ny adgangskode",
-      "confirmPassword": "Bekræft adgangskode",
-      "update": "Opdater adgangskode",
-      "updated": "Adgangskode opdateret!"
-    },
     "friends": {
       "title": "Venner",
       "subtitle": "Venner du kan invitere til spil og aktiviteter.",
@@ -1983,9 +1962,6 @@
       "quietHoursSaved": "Stilletid gemt"
     },
     "errors": {
-      "passwordTooShort": "Adgangskoden skal være mindst 8 tegn",
-      "passwordsMismatch": "Adgangskoderne er ikke ens",
-      "passwordUpdateFailed": "Kunne ikke opdatere adgangskoden",
       "addFriendFailed": "Kunne ikke tilføje ven",
       "removeFriendFailed": "Kunne ikke fjerne ven",
       "statusUpdateFailed": "Kunne ikke opdatere status",

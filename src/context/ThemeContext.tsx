@@ -12,8 +12,10 @@ function initialTheme(): Theme {
   return 'light';
 }
 
-const STATUS_BAR_COLOR: Record<Theme, string> = {
-  light: '#FFFFFF',
+/** Each theme's page background, mirroring --background in globals.css. Drives the native status
+ *  bar and the browser chrome, both of which sit flush against the top of the page. */
+const THEME_SURFACE: Record<Theme, string> = {
+  light: '#F7F2EC',
   dark: '#060A09',
   pink: '#FDEEF4',
 };
@@ -26,9 +28,19 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     root.classList.toggle('dark', theme === 'dark');
     root.classList.toggle('pink', theme === 'pink');
     localStorage.setItem('kollekt-theme', theme);
+    // index.html ships a static <meta name="theme-color"> for the first paint; from here on the
+    // selected theme owns it, so PWA/browser chrome doesn't stay white behind a dark app.
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', THEME_SURFACE[theme]);
     if (!Capacitor.isNativePlatform()) return;
     void StatusBar.setStyle({ style: theme === 'dark' ? Style.Light : Style.Dark }).catch(() => {});
-    void StatusBar.setBackgroundColor({ color: STATUS_BAR_COLOR[theme] }).catch(() => {});
+    void StatusBar.setBackgroundColor({ color: THEME_SURFACE[theme] }).catch(() => {});
+    // Match the on-screen keyboard to the theme. iOS only exposes light/dark/default appearance —
+    // it cannot be tinted cream or pink — so this matches the theme's polarity, which is what
+    // stops a white keyboard slamming up under the dark chat.
+    void import('@capacitor/keyboard')
+      .then(({ Keyboard, KeyboardStyle }) =>
+        Keyboard.setStyle({ style: theme === 'dark' ? KeyboardStyle.Dark : KeyboardStyle.Light }))
+      .catch(() => {});
   }, [theme]);
 
   const value = useMemo(() => ({ theme, setTheme }), [theme]);

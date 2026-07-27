@@ -2,7 +2,6 @@
 package com.kollekt.api
 
 import com.kollekt.api.dto.UserDto
-import com.kollekt.service.AccountOperations
 import com.kollekt.service.CollectiveOperations
 import com.kollekt.service.MemberOperations
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -21,7 +20,6 @@ import org.springframework.web.bind.annotation.RestController
 class MemberController(
     private val memberOperations: MemberOperations,
     private val collectiveOperations: CollectiveOperations,
-    private val accountOperations: AccountOperations,
 ) {
     data class InviteRequest(
         val email: String,
@@ -115,18 +113,6 @@ class MemberController(
     ): List<UserDto> {
         requireTokenSubject(jwt, memberName)
         return memberOperations.getCollectiveMembers(memberName)
-    }
-
-    @PatchMapping("/reset-password")
-    fun resetPassword(
-        @RequestParam memberName: String,
-        @RequestBody body: Map<String, String>,
-        @AuthenticationPrincipal jwt: Jwt,
-    ) {
-        requireTokenSubject(jwt, memberName)
-        val newPassword = body["newPassword"] ?: throw IllegalArgumentException("Missing newPassword")
-        if (newPassword.length < 8) throw IllegalArgumentException("Password must be at least 8 characters")
-        accountOperations.resetPassword(memberName, newPassword)
     }
 
     @DeleteMapping("/delete")

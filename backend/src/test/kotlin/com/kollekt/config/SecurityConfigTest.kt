@@ -3,12 +3,10 @@ package com.kollekt.config
 import com.kollekt.api.OnboardingController
 import com.kollekt.api.TaskController
 import com.kollekt.api.dto.AuthResponse
-import com.kollekt.api.dto.LoginRequest
 import com.kollekt.api.dto.SocialLoginRequest
 import com.kollekt.api.dto.UserDto
 import com.kollekt.service.AccountOperations
 import com.kollekt.service.CollectiveOperations
-import com.kollekt.service.PasswordResetService
 import com.kollekt.service.ShoppingOperations
 import com.kollekt.service.SocialAuthService
 import com.kollekt.service.TaskOperations
@@ -25,7 +23,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.context.annotation.Import
 import org.springframework.http.MediaType
 import org.springframework.mock.web.MockHttpServletRequest
-import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm
 import org.springframework.security.oauth2.jwt.JwsHeader
 import org.springframework.security.oauth2.jwt.JwtClaimsSet
@@ -59,46 +56,17 @@ class SecurityConfigTest {
 
     @Autowired lateinit var jwtDecoder: JwtDecoder
 
-    @Autowired lateinit var passwordEncoder: PasswordEncoder
-
     @MockitoBean lateinit var accountOperations: AccountOperations
 
     @MockitoBean lateinit var collectiveOperations: CollectiveOperations
 
     @MockitoBean lateinit var socialAuthService: SocialAuthService
 
-    @MockitoBean lateinit var passwordResetService: PasswordResetService
-
     @MockitoBean lateinit var taskOperations: TaskOperations
 
     @MockitoBean lateinit var shoppingOperations: ShoppingOperations
 
     @MockitoBean lateinit var tokenStoreService: TokenStoreService
-
-    @Test
-    fun `security config allows onboarding login without authentication`() {
-        val request = LoginRequest(name = "Kasper", password = "verysecure")
-        whenever(accountOperations.login(request))
-            .thenReturn(
-                AuthResponse(
-                    accessToken = "access-token",
-                    refreshToken = "refresh-token",
-                    tokenType = "Bearer",
-                    expiresIn = 3600,
-                    user = UserDto(id = 1, name = "Kasper", collectiveCode = null),
-                ),
-            )
-
-        mockMvc
-            .perform(
-                post("/api/onboarding/login")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .with(csrf())
-                    .content("""{"name":"Kasper","password":"verysecure"}"""),
-            ).andExpect(status().isOk)
-
-        verify(accountOperations).login(request)
-    }
 
     @Test
     fun `security config allows verified provider exchange without authentication`() {
@@ -178,12 +146,5 @@ class SecurityConfigTest {
         val decoded = jwtDecoder.decode(encoded.tokenValue)
 
         assertEquals("Kasper", decoded.subject)
-    }
-
-    @Test
-    fun `password encoder hashes and verifies passwords`() {
-        val encoded = passwordEncoder.encode("verysecure")
-
-        assertTrue(passwordEncoder.matches("verysecure", encoded))
     }
 }

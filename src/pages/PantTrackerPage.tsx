@@ -164,7 +164,7 @@ export default function PantTrackerPage() {
         </button>
         <div>
           <Eyebrow>{t("pant.eyebrow")}</Eyebrow>
-          <h2 className="font-display text-[2.25rem] leading-none font-extrabold tracking-[-.04em]">{t("pant.title")}</h2>
+          <h2 className="display-md">{t("pant.title")}</h2>
           <p className="text-xs text-muted-foreground">
             {t("pant.subtitle", { goal: formatCurrency(goal) })}
           </p>

@@ -153,21 +153,20 @@
     },
     "taskAssignmentReasons": {
       "LATE": "Fullført sent"
-    }
+    },
+    "close": "Lukk"
   },
   "errors": {
     "network": "Kunne ikke koble til akkurat nå. Prøv igjen om litt.",
     "sessionExpired": "Økten din har gått ut. Logg inn på nytt og prøv igjen.",
+    "rateLimited": "For mange forsøk. Prøv igjen om {{seconds}} sek.",
     "forbidden": "Du har ikke tilgang til dette akkurat nå.",
     "notFound": "Det du leter etter ble ikke funnet.",
     "invalidCredentials": "Navnet eller passordet ditt stemmer ikke.",
     "alreadyExists": "Dette finnes allerede.",
     "alreadyInCollective": "Du er allerede med i et kollektiv.",
     "invalidJoinCode": "Koden ser ikke riktig ut. Sjekk den og prøv igjen.",
-    "generic": "Noe gikk galt. Prøv igjen.",
-    "invalidEmail": "Skriv inn en gyldig e-postadresse.",
-    "passwordTooShort": "Passordet må være minst 8 tegn.",
-    "passwordsMismatch": "Passordene stemmer ikke overens."
+    "generic": "Noe gikk galt. Prøv igjen."
   },
   "header": {
     "pageTitles": {
@@ -204,65 +203,21 @@
     "games": "Spill"
   },
   "auth": {
-    "loginTab": "Logg inn",
-    "signUpTab": "Registrer",
-    "fullName": "Fullt navn",
-    "username": "Brukernavn",
-    "identifier": "E-post eller brukernavn",
-    "emailAddress": "E-postadresse",
-    "password": "Passord",
-    "logIn": "Logg inn",
-    "createAccount": "Opprett konto",
     "pleaseWait": "Vent litt...",
     "wakingServer": "Vekker serveren — dette kan ta opptil ett minutt…",
-    "inviteHint": "Har du fått en invitasjon på e-post? Sjekk innboksen for en lenke som lar deg bli med automatisk.",
-    "showPassword": "Vis passord",
-    "hidePassword": "Skjul passord",
-    "continueWith": "eller fortsett med",
-    "google": "Google",
-    "apple": "Apple",
     "tagline": "Kollektivliv, forenklet",
     "taglineSub": "laget av studenter, for studenter",
     "headingLead": "Velkommen",
     "headingMark": "hjem.",
-    "forgotPassword": "Glemt passord?",
-    "buildLabel": "Ny build · v0.1",
-    "labels": {
-      "name": "Navn",
-      "email": "E-post",
-      "password": "Passord",
-      "confirmPassword": "Bekreft passord",
-      "usernameOrEmail": "Brukernavn eller e-post"
-    },
-    "placeholders": {
-      "name": "Navnet ditt",
-      "email": "deg@epost.no",
-      "password": "Passordet ditt",
-      "newPassword": "Gjør det godt",
-      "confirmPassword": "Gjenta passordet",
-      "usernameOrEmail": "Brukernavn eller e-post"
-    },
     "terms": {
-      "prefix": "Ved å bli med godtar du husreglene og",
-      "link": "vilkårene"
+      "prefix": "Ved å fortsette godtar du våre",
+      "terms": "vilkår for bruk",
+      "and": "og",
+      "privacy": "personvernerklæring"
     },
-    "forgot": {
-      "headingLead": "Tilbakestill",
-      "headingMark": "tilgang.",
-      "subtitle": "Skriv inn e-posten din, så sender vi deg en lenke for tilbakestilling.",
-      "submit": "Send lenke",
-      "sent": "Hvis det finnes en konto for den e-posten, er en lenke på vei.",
-      "backToLogin": "Tilbake til innlogging"
-    },
-    "reset": {
-      "headingLead": "Nytt",
-      "headingMark": "passord.",
-      "subtitle": "Velg et nytt passord for kontoen din.",
-      "submit": "Oppdater passord",
-      "success": "Passordet er oppdatert. Du kan logge inn nå.",
-      "invalidToken": "Denne lenken er ugyldig eller utløpt.",
-      "backToLogin": "Tilbake til innlogging"
-    }
+    "continueWith_apple": "Fortsett med Apple",
+    "continueWith_google": "Fortsett med Google",
+    "noProviders": "Innlogging er ikke satt opp i denne versjonen. Ta kontakt med support."
   },
   "createHousehold": {
     "headingPre": "Sett opp",
@@ -307,7 +262,16 @@
     "errors": {
       "addRoom": "Legg til minst ett rom",
       "createFailure": "Kunne ikke opprette kollektiv",
-      "joinFailure": "Kunne ikke bli med i kollektivet"
+      "joinFailure": "Kunne ikke bli med i kollektivet",
+      "nameRequired": "Skriv inn et navn.",
+      "nameFailure": "Klarte ikke å lagre navnet. Prøv et annet."
+    },
+    "nameStep": {
+      "heading": "Hva skal vi kalle deg?",
+      "subtitle": "Dette er navnet kollektivet ser på oppgaver, utgifter og i chatten. Du kan ikke endre det etter at du har blitt med i et kollektiv.",
+      "label": "Visningsnavn",
+      "placeholder": "Navnet ditt",
+      "continue": "Fortsett"
     }
   },
   "dashboard": {
@@ -450,12 +414,12 @@
       "priorityLabel": "Prioritet",
       "assigneeLabel": "Ansvarlig (valgfritt)",
       "dueDateLabel": "Frist (valgfritt)",
-      "costLabel": "Estimert kostnad (valgfritt)",
+      "costLaterHint": "Ingen pris ennå — du legger inn hva det kostet når du merker den som reparert, og da deles den.",
       "titlePlaceholder": "Hva må fikses?",
       "descriptionPlaceholder": "Beskriv problemet...",
-      "costPlaceholder": "Kostnadsanslag (kr)",
+      "costPlaceholder": "Beløp betalt (kr)",
       "splitLabel": "Del kostnaden med",
-      "splitHint": "Når oppgaven er fullført, deles kostnaden mellom disse på økonomisiden.",
+      "splitHint": "Beløpet deles mellom disse og legges til på økonomisiden.",
       "completeTitle": "Fullfør oppgave",
       "completeSubtitle": "Skriv inn faktisk kostnad for «{{title}}». Hvis det kostet penger, velg hvem som deler den.",
       "actualCostLabel": "Faktisk kostnad (kr)",
@@ -481,7 +445,8 @@
         "BLOCKED": "Blokkert",
         "DONE": "Ferdig"
       }
-    }
+    },
+    "moreOptions": "Flere valg"
   },
   "checkin": {
     "title": "Ukentlig husmøte",
@@ -616,7 +581,15 @@
       "fire": "Fyr",
       "sad": "Trist",
       "dislike": "Liker ikke"
-    }
+    },
+    "background": {
+      "label": "Bakgrunn",
+      "change": "Bytt bakgrunn",
+      "remove": "Fjern bakgrunn"
+    },
+    "today": "I dag",
+    "yesterday": "I går",
+    "newDivider": "Ny"
   },
   "economy": {
     "title": "Økonomi",
@@ -660,9 +633,22 @@
       "appNotInstalled": "Appen er ikke installert — detaljene ble kopiert, så du kan betale på en annen måte.",
       "copy": "Kopier",
       "noMethods": "Ingen betalingsmetode er lagret. Betal på en annen måte dere har avtalt, og bekreft deretter nedenfor.",
-      "acknowledge": "Jeg har fullført betalingen utenfor Kollekt og forstår at Kollekt ikke kan bekrefte overføringen.",
       "markSettled": "Marker som gjort opp i Kollekt",
-      "disclaimer": "Kollekt lagrer mottaksinfo og åpner eksterne betalingsapper. Kollekt behandler, starter, oppbevarer eller bekrefter ikke pengeoverføringer."
+      "disclaimer": "Kollekt lagrer mottaksinfo og åpner eksterne betalingsapper. Kollekt behandler, starter, oppbevarer eller bekrefter ikke pengeoverføringer.",
+      "didYouPay": "Betalte du {{name}}?",
+      "notYet": "Ikke ennå"
+    },
+    "stats": {
+      "monthTotal": "Totalt denne måneden",
+      "yourShare": "Din andel {{amount}}",
+      "emptyMonth": "Ingen utgifter denne måneden.",
+      "previousMonth": "Forrige måned",
+      "nextMonth": "Neste måned",
+      "monthsLabel": "Forbruk per måned"
+    },
+    "setupPayment": {
+      "title": "Ingen kan betale deg tilbake ennå",
+      "body": "Legg til Vipps-nummer eller kontonummer så kollektivet kan gjøre opp."
     }
   },
   "pant": {
@@ -1514,7 +1500,8 @@
             "placeholder": "Hvilken kategori vil du teste rommet med?"
           }
         }
-      }
+      },
+      "restart": "Start på nytt"
     }
   },
   "leaderboard": {
@@ -1949,14 +1936,6 @@
       "send": "Send invitasjon",
       "sent": "Invitasjon sendt!"
     },
-    "resetPassword": {
-      "title": "Tilbakestill passord",
-      "subtitle": "Oppdater passordet til kontoen din",
-      "newPassword": "Nytt passord",
-      "confirmPassword": "Bekreft passord",
-      "update": "Oppdater passord",
-      "updated": "Passord oppdatert!"
-    },
     "friends": {
       "title": "Venner",
       "subtitle": "Venner du kan invitere til spill og aktiviteter.",
@@ -1983,9 +1962,6 @@
       "quietHoursSaved": "Stilletimer lagret"
     },
     "errors": {
-      "passwordTooShort": "Passordet må være minst 8 tegn",
-      "passwordsMismatch": "Passordene er ikke like",
-      "passwordUpdateFailed": "Kunne ikke oppdatere passordet",
       "addFriendFailed": "Kunne ikke legge til venn",
       "removeFriendFailed": "Kunne ikke fjerne venn",
       "statusUpdateFailed": "Kunne ikke oppdatere status",

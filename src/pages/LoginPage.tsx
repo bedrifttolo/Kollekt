@@ -5,36 +5,19 @@ import { useTranslation } from 'react-i18next';
 import { api, getUserMessage, setAccessToken, setRefreshToken } from '../lib/api';
 import { useUser } from '../context/UserContext';
 import type { AuthResponse, AppUser, Invitation } from '../lib/types';
-import { BrandMark, Field } from '../components/ui-kit';
+import { AppleMark, BrandMark, GoogleMark } from '../components/ui-kit';
+import { PRIVACY_URL, TERMS_URL } from '../lib/legalLinks';
 import { getSocialIdentity, getSocialProviders, type SocialProvider } from '../lib/socialAuth';
-
-type Mode = 'login' | 'register' | 'forgot';
 
 export default function LoginPage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { setCurrentUser } = useUser();
 
-  const [mode, setMode] = useState<Mode>('login');
-  const [loginName, setLoginName] = useState('');
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [forgotEmail, setForgotEmail] = useState('');
-  const [forgotSent, setForgotSent] = useState(false);
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
   const [waking, setWaking] = useState(false);
   const [socialLoading, setSocialLoading] = useState<SocialProvider | null>(null);
   const socialProviders = getSocialProviders();
-
-  const switchMode = (next: Mode) => {
-    setMode(next);
-    setError('');
-    setForgotSent(false);
-    setConfirmPassword('');
-  };
 
   const tryJoinFromInvitation = async (user: AppUser) => {
     if (user.collectiveCode) return user;
@@ -52,48 +35,22 @@ export default function LoginPage() {
 
   const completeAuth = async (res: AuthResponse) => {
     await Promise.all([setAccessToken(res.accessToken), setRefreshToken(res.refreshToken)]);
-    const userWithInvite = await tryJoinFromInvitation(res.user);
-    setCurrentUser(userWithInvite);
-    navigate(userWithInvite.collectiveCode ? '/' : '/create-household', { replace: true });
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
-    const slowTimer = setTimeout(() => setWaking(true), 4000);
+    // Auto-joining a pending invitation is a convenience, not part of signing in. Letting it
+    // throw here used to abandon an already-successful login before setCurrentUser/navigate ran,
+    // stranding the user on this screen with an error while their tokens were already stored —
+    // and it ran for everyone without a collective, i.e. every freshly registered account.
+    let user = res.user;
     try {
-      if (mode === 'login') {
-        const res = await api.post<AuthResponse>('/onboarding/login', { name: loginName, password });
-        await completeAuth(res);
-      } else if (mode === 'register') {
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim())) {
-          setError(t('errors.invalidEmail'));
-          return;
-        }
-        if (password.length < 8) {
-          setError(t('errors.passwordTooShort'));
-          return;
-        }
-        if (password !== confirmPassword) {
-          setError(t('errors.passwordsMismatch'));
-          return;
-        }
-        const res = await api.post<AuthResponse>('/onboarding/users', { name, email: email.trim(), password });
-        await completeAuth(res);
-      } else {
-        await api.post('/onboarding/password-reset/request', { email: forgotEmail });
-        setForgotSent(true);
-      }
-    } catch (err: unknown) {
-      setError(getUserMessage(err, t('errors.generic')));
-    } finally {
-      clearTimeout(slowTimer);
-      setWaking(false);
-      setLoading(false);
+      user = await tryJoinFromInvitation(res.user);
+    } catch {
+      // Fall through with the signed-in user; they can join from the household screen instead.
     }
+    setCurrentUser(user);
+    navigate(user.collectiveCode ? '/' : '/create-household', { replace: true });
   };
 
+  // Signing up and signing in are the same call: the backend links the social identity to an
+  // existing member by email and creates one otherwise, so this screen needs no separate register.
   const handleSocialLogin = async (provider: SocialProvider) => {
     setError('');
     setSocialLoading(provider);
@@ -111,213 +68,82 @@ export default function LoginPage() {
     }
   };
 
-  const isForgot = mode === 'forgot';
+  const busy = socialLoading !== null;
 
   return (
     <div className="app-viewport bg-background flex flex-col px-6 safe-top safe-bottom">
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-sm mx-auto flex flex-1 flex-col pt-8"
+        className="mx-auto flex w-full max-w-sm flex-1 flex-col"
       >
-        <div className="flex items-center gap-2.5">
-          <BrandMark className="h-7 w-7 text-primary dark:text-foreground" />
-          <span className="font-display text-2xl font-extrabold text-primary dark:text-secondary">Kollekt</span>
-        </div>
+        {/* items-center would size each child to its content, which stops the long headline from
+            wrapping and overflows the viewport — hence w-full on everything textual below. */}
+        <div className="flex flex-1 flex-col items-center justify-center text-center">
+          <BrandMark className="h-14 w-14 text-primary" />
+          <p className="mt-3 font-display text-2xl font-extrabold tracking-[-.03em]">{t('app.name')}</p>
 
-        <div className="mt-7">
-          <h1 className="font-display text-[2.75rem] leading-[.96] font-extrabold tracking-[-.05em]">
-            {isForgot ? (
-              <>{t('auth.forgot.headingLead')} <span className="mark">{t('auth.forgot.headingMark')}</span></>
-            ) : (
-              <>{t('auth.headingLead')} <span className="mark">{t('auth.headingMark')}</span></>
-            )}
+          {/* No .mark highlighter here: at display-xl's tight leading the bar covers the lower half
+              of the glyphs, and dark text on the indigo wash is hard to read. The reference is
+              plain type anyway. */}
+          <h1 className="mt-9 w-full text-balance display-xl">
+            {t('auth.headingLead')} {t('auth.headingMark')}
           </h1>
-          {isForgot ? (
-            <p className="mt-3 text-base text-muted-foreground">{t('auth.forgot.subtitle')}</p>
-          ) : (
-            <div className="mt-3">
-              <p className="font-display text-xl font-extrabold tracking-[-.02em] text-foreground">
-                {t('auth.tagline')}
-                <sup className="ml-0.5 align-top text-[0.55em] font-bold text-primary dark:text-secondary">™</sup>
-              </p>
-              <p className="mt-1.5 text-[0.7rem] font-bold uppercase tracking-[0.18em] text-muted-foreground">
-                {t('auth.taglineSub')}
-              </p>
-            </div>
-          )}
+          <p className="mt-4 w-full font-display text-xl font-extrabold tracking-[-.02em]">
+            {t('auth.tagline')}
+          </p>
+          <p className="mt-1.5 w-full text-[0.7rem] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+            {t('auth.taglineSub')}
+          </p>
         </div>
 
-        {!isForgot && (
-          <div className="seg mt-6">
-            {(['login', 'register'] as const).map((m) => (
+        <div className="w-full space-y-3 pb-6">
+          {error && <p className="text-center text-sm text-destructive">{error}</p>}
+          {waking && !error && (
+            <p className="text-center text-sm text-muted-foreground">{t('auth.wakingServer')}</p>
+          )}
+
+          {socialProviders.length === 0 ? (
+            // With email/password gone, no configured provider means there is no way into the app
+            // at all. Say so plainly instead of rendering a screen with no way forward.
+            <p className="text-center text-sm text-destructive">{t('auth.noProviders')}</p>
+          ) : (
+            socialProviders.map((provider) => (
               <button
-                key={m}
+                key={provider}
                 type="button"
-                onClick={() => switchMode(m)}
-                className={`flex-1 py-2.5 rounded-[.85rem] text-sm font-bold transition-all ${
-                  mode === m ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'
+                disabled={busy}
+                onClick={() => void handleSocialLogin(provider)}
+                className={`w-full font-bold disabled:opacity-60 ${
+                  // Apple's guidelines want a black button on a light background and a white one on
+                  // dark — which is exactly the theme's foreground/background pair, inverted.
+                  provider === 'apple' ? 'btn-pine !bg-foreground !text-background' : 'btn-ghost'
                 }`}
               >
-                {m === 'login' ? t('auth.loginTab') : t('auth.signUpTab')}
+                {socialLoading === provider ? (
+                  t('auth.pleaseWait')
+                ) : (
+                  <>
+                    {provider === 'apple' ? <AppleMark className="h-5 w-5" /> : <GoogleMark className="h-5 w-5" />}
+                    {t(`auth.continueWith_${provider}`)}
+                  </>
+                )}
               </button>
-            ))}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="mt-4 space-y-3">
-          {mode === 'register' && (
-            <Field
-              label={t('auth.labels.name')}
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder={t('auth.placeholders.name')}
-              autoComplete="name"
-              required
-            />
+            ))
           )}
 
-          {mode === 'login' && (
-            <Field
-              label={t('auth.labels.usernameOrEmail')}
-              value={loginName}
-              onChange={(e) => setLoginName(e.target.value)}
-              placeholder={t('auth.placeholders.usernameOrEmail')}
-              autoComplete="username"
-              required
-            />
-          )}
-
-          {mode === 'register' && (
-            <Field
-              label={t('auth.labels.email')}
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder={t('auth.placeholders.email')}
-              autoComplete="email"
-              required
-            />
-          )}
-
-          {isForgot && (
-            <Field
-              label={t('auth.labels.email')}
-              type="email"
-              value={forgotEmail}
-              onChange={(e) => setForgotEmail(e.target.value)}
-              placeholder={t('auth.placeholders.email')}
-              autoComplete="email"
-              required
-            />
-          )}
-
-          {!isForgot && (
-            <Field
-              label={t('auth.labels.password')}
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder={mode === 'register' ? t('auth.placeholders.newPassword') : t('auth.placeholders.password')}
-              autoComplete={mode === 'register' ? 'new-password' : 'current-password'}
-              required
-              {...(mode === 'register' ? { minLength: 8 } : {})}
-            />
-          )}
-          {mode === 'register' && (
-            <Field
-              label={t('auth.labels.confirmPassword')}
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder={t('auth.placeholders.confirmPassword')}
-              autoComplete="new-password"
-              required
-              minLength={8}
-            />
-          )}
-
-          {mode === 'login' && (
-            <div className="flex justify-end">
-              <button
-                type="button"
-                onClick={() => switchMode('forgot')}
-                className="text-sm font-bold text-primary dark:text-secondary"
-              >
-                {t('auth.forgotPassword')}
-              </button>
-            </div>
-          )}
-
-          {forgotSent && (
-            <p className="text-sm text-primary dark:text-secondary text-center">{t('auth.forgot.sent')}</p>
-          )}
-
-          {error && <p className="text-sm text-destructive text-center">{error}</p>}
-
-          {waking && !error && (
-            <p className="text-sm text-muted-foreground text-center">
-              {t('auth.wakingServer', 'Waking up the server — this can take up to a minute…')}
-            </p>
-          )}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className={`w-full font-bold disabled:opacity-60 ${mode === 'register' ? 'btn-lemon' : 'btn-pine'}`}
-          >
-            {loading
-              ? t('auth.pleaseWait')
-              : isForgot
-                ? t('auth.forgot.submit')
-                : mode === 'login'
-                  ? t('auth.logIn')
-                  : t('auth.createAccount')}
-          </button>
-        </form>
-
-        {mode === 'login' && socialProviders.length > 0 && (
-          <div className="mt-5 space-y-3">
-            <div className="flex items-center gap-3 text-xs text-muted-foreground">
-              <span className="h-px flex-1 bg-border" />
-              {t('auth.continueWith')}
-              <span className="h-px flex-1 bg-border" />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              {socialProviders.map((provider) => (
-                <button
-                  key={provider}
-                  type="button"
-                  disabled={socialLoading !== null}
-                  onClick={() => void handleSocialLogin(provider)}
-                  className="btn-ghost font-bold disabled:opacity-60"
-                >
-                  {socialLoading === provider ? t('auth.pleaseWait') : t(`auth.${provider}`)}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {mode === 'register' && (
-          <p className="mt-5 text-center text-sm text-muted-foreground">
+          <p className="px-2 pt-1 text-center text-xs leading-relaxed text-muted-foreground">
             {t('auth.terms.prefix')}{' '}
-            <span className="font-bold text-primary dark:text-secondary">{t('auth.terms.link')}</span>.
+            <a href={TERMS_URL} target="_blank" rel="noreferrer" className="font-bold text-primary underline-offset-2 hover:underline dark:text-secondary">
+              {t('auth.terms.terms')}
+            </a>{' '}
+            {t('auth.terms.and')}{' '}
+            <a href={PRIVACY_URL} target="_blank" rel="noreferrer" className="font-bold text-primary underline-offset-2 hover:underline dark:text-secondary">
+              {t('auth.terms.privacy')}
+            </a>
+            .
           </p>
-        )}
-
-        {isForgot && (
-          <button
-            type="button"
-            onClick={() => switchMode('login')}
-            className="mt-5 text-center text-sm font-bold text-muted-foreground"
-          >
-            {t('auth.forgot.backToLogin')}
-          </button>
-        )}
-
-        <p className="mt-auto pt-8 text-center text-sm text-muted-foreground">{t('auth.buildLabel')}</p>
-        <p className="pb-2 text-center text-xs text-muted-foreground/70">{t('common.credits')}</p>
+        </div>
       </motion.div>
     </div>
   );

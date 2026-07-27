@@ -1,4 +1,4 @@
-import { API_BASE, getAccessToken } from './api';
+import { API_BASE, ensureFreshAccessToken } from './api';
 
 export interface RealtimeEvent {
   type: string;
@@ -41,7 +41,10 @@ export function connectCollectiveRealtime(
 
   const connect = async () => {
     if (closedManually) return;
-    const token = await getAccessToken();
+    // A WebSocket handshake has no 401-and-retry path: an expired token just fails the upgrade
+    // and the socket reconnect-loops silently. Refresh first if the token is close to lapsing —
+    // after a long background this is almost always the case.
+    const token = await ensureFreshAccessToken();
     if (closedManually) return;
     if (!token) {
       // Not authenticated yet (e.g. token still restoring); retry shortly.

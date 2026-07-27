@@ -29,6 +29,7 @@ import {
   Wrench,
   AlertTriangle,
   Lightbulb,
+  ChevronDown,
 } from 'lucide-react';
 import { api } from '../lib/api';
 import { capturePhotoFile, nativeCameraAvailable } from '../lib/camera';
@@ -37,8 +38,8 @@ import { connectCollectiveRealtime } from '../lib/realtime';
 import { tapFeedback } from '../lib/haptics';
 import { formatDate, formatDateTime, translateKey } from '../i18n/helpers';
 import type { AppUser, Task, ShoppingItem, TaskCategory, TaskSwapRequest, MaintenanceTicket, MaintenancePriority, MaintenanceStatus } from '../lib/types';
-import { AddSheet, Eyebrow, Fab, OverflowMenu, ProgressBar } from '../components/ui-kit';
-import { TASK_CATEGORY_ICONS } from '../lib/categoryIcons';
+import { AddSheet, Avatar, Eyebrow, Fab, OverflowMenu, ProgressBar } from '../components/ui-kit';
+import { DEFAULT_ROOM_ICON as DEFAULT_TASK_ICON, TASK_CATEGORY_ICONS } from '../lib/categoryIcons';
 
 const CATEGORIES: TaskCategory[] = ['CLEANING', 'SMALL_CLEANING', 'VACUUMING', 'MOPPING', 'BATHROOM', 'KITCHEN', 'LAUNDRY', 'DISHES', 'TRASH', 'DUSTING', 'WINDOWS', 'OTHER'];
 const RECURRENCE_OPTIONS = ['NONE', 'DAILY', 'WEEKLY', 'MONTHLY'] as const;
@@ -115,68 +116,114 @@ function TaskEditor({
           autoFocus
         />
       </label>
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-        <label className="space-y-1">
-          <span className="text-xs font-semibold text-muted-foreground">{t('tasks.assigneeLabel')}</span>
-          <select value={newAssignee} onChange={(event) => setNewAssignee(event.target.value)} className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary">
-            {(members.length > 0 ? members : [name]).map((member) => <option key={member} value={member}>{member}</option>)}
-          </select>
-          {suggestedAssignee && suggestedAssignee !== newAssignee && (
+      {/* Assignee as avatars and category as icon chips: both were <select>s, which on a phone
+          means a modal picker per field. Tapping the person and the room is the whole flow. */}
+      <div className="space-y-1">
+        <span className="text-xs font-semibold text-muted-foreground">{t('tasks.assigneeLabel')}</span>
+        <div className="flex flex-wrap gap-1.5">
+          {(members.length > 0 ? members : [name]).map((member) => (
             <button
+              key={member}
               type="button"
-              onClick={() => setNewAssignee(suggestedAssignee)}
-              className="flex items-center gap-1 text-left text-[11px] font-medium text-primary"
+              onClick={() => setNewAssignee(member)}
+              aria-pressed={newAssignee === member}
+              className={`flex min-h-11 items-center gap-1.5 rounded-full py-1 pl-1 pr-3 text-xs font-bold transition-colors ${
+                newAssignee === member ? 'bg-primary text-primary-foreground' : 'bg-muted/60 text-muted-foreground'
+              }`}
             >
-              <Lightbulb className="h-3.5 w-3.5 shrink-0" />
-              {t('tasks.fairSuggestion', { name: suggestedAssignee })}
+              <Avatar name={member} className="h-8 w-8 text-[11px]" />
+              {member}
             </button>
-          )}
-        </label>
-        <label className="space-y-1">
-          <span className="text-xs font-semibold text-muted-foreground">{t('tasks.dueDateLabel')}</span>
-          <input type="date" value={newDue} onChange={(event) => setNewDue(event.target.value)} className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary" />
-          <div className="flex gap-1.5 pt-0.5">
-            {quickDueOptions.map((option) => (
+          ))}
+        </div>
+        {suggestedAssignee && suggestedAssignee !== newAssignee && (
+          <button
+            type="button"
+            onClick={() => setNewAssignee(suggestedAssignee)}
+            className="flex items-center gap-1 pt-0.5 text-left text-[11px] font-medium text-primary"
+          >
+            <Lightbulb className="h-3.5 w-3.5 shrink-0" />
+            {t('tasks.fairSuggestion', { name: suggestedAssignee })}
+          </button>
+        )}
+      </div>
+
+      <div className="space-y-1">
+        <span className="text-xs font-semibold text-muted-foreground">{t('tasks.dueDateLabel')}</span>
+        <div className="flex flex-wrap gap-1.5">
+          {quickDueOptions.map((option) => (
+            <button
+              key={option.labelKey}
+              type="button"
+              onClick={() => setNewDue(newDue === option.value ? '' : option.value)}
+              className={`min-h-11 rounded-full px-3 text-xs font-bold transition-colors ${
+                newDue === option.value ? 'bg-primary text-primary-foreground' : 'bg-muted/60 text-muted-foreground'
+              }`}
+            >
+              {t(option.labelKey)}
+            </button>
+          ))}
+          <input
+            type="date"
+            value={newDue}
+            onChange={(event) => setNewDue(event.target.value)}
+            className="min-h-11 rounded-full bg-muted/60 px-3 text-xs font-bold text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+          />
+        </div>
+      </div>
+
+      <div className="space-y-1">
+        <span className="text-xs font-semibold text-muted-foreground">{t('tasks.categoryLabel')}</span>
+        <div className="flex flex-wrap gap-1.5">
+          {CATEGORIES.map((category) => {
+            const CategoryIcon = TASK_CATEGORY_ICONS[category] ?? DEFAULT_TASK_ICON;
+            const active = newCategory === category;
+            return (
               <button
-                key={option.labelKey}
+                key={category}
                 type="button"
-                onClick={() => setNewDue(option.value)}
-                className={`rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors ${
-                  newDue === option.value ? 'gradient-primary text-primary-foreground' : 'glass text-muted-foreground'
+                onClick={() => setNewCategory(category)}
+                aria-pressed={active}
+                className={`flex min-h-11 items-center gap-1.5 rounded-full px-3 text-xs font-bold transition-colors ${
+                  active ? 'bg-primary text-primary-foreground' : 'bg-muted/60 text-muted-foreground'
                 }`}
               >
-                {t(option.labelKey)}
+                <CategoryIcon className="h-3.5 w-3.5 shrink-0" />
+                {translateKey('common.taskCategories', category)}
               </button>
-            ))}
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Recurrence and XP are set once in a blue moon; the defaults (never / 10 XP) are right
+          almost always, so they move behind a disclosure instead of padding out the form. */}
+      <details className="group">
+        <summary className="flex min-h-11 cursor-pointer list-none items-center gap-1.5 text-xs font-bold text-muted-foreground [&::-webkit-details-marker]:hidden">
+          <ChevronDown className="h-3.5 w-3.5 transition-transform group-open:rotate-180" />
+          {t('tasks.moreOptions')}
+        </summary>
+        <div className="space-y-2 pt-2">
+          <label className="space-y-1 block">
+            <span className="text-xs font-semibold text-muted-foreground">{t('tasks.recurrenceLabel')}</span>
+            <select value={newRecurrence} onChange={(event) => setNewRecurrence(event.target.value)} className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary">
+              {RECURRENCE_OPTIONS.map((recurrence) => <option key={recurrence} value={recurrence}>{translateKey('common.recurrence', recurrence)}</option>)}
+            </select>
+          </label>
+          <div className="flex items-center gap-2">
+            <Zap className="h-4 w-4 text-primary" />
+            <input
+              type="number"
+              min={1}
+              max={1000}
+              value={newXp}
+              onChange={(event) => setNewXp(event.target.value)}
+              className="w-20 bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+            />
+            <span className="text-xs text-muted-foreground">{t('tasks.xpReward')}</span>
           </div>
-        </label>
-      </div>
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-        <label className="space-y-1">
-          <span className="text-xs font-semibold text-muted-foreground">{t('tasks.categoryLabel')}</span>
-          <select value={newCategory} onChange={(event) => setNewCategory(event.target.value as TaskCategory)} className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary">
-            {CATEGORIES.map((category) => <option key={category} value={category}>{translateKey('common.taskCategories', category)}</option>)}
-          </select>
-        </label>
-        <label className="space-y-1">
-          <span className="text-xs font-semibold text-muted-foreground">{t('tasks.recurrenceLabel')}</span>
-          <select value={newRecurrence} onChange={(event) => setNewRecurrence(event.target.value)} className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary">
-            {RECURRENCE_OPTIONS.map((recurrence) => <option key={recurrence} value={recurrence}>{translateKey('common.recurrence', recurrence)}</option>)}
-          </select>
-        </label>
-      </div>
-      <div className="flex items-center gap-2">
-        <Zap className="h-4 w-4 text-primary" />
-        <input
-          type="number"
-          min={1}
-          max={1000}
-          value={newXp}
-          onChange={(event) => setNewXp(event.target.value)}
-          className="w-20 bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
-        />
-        <span className="text-xs text-muted-foreground">{t('tasks.xpReward')}</span>
-      </div>
+        </div>
+      </details>
       <button
         onClick={onSave}
         disabled={!canSave}
@@ -225,15 +272,12 @@ function TasksMain() {
   const [newMaintenancePriority, setNewMaintenancePriority] = useState<MaintenancePriority>('MEDIUM');
   const [newMaintenanceAssignee, setNewMaintenanceAssignee] = useState('');
   const [newMaintenanceDue, setNewMaintenanceDue] = useState('');
-  const [newMaintenanceCost, setNewMaintenanceCost] = useState('');
-  const [newMaintenanceSplit, setNewMaintenanceSplit] = useState<string[]>([]);
   const [completingTicket, setCompletingTicket] = useState<MaintenanceTicket | null>(null);
   const [completeCost, setCompleteCost] = useState('');
   const [completeSplit, setCompleteSplit] = useState<string[]>([]);
   const [editingTicketId, setEditingTicketId] = useState<number | null>(null);
   const [editTicketTitle, setEditTicketTitle] = useState('');
   const [editTicketDescription, setEditTicketDescription] = useState('');
-  const [editTicketCost, setEditTicketCost] = useState('');
   const [editTicketDue, setEditTicketDue] = useState('');
   const [deletingTicketId, setDeletingTicketId] = useState<number | null>(null);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -475,24 +519,26 @@ function TasksMain() {
 
   const handleMaintenanceAdd = async () => {
     if (!newMaintenanceTitle.trim()) return;
+    // No price is captured here on purpose — the cost is only known once someone marks the
+    // ticket repaired, and that dialog is what files it as a shared expense.
     const body = {
       title: newMaintenanceTitle,
       description: newMaintenanceDescription,
       priority: newMaintenancePriority,
       assignee: newMaintenanceAssignee || null,
       dueDate: newMaintenanceDue || null,
-      costEstimate: newMaintenanceCost ? Number(newMaintenanceCost) : null,
-      splitParticipants: newMaintenanceCost ? newMaintenanceSplit : [],
     };
     const draft = {
       newMaintenanceTitle, newMaintenanceDescription, newMaintenanceAssignee,
-      newMaintenanceDue, newMaintenanceCost, newMaintenanceSplit,
+      newMaintenanceDue,
     };
     const tempId = -Date.now();
     const now = new Date().toISOString();
     const optimistic: MaintenanceTicket = {
       id: tempId,
       ...body,
+      costEstimate: null,
+      splitParticipants: [],
       status: 'OPEN',
       createdBy: name,
       createdAt: now,
@@ -505,8 +551,6 @@ function TasksMain() {
     setNewMaintenanceDescription('');
     setNewMaintenanceAssignee('');
     setNewMaintenanceDue('');
-    setNewMaintenanceCost('');
-    setNewMaintenanceSplit([]);
     setShowMaintenanceAdd(false);
     try {
       const created = await api.post<MaintenanceTicket>('/maintenance/tickets', body);
@@ -517,17 +561,16 @@ function TasksMain() {
       setNewMaintenanceDescription(draft.newMaintenanceDescription);
       setNewMaintenanceAssignee(draft.newMaintenanceAssignee);
       setNewMaintenanceDue(draft.newMaintenanceDue);
-      setNewMaintenanceCost(draft.newMaintenanceCost);
-      setNewMaintenanceSplit(draft.newMaintenanceSplit);
       setShowMaintenanceAdd(true);
     }
   };
 
-  // Completing a ticket asks for the final cost, then files any paid amount as an economy expense.
+  // Marking a ticket repaired is the only place a price is entered; the amount is then split
+  // across the chosen members and filed as an economy expense paid by whoever completed it.
   const handleMaintenanceStatusChange = (ticket: MaintenanceTicket, status: MaintenanceStatus) => {
     if (status === 'DONE' && ticket.status !== 'DONE') {
-      setCompleteCost(ticket.costEstimate != null ? String(ticket.costEstimate) : '');
-      setCompleteSplit(ticket.splitParticipants.length > 0 ? ticket.splitParticipants : memberOptions);
+      setCompleteCost('');
+      setCompleteSplit(memberOptions);
       setCompletingTicket(ticket);
     } else {
       void updateMaintenanceTicket(ticket.id, { status });
@@ -551,7 +594,6 @@ function TasksMain() {
     setEditingTicketId(ticket.id);
     setEditTicketTitle(ticket.title);
     setEditTicketDescription(ticket.description);
-    setEditTicketCost(ticket.costEstimate != null ? String(ticket.costEstimate) : '');
     setEditTicketDue(ticket.dueDate ?? '');
     setDeletingTicketId(null);
   };
@@ -561,7 +603,6 @@ function TasksMain() {
     await updateMaintenanceTicket(editingTicketId, {
       title: editTicketTitle,
       description: editTicketDescription,
-      costEstimate: editTicketCost ? Number(editTicketCost) : null,
       dueDate: editTicketDue || null,
     });
     setEditingTicketId(null);
@@ -942,7 +983,7 @@ function TasksMain() {
     >
       <div>
         <Eyebrow>{t('tasks.eyebrow')}</Eyebrow>
-        <h2 className="mt-2 font-display text-[2.25rem] leading-none font-extrabold tracking-[-.04em]">{t('tasks.heading')}</h2>
+        <h2 className="mt-2 display-md">{t('tasks.heading')}</h2>
       </div>
 
       <div className="seg">
@@ -1045,28 +1086,8 @@ function TasksMain() {
                 <label className="min-w-0 space-y-1"><span className="text-xs font-semibold text-muted-foreground">{t('tasks.maintenance.priorityLabel')}</span><select value={newMaintenancePriority} onChange={(event) => setNewMaintenancePriority(event.target.value as MaintenancePriority)} className="w-full min-w-0 rounded-lg bg-muted/50 px-3 py-2 text-sm">{(['LOW', 'MEDIUM', 'HIGH', 'URGENT'] as const).map((priority) => <option key={priority} value={priority}>{t(`tasks.maintenance.priorities.${priority}`)}</option>)}</select></label>
                 <label className="min-w-0 space-y-1"><span className="text-xs font-semibold text-muted-foreground">{t('tasks.maintenance.assigneeLabel')}</span><select value={newMaintenanceAssignee} onChange={(event) => setNewMaintenanceAssignee(event.target.value)} className="w-full min-w-0 rounded-lg bg-muted/50 px-3 py-2 text-sm"><option value="">{t('tasks.maintenance.unassigned')}</option>{memberOptions.map((member) => <option key={member} value={member}>{member}</option>)}</select></label>
                 <label className="min-w-0 space-y-1"><span className="text-xs font-semibold text-muted-foreground">{t('tasks.maintenance.dueDateLabel')}</span><input type="date" value={newMaintenanceDue} onChange={(event) => setNewMaintenanceDue(event.target.value)} className="w-full min-w-0 rounded-lg bg-muted/50 px-3 py-2 text-sm" /></label>
-                <label className="min-w-0 space-y-1"><span className="text-xs font-semibold text-muted-foreground">{t('tasks.maintenance.costLabel')}</span><input type="number" min="0" value={newMaintenanceCost} onChange={(event) => setNewMaintenanceCost(event.target.value)} placeholder={t('tasks.maintenance.costPlaceholder')} className="w-full min-w-0 rounded-lg bg-muted/50 px-3 py-2 text-sm" /></label>
               </div>
-              {Number(newMaintenanceCost) > 0 && (
-                <div>
-                  <p className="mb-1.5 text-[11px] font-semibold text-muted-foreground">{t('tasks.maintenance.splitLabel')}</p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {memberOptions.map((member) => {
-                      const selected = newMaintenanceSplit.includes(member);
-                      return (
-                        <button
-                          key={member}
-                          onClick={() => setNewMaintenanceSplit((prev) => selected ? prev.filter((m) => m !== member) : [...prev, member])}
-                          className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${selected ? 'bg-primary text-primary-foreground' : 'bg-muted/60 text-muted-foreground'}`}
-                        >
-                          {member}
-                        </button>
-                      );
-                    })}
-                  </div>
-                  <p className="mt-1 text-[10px] text-muted-foreground">{t('tasks.maintenance.splitHint')}</p>
-                </div>
-              )}
+              <p className="text-[10px] text-muted-foreground">{t('tasks.maintenance.costLaterHint')}</p>
               <button onClick={() => void handleMaintenanceAdd()} disabled={!newMaintenanceTitle.trim()} className="w-full rounded-lg bg-primary py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50">{t('tasks.maintenance.addTicket')}</button>
             </AddSheet>
           </motion.div>
@@ -1733,7 +1754,7 @@ function TasksMain() {
                     {ticket.description && <p className="mt-1 text-xs text-muted-foreground">{ticket.description}</p>}
                     <p className="mt-2 text-[10px] text-muted-foreground">
                       {ticket.dueDate ? `${t('tasks.maintenance.due')} ${formatDate(ticket.dueDate)}` : t('tasks.maintenance.noDueDate')}
-                      {ticket.costEstimate != null && ticket.costEstimate > 0 ? ` · ${ticket.costEstimate} kr` : ''}
+                      {ticket.status === 'DONE' && ticket.costEstimate != null && ticket.costEstimate > 0 ? ` · ${ticket.costEstimate} kr` : ''}
                     </p>
                     {ticket.overdue && <p className="mt-1 text-[10px] font-bold text-destructive">{t('tasks.maintenance.overdue')}</p>}
                   </div>
@@ -1786,10 +1807,7 @@ function TasksMain() {
                   <div className="mt-3 space-y-2 rounded-xl border border-border bg-background/40 p-3">
                     <input value={editTicketTitle} onChange={(event) => setEditTicketTitle(event.target.value)} placeholder={t('tasks.maintenance.titlePlaceholder')} className="w-full rounded-lg bg-muted/50 px-3 py-2 text-sm" />
                     <textarea value={editTicketDescription} onChange={(event) => setEditTicketDescription(event.target.value)} placeholder={t('tasks.maintenance.descriptionPlaceholder')} rows={2} className="w-full resize-none rounded-lg bg-muted/50 px-3 py-2 text-sm" />
-                    <div className="grid grid-cols-2 gap-2">
-                      <input type="date" value={editTicketDue} onChange={(event) => setEditTicketDue(event.target.value)} className="rounded-lg bg-muted/50 px-3 py-2 text-sm" />
-                      <input type="number" min="0" value={editTicketCost} onChange={(event) => setEditTicketCost(event.target.value)} placeholder={t('tasks.maintenance.costPlaceholder')} className="rounded-lg bg-muted/50 px-3 py-2 text-sm" />
-                    </div>
+                    <input type="date" value={editTicketDue} onChange={(event) => setEditTicketDue(event.target.value)} className="w-full rounded-lg bg-muted/50 px-3 py-2 text-sm" />
                     <div className="flex gap-2">
                       <button onClick={() => void saveEditTicket()} disabled={!editTicketTitle.trim()} className="flex-1 rounded-lg bg-primary py-2 text-xs font-bold text-primary-foreground disabled:opacity-50">{t('tasks.maintenance.saveEdit')}</button>
                       <button onClick={() => setEditingTicketId(null)} className="flex-1 rounded-lg glass py-2 text-xs font-medium">{t('common.cancel')}</button>
@@ -1852,6 +1870,7 @@ function TasksMain() {
                       );
                     })}
                   </div>
+                  <p className="mt-1 text-[10px] text-muted-foreground">{t('tasks.maintenance.splitHint')}</p>
                 </div>
               )}
               <button

@@ -11,9 +11,14 @@ import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 
 /**
- * Per-IP fixed-window rate limiter for the unauthenticated onboarding endpoints
- * (register, login, OAuth, refresh, password-reset). It throttles credential-stuffing
- * and brute-force attempts before they reach the controllers.
+ * Per-IP fixed-window rate limiter for the unauthenticated onboarding endpoints, throttling
+ * abusive sign-in attempts before they reach the controllers.
+ *
+ * `/api/onboarding/refresh` is exempt. It is not an attack surface in the same way — a caller
+ * must already hold a valid single-use refresh token — and it is issued automatically by every
+ * signed-in client, so a burst (an app resuming, several tabs waking at once) could trip the
+ * limit. A throttled refresh is indistinguishable from a dead session to the user, which turned
+ * the protection into a spurious logout.
  *
  * In-memory and single-instance by design — this matches the current single-service
  * deployment. If the backend is ever scaled to multiple instances, move the counters to
@@ -32,8 +37,11 @@ class AuthRateLimitFilter(
     private val buckets = ConcurrentHashMap<String, Window>()
     private val lastCleanupMs = AtomicLong(System.currentTimeMillis())
 
-    override fun shouldNotFilter(request: HttpServletRequest): Boolean =
-        !(request.method == "POST" && request.requestURI.startsWith("/api/onboarding/"))
+    override fun shouldNotFilter(request: HttpServletRequest): Boolean {
+        if (request.method != "POST") return true
+        if (request.requestURI == REFRESH_PATH) return true
+        return !request.requestURI.startsWith("/api/onboarding/")
+    }
 
     override fun doFilterInternal(
         request: HttpServletRequest,
@@ -58,9 +66,13 @@ class AuthRateLimitFilter(
             response.status = HttpStatus.TOO_MANY_REQUESTS.value()
             response.setHeader("Retry-After", retryAfterSeconds.toString())
             response.contentType = MediaType.APPLICATION_JSON_VALUE
-            response.writer.write(
-                """{"error":"rate_limited","message":"Too many requests. Please try again shortly."}""",
-            )
+            val body = """{"error":"rate_limited","message":"Too many requests. Please try again shortly."}"""
+            // Set the length and flush explicitly: without this the body never reached the client
+            // over HTTP/2 behind Render's proxy, so callers saw a 429 with an empty payload and
+            // could only report a generic error instead of "you are being throttled".
+            response.setContentLength(body.toByteArray(Charsets.UTF_8).size)
+            response.writer.write(body)
+            response.writer.flush()
             return
         }
 
@@ -84,5 +96,9 @@ class AuthRateLimitFilter(
             if (!lastCleanupMs.compareAndSet(last, now)) return
         }
         buckets.entries.removeIf { now - it.value.startMs >= windowMs }
+    }
+
+    private companion object {
+        const val REFRESH_PATH = "/api/onboarding/refresh"
     }
 }

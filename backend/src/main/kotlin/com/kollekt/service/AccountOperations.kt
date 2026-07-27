@@ -1,88 +1,64 @@
 package com.kollekt.service
 
 import com.kollekt.api.dto.AuthResponse
-import com.kollekt.api.dto.CreateUserRequest
-import com.kollekt.api.dto.LoginRequest
 import com.kollekt.api.dto.RefreshTokenRequest
 import com.kollekt.domain.Member
 import com.kollekt.repository.MemberRepository
-import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
+/**
+ * Account lifecycle for a social-login-only app. Sign-up and sign-in both go through
+ * [SocialAuthService]; what remains here is everything that happens once an identity exists —
+ * reading the current user, rotating tokens, and revoking them.
+ */
 @Service
 class AccountOperations(
     private val memberRepository: MemberRepository,
-    private val passwordEncoder: PasswordEncoder,
     private val tokenService: TokenService,
     private val userProfileService: UserProfileService,
 ) {
+    fun getUserByName(name: String) = userProfileService.getUserByName(name)
+
+    /**
+     * Sets the member's display name, but only before they belong to a collective.
+     *
+     * Apple and Google cannot be relied on for a usable name — Apple returns one only on the very
+     * first authorization, and Private Relay addresses yield a name like "a1b2c3d4e5" — so a fresh
+     * social account gets an auto-generated one it must be able to correct.
+     *
+     * The `collectiveCode == null` guard is what makes this safe. Member *name* is the de-facto
+     * foreign key across the app (tasks, expenses, chat messages, settlements all store it as a
+     * string), so renaming an established member would orphan their history. Before joining a
+     * collective, none of those rows can exist.
+     *
+     * Returns a whole new token pair because the access token's `sub` claim is the name: renaming
+     * invalidates the caller's own credentials, and they would be locked out without a fresh pair.
+     */
     @Transactional
-    fun createUser(request: CreateUserRequest): AuthResponse {
-        val name = request.name.trim()
-        val email = request.email.trim().lowercase()
-        val password = request.password.trim()
-
+    fun updateDisplayName(
+        currentName: String,
+        requestedName: String,
+    ): AuthResponse {
+        val name = requestedName.trim()
         if (name.isBlank()) throw IllegalArgumentException("Name is required")
-        if (email.isBlank()) throw IllegalArgumentException("Email is required")
-        if (password.length < 8) throw IllegalArgumentException("Password must be at least 8 characters")
+        if (name.length > MAX_NAME_LENGTH) throw IllegalArgumentException("Name must be at most $MAX_NAME_LENGTH characters")
 
-        if (memberRepository.findByName(name) != null) {
+        val member =
+            memberRepository.findByName(currentName)
+                ?: throw IllegalArgumentException("User '$currentName' not found")
+
+        if (member.collectiveCode != null) {
+            throw IllegalArgumentException("Name can only be changed before joining a collective")
+        }
+
+        if (name != member.name && memberRepository.findByName(name) != null) {
             throw IllegalArgumentException("User with name '$name' already exists")
         }
 
-        if (memberRepository.findByEmail(email) != null) {
-            throw IllegalArgumentException("User with email '$email' already exists")
-        }
-
-        val saved =
-            memberRepository.save(
-                Member(
-                    name = name,
-                    email = email,
-                    passwordHash = passwordEncoder.encode(password),
-                ),
-            )
-
-        return toAuthResponse(saved)
+        return toAuthResponse(memberRepository.save(member.copy(name = name)))
     }
-
-    @Transactional
-    fun resetPassword(
-        memberName: String,
-        newPassword: String,
-    ) {
-        if (newPassword.length < 8) throw IllegalArgumentException("Password must be at least 8 characters")
-        val member = memberRepository.findByName(memberName.trim()) ?: throw IllegalArgumentException("User not found")
-
-        memberRepository.save(member.copy(passwordHash = passwordEncoder.encode(newPassword)))
-    }
-
-    fun login(request: LoginRequest): AuthResponse {
-        val name = request.name.trim()
-        val password = request.password.trim()
-
-        if (name.isBlank()) throw IllegalArgumentException("Name is required")
-        if (password.isBlank()) throw IllegalArgumentException("Password is required")
-
-        val user =
-            memberRepository.findByName(name)
-                ?: memberRepository.findByEmail(name.lowercase())
-                ?: throw IllegalArgumentException("User '$name' not found")
-
-        val hash =
-            user.passwordHash
-                ?: throw IllegalArgumentException("User '$name' has no password configured")
-
-        if (!passwordEncoder.matches(password, hash)) {
-            throw IllegalArgumentException("Invalid name or password")
-        }
-
-        return toAuthResponse(user)
-    }
-
-    fun getUserByName(name: String) = userProfileService.getUserByName(name)
 
     fun refreshToken(request: RefreshTokenRequest): AuthResponse {
         val refreshResult = tokenService.rotateRefreshToken(request.refreshToken)
@@ -111,5 +87,11 @@ class AccountOperations(
             expiresIn = token.expiresIn,
             user = userProfileService.toUserDto(member),
         )
+    }
+
+    private companion object {
+        /** Same cap SocialAuthService.createMember applies to auto-generated names. The column
+         *  itself is wider, but names are shown in avatars, chat and leaderboards throughout. */
+        const val MAX_NAME_LENGTH = 40
     }
 }

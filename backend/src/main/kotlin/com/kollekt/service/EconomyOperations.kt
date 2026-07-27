@@ -58,6 +58,7 @@ class EconomyOperations(
         require(description.isNotBlank()) { "Expense description is required" }
         require(request.amount > 0) { "Expense amount must be greater than zero" }
         require(category.isNotBlank()) { "Expense category is required" }
+        val canonicalCategory = canonicalCategory(category)
         val collectiveMembers =
             memberRepository
                 .findAllByCollectiveCode(collectiveCode)
@@ -96,7 +97,7 @@ class EconomyOperations(
                     amount = request.amount,
                     paidBy = actorName,
                     collectiveCode = collectiveCode,
-                    category = category,
+                    category = canonicalCategory,
                     date = request.date,
                     participantNames = participants,
                     deadlineDate = request.deadlineDate,
@@ -149,9 +150,33 @@ class EconomyOperations(
         val expense = expenseRepository.findById(id).orElseThrow { IllegalArgumentException("Expense not found") }
         if (expense.collectiveCode != collectiveCode) throw IllegalArgumentException("Not in your collective")
         if (expense.paidBy != actorName) throw IllegalArgumentException("Only the payer can edit this expense")
+        require(request.amount > 0) { "Expense amount must be greater than zero" }
+
+        // Date is editable so an expense entered late can be moved to the month it belongs to —
+        // without that, the monthly breakdown misattributes every backdated purchase.
+        val date = request.date ?: expense.date
+        val participants =
+            request.participantNames
+                ?.map { it.trim() }
+                ?.filter { it.isNotBlank() }
+                ?.toSet()
+                ?.takeIf { it.isNotEmpty() }
+                ?.also { requested ->
+                    val members = memberRepository.findAllByCollectiveCode(collectiveCode).map { it.name }.toSet()
+                    val invalid = requested - members
+                    require(invalid.isEmpty()) { "Participants not in collective: ${invalid.joinToString(", ")}" }
+                }
+                ?: expense.participantNames
+
         val updated =
             expenseRepository.save(
-                expense.copy(description = request.description, amount = request.amount, category = request.category),
+                expense.copy(
+                    description = request.description,
+                    amount = request.amount,
+                    category = canonicalCategory(request.category),
+                    date = date,
+                    participantNames = participants,
+                ),
             )
         val dto = updated.toDto()
         realtimeUpdateService.publish(collectiveCode, "EXPENSE_UPDATED", dto)
@@ -634,4 +659,17 @@ class EconomyOperations(
         )
 
     private fun PantEntry.toDto() = PantEntryDto(id, bottles, amount, addedBy, date)
+
+    private companion object {
+        /**
+         * The only categories an expense may carry. Enforced here and by a CHECK constraint in
+         * V60 — a spending breakdown is only meaningful if the buckets are closed, and the column
+         * previously accepted any string (ShoppingOperations wrote an untranslated "SUPPLIES").
+         */
+        val CATEGORIES = setOf("Groceries", "Bills", "Cleaning", "Entertainment", "Food", "Other")
+
+        /** Maps a caller-supplied category onto the canonical set, case-insensitively. */
+        fun canonicalCategory(raw: String): String =
+            CATEGORIES.firstOrNull { it.equals(raw.trim(), ignoreCase = true) } ?: "Other"
+    }
 }

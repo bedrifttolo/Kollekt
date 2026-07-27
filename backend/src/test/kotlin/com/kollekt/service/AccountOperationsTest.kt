@@ -1,7 +1,5 @@
 package com.kollekt.service
 
-import com.kollekt.api.dto.CreateUserRequest
-import com.kollekt.api.dto.LoginRequest
 import com.kollekt.api.dto.RefreshTokenRequest
 import com.kollekt.domain.Member
 import com.kollekt.repository.FriendshipRepository
@@ -10,18 +8,12 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.mockito.kotlin.any
-import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.mock
-import org.mockito.kotlin.never
-import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import org.springframework.security.crypto.password.PasswordEncoder
 
 class AccountOperationsTest {
     private lateinit var memberRepository: MemberRepository
     private lateinit var friendshipRepository: FriendshipRepository
-    private lateinit var passwordEncoder: PasswordEncoder
     private lateinit var tokenService: TokenService
     private lateinit var userProfileService: UserProfileService
     private lateinit var operations: AccountOperations
@@ -30,55 +22,9 @@ class AccountOperationsTest {
     fun setUp() {
         memberRepository = mock()
         friendshipRepository = mock()
-        passwordEncoder = mock()
         tokenService = mock()
         userProfileService = UserProfileService(memberRepository, friendshipRepository)
-        operations = AccountOperations(memberRepository, passwordEncoder, tokenService, userProfileService)
-    }
-
-    @Test
-    fun `create user uses normalized email lookup and returns auth response`() {
-        whenever(memberRepository.findByName("Kasper")).thenReturn(null)
-        whenever(memberRepository.findByEmail("kasper@example.com")).thenReturn(null)
-        whenever(passwordEncoder.encode("supersecret")).thenReturn("encoded-password")
-        whenever(memberRepository.save(any<Member>())).thenAnswer {
-            (it.arguments[0] as Member).copy(id = 5)
-        }
-        whenever(tokenService.issueTokenPair(any<Member>())).thenReturn(
-            TokenResult("access-token", "refresh-token", "Bearer", 3600),
-        )
-
-        val result =
-            operations.createUser(
-                CreateUserRequest("  Kasper  ", "  KASPER@example.com ", "  supersecret  "),
-            )
-
-        verify(memberRepository).findByEmail("kasper@example.com")
-        assertEquals("access-token", result.accessToken)
-        assertEquals("kasper@example.com", result.user.email)
-    }
-
-    @Test
-    fun `reset password updates the named member`() {
-        val existing = member(name = "Kasper", email = "kasper@example.com").copy(passwordHash = "old")
-        whenever(memberRepository.findByName("Kasper")).thenReturn(existing)
-        whenever(passwordEncoder.encode("new-secret")).thenReturn("encoded-secret")
-
-        operations.resetPassword(memberName = " Kasper ", newPassword = "new-secret")
-
-        val memberCaptor = argumentCaptor<Member>()
-        verify(memberRepository).save(memberCaptor.capture())
-        assertEquals("encoded-secret", memberCaptor.firstValue.passwordHash)
-        verify(memberRepository, never()).findByEmail(any<String>())
-    }
-
-    @Test
-    fun `reset password rejects passwords shorter than eight characters`() {
-        org.junit.jupiter.api.assertThrows<IllegalArgumentException> {
-            operations.resetPassword(memberName = "Kasper", newPassword = "short")
-        }
-
-        verify(memberRepository, never()).save(any<Member>())
+        operations = AccountOperations(memberRepository, tokenService, userProfileService)
     }
 
     @Test
@@ -94,35 +40,6 @@ class AccountOperationsTest {
 
         assertEquals("new-access", result.accessToken)
         assertEquals("new-refresh", result.refreshToken)
-    }
-
-    @Test
-    fun `login trims credentials before authentication`() {
-        val existing = member(name = "Kasper", email = "kasper@example.com").copy(passwordHash = "stored-hash")
-        whenever(memberRepository.findByName("Kasper")).thenReturn(existing)
-        whenever(passwordEncoder.matches("supersecret", "stored-hash")).thenReturn(true)
-        whenever(tokenService.issueTokenPair(existing)).thenReturn(
-            TokenResult("access-token", "refresh-token", "Bearer", 3600),
-        )
-
-        val result = operations.login(LoginRequest("  Kasper  ", "  supersecret  "))
-
-        assertEquals("Kasper", result.user.name)
-    }
-
-    @Test
-    fun `login accepts a normalized email identifier`() {
-        val existing = member(name = "Kasper", email = "kasper@example.com").copy(passwordHash = "stored-hash")
-        whenever(memberRepository.findByName("KASPER@example.com")).thenReturn(null)
-        whenever(memberRepository.findByEmail("kasper@example.com")).thenReturn(existing)
-        whenever(passwordEncoder.matches("supersecret", "stored-hash")).thenReturn(true)
-        whenever(tokenService.issueTokenPair(existing)).thenReturn(
-            TokenResult("access-token", "refresh-token", "Bearer", 3600),
-        )
-
-        val result = operations.login(LoginRequest(" KASPER@example.com ", "supersecret"))
-
-        assertEquals("Kasper", result.user.name)
     }
 
     @Test

@@ -302,7 +302,7 @@ export default function CalendarPage() {
       {/* Header */}
       <div>
         <Eyebrow>{t("calendar.eyebrow")}</Eyebrow>
-        <h2 className="mt-2 font-display text-[2rem] leading-none font-extrabold tracking-[-.04em]">
+        <h2 className="mt-2 display-sm">
           {t("calendar.title")}
         </h2>
       </div>
@@ -317,63 +317,81 @@ export default function CalendarPage() {
         </div>
       )}
 
-      {/* Week calendar */}
-      <div className="card !p-4">
-        <div className="flex items-center justify-between">
+      {/* Week strip. No card chrome and no 7-column grid of square cells: the weekday sits
+          directly above its date inside one tall pill, so the row reads as a single scrubber. */}
+      <div>
+        <div className="flex items-center justify-between px-1">
           <h3 className="font-display text-lg font-extrabold tracking-[-.02em]">
             {formatMonthYear(year, month)}
           </h3>
-          <div className="flex gap-2">
-          <button
-            onClick={prevWeek}
-            aria-label={t("calendar.previousMonth")}
-            className="grid h-11 w-11 place-items-center rounded-full bg-primary/15 text-primary dark:bg-primary/25 dark:text-foreground"
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </button>
-          <button
-            onClick={nextWeek}
-            aria-label={t("calendar.nextMonth")}
-            className="grid h-11 w-11 place-items-center rounded-full bg-primary/15 text-primary dark:bg-primary/25 dark:text-foreground"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </button>
+          <div className="flex gap-1">
+            <button
+              onClick={prevWeek}
+              aria-label={t("calendar.previousMonth")}
+              className="grid h-11 w-11 place-items-center rounded-full text-muted-foreground"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <button
+              onClick={nextWeek}
+              aria-label={t("calendar.nextMonth")}
+              className="grid h-11 w-11 place-items-center rounded-full text-muted-foreground"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
           </div>
         </div>
-        <div className="mt-4 grid grid-cols-7 gap-1">
-          {weekdayLabels.map((day) => (
-            <p
-              key={day}
-              className="pb-1 text-center text-[10px] font-bold uppercase tracking-[.04em] text-muted-foreground"
-            >
-              {day}
-            </p>
-          ))}
-          {weekDates.map((date) => {
+
+        <div className="mt-1 flex gap-1">
+          {weekDates.map((date, index) => {
             const dateString = toDateString(date);
             const isSelected = dateString === selectedDateStr;
             const isOutsideMonth = date.getMonth() !== month;
+            const isToday = dateString === toDateString(new Date());
             return (
-            <button
-              key={dateString}
-              onClick={() => {
-                setYear(date.getFullYear());
-                setMonth(date.getMonth());
-                setSelectedDay(date.getDate());
-              }}
-              className={`relative flex aspect-square w-full items-center justify-center rounded-xl text-sm font-semibold transition-all ${
-                isSelected
-                  ? "bg-primary text-primary-foreground"
-                  : isOutsideMonth
-                    ? "text-muted-foreground/40 hover:bg-muted"
-                    : "text-muted-foreground hover:bg-muted"
-              }`}
-            >
-              {date.getDate()}
-              {eventDays.has(dateString) && (
-                <span className={`absolute bottom-1 h-1 w-1 rounded-full ${isSelected ? "bg-secondary" : "bg-destructive"}`} />
-              )}
-            </button>
+              <button
+                key={dateString}
+                onClick={() => {
+                  setYear(date.getFullYear());
+                  setMonth(date.getMonth());
+                  setSelectedDay(date.getDate());
+                }}
+                aria-pressed={isSelected}
+                className={`flex flex-1 flex-col items-center gap-1 rounded-full py-2.5 transition-colors ${
+                  isSelected ? "bg-primary text-primary-foreground" : "hover:bg-muted"
+                }`}
+              >
+                <span
+                  className={`text-[10px] font-bold uppercase tracking-[.04em] ${
+                    isSelected ? "text-primary-foreground/70" : "text-muted-foreground"
+                  }`}
+                >
+                  {weekdayLabels[index]}
+                </span>
+                <span
+                  className={`text-sm font-bold tabular-nums ${
+                    isSelected
+                      ? ""
+                      : isOutsideMonth
+                        ? "text-muted-foreground/40"
+                        : isToday
+                          ? "text-primary"
+                          : "text-foreground"
+                  }`}
+                >
+                  {date.getDate()}
+                </span>
+                {/* Reserve the dot's row on every day so selecting one doesn't shift the strip. */}
+                <span
+                  className={`h-1 w-1 rounded-full ${
+                    !eventDays.has(dateString)
+                      ? "bg-transparent"
+                      : isSelected
+                        ? "bg-primary-foreground"
+                        : "bg-secondary"
+                  }`}
+                />
+              </button>
             );
           })}
         </div>

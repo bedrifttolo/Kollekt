@@ -127,7 +127,7 @@ export default function DashboardPage() {
       {/* Welcome */}
       <motion.div variants={item}>
         <Eyebrow>{translate('dashboard.today')}</Eyebrow>
-        <h2 className="font-display text-[2.55rem] leading-[.98] font-extrabold tracking-[-.04em] mt-2">
+        <h2 className="display-lg mt-2">
           {translate(greetingKey, { name: currentUser?.name })}{' '}
           <Leaf className="mark inline h-8 w-8 align-baseline" strokeWidth={2.5} />
         </h2>
@@ -164,12 +164,14 @@ export default function DashboardPage() {
         </div>
         <div className="grid grid-cols-3 gap-3">
           {[
-            { label: translate('dashboard.stats.tasksDone'), value: data.completedTasksCount.toString(), icon: CheckSquare },
-            { label: translate('dashboard.stats.balance'), value: formatCurrency(data.currentUserBalance), icon: Wallet },
-            { label: translate('dashboard.stats.xpEarned'), value: data.currentUserXp.toString(), icon: Zap },
+            // Only the icon takes the tone: these tiles sit on the dark hero, where a pastel fill
+            // would fight the hero surface, but a tinted glyph still separates the three stats.
+            { label: translate('dashboard.stats.tasksDone'), value: data.completedTasksCount.toString(), icon: CheckSquare, tone: 'mint' as const },
+            { label: translate('dashboard.stats.balance'), value: formatCurrency(data.currentUserBalance), icon: Wallet, tone: 'butter' as const },
+            { label: translate('dashboard.stats.xpEarned'), value: data.currentUserXp.toString(), icon: Zap, tone: 'peri' as const },
           ].map((s) => (
             <div key={s.label} className="stat-tile text-center">
-              <s.icon className="mx-auto mb-1 h-3.5 w-3.5 text-white/70" />
+              <s.icon className="mx-auto mb-1 h-3.5 w-3.5" style={{ color: `var(--tone-${s.tone})` }} />
               <p className="font-display font-bold text-base">{s.value}</p>
               <p className="text-[10px] text-white/70">{s.label}</p>
             </div>
@@ -245,8 +247,8 @@ export default function DashboardPage() {
             const CategoryIcon = TASK_CATEGORY_ICONS[task.category] ?? CircleCheckBig;
             return (
             <button key={task.id} onClick={() => navigate('/tasks')} className="card !rounded-2xl !p-3.5 flex items-center gap-3 w-full text-left group hover:shadow-md transition-shadow">
-              <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                <CategoryIcon className="h-5 w-5 text-primary" />
+              <div className="tone-tile tone-mint h-10 w-10 rounded-[--r-sm] flex items-center justify-center shrink-0">
+                <CategoryIcon className="h-5 w-5" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold truncate">{task.title}</p>
@@ -273,8 +275,8 @@ export default function DashboardPage() {
           )}
           {data.pendingShoppingItems.slice(0, 3).map((s) => (
             <button key={s.id} onClick={() => navigate('/tasks?tab=shopping')} className="card !rounded-2xl !p-3.5 flex items-center gap-3 w-full text-left hover:shadow-md transition-shadow">
-              <div className="h-10 w-10 rounded-xl bg-accent/15 flex items-center justify-center shrink-0">
-                <ShoppingCart className="h-5 w-5 text-accent" />
+              <div className="tone-tile tone-butter h-10 w-10 rounded-[--r-sm] flex items-center justify-center shrink-0">
+                <ShoppingCart className="h-5 w-5" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold truncate">{s.item}</p>
@@ -299,8 +301,8 @@ export default function DashboardPage() {
           )}
           {data.upcomingEvents.slice(0, 3).map((e) => (
             <button key={e.id} onClick={() => navigate('/calendar')} className="card !rounded-2xl !p-3.5 flex items-center gap-3 w-full text-left hover:shadow-md transition-shadow">
-              <div className="h-10 w-10 rounded-xl bg-secondary/20 flex items-center justify-center shrink-0">
-                <Calendar className="h-5 w-5 text-secondary-foreground" />
+              <div className="tone-tile tone-peri h-10 w-10 rounded-[--r-sm] flex items-center justify-center shrink-0">
+                <Calendar className="h-5 w-5" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold">{e.title}</p>
@@ -326,8 +328,8 @@ export default function DashboardPage() {
           )}
           {data.recentExpenses.slice(0, 3).map((e) => (
             <button key={e.id} onClick={() => navigate('/economy')} className="card !rounded-2xl !p-3.5 flex items-center gap-3 w-full text-left hover:shadow-md transition-shadow">
-              <div className="h-10 w-10 rounded-xl bg-muted flex items-center justify-center shrink-0">
-                <Wallet className="h-5 w-5 text-muted-foreground" />
+              <div className="tone-tile tone-blush h-10 w-10 rounded-[--r-sm] flex items-center justify-center shrink-0">
+                <Wallet className="h-5 w-5" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold truncate">{e.description}</p>

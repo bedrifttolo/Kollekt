@@ -11,8 +11,6 @@ import org.springframework.security.config.Customizer
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
-import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm
 import org.springframework.security.oauth2.jwt.Jwt
@@ -61,12 +59,8 @@ class SecurityConfig(
                 it.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 it
                     .requestMatchers(
-                        "/api/onboarding/users",
-                        "/api/onboarding/login",
                         "/api/onboarding/oauth/*",
                         "/api/onboarding/refresh",
-                        "/api/onboarding/password-reset/request",
-                        "/api/onboarding/password-reset/confirm",
                         "/api/google-calendar/callback",
                     ).permitAll()
                 it.requestMatchers(HttpMethod.GET, "/api/calendar-feed/**").permitAll()
@@ -76,7 +70,6 @@ class SecurityConfig(
             }.oauth2ResourceServer { it.jwt(Customizer.withDefaults()) }
             .build()
 
-    @Bean fun passwordEncoder(): PasswordEncoder = BCryptPasswordEncoder()
 
     @Bean
     fun jwtDecoder(): JwtDecoder {
