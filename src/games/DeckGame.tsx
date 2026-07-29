@@ -84,7 +84,7 @@ export default function DeckGame({
             <div className="card flex min-h-80 flex-col items-center justify-center gap-6 text-center">
               {!revealed ? (
                 <>
-                  <Eye className="h-10 w-10 text-primary" />
+                  <Eye className="h-10 w-10 text-foreground" />
                   <button onClick={() => setRevealed(true)} className="btn-lemon">
                     {t('social.games.deckGame.reveal')}
                   </button>

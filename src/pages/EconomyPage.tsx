@@ -10,7 +10,7 @@ import { queryClient as sharedQueryClient } from '../lib/queryClient';
 import { useUser } from '../context/UserContext';
 import { formatCurrency, formatDate, translateKey } from '../i18n/helpers';
 import { connectCollectiveRealtime } from '../lib/realtime';
-import type { AppUser, EconomySummary, Expense, PaymentHandles, PayOption } from '../lib/types';
+import type { AppUser, Budget, EconomySummary, Expense, PaymentHandles, PayOption } from '../lib/types';
 import { Avatar, CountUp, EmptyState, Eyebrow, Fab, IconButton, OverflowMenu, ProgressRing } from '../components/ui-kit';
 import { listContainer, listItem, pressableSubtle } from '../lib/motion';
 import { celebrate } from '../lib/celebrate';
@@ -24,6 +24,7 @@ import {
   type PaymentMethod,
 } from '../lib/paymentLinks';
 import { onAppResume } from '../lib/appLifecycle';
+import BudgetBars from '../components/charts/BudgetBars';
 import CategoryBars from '../components/charts/CategoryBars';
 import CategoryDonut from '../components/charts/CategoryDonut';
 import MonthStrip from '../components/charts/MonthStrip';
@@ -146,6 +147,19 @@ export default function EconomyPage() {
     await queryClient.invalidateQueries({ queryKey: qk.economy(name) });
   };
 
+  // Budgets are their own endpoint (see EconomyOperations.getBudgets) rather than a field on
+  // /economy/summary — the cap rarely changes and shouldn't force a heavier response on every
+  // expense fetch.
+  const { data: budgets = [] } = useQuery({
+    queryKey: qk.budgets(name),
+    enabled: !!name,
+    queryFn: () => api.get<Budget[]>(`/economy/budgets?memberName=${encodeURIComponent(name)}`),
+  });
+
+  const handleSaveBudget = async (category: ExpenseCategory, monthlyLimit: number) => {
+    await api.put<Budget>('/economy/budgets', { memberName: name, category, monthlyLimit });
+    await queryClient.invalidateQueries({ queryKey: qk.budgets(name) });
+  };
 
   useEffect(() => {
     if (!name) return;
@@ -154,6 +168,9 @@ export default function EconomyPage() {
       (event) => {
         if (['EXPENSE_CREATED', 'EXPENSE_UPDATED', 'EXPENSE_DELETED', 'BALANCES_SETTLED', 'PANT_ADDED'].includes(event.type)) {
           fetchSummary();
+        }
+        if (event.type === 'BUDGET_UPDATED') {
+          void queryClient.invalidateQueries({ queryKey: qk.budgets(name) });
         }
       },
       { onReconnected: () => fetchSummary() },
@@ -318,6 +335,7 @@ export default function EconomyPage() {
   const pantPercent = summary.pantSummary && summary.pantSummary.goalAmount > 0
     ? Math.min(100, (summary.pantSummary.currentAmount / summary.pantSummary.goalAmount) * 100)
     : 0;
+  const spentByCategory = Object.fromEntries(stats.breakdown.categories.map((c) => [c.category, c.total]));
   const fallbackCreditor = summary.balances.find((b) => b.amount > 0 && b.name !== name);
   const selectedPayOption = payOptions.find((option) => option.name === selectedCreditorName) ?? payOptions[0];
   const hasPayOptions = payOptions.length > 0;
@@ -469,7 +487,7 @@ export default function EconomyPage() {
         )}
       </AnimatePresence>
 
-      {!showAdd && <Fab onClick={() => setShowAdd(true)} label={t('economy.newExpense')} />}
+      {!showAdd && <Fab tone="butter" onClick={() => setShowAdd(true)} label={t('economy.newExpense')} />}
 
       {/* Add expense form */}
       <AnimatePresence>
@@ -577,6 +595,16 @@ export default function EconomyPage() {
             action={{ label: t('economy.addExpense'), onClick: () => setShowAdd(true) }}
           />
         )}
+      </section>
+
+      {/* Budgets. Spend comes from the same client-side breakdown as the chart above; only the
+          cap itself is persisted (see EconomyOperations.getBudgets/upsertBudget). */}
+      <section className="card space-y-3">
+        <div>
+          <h3 className="font-display text-lg font-extrabold tracking-[-.02em]">{t('economy.budgets.title')}</h3>
+          <p className="text-xs text-muted-foreground">{t('economy.budgets.subtitle')}</p>
+        </div>
+        <BudgetBars budgets={budgets} spentByCategory={spentByCategory} onSave={handleSaveBudget} />
       </section>
 
       {/* Pant card. The goal was already a ratio in the data (currentAmount / goalAmount) but had

@@ -74,7 +74,7 @@ export default function SnusboksenGame({ players, onClose }: { players: string[]
             <div className="card flex min-h-80 flex-col items-center justify-center text-center">
               {!revealed ? (
                 <>
-                  <Eye className="h-10 w-10 text-primary" />
+                  <Eye className="h-10 w-10 text-foreground" />
                   <p className="mt-4 text-sm text-muted-foreground">{t('social.games.snusboksen.pass', { player })}</p>
                   <button onClick={() => setRevealed(true)} className="btn-lemon mt-6">{t('social.games.snusboksen.reveal')}</button>
                 </>

@@ -1,6 +1,7 @@
 package com.kollekt.service
 
 import com.kollekt.api.dto.BalanceDto
+import com.kollekt.api.dto.BudgetDto
 import com.kollekt.api.dto.CreateExpenseRequest
 import com.kollekt.api.dto.CreatePantEntryRequest
 import com.kollekt.api.dto.EconomySummaryDto
@@ -12,10 +13,13 @@ import com.kollekt.api.dto.PaymentHandlesDto
 import com.kollekt.api.dto.SettleUpResponse
 import com.kollekt.api.dto.UpdateExpenseRequest
 import com.kollekt.api.dto.UpdatePantEntryRequest
+import com.kollekt.api.dto.UpsertBudgetRequest
+import com.kollekt.domain.Budget
 import com.kollekt.domain.Expense
 import com.kollekt.domain.PantEntry
 import com.kollekt.domain.PersonalSettlement
 import com.kollekt.domain.SettlementCheckpoint
+import com.kollekt.repository.BudgetRepository
 import com.kollekt.repository.CollectiveRepository
 import com.kollekt.repository.ExpenseRepository
 import com.kollekt.repository.MemberRepository
@@ -34,6 +38,7 @@ class EconomyOperations(
     private val settlementCheckpointRepository: SettlementCheckpointRepository,
     private val personalSettlementRepository: PersonalSettlementRepository,
     private val pantEntryRepository: PantEntryRepository,
+    private val budgetRepository: BudgetRepository,
     private val collectiveRepository: CollectiveRepository,
     private val realtimeUpdateService: RealtimeUpdateService,
     private val notificationService: NotificationService,
@@ -393,6 +398,30 @@ class EconomyOperations(
                 ),
             payOptions = buildPayOptions(memberName, expenses, memberEntities, checkpoints, personalSettlements),
         )
+    }
+
+    /** One entry per canonical category, in the same fixed order the frontend already renders
+     *  spending breakdowns in — categories with no budget set come back with a zero limit rather
+     *  than being omitted, so the UI can always offer every category a "set a budget" affordance. */
+    fun getBudgets(memberName: String): List<BudgetDto> {
+        val collectiveCode = collectiveAccessService.requireCollectiveCodeByMemberName(memberName)
+        val existing = budgetRepository.findAllByCollectiveCode(collectiveCode).associateBy { it.category }
+        return CATEGORIES.map { category -> BudgetDto(category, existing[category]?.monthlyLimit ?: 0) }
+    }
+
+    @Transactional
+    fun upsertBudget(request: UpsertBudgetRequest): BudgetDto {
+        val collectiveCode = collectiveAccessService.requireCollectiveCodeByMemberName(request.memberName)
+        require(request.monthlyLimit >= 0) { "Budget must be zero or greater" }
+        val category = canonicalCategory(request.category)
+        val existing = budgetRepository.findByCollectiveCodeAndCategory(collectiveCode, category)
+        budgetRepository.save(
+            existing?.copy(monthlyLimit = request.monthlyLimit)
+                ?: Budget(collectiveCode = collectiveCode, category = category, monthlyLimit = request.monthlyLimit),
+        )
+        val dto = BudgetDto(category, request.monthlyLimit)
+        realtimeUpdateService.publish(collectiveCode, "BUDGET_UPDATED", dto)
+        return dto
     }
 
     @Transactional

@@ -3,7 +3,7 @@
  *
  * Use these instead of tinting --primary/--accent when a screen needs several things to look
  * distinct from one another (categories, stat tiles, chart segments, room rows). Because the
- * values live in the theme, anything built on them re-colours for free in dark and pink.
+ * values live in the theme, anything built on them re-colours for free in dark mode.
  */
 export const TONES = ['peri', 'butter', 'mint', 'blush', 'sage', 'lilac'] as const;
 

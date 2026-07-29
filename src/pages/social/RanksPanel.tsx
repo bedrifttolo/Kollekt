@@ -360,7 +360,7 @@ export default function RanksPanel() {
           ones a household actually argues about, so they belong here. */}
       <div className="card">
         <div className="mb-3 flex items-center gap-2">
-          <TrendingUp className="h-4 w-4 text-primary" />
+          <TrendingUp className="h-4 w-4 text-foreground" />
           <p className="text-sm font-semibold">{t('leaderboard.statsTitle', { period: translateKey('common.leaderboardPeriods', period) })}</p>
         </div>
         <div className="grid grid-cols-2 gap-2">
@@ -404,7 +404,7 @@ export default function RanksPanel() {
         <div className="card">
           <div className="mb-3 flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <Scale className="h-4 w-4 text-primary" />
+              <Scale className="h-4 w-4 text-foreground" />
               <p className="text-sm font-semibold">{t('leaderboard.fairness.title')}</p>
             </div>
             <span className="text-xs text-muted-foreground">

@@ -4,8 +4,12 @@ import { Home, CheckSquare, Calendar, MessageCircle, Wallet, Trophy } from 'luci
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useUser } from '../context/UserContext';
-import { springIndicator, springPop } from '../lib/motion';
+import { springPop } from '../lib/motion';
 import { selectionFeedback } from '../lib/haptics';
+
+/** A visibly bouncier settle than springPop — used only for the pill sliding between tabs, where
+ *  the lower damping reads as a dock catching the tap rather than a UI element sliding into place. */
+const springDock = { type: 'spring', stiffness: 380, damping: 20, mass: 0.7 } as const;
 
 const tabs = [
   { labelKey: 'bottomNav.home', icon: Home, path: '/', tour: 'home' },
@@ -75,8 +79,10 @@ export default function BottomNav() {
   }, [location.pathname, notifications, seenKey]);
 
   return (
-    <nav className="app-bottom-nav fixed bottom-0 left-2 right-2 z-50 safe-bottom">
-      <div role="tablist" className="flex items-center justify-around h-[4.75rem] max-w-xl mx-auto px-1 mb-2 rounded-[--r-2xl] bg-sidebar text-sidebar-foreground border border-sidebar-border shadow-[0_12px_34px_rgba(9,25,16,.24)]">
+    // bottom-[calc(...)] lifts the dock clear of the safe area with its own visible margin, rather
+    // than sitting flush against it — the gap is what reads as "floating" instead of "docked".
+    <nav className="app-bottom-nav fixed left-3 right-3 z-50 bottom-[calc(env(safe-area-inset-bottom,0px)+1rem)]">
+      <div role="tablist" className="flex items-center justify-around h-[4.75rem] max-w-xl mx-auto px-1 rounded-full bg-sidebar text-sidebar-foreground border border-sidebar-border shadow-[0_16px_38px_rgba(9,25,16,.3)]">
         {tabs.map((tab) => {
           const isActive =
             tab.path === '/'
@@ -96,45 +102,50 @@ export default function BottomNav() {
                 void selectionFeedback();
                 navigate(tab.path);
               }}
-              className="relative flex flex-1 flex-col items-center justify-center gap-1 self-stretch px-1 rounded-xl transition-colors"
+              className="relative flex flex-1 items-center justify-center self-stretch"
               aria-label={t(tab.labelKey)}
             >
-              {isActive && (
-                <motion.div
-                  layoutId="tab-indicator"
-                  className="absolute top-1.5 w-6 h-1 rounded-full bg-sidebar-primary"
-                  transition={springIndicator}
-                />
-              )}
-              <span className="relative">
-                {/* The icon pops when its tab becomes active. The sliding indicator says *where*
-                    you are; this says the tap landed, which the colour swap alone never did. */}
-                <motion.span
-                  className="block"
-                  animate={isActive ? { scale: [1, 1.22, 1], y: [0, -2, 0] } : { scale: 1, y: 0 }}
-                  transition={springPop}
-                >
-                  <tab.icon
-                    className={`h-6 w-6 transition-colors ${
-                      isActive ? 'text-sidebar-primary' : 'text-sidebar-foreground/60'
-                    }`}
-                  />
-                </motion.span>
-                {hasBadge && (
+              {/* This inner span is what layoutId measures: sized to hug the icon+label, not the
+                  full-height button, so the filled pill reads as a capsule around the tab's
+                  content rather than a floor-to-ceiling highlight. */}
+              <span className="relative flex flex-col items-center gap-1 rounded-full px-3 py-1.5">
+                {isActive && (
                   <motion.span
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={springPop}
-                    className="absolute -top-1 -right-1.5 h-3 w-3 rounded-full bg-destructive border-2 border-sidebar"
+                    layoutId="nav-active-pill"
+                    transition={springDock}
+                    className="absolute inset-0 rounded-full bg-sidebar-primary"
                   />
                 )}
-              </span>
-              <span
-                className={`text-[10px] font-medium transition-colors ${
-                  isActive ? 'text-sidebar-primary' : 'text-sidebar-foreground/60'
-                }`}
-              >
-                {t(tab.labelKey)}
+                <span className="relative z-10">
+                  {/* The icon pops harder than a plain colour swap would say on its own — the
+                      sliding pill says *where* you are, this says the tap landed. */}
+                  <motion.span
+                    className="block"
+                    animate={isActive ? { scale: [1, 1.4, 0.92, 1.05, 1], y: [0, -5, 1, -1, 0] } : { scale: 1, y: 0 }}
+                    transition={springPop}
+                  >
+                    <tab.icon
+                      className={`h-6 w-6 transition-colors duration-300 ${
+                        isActive ? 'text-sidebar-primary-foreground' : 'text-sidebar-foreground/60'
+                      }`}
+                    />
+                  </motion.span>
+                  {hasBadge && (
+                    <motion.span
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={springPop}
+                      className="absolute -top-1 -right-1.5 h-3 w-3 rounded-full bg-destructive border-2 border-sidebar"
+                    />
+                  )}
+                </span>
+                <span
+                  className={`relative z-10 text-[10px] font-medium transition-colors duration-300 ${
+                    isActive ? 'text-sidebar-primary-foreground' : 'text-sidebar-foreground/60'
+                  }`}
+                >
+                  {t(tab.labelKey)}
+                </span>
               </span>
             </button>
           );

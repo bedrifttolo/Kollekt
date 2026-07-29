@@ -317,7 +317,37 @@
     "noUpcomingTasksBody": "Inget på gång just nu. Lägg till en så har huset koll.",
     "noShoppingItemsBody": "Lägg in det huset är slut på, så kan vem som helst ta det.",
     "noUpcomingEventsBody": "Middagar, husmöten, besök — lägg dem här så ingen glömmer.",
-    "noRecentExpensesBody": "Lägg in en gemensam utgift, så delar Kollekt den åt er."
+    "noRecentExpensesBody": "Lägg in en gemensam utgift, så delar Kollekt den åt er.",
+    "vibeSheet": {
+      "title": "Det här formar stämningen",
+      "subtitle": "{{score}}/100 denna vecka",
+      "base": "Alla kollektiv börjar på {{base}}",
+      "taskCompletionLabel": "Sysslor i tid",
+      "taskCompletionSubtitle": "{{done}} av {{due}} förfallna klara denna vecka",
+      "taskCompletionTipDone": "Perfekt vecka — fortsätt så",
+      "taskCompletionTip": "Slutför resten för fler poäng",
+      "activityLabel": "Sysslor klara",
+      "activitySubtitle": "{{count}} denna vecka",
+      "activityTipCapped": "Taket nått för denna vecka",
+      "activityTip": "Slutför {{remaining}} till för att nå taket",
+      "planningLabel": "Planer tillsammans",
+      "planningSubtitle": "{{count}} händelser denna vecka",
+      "planningTipCapped": "Taket nått för denna vecka",
+      "planningTip": "Planera {{remaining}} till för att nå taket",
+      "togethernessLabel": "Delade kostnader",
+      "togethernessSubtitle": "{{count}} utgifter loggade denna vecka",
+      "togethernessTipCapped": "Taket nått för denna vecka",
+      "togethernessTip": "Logga {{remaining}} till för att nå taket",
+      "moodLabel": "Stämningen hemma",
+      "moodSubtitleKnown": "Snitt {{mood}}/5 från veckans incheckning",
+      "moodSubtitleUnknown": "Ingen incheckning än denna vecka",
+      "moodTip": "Svara på veckans incheckning för att räkna med humör",
+      "balanceLabel": "Pengabalans",
+      "balanceSubtitleEven": "Alla är uppgjorda",
+      "balanceSubtitleUneven": "{{amount}} spann mellan högsta och lägsta saldo",
+      "balanceTip": "Gör upp för att ta bort detta avdrag",
+      "balanceCta": "Gå till Ekonomi"
+    }
   },
   "tasks": {
     "title": "Uppgifter",
@@ -664,6 +694,14 @@
       "expenseCount": "{{count}} utgift",
       "expenseCount_plural": "{{count}} utgifter",
       "emptyMonthBody": "Lägg in en utgift så visas månadens fördelning här."
+    },
+    "budgets": {
+      "title": "Budgetar",
+      "subtitle": "Sätt ett månatligt tak per kategori och se hur månaden ligger till.",
+      "spentOfLimit": "{{spent}} av {{limit}}",
+      "setBudget": "Sätt en budget",
+      "limitPlaceholder": "Månatlig gräns",
+      "over": "{{amount}} över"
     },
     "setupPayment": {
       "title": "Ingen kan betala tillbaka till dig än",
@@ -1814,12 +1852,12 @@
     "language": "Språk",
     "appearance": {
       "title": "Utseende",
-      "light": "Varmt papperstema",
+      "system": "Följer din telefon",
+      "light": "Ljust vitt tema",
       "dark": "Mörkt talltema",
+      "systemLabel": "System",
       "lightLabel": "Ljus",
       "darkLabel": "Mörk",
-      "pink": "Mjukt rosa tema",
-      "pinkLabel": "Rosa",
       "toggle": "Växla mellan ljust och mörkt utseende"
     },
     "status": {

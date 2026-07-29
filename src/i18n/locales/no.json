@@ -317,7 +317,37 @@
     "noUpcomingTasksBody": "Ingenting på plan nå. Legg til en så holder huset oversikten.",
     "noShoppingItemsBody": "Legg inn det huset er tomt for, så kan hvem som helst ta det.",
     "noUpcomingEventsBody": "Middager, husmøter, besøk — legg dem her så ingen glemmer dem.",
-    "noRecentExpensesBody": "Legg inn en felles utgift, så deler Kollekt den for dere."
+    "noRecentExpensesBody": "Legg inn en felles utgift, så deler Kollekt den for dere.",
+    "vibeSheet": {
+      "title": "Dette former stemningen",
+      "subtitle": "{{score}}/100 denne uken",
+      "base": "Alle kollektiv starter på {{base}}",
+      "taskCompletionLabel": "Gjøremål i rute",
+      "taskCompletionSubtitle": "{{done}} av {{due}} forfalte gjort denne uken",
+      "taskCompletionTipDone": "Perfekt uke — fortsett sånn",
+      "taskCompletionTip": "Fullfør resten for flere poeng",
+      "activityLabel": "Gjøremål fullført",
+      "activitySubtitle": "{{count}} denne uken",
+      "activityTipCapped": "Nådd taket for denne uken",
+      "activityTip": "Fullfør {{remaining}} til for å nå taket",
+      "planningLabel": "Planer sammen",
+      "planningSubtitle": "{{count}} hendelser denne uken",
+      "planningTipCapped": "Nådd taket for denne uken",
+      "planningTip": "Planlegg {{remaining}} til for å nå taket",
+      "togethernessLabel": "Delte utgifter",
+      "togethernessSubtitle": "{{count}} utgifter registrert denne uken",
+      "togethernessTipCapped": "Nådd taket for denne uken",
+      "togethernessTip": "Registrer {{remaining}} til for å nå taket",
+      "moodLabel": "Humøret i huset",
+      "moodSubtitleKnown": "Snitt {{mood}}/5 fra ukens innsjekk",
+      "moodSubtitleUnknown": "Ingen innsjekk ennå denne uken",
+      "moodTip": "Svar på ukens innsjekk for å telle med humør",
+      "balanceLabel": "Pengebalanse",
+      "balanceSubtitleEven": "Alle er gjort opp",
+      "balanceSubtitleUneven": "{{amount}} spenn mellom høyeste og laveste saldo",
+      "balanceTip": "Gjør opp for å fjerne dette trekket",
+      "balanceCta": "Gå til Økonomi"
+    }
   },
   "tasks": {
     "title": "Oppgaver",
@@ -664,6 +694,14 @@
       "expenseCount": "{{count}} utgift",
       "expenseCount_plural": "{{count}} utgifter",
       "emptyMonthBody": "Legg inn en utgift, så dukker fordelingen for måneden opp her."
+    },
+    "budgets": {
+      "title": "Budsjetter",
+      "subtitle": "Sett et månedlig tak per kategori og se hvordan måneden ligger an.",
+      "spentOfLimit": "{{spent}} av {{limit}}",
+      "setBudget": "Sett et budsjett",
+      "limitPlaceholder": "Månedlig grense",
+      "over": "{{amount}} over"
     },
     "setupPayment": {
       "title": "Ingen kan betale deg tilbake ennå",
@@ -1814,12 +1852,12 @@
     "language": "Språk",
     "appearance": {
       "title": "Utseende",
-      "light": "Varmt papirtema",
+      "system": "Følger telefonen din",
+      "light": "Lyst hvitt tema",
       "dark": "Mørkt furutema",
+      "systemLabel": "System",
       "lightLabel": "Lys",
       "darkLabel": "Mørk",
-      "pink": "Mykt rosa tema",
-      "pinkLabel": "Rosa",
       "toggle": "Bytt mellom lyst og mørkt utseende"
     },
     "status": {

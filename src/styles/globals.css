@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=Schibsted+Grotesk:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss" source(none);
 @source "../**/*.{ts,tsx}";
 @source "../../index.html";
@@ -7,12 +7,12 @@
 
 :root {
   color-scheme: light;
-  --background: #f7f2ec;
-  --foreground: #14100e;
-  --card: #ffffff;
-  --card-foreground: #14100e;
-  --popover: #ffffff;
-  --popover-foreground: #14100e;
+  --background: #ffffff;
+  --foreground: #000000;
+  --card: #f7f2ec;
+  --card-foreground: #000000;
+  --popover: #f7f2ec;
+  --popover-foreground: #000000;
   --primary: #16262c;
   --primary-foreground: #ffffff;
   --secondary: #6366f1;
@@ -46,9 +46,9 @@
   /* Surface ramp. --card alone against --background gave a single contrast step (white on cream);
      --surface-3 is the inset tone for rows nested *inside* a card, which previously had to borrow
      --muted and collided with the segmented control. */
-  --surface-1: #f7f2ec;
-  --surface-2: #ffffff;
-  --surface-3: #f4ede5;
+  --surface-1: #ffffff;
+  --surface-2: #f7f2ec;
+  --surface-3: #eeeae4;
   /* Hero surfaces (.househero/.wallet/.gamehero) are a single deep tone rather than a gradient,
      so the white-on-hero text every caller already uses is guaranteed to read. */
   --hero: #16262c;
@@ -90,10 +90,10 @@
   /* Layout constants. All three are consumed by .app-screen/.app-screen-full below; each mirrors
      a hard-coded value in a component, so they must be changed together:
        --app-header-h  AppHeader's inner bar (h-16)
-       --app-nav-h     BottomNav's footprint excluding the safe-area inset (h-[4.75rem] + mb-2)
+       --app-nav-h     BottomNav's footprint excluding the safe-area inset (h-[4.75rem] + 1rem floor gap)
        --app-main-pt   <main>'s pt-2 in AppLayout */
   --app-header-h: 4rem;
-  --app-nav-h: 5.25rem;
+  --app-nav-h: 5.75rem;
   --app-main-pt: 0.5rem;
 
   /* Radius scale. Component classes below pick from these instead of each declaring its own
@@ -197,64 +197,6 @@
   --cat-other: #8a9490;
 }
 
-.pink {
-  color-scheme: light;
-  --background: #fdeef4;
-  --foreground: #3b1f2b;
-  --card: #fff5fa;
-  --card-foreground: #3b1f2b;
-  --popover: #fff5fa;
-  --popover-foreground: #3b1f2b;
-  --primary: #c43e74;
-  --primary-foreground: #fff5fa;
-  --secondary: #f4a8c8;
-  --secondary-foreground: #3b1f2b;
-  --muted: #f6dde8;
-  --muted-foreground: #8c6675;
-  --accent: #e58fb4;
-  --accent-foreground: #3b1f2b;
-  --destructive: #c0395f;
-  --destructive-foreground: #fff8fb;
-  --border: #f0ccdb;
-  --input: #f0ccdb;
-  --ring: #c43e74;
-  --glass-border: #f0ccdb;
-  --sidebar: #c43e74;
-  --sidebar-foreground: #fff5fa;
-  --sidebar-primary: #ffd9e7;
-  --sidebar-primary-foreground: #3b1f2b;
-  --sidebar-accent: #d4628c;
-  --sidebar-accent-foreground: #fff5fa;
-  --sidebar-border: #d4628c;
-  --sidebar-ring: #ffd9e7;
-  --shadow: 0 10px 32px rgba(150, 40, 80, 0.10);
-  --elev-1: 0 10px 32px rgba(150, 40, 80, 0.10);
-  --elev-2: 0 16px 44px rgba(150, 40, 80, 0.16);
-  --elev-3: 0 26px 64px rgba(150, 40, 80, 0.22);
-  --surface-1: #fdeef4;
-  --surface-2: #fff5fa;
-  --surface-3: #fbe6ef;
-  --hero: #7d2547;
-  --hero-foreground: #fff2f7;
-  --hero-positive: #8ef0be;
-  --hero-negative: #ffc2d2;
-  /* Warmed towards the pink page so the ramp reads as part of this theme, not borrowed from light. */
-  --tone-peri: #c3c6f2;
-  --tone-peri-fg: #2a2c52;
-  --tone-butter: #f2de9e;
-  --tone-butter-fg: #4b3c14;
-  --tone-mint: #bfe3d0;
-  --tone-mint-fg: #17402f;
-  --tone-blush: #f7c9d8;
-  --tone-blush-fg: #55202f;
-  --tone-sage: #a9b78a;
-  --tone-sage-fg: #23290f;
-  --tone-lilac: #ddcbf2;
-  --tone-lilac-fg: #33254c;
-  /* --cat-* deliberately inherits the light values: this theme's card (#fff5fa) is near-white, so
-     the palette validated against a white surface still holds. */
-}
-
 @theme inline {
   --color-background: var(--background); --color-foreground: var(--foreground);
   --color-card: var(--card); --color-card-foreground: var(--card-foreground);
@@ -279,7 +221,9 @@
   --radius-lg: var(--r-lg); --radius-xl: var(--r-xl); --radius-2xl: var(--r-2xl);
   --shadow-elev-1: var(--elev-1); --shadow-elev-2: var(--elev-2); --shadow-elev-3: var(--elev-3);
   --font-sans: 'Schibsted Grotesk', system-ui, sans-serif;
-  --font-display: 'Bricolage Grotesque', 'Schibsted Grotesk', sans-serif;
+  /* One typeface everywhere — headings/buttons/body all read as the same app. Kept as a
+     separate token (rather than deleting `font-display` call sites) so weight/size still vary. */
+  --font-display: 'Schibsted Grotesk', system-ui, sans-serif;
 }
 
 @layer base {
@@ -309,7 +253,7 @@
   .glow-primary, .glow-accent { box-shadow: var(--shadow); }
   .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
   .safe-top { padding-top: env(safe-area-inset-top, 0px); }
-  .safe-content-bottom { padding-bottom: calc(6.25rem + env(safe-area-inset-bottom, 0px)); }
+  .safe-content-bottom { padding-bottom: calc(6.75rem + env(safe-area-inset-bottom, 0px)); }
   .app-viewport { min-height: 100vh; min-height: 100dvh; }
   /* A page that fills exactly the space between the sticky header (4rem + safe-top) and the top of
      the fixed bottom nav, so the page itself never body-scrolls and only its inner scroll area
@@ -404,6 +348,10 @@
   .card-inset { background: var(--surface-3); border-radius: var(--r-md); padding: .75rem; }
   .btn-pine, .btn-lemon, .btn-ghost { min-height: var(--ctl-lg); border-radius: var(--r-md); padding: .75rem 1rem; font-weight: 750; display: inline-flex; align-items: center; justify-content: center; gap: .5rem; }
   .btn-pine { background: var(--primary); color: var(--primary-foreground); }
+  /* Dark theme's --primary is the green accent, which reads as too loud on a full-width CTA —
+     the reference dark-mode direction (Design/Darkmode.png) uses a plain white pill for the
+     primary action instead and saves colour for data (categories, budgets, streaks). */
+  .dark .btn-pine { background: #ffffff; color: #08120d; }
   .btn-lemon { background: var(--secondary); color: var(--secondary-foreground); }
   .btn-ghost { background: var(--card); color: var(--foreground); border: 1px solid var(--border); }
   .seg { display: flex; gap: .25rem; padding: .3rem; background: var(--muted); border-radius: var(--r-lg); }

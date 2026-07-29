@@ -1005,7 +1005,7 @@ function TasksMain() {
               onClick={() => { setTab(value); setShowAdd(false); setShowShoppingAdd(false); setShowMaintenanceAdd(false); }}
               className={`flex flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg py-2.5 text-sm font-semibold transition-all ${
                 tab === value
-                  ? 'bg-primary text-primary-foreground shadow-sm'
+                  ? 'bg-primary text-primary-foreground shadow-sm dark:bg-white dark:text-black'
                   : 'text-muted-foreground'
               }`}
             >
@@ -1027,6 +1027,7 @@ function TasksMain() {
 
       {!showAdd && !showShoppingAdd && !showMaintenanceAdd && (
         <Fab
+          tone="mint"
           onClick={() => {
             if (tab === 'tasks') { resetForm(); setShowAdd(true); }
             else if (tab === 'shopping') setShowShoppingAdd(true);
@@ -1267,9 +1268,7 @@ function TasksMain() {
                         </div>
                       </div>
                       <div className="w-14 shrink-0 text-center">
-                        <span className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-primary text-lg font-bold text-primary-foreground">
-                          {task.assignee[0]?.toUpperCase()}
-                        </span>
+                        <Avatar name={task.assignee} className="mx-auto h-12 w-12 text-lg" />
                         <span className="mt-1 block truncate text-[10px] font-semibold text-muted-foreground">
                           {task.assignee}
                         </span>
@@ -1376,7 +1375,7 @@ function TasksMain() {
                                   className="bg-muted/30 rounded-lg px-2.5 py-2 space-y-1"
                                 >
                                   <div className="flex items-center gap-1.5">
-                                    <span className="text-[10px] font-semibold text-primary">
+                                    <span className="text-[10px] font-semibold text-foreground">
                                       {feedback.anonymous
                                         ? t('tasks.feedbackAnonymousAuthor')
                                         : (feedback.author ??

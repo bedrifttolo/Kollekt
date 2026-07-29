@@ -131,7 +131,7 @@ export default function RoomPromptGame({ onClose }: { onClose: () => void }) {
         {room.status === 'LOBBY' && (
           <div className="space-y-5">
             <section className="card">
-              <div className="flex items-center gap-2"><Users className="h-4 w-4 text-primary" /><h3 className="font-display text-lg font-bold">{t('social.games.promptRelay.players')}</h3></div>
+              <div className="flex items-center gap-2"><Users className="h-4 w-4 text-foreground" /><h3 className="font-display text-lg font-bold">{t('social.games.promptRelay.players')}</h3></div>
               <div className="mt-3 space-y-2">
                 {room.participants.map((participant) => (
                   <div key={participant.name} className="flex items-center gap-3 rounded-xl bg-muted/40 px-3 py-2">
@@ -176,7 +176,7 @@ export default function RoomPromptGame({ onClose }: { onClose: () => void }) {
                 <h3 className="font-display text-lg font-bold">{t('social.games.promptRelay.yourQuestions')}</h3>
                 <div className="mt-2 space-y-2">
                   {room.myQuestions.map((question) => (
-                    <div key={question.id} className="card !rounded-2xl !p-3 flex items-center gap-3"><Clipboard className="h-4 w-4 shrink-0 text-primary" /><div className="min-w-0 flex-1"><p className="text-[10px] font-bold uppercase tracking-[.12em] text-muted-foreground">{t(`social.games.promptRelay.categories.${question.category}.title`)}</p><p className="text-sm">{question.prompt}</p></div>{!me?.ready && <button onClick={() => void run(() => api.delete<PartyGameRoom>(`/party-game/rooms/${room.code}/questions/${question.id}`))} aria-label={t('common.cancel')}><Trash2 className="h-4 w-4 shrink-0 text-destructive" /></button>}</div>
+                    <div key={question.id} className="card !rounded-2xl !p-3 flex items-center gap-3"><Clipboard className="h-4 w-4 shrink-0 text-foreground" /><div className="min-w-0 flex-1"><p className="text-[10px] font-bold uppercase tracking-[.12em] text-muted-foreground">{t(`social.games.promptRelay.categories.${question.category}.title`)}</p><p className="text-sm">{question.prompt}</p></div>{!me?.ready && <button onClick={() => void run(() => api.delete<PartyGameRoom>(`/party-game/rooms/${room.code}/questions/${question.id}`))} aria-label={t('common.cancel')}><Trash2 className="h-4 w-4 shrink-0 text-destructive" /></button>}</div>
                   ))}
                 </div>
               </section>

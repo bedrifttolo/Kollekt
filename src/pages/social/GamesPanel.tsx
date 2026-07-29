@@ -145,10 +145,7 @@ export default function GamesPanel() {
             key={game.id}
             className={`group card !p-4 text-left flex flex-col gap-3 ${game.playable ? '' : 'opacity-70'}`}
           >
-            <div className="flex min-w-0 items-start justify-between gap-2">
-              <span className={`tone-tile min-w-0 truncate rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-wide ${toneClass(toneByKey(game.category))}`}>
-                {t(`social.games.categories.${game.category}`)}
-              </span>
+            <div className="flex min-w-0 items-start justify-end gap-2">
               <div className="flex shrink-0 items-center gap-1">
                 {locked && (
                   <span className="inline-flex max-w-[5rem] items-center gap-1 rounded-full bg-secondary/20 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-secondary-foreground">

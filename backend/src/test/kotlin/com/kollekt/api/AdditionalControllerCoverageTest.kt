@@ -19,6 +19,7 @@ import com.kollekt.api.dto.RemoveReactionRequest
 import com.kollekt.api.dto.ShoppingItemDto
 import com.kollekt.api.dto.TaskDto
 import com.kollekt.api.dto.UserDto
+import com.kollekt.api.dto.VibeBreakdownDto
 import com.kollekt.api.dto.VotePollRequest
 import com.kollekt.domain.EventType
 import com.kollekt.domain.Notification
@@ -276,6 +277,27 @@ class AdditionalControllerCoverageTest {
                     recentExpenses = emptyList(),
                     pendingShoppingItems = emptyList(),
                     vibeScore = 84,
+                    vibeBreakdown =
+                        VibeBreakdownDto(
+                            base = 58,
+                            taskCompletionRate = 100,
+                            taskCompletionPoints = 22,
+                            dueTasksThisWeek = 0,
+                            completedDueTasksThisWeek = 0,
+                            activityBonus = 4,
+                            activityBonusCap = 10,
+                            tasksCompletedThisWeek = 4,
+                            planningBonus = 0,
+                            planningBonusCap = 6,
+                            eventsThisWeek = 0,
+                            togethernessBonus = 0,
+                            togethernessBonusCap = 4,
+                            expensesLoggedThisWeek = 0,
+                            moodAdjustment = 0,
+                            balancePenalty = 0,
+                            balancePenaltyCap = 6,
+                            balanceSpread = 0,
+                        ),
                 ),
             )
 
