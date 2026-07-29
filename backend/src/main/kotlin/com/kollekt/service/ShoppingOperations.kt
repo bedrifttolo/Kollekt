@@ -139,7 +139,7 @@ class ShoppingOperations(
                 description = item.item,
                 amount = request.amount,
                 paidBy = request.paidBy,
-                category = "Groceries",
+                category = request.category,
                 date = request.date,
                 participantNames = request.participantNames,
                 deadlineDate = request.deadlineDate,

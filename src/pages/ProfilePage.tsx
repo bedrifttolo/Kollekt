@@ -668,8 +668,8 @@ export default function ProfilePage() {
       {houseRules && (
         <div className="card space-y-3">
           <div className="flex items-center gap-3">
-            <div className="grid h-9 w-9 place-items-center rounded-xl bg-primary/20">
-              <ScrollText className="h-4 w-4 text-primary" />
+            <div className="grid h-9 w-9 place-items-center rounded-xl bg-primary/20 dark:bg-accent/20">
+              <ScrollText className="h-4 w-4 text-primary dark:text-accent" />
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-sm font-semibold">{t("profile.houseRules.title")}</p>
@@ -726,8 +726,8 @@ export default function ProfilePage() {
       {quietHours && (
         <div className="card space-y-3">
           <div className="flex items-center gap-3">
-            <div className="grid h-9 w-9 place-items-center rounded-xl bg-primary/20">
-              <Moon className="h-4 w-4 text-primary" />
+            <div className="grid h-9 w-9 place-items-center rounded-xl bg-primary/20 dark:bg-accent/20">
+              <Moon className="h-4 w-4 text-primary dark:text-accent" />
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-sm font-semibold">{t("quietHours.title")}</p>
@@ -883,8 +883,8 @@ export default function ProfilePage() {
         onClick={() => window.open('app-settings:', '_system')}
         className="glass rounded-2xl w-full flex items-center gap-3 p-4"
       >
-        <div className="h-9 w-9 rounded-xl bg-primary/20 flex items-center justify-center shrink-0">
-          <Settings className="h-4 w-4 text-primary" />
+        <div className="h-9 w-9 rounded-xl bg-primary/20 dark:bg-accent/20 flex items-center justify-center shrink-0">
+          <Settings className="h-4 w-4 text-primary dark:text-accent" />
         </div>
         <div className="flex-1 text-left">
           <p className="text-sm font-semibold">
@@ -902,8 +902,8 @@ export default function ProfilePage() {
           onClick={() => setExpandPayment((value) => !value)}
           className="w-full flex items-center gap-3 p-4"
         >
-          <div className="h-9 w-9 rounded-xl bg-primary/20 flex items-center justify-center shrink-0">
-            <Wallet className="h-4 w-4 text-primary" />
+          <div className="h-9 w-9 rounded-xl bg-primary/20 dark:bg-accent/20 flex items-center justify-center shrink-0">
+            <Wallet className="h-4 w-4 text-primary dark:text-accent" />
           </div>
           <div className="flex-1 text-left">
             <p className="text-sm font-semibold">

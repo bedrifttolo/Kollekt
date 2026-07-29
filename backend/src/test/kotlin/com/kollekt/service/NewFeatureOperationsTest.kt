@@ -115,6 +115,29 @@ class NewFeatureOperationsTest {
     }
 
     @Test
+    fun `any collective member can edit house rules, not just the owner`() {
+        val rules = mock<HouseRuleRepository>()
+        val acknowledgements = mock<HouseRuleAckRepository>()
+        val collectives = mock<CollectiveRepository>()
+        val members = mock<MemberRepository>()
+        val notifications = mock<NotificationService>()
+        val realtime = mock<RealtimeUpdateService>()
+        val chat = mock<ChatOperations>()
+        val service = HouseRuleOperations(rules, acknowledgements, collectives, members, notifications, realtime, chat)
+        val collective = collective()
+        val rule = HouseRule(10, "HOME", 1, "Be kind", "Bea")
+        whenever(collectives.findById(1)).thenReturn(Optional.of(collective))
+        whenever(collectives.findByJoinCodeForUpdate("HOME")).thenReturn(collective)
+        // Bea (id 2) is not the collective's owner (id 1).
+        whenever(members.findByName("Bea")).thenReturn(member(2, "Bea"))
+        whenever(members.findAllByCollectiveCode("HOME")).thenReturn(listOf(member(1, "Alex"), member(2, "Bea")))
+        whenever(rules.findFirstByCollectiveCodeOrderByVersionDesc("HOME")).thenReturn(null)
+        assertTrue(service.getLatest(1, "Bea").canEdit)
+        whenever(rules.save(any<HouseRule>())).thenReturn(rule)
+        assertEquals(1, service.update(1, "Be kind", "Bea").version)
+    }
+
+    @Test
     fun `report violation notifies recipients and posts a household chat message`() {
         val rules = mock<HouseRuleRepository>()
         val acknowledgements = mock<HouseRuleAckRepository>()
@@ -181,6 +204,29 @@ class NewFeatureOperationsTest {
     }
 
     @Test
+    fun `any collective member can edit quiet hours, not just the owner`() {
+        val notices = mock<GuestNoticeRepository>()
+        val quiet = mock<CollectiveQuietHoursRepository>()
+        val collectives = mock<CollectiveRepository>()
+        val members = mock<MemberRepository>()
+        val access = mock<CollectiveAccessService>()
+        val notifications = mock<NotificationService>()
+        val realtime = mock<RealtimeUpdateService>()
+        val service = GuestNoticeOperations(notices, quiet, collectives, members, access, notifications, realtime)
+        val collective = collective()
+        whenever(collectives.findById(1)).thenReturn(Optional.of(collective))
+        // Bea (id 2) is not the collective's owner (id 1).
+        whenever(members.findByName("Bea")).thenReturn(member(2, "Bea"))
+        whenever(quiet.findByCollectiveCode("HOME")).thenReturn(null)
+        whenever(quiet.save(any<CollectiveQuietHours>())).thenAnswer { it.arguments[0] }
+
+        assertTrue(service.getQuietHours(1, "Bea").canEdit)
+        assertTrue(
+            service.updateQuietHours(1, UpdateQuietHoursRequest(true, LocalTime.of(22, 0), LocalTime.of(7, 0)), "Bea").enabled,
+        )
+    }
+
+    @Test
     fun `maintenance tickets create filter assign prioritize and track status`() {
         val tickets = mock<MaintenanceTicketRepository>()
         val history = mock<MaintenanceTicketStatusHistoryRepository>()
@@ -240,7 +286,54 @@ class NewFeatureOperationsTest {
                 assertEquals("🔧 Leak", it.description)
                 assertEquals(750, it.amount)
                 assertEquals(listOf("Alex", "Bea"), it.participantNames)
+                // No category was chosen on completion, so it falls back to the historical default.
+                assertEquals("Bills", it.category)
             },
+            eq("Alex"),
+        )
+    }
+
+    @Test
+    fun `completing a maintenance ticket files the expense under the chosen category`() {
+        val tickets = mock<MaintenanceTicketRepository>()
+        val history = mock<MaintenanceTicketStatusHistoryRepository>()
+        val members = mock<MemberRepository>()
+        val access = mock<CollectiveAccessService>()
+        val realtime = mock<RealtimeUpdateService>()
+        val economy = mock<EconomyOperations>()
+        val service = MaintenanceTicketOperations(tickets, history, members, access, realtime, economy)
+        val ticket =
+            MaintenanceTicket(
+                9,
+                "HOME",
+                "Leak",
+                "Pipe",
+                MaintenancePriority.HIGH,
+                assignee = "Bea",
+                costEstimate = 500,
+                splitParticipants = "Alex,Bea",
+                createdBy = "Alex",
+            )
+        whenever(access.requireCollectiveCodeByMemberName("Alex")).thenReturn("HOME")
+        whenever(members.findByNameAndCollectiveCode("Alex", "HOME")).thenReturn(member(1, "Alex"))
+        whenever(members.findByNameAndCollectiveCode("Bea", "HOME")).thenReturn(member(2, "Bea"))
+        whenever(tickets.findByIdAndCollectiveCodeForUpdate(9, "HOME")).thenReturn(ticket)
+        whenever(tickets.save(any<MaintenanceTicket>())).thenAnswer { it.arguments[0] as MaintenanceTicket }
+        whenever(history.save(any<MaintenanceTicketStatusHistory>())).thenAnswer { it.arguments[0] }
+
+        service.update(
+            9,
+            UpdateMaintenanceTicketRequest(
+                status = MaintenanceStatus.DONE,
+                costEstimate = 750,
+                splitParticipants = listOf("Alex", "Bea"),
+                category = "Cleaning",
+            ),
+            "Alex",
+        )
+
+        verify(economy).createExpense(
+            check { assertEquals("Cleaning", it.category) },
             eq("Alex"),
         )
     }

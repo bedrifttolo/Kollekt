@@ -342,7 +342,7 @@ export default function EconomyPage() {
       </div>
 
       {/* Balance card */}
-      <div className="wallet">
+      <div className="wallet hero-lilac">
         <p className="text-xs font-bold uppercase tracking-[.16em] text-white/65 mb-1">{t('economy.yourBalance')}</p>
         {/* Amount colours come from the hero palette, not the page palette: `text-foreground` and
             `text-primary` are both the hero's own colour in the light theme, which made a settled
@@ -662,7 +662,7 @@ export default function EconomyPage() {
         <div className="flex items-center justify-between mb-2">
           <h3 className="text-sm font-semibold text-muted-foreground">{t('economy.expenseHistory')}</h3>
           {summary.expenses.length > 2 && (
-            <button onClick={() => setShowAllExpenses((v) => !v)} className="text-xs text-primary font-medium">
+            <button onClick={() => setShowAllExpenses((v) => !v)} className="text-xs text-primary dark:text-white font-medium">
               {showAllExpenses ? t('common.showLess') : t('common.seeAll')}
             </button>
           )}

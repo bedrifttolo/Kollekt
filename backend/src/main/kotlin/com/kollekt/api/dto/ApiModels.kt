@@ -199,6 +199,9 @@ data class UpdateMaintenanceTicketRequest(
     val dueDate: LocalDate? = null,
     val costEstimate: Int? = null,
     val splitParticipants: List<String>? = null,
+    // Budget category for the expense created when this completion carries a cost. Not persisted
+    // on the ticket itself (cost/category are both decided at completion time, like costEstimate).
+    val category: String? = null,
 )
 
 data class MaintenanceStatusHistoryDto(
@@ -278,6 +281,7 @@ data class MarkSupplyBoughtRequest(
     val participantNames: List<String> = emptyList(),
     val date: LocalDate,
     val deadlineDate: LocalDate? = null,
+    val category: String = "Groceries",
 )
 
 data class EventDto(

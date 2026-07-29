@@ -363,13 +363,13 @@ export default function CalendarPage() {
                   <motion.span
                     layoutId="calendar-day-pill"
                     transition={springSoft}
-                    className="absolute inset-0 rounded-full bg-primary dark:bg-white"
+                    className="absolute inset-0 rounded-full border border-border elev-1 bg-white dark:bg-black"
                   />
                 )}
-                <span className={`relative z-10 contents ${isSelected ? 'text-primary-foreground' : ''}`}>
+                <span className={`relative z-10 contents ${isSelected ? 'text-black dark:text-white' : ''}`}>
                 <span
                   className={`text-[10px] font-bold uppercase tracking-[.04em] ${
-                    isSelected ? "text-primary-foreground/70" : "text-muted-foreground"
+                    isSelected ? "text-black/70 dark:text-white/70" : "text-muted-foreground"
                   }`}
                 >
                   {weekdayLabels[index]}
@@ -377,7 +377,7 @@ export default function CalendarPage() {
                 <span
                   className={`text-sm font-bold tabular-nums ${
                     isSelected
-                      ? "text-primary-foreground"
+                      ? "text-black dark:text-white"
                       : isOutsideMonth
                         ? "text-muted-foreground/40"
                         : isToday
@@ -393,7 +393,7 @@ export default function CalendarPage() {
                     !eventDays.has(dateString)
                       ? "bg-transparent"
                       : isSelected
-                        ? "bg-primary-foreground"
+                        ? "bg-black dark:bg-white"
                         : "bg-secondary"
                   }`}
                 />
@@ -512,7 +512,7 @@ export default function CalendarPage() {
 
         {dayEvents.length === 0 && dayGuests.length === 0 && (
           <EmptyState
-            tone="peri"
+            tone="sage"
             icon={<CalendarPlus className="h-6 w-6" />}
             title={t("calendar.noEventsForDay")}
             body={t("calendar.noEventsForDayBody")}
@@ -720,7 +720,7 @@ export default function CalendarPage() {
           )}
         </AnimatePresence>
       </div>
-      {!showAdd && <Fab tone="peri" onClick={() => setShowAdd(true)} label={t("calendar.newEvent")} />}
+      {!showAdd && <Fab tone="sage" onClick={() => setShowAdd(true)} label={t("calendar.newEvent")} />}
     </motion.div>
   );
 }

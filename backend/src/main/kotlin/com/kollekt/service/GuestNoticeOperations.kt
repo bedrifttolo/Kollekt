@@ -85,7 +85,7 @@ class GuestNoticeOperations(
             enabled = settings?.enabled ?: false,
             startTime = settings?.startTime ?: LocalTime.of(22, 0),
             endTime = settings?.endTime ?: LocalTime.of(7, 0),
-            canEdit = memberRepository.findByName(actorName)?.id == collective.ownerMemberId,
+            canEdit = true,
         )
     }
 
@@ -96,8 +96,6 @@ class GuestNoticeOperations(
         actorName: String,
     ): QuietHoursDto {
         val collective = requireCollectiveMember(collectiveId, actorName)
-        val actor = memberRepository.findByName(actorName) ?: throw IllegalArgumentException("User not found")
-        if (actor.id != collective.ownerMemberId) throw AccessDeniedException("Only the household owner can edit quiet hours")
         require(request.startTime != request.endTime) { "Start and end time must differ" }
         val existing = quietHoursRepository.findByCollectiveCode(collective.joinCode)
         val saved =
