@@ -7,9 +7,8 @@ import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api';
 import { qk } from '../lib/queryKeys';
-import { useUser } from '../context/UserContext';
+import { useUser, useRealtimeEvent } from '../context/UserContext';
 import { formatCurrency, formatDate, formatTime, translateKey } from '../i18n/helpers';
-import { connectCollectiveRealtime } from '../lib/realtime';
 import type { AppUser, DashboardResponse, HouseCheckin } from '../lib/types';
 import { TASK_CATEGORY_ICONS } from '../lib/categoryIcons';
 import { AvatarStack, CountUp, EmptyState, Eyebrow, ProgressRing, VibeRing } from '../components/ui-kit';
@@ -159,23 +158,19 @@ export default function DashboardPage() {
   // Keyed on the stable member name (not the currentUser object) so the socket isn't torn
   // down and reconnected on every unrelated re-render — same presence logic as the chat.
   const name = currentUser?.name;
-  useEffect(() => {
-    if (!name) return;
-    const disconnect = connectCollectiveRealtime(
-      name,
-      (event) => {
-        if (['TASK_UPDATED', 'TASK_COMPLETED_LATE', 'EXPENSE_CREATED', 'EVENT_CREATED', 'BALANCES_SETTLED'].includes(event.type)) {
-          void queryClient.invalidateQueries({ queryKey: qk.dashboard(name) });
-        }
-        if (event.type === 'MEMBER_ONLINE' || event.type === 'MEMBER_OFFLINE') {
-          const count = (event.payload as { count?: number })?.count;
-          if (count !== undefined) setOnlineCount(count);
-        }
-      },
-      { onReconnected: () => void queryClient.invalidateQueries({ queryKey: qk.dashboard(name) }) },
-    );
-    return disconnect;
-  }, [name, queryClient]);
+  useRealtimeEvent(
+    (event) => {
+      if (!name) return;
+      if (['TASK_UPDATED', 'TASK_COMPLETED_LATE', 'EXPENSE_CREATED', 'EVENT_CREATED', 'BALANCES_SETTLED'].includes(event.type)) {
+        void queryClient.invalidateQueries({ queryKey: qk.dashboard(name) });
+      }
+      if (event.type === 'MEMBER_ONLINE' || event.type === 'MEMBER_OFFLINE') {
+        const count = (event.payload as { count?: number })?.count;
+        if (count !== undefined) setOnlineCount(count);
+      }
+    },
+    () => { if (name) void queryClient.invalidateQueries({ queryKey: qk.dashboard(name) }); },
+  );
 
   if (isPending || !data) {
     return (
@@ -313,7 +308,7 @@ export default function DashboardPage() {
                         <input type="checkbox" checked={anonymous} onChange={(event) => setAnonymous(event.target.checked)} />
                         {translate('checkin.anonymous')}
                       </label>
-                      <button onClick={() => void submitCheckin()} disabled={!issue.trim() || !improvement.trim()} className="w-full rounded-xl bg-primary py-2 text-sm font-bold text-primary-foreground disabled:opacity-50">
+                      <button onClick={() => void submitCheckin()} disabled={!issue.trim() || !improvement.trim()} className="w-full rounded-xl bg-primary py-2 text-sm font-bold text-primary-foreground disabled:opacity-50 dark:bg-white dark:text-black">
                         {translate('checkin.submit')}
                       </button>
                     </>

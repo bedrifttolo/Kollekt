@@ -248,6 +248,11 @@
   }
   .glass-strong { -webkit-backdrop-filter: blur(22px); backdrop-filter: blur(22px); }
   .gradient-primary { background: var(--primary); }
+  /* Every .gradient-primary call site is a solid CTA/active-pill fill (checked all of them), so —
+     same reasoning as .btn-pine below — it reads white in dark mode instead of the loud mint
+     accent. --primary-foreground is already near-black in dark, which was tuned to sit on green
+     but reads fine on white too, so only the background needs overriding here. */
+  .dark .gradient-primary { background: #ffffff; }
   .gradient-warm { background: linear-gradient(135deg, var(--secondary), #e99a5c); }
   .text-gradient { color: var(--primary); background: none; }
   .glow-primary, .glow-accent { box-shadow: var(--shadow); }

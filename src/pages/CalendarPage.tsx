@@ -20,7 +20,7 @@ import { api, API_BASE } from "../lib/api";
 import { qk } from "../lib/queryKeys";
 import { queryClient as sharedQueryClient } from "../lib/queryClient";
 import { addEventToDeviceCalendar } from "../lib/deviceCalendar";
-import { useUser } from "../context/UserContext";
+import { useUser, useRealtimeEvent } from "../context/UserContext";
 import {
   formatMonthDay,
   formatMonthYear,
@@ -29,7 +29,6 @@ import {
   getWeekdayLabels,
   translateKey,
 } from "../i18n/helpers";
-import { connectCollectiveRealtime } from "../lib/realtime";
 import type { CalendarEvent, EventType, GuestNotice, HouseCheckin } from "../lib/types";
 import { AddSheet, EmptyState, Eyebrow, Fab, OverflowMenu } from "../components/ui-kit";
 import { pressable, springSoft } from "../lib/motion";
@@ -139,21 +138,14 @@ export default function CalendarPage() {
       .catch(() => {});
   }, [name]);
 
-  useEffect(() => {
-    if (!name) return;
-    const disconnect = connectCollectiveRealtime(
-      name,
-      (event) => {
-        if (
-          ["EVENT_CREATED", "EVENT_DELETED", "EVENT_UPDATED", "GUEST_NOTICE_CREATED"].includes(event.type)
-        ) {
-          fetchEvents();
-        }
-      },
-      { onReconnected: () => fetchEvents() },
-    );
-    return disconnect;
-  }, [name]);
+  useRealtimeEvent(
+    (event) => {
+      if (["EVENT_CREATED", "EVENT_DELETED", "EVENT_UPDATED", "GUEST_NOTICE_CREATED"].includes(event.type)) {
+        fetchEvents();
+      }
+    },
+    () => fetchEvents(),
+  );
 
   const prevWeek = () => {
     const date = new Date(year, month, selectedDay);
@@ -371,7 +363,7 @@ export default function CalendarPage() {
                   <motion.span
                     layoutId="calendar-day-pill"
                     transition={springSoft}
-                    className="absolute inset-0 rounded-full bg-primary"
+                    className="absolute inset-0 rounded-full bg-primary dark:bg-white"
                   />
                 )}
                 <span className={`relative z-10 contents ${isSelected ? 'text-primary-foreground' : ''}`}>
@@ -385,7 +377,7 @@ export default function CalendarPage() {
                 <span
                   className={`text-sm font-bold tabular-nums ${
                     isSelected
-                      ? ""
+                      ? "text-primary-foreground"
                       : isOutsideMonth
                         ? "text-muted-foreground/40"
                         : isToday

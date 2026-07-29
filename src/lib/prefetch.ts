@@ -9,12 +9,14 @@ import type {
   TaskSwapRequest,
   MaintenanceTicket,
   EconomySummary,
+  CalendarEvent,
+  GuestNotice,
 } from './types';
 
 // Warms the caches after the active screen has had a chance to load. Running these
 // bundles sequentially avoids saturating the backend/DB pool during session restore.
 // The queryKeys + queryFns here must mirror the ones in the corresponding pages so the
-// prefetched entries are reused (Dashboard, Tasks, Economy). Fire-and-forget; failures
+// prefetched entries are reused (Dashboard, Tasks, Economy, Calendar). Fire-and-forget; failures
 // are ignored — the page's own query will retry.
 export async function prefetchMainData(queryClient: QueryClient, user: AppUser): Promise<void> {
   const name = user.name;
@@ -46,5 +48,16 @@ export async function prefetchMainData(queryClient: QueryClient, user: AppUser):
   await queryClient.prefetchQuery({
     queryKey: qk.economy(name),
     queryFn: () => api.get<EconomySummary>(`/economy/summary?memberName=${enc}`),
+  });
+
+  await queryClient.prefetchQuery({
+    queryKey: qk.calendar(name),
+    queryFn: async () => {
+      const [eventResponse, guestResponse] = await Promise.all([
+        api.get<CalendarEvent[]>(`/events?memberName=${enc}`),
+        api.get<GuestNotice[]>('/guest-notices'),
+      ]);
+      return { eventResponse, guestResponse };
+    },
   });
 }

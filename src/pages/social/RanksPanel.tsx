@@ -4,8 +4,7 @@ import { TrendingUp, Flame, Star, Pencil, X, SlidersHorizontal, Plus, Trash2, Ch
 import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../lib/api';
-import { connectCollectiveRealtime } from '../../lib/realtime';
-import { useUser } from '../../context/UserContext';
+import { useUser, useRealtimeEvent } from '../../context/UserContext';
 import { translateKey } from '../../i18n/helpers';
 import { Avatar, CountUp, OverflowMenu, ProgressRing, StatTile } from '../../components/ui-kit';
 import { listContainer, listItem, springSoft } from '../../lib/motion';
@@ -128,18 +127,14 @@ export default function RanksPanel() {
     await queryClient.invalidateQueries({ queryKey: ['ranks', name] });
   };
 
-  useEffect(() => {
-    if (!name) return;
-    return connectCollectiveRealtime(
-      name,
-      (event) => {
-        if (['TASK_UPDATED', 'TASK_CREATED', 'TASK_DELETED', 'EXPENSE_CREATED', 'BALANCES_SETTLED', 'ACHIEVEMENT_CONFIG_UPDATED'].includes(event.type)) {
-          void fetchData(period);
-        }
-      },
-      { onReconnected: () => void fetchData(period) },
-    );
-  }, [name, period]);
+  useRealtimeEvent(
+    (event) => {
+      if (['TASK_UPDATED', 'TASK_CREATED', 'TASK_DELETED', 'EXPENSE_CREATED', 'BALANCES_SETTLED', 'ACHIEVEMENT_CONFIG_UPDATED'].includes(event.type)) {
+        void fetchData(period);
+      }
+    },
+    () => void fetchData(period),
+  );
 
   const handleSetPrize = async () => {
     if (!name) return;
@@ -316,7 +311,7 @@ export default function RanksPanel() {
           <button
             key={p}
             onClick={() => setPeriod(p)}
-            className={`rounded-full px-3 py-1.5 text-xs font-bold transition-colors ${p === period ? 'bg-primary text-primary-foreground' : 'bg-card border border-border text-muted-foreground'}`}
+            className={`rounded-full px-3 py-1.5 text-xs font-bold transition-colors ${p === period ? 'bg-primary text-primary-foreground dark:bg-white dark:text-black' : 'bg-card border border-border text-muted-foreground'}`}
           >
             {translateKey('common.leaderboardPeriods', p)}
           </button>

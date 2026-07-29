@@ -7,9 +7,8 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api';
 import { qk } from '../lib/queryKeys';
 import { queryClient as sharedQueryClient } from '../lib/queryClient';
-import { useUser } from '../context/UserContext';
+import { useUser, useRealtimeEvent } from '../context/UserContext';
 import { formatCurrency, formatDate, translateKey } from '../i18n/helpers';
-import { connectCollectiveRealtime } from '../lib/realtime';
 import type { AppUser, Budget, EconomySummary, Expense, PaymentHandles, PayOption } from '../lib/types';
 import { Avatar, CountUp, EmptyState, Eyebrow, Fab, IconButton, OverflowMenu, ProgressRing } from '../components/ui-kit';
 import { listContainer, listItem, pressableSubtle } from '../lib/motion';
@@ -161,22 +160,17 @@ export default function EconomyPage() {
     await queryClient.invalidateQueries({ queryKey: qk.budgets(name) });
   };
 
-  useEffect(() => {
-    if (!name) return;
-    const disconnect = connectCollectiveRealtime(
-      name,
-      (event) => {
-        if (['EXPENSE_CREATED', 'EXPENSE_UPDATED', 'EXPENSE_DELETED', 'BALANCES_SETTLED', 'PANT_ADDED'].includes(event.type)) {
-          fetchSummary();
-        }
-        if (event.type === 'BUDGET_UPDATED') {
-          void queryClient.invalidateQueries({ queryKey: qk.budgets(name) });
-        }
-      },
-      { onReconnected: () => fetchSummary() },
-    );
-    return disconnect;
-  }, [name]);
+  useRealtimeEvent(
+    (event) => {
+      if (['EXPENSE_CREATED', 'EXPENSE_UPDATED', 'EXPENSE_DELETED', 'BALANCES_SETTLED', 'PANT_ADDED'].includes(event.type)) {
+        fetchSummary();
+      }
+      if (event.type === 'BUDGET_UPDATED' && name) {
+        void queryClient.invalidateQueries({ queryKey: qk.budgets(name) });
+      }
+    },
+    () => fetchSummary(),
+  );
 
   // Coming back into the app after a hand-off is the moment to ask whether the payment happened.
   // Without this the user has to remember to reopen Kollekt and find the button.

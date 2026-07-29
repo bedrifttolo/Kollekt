@@ -123,7 +123,7 @@ export default function GamesPanel() {
             key={c.id}
             onClick={() => setFilter(c.id)}
             className={`rounded-full px-3.5 py-1.5 text-sm font-bold transition-colors ${
-              filter === c.id ? 'bg-primary text-primary-foreground' : 'bg-card border border-border text-muted-foreground'
+              filter === c.id ? 'bg-primary text-primary-foreground dark:bg-white dark:text-black' : 'bg-card border border-border text-muted-foreground'
             }`}
           >
             <span className="inline-flex items-center gap-1.5">

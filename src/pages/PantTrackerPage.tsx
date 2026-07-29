@@ -7,8 +7,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "../lib/api";
 import { qk } from "../lib/queryKeys";
 import { queryClient as sharedQueryClient } from "../lib/queryClient";
-import { connectCollectiveRealtime } from "../lib/realtime";
-import { useUser } from "../context/UserContext";
+import { useUser, useRealtimeEvent } from "../context/UserContext";
 import { formatCurrency, formatDate } from "../i18n/helpers";
 import type { PantSummary, PantEntry } from "../lib/types";
 import { CountUp, Eyebrow, OverflowMenu, ProgressBar, ProgressRing } from "../components/ui-kit";
@@ -66,19 +65,14 @@ export default function PantTrackerPage() {
     await queryClient.invalidateQueries({ queryKey: qk.pant(name) });
   };
 
-  useEffect(() => {
-    if (!name) return;
-    const disconnect = connectCollectiveRealtime(
-      name,
-      (event) => {
-        if (["PANT_ADDED", "PANT_UPDATED", "PANT_DELETED"].includes(event.type)) {
-          fetchPant();
-        }
-      },
-      { onReconnected: () => fetchPant() },
-    );
-    return disconnect;
-  }, [name]);
+  useRealtimeEvent(
+    (event) => {
+      if (["PANT_ADDED", "PANT_UPDATED", "PANT_DELETED"].includes(event.type)) {
+        fetchPant();
+      }
+    },
+    () => fetchPant(),
+  );
 
   const handleAdd = async () => {
     const parsed = Math.round(Number(addAmount));

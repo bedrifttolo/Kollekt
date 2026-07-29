@@ -17,9 +17,8 @@ import { capturePhotoFile, nativeCameraAvailable } from '../lib/camera';
 import { clearChatBackground, getChatBackground, pickChatBackgroundFile, saveChatBackground } from '../lib/chatBackground';
 import { getLastSeenMessageId, setLastSeenMessageId } from '../lib/chatSeen';
 import { decorateMessages, newestMessageId } from '../lib/chatThread';
-import { useUser } from '../context/UserContext';
+import { useUser, useRealtimeEvent } from '../context/UserContext';
 import { formatDate, formatDateTime, formatTime } from '../i18n/helpers';
-import { connectCollectiveRealtime } from '../lib/realtime';
 import { tapFeedback } from '../lib/haptics';
 import { useGamesSubscription } from '../lib/purchases';
 import SubscriptionPaywall from '../components/SubscriptionPaywall';
@@ -232,35 +231,29 @@ export default function ChatPage() {
     }
   }, [name]);
 
-  useEffect(() => {
-    if (!name) return;
-    const disconnect = connectCollectiveRealtime(
-      name,
-      (event) => {
-        if (['MESSAGE_CREATED', 'MESSAGE_REACTION_UPDATED', 'MESSAGE_POLL_UPDATED'].includes(event.type)) {
-          // Household events only matter while the household thread is open.
-          if (activeThreadRef.current == null) void fetchMessages(null);
-        }
-        if (event.type === 'DIRECT_MESSAGE_CREATED') {
-          const dm = event.payload as { sender?: string; recipient?: string } | undefined;
-          const other = dm?.sender === name ? dm?.recipient : dm?.sender;
-          if (other && other === activeThreadRef.current) void fetchMessages(other);
-        }
-        if (event.type === 'CHECKIN_UPDATED') void fetchCheckinSummary();
-        if (event.type === 'MEMBER_ONLINE' || event.type === 'MEMBER_OFFLINE') {
-          const count = (event.payload as { count?: number })?.count;
-          if (count !== undefined) setOnlineCount(count);
-        }
-      },
-      {
-        onReconnected: () => {
-          void fetchMessages(activeThreadRef.current);
-          void fetchCheckinSummary();
-        },
-      },
-    );
-    return disconnect;
-  }, [name]);
+  useRealtimeEvent(
+    (event) => {
+      if (!name) return;
+      if (['MESSAGE_CREATED', 'MESSAGE_REACTION_UPDATED', 'MESSAGE_POLL_UPDATED'].includes(event.type)) {
+        // Household events only matter while the household thread is open.
+        if (activeThreadRef.current == null) void fetchMessages(null);
+      }
+      if (event.type === 'DIRECT_MESSAGE_CREATED') {
+        const dm = event.payload as { sender?: string; recipient?: string } | undefined;
+        const other = dm?.sender === name ? dm?.recipient : dm?.sender;
+        if (other && other === activeThreadRef.current) void fetchMessages(other);
+      }
+      if (event.type === 'CHECKIN_UPDATED') void fetchCheckinSummary();
+      if (event.type === 'MEMBER_ONLINE' || event.type === 'MEMBER_OFFLINE') {
+        const count = (event.payload as { count?: number })?.count;
+        if (count !== undefined) setOnlineCount(count);
+      }
+    },
+    () => {
+      void fetchMessages(activeThreadRef.current);
+      void fetchCheckinSummary();
+    },
+  );
 
   // The initial state ran before the session restored, so pick the wallpaper up once the member
   // name is known (and swap it when a different member signs in on this device).
@@ -626,7 +619,7 @@ export default function ChatPage() {
         <div className="flex gap-2 overflow-x-auto py-1.5 px-1 scrollbar-none">
         <button
           onClick={() => selectThread(null)}
-          className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${!isDirect ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}
+          className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${!isDirect ? 'bg-primary text-primary-foreground dark:bg-white dark:text-black' : 'bg-muted text-muted-foreground'}`}
         >
           {t('chat.householdThread')}
         </button>
@@ -634,7 +627,7 @@ export default function ChatPage() {
           <button
             key={member.name}
             onClick={() => selectThread(member.name)}
-            className={`flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1.5 text-xs font-semibold transition-colors ${activeThread === member.name ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}
+            className={`flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1.5 text-xs font-semibold transition-colors ${activeThread === member.name ? 'bg-primary text-primary-foreground dark:bg-white dark:text-black' : 'bg-muted text-muted-foreground'}`}
           >
             <span style={{ backgroundColor: colorForMember(member.name, member.color) }} className="grid h-5 w-5 place-items-center rounded-full text-[10px] font-bold text-white">
               {member.name[0]?.toUpperCase()}
@@ -789,7 +782,11 @@ export default function ChatPage() {
 	                  onPointerCancel={clearLongPress}
 	                  onPointerLeave={clearLongPress}
 	                >
-                  {message.text && !message.poll && <p className="text-[15px] leading-relaxed">{message.text}</p>}
+                  {message.text && !message.poll && (
+                    <p className={`text-[15px] leading-relaxed ${isSelf ? 'text-black dark:text-white' : 'text-black dark:text-foreground'}`}>
+                      {message.text}
+                    </p>
+                  )}
                   {message.imageData && (
                     <img
                       src={`data:${message.imageMimeType};base64,${message.imageData}`}
@@ -886,7 +883,7 @@ export default function ChatPage() {
                     <button
                       key={type}
                       onClick={() => setKudosType(type)}
-                      className={`rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors ${kudosType === type ? 'bg-primary text-primary-foreground' : 'bg-muted/60 text-muted-foreground'}`}
+                      className={`rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors ${kudosType === type ? 'bg-primary text-primary-foreground dark:bg-white dark:text-black' : 'bg-muted/60 text-muted-foreground'}`}
                     >
                       {t(`kudos.types.${type}`)}
                     </button>
@@ -898,7 +895,7 @@ export default function ChatPage() {
                 {householdTasks.map((task) => <option key={task.id} value={task.id}>{task.title}</option>)}
               </select>
               <input value={kudosContext} onChange={(event) => setKudosContext(event.target.value)} maxLength={500} placeholder={t('kudos.contextPlaceholder')} className="w-full rounded-lg bg-muted/50 px-3 py-2 text-xs" />
-              <button onClick={() => void sendKudos()} disabled={!kudosReceiver} className="w-full rounded-lg bg-primary py-2 text-xs font-bold text-primary-foreground disabled:opacity-50">{t('kudos.send')}</button>
+              <button onClick={() => void sendKudos()} disabled={!kudosReceiver} className="w-full rounded-lg bg-primary py-2 text-xs font-bold text-primary-foreground disabled:opacity-50 dark:bg-white dark:text-black">{t('kudos.send')}</button>
               <p className="text-[9px] text-muted-foreground">{t('kudos.privateNote')}</p>
             </AddSheet>
           </motion.div>
@@ -934,7 +931,7 @@ export default function ChatPage() {
               <div className="flex flex-wrap gap-1.5">
                 {LAUNDRY_TYPES.map((type) => (
                   <button key={type} onClick={() => setLaundryType(type)}
-                    className={`rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors ${laundryType === type ? 'bg-primary text-primary-foreground' : 'bg-muted/60 text-muted-foreground'}`}>
+                    className={`rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors ${laundryType === type ? 'bg-primary text-primary-foreground dark:bg-white dark:text-black' : 'bg-muted/60 text-muted-foreground'}`}>
                     {t(`laundry.types.${type}`)}
                   </button>
                 ))}
@@ -943,12 +940,12 @@ export default function ChatPage() {
               <div className="flex flex-wrap gap-1.5">
                 {LAUNDRY_TEMPS.map((temp) => (
                   <button key={temp} onClick={() => setLaundryTemp(temp)}
-                    className={`rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors ${laundryTemp === temp ? 'bg-primary text-primary-foreground' : 'bg-muted/60 text-muted-foreground'}`}>
+                    className={`rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors ${laundryTemp === temp ? 'bg-primary text-primary-foreground dark:bg-white dark:text-black' : 'bg-muted/60 text-muted-foreground'}`}>
                     {temp}°C
                   </button>
                 ))}
               </div>
-              <button onClick={() => void sendLaundry()} className="w-full rounded-lg bg-primary py-2 text-xs font-bold text-primary-foreground">{t('laundry.send')}</button>
+              <button onClick={() => void sendLaundry()} className="w-full rounded-lg bg-primary py-2 text-xs font-bold text-primary-foreground dark:bg-white dark:text-black">{t('laundry.send')}</button>
             </AddSheet>
           </motion.div>
         )}
@@ -1082,7 +1079,7 @@ export default function ChatPage() {
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => { void tapFeedback(); setShowActionBar((v) => !v); }}
               {...pressable}
-              className={`pressable grid shrink-0 place-items-center rounded-full transition-colors ${showActionBar ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}
+              className={`pressable grid shrink-0 place-items-center rounded-full transition-colors ${showActionBar ? 'bg-primary text-primary-foreground dark:bg-white dark:text-black' : 'bg-muted'}`}
               aria-label="Actions"
             >
               <motion.span animate={{ rotate: showActionBar ? 45 : 0 }} transition={springPop}>
@@ -1114,7 +1111,7 @@ export default function ChatPage() {
               if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
             }}
             placeholder={t('chat.messagePlaceholder')}
-            className="min-w-36 flex-1 resize-none self-center rounded-3xl bg-muted px-4 py-2.5 text-sm leading-snug placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+            className="min-w-36 flex-1 resize-none self-center rounded-3xl bg-muted px-4 py-2.5 text-sm leading-snug text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
           />
           {/* The send button wakes up when there is something to send: dimmed and slightly small
               while the composer is empty, full size and full colour the moment you type. */}
@@ -1123,10 +1120,10 @@ export default function ChatPage() {
             {...pressable}
             animate={{ scale: input.trim() ? 1 : 0.88, opacity: input.trim() ? 1 : 0.5 }}
             transition={springPop}
-            className="pressable grid shrink-0 place-items-center rounded-full bg-primary"
+            className="pressable grid shrink-0 place-items-center rounded-full bg-primary dark:bg-white"
             aria-label={t('common.send')}
           >
-            <Send className="h-4 w-4 text-primary-foreground" />
+            <Send className="h-4 w-4 text-primary-foreground dark:text-black" />
           </motion.button>
         </div>
       </div>

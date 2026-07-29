@@ -33,8 +33,7 @@ import {
 } from 'lucide-react';
 import { api } from '../lib/api';
 import { capturePhotoFile, nativeCameraAvailable } from '../lib/camera';
-import { useUser } from '../context/UserContext';
-import { connectCollectiveRealtime } from '../lib/realtime';
+import { useUser, useRealtimeEvent } from '../context/UserContext';
 import { tapFeedback } from '../lib/haptics';
 import { formatDate, formatDateTime, translateKey } from '../i18n/helpers';
 import type { AppUser, Task, ShoppingItem, TaskCategory, TaskSwapRequest, MaintenanceTicket, MaintenancePriority, MaintenanceStatus } from '../lib/types';
@@ -130,7 +129,7 @@ function TaskEditor({
               onClick={() => setNewAssignee(member)}
               aria-pressed={newAssignee === member}
               className={`flex min-h-11 items-center gap-1.5 rounded-full py-1 pl-1 pr-3 text-xs font-bold transition-colors ${
-                newAssignee === member ? 'bg-primary text-primary-foreground' : 'bg-muted/60 text-muted-foreground'
+                newAssignee === member ? 'bg-primary text-primary-foreground dark:bg-white dark:text-black' : 'bg-muted/60 text-muted-foreground'
               }`}
             >
               <Avatar name={member} className="h-8 w-8 text-[11px]" />
@@ -159,7 +158,7 @@ function TaskEditor({
               type="button"
               onClick={() => setNewDue(newDue === option.value ? '' : option.value)}
               className={`min-h-11 rounded-full px-3 text-xs font-bold transition-colors ${
-                newDue === option.value ? 'bg-primary text-primary-foreground' : 'bg-muted/60 text-muted-foreground'
+                newDue === option.value ? 'bg-primary text-primary-foreground dark:bg-white dark:text-black' : 'bg-muted/60 text-muted-foreground'
               }`}
             >
               {t(option.labelKey)}
@@ -187,7 +186,7 @@ function TaskEditor({
                 onClick={() => setNewCategory(category)}
                 aria-pressed={active}
                 className={`flex min-h-11 items-center gap-1.5 rounded-full px-3 text-xs font-bold transition-colors ${
-                  active ? 'bg-primary text-primary-foreground' : 'bg-muted/60 text-muted-foreground'
+                  active ? 'bg-primary text-primary-foreground dark:bg-white dark:text-black' : 'bg-muted/60 text-muted-foreground'
                 }`}
               >
                 <CategoryIcon className="h-3.5 w-3.5 shrink-0" />
@@ -458,51 +457,46 @@ function TasksMain() {
   };
 
 
-  useEffect(() => {
-    if (!name) return;
-    const disconnect = connectCollectiveRealtime(
-      name,
-      (event) => {
-        if (event.type === 'TASK_UPDATED') {
-          const payload = event.payload as
-            | { updatedBy?: string; task?: Task }
-            | undefined;
-          if (payload?.updatedBy === name) return;
-        }
+  useRealtimeEvent(
+    (event) => {
+      if (event.type === 'TASK_UPDATED') {
+        const payload = event.payload as
+          | { updatedBy?: string; task?: Task }
+          | undefined;
+        if (payload?.updatedBy === name) return;
+      }
 
-        if (event.type === 'TASK_UPDATED' || event.type === 'TASK_CREATED') {
-          const nextTask = extractTaskFromRealtimeEvent(event);
-          if (nextTask) upsertTask(nextTask);
-          return;
-        }
+      if (event.type === 'TASK_UPDATED' || event.type === 'TASK_CREATED') {
+        const nextTask = extractTaskFromRealtimeEvent(event);
+        if (nextTask) upsertTask(nextTask);
+        return;
+      }
 
-        if (event.type === 'TASK_DELETED') {
-          const payload = event.payload as { id?: number } | undefined;
-          if (payload?.id !== undefined) {
-            setTasksState((prev) => prev.filter((task) => task.id !== payload.id));
-          }
-          return;
+      if (event.type === 'TASK_DELETED') {
+        const payload = event.payload as { id?: number } | undefined;
+        if (payload?.id !== undefined) {
+          setTasksState((prev) => prev.filter((task) => task.id !== payload.id));
         }
+        return;
+      }
 
-        if (
-          [
-            'SHOPPING_UPDATED',
-            'SHOPPING_ITEM_CREATED',
-            'SHOPPING_ITEM_TOGGLED',
-            'SHOPPING_ITEM_DELETED',
-            'SHOPPING_ITEM_UPDATED',
-            'SHOPPING_ITEM_BOUGHT',
-            'MAINTENANCE_UPDATED',
-            'MAINTENANCE_DELETED',
-          ].includes(event.type)
-        ) {
-          void fetchAll();
-        }
-      },
-      { onReconnected: () => void fetchAll() },
-    );
-    return disconnect;
-  }, [name]);
+      if (
+        [
+          'SHOPPING_UPDATED',
+          'SHOPPING_ITEM_CREATED',
+          'SHOPPING_ITEM_TOGGLED',
+          'SHOPPING_ITEM_DELETED',
+          'SHOPPING_ITEM_UPDATED',
+          'SHOPPING_ITEM_BOUGHT',
+          'MAINTENANCE_UPDATED',
+          'MAINTENANCE_DELETED',
+        ].includes(event.type)
+      ) {
+        void fetchAll();
+      }
+    },
+    () => void fetchAll(),
+  );
 
   const handleShoppingAdd = async () => {
     if (!newShoppingName.trim()) return;
@@ -1099,7 +1093,7 @@ function TasksMain() {
                 <label className="min-w-0 space-y-1"><span className="text-xs font-semibold text-muted-foreground">{t('tasks.maintenance.dueDateLabel')}</span><input type="date" value={newMaintenanceDue} onChange={(event) => setNewMaintenanceDue(event.target.value)} className="w-full min-w-0 rounded-lg bg-muted/50 px-3 py-2 text-sm" /></label>
               </div>
               <p className="text-[10px] text-muted-foreground">{t('tasks.maintenance.costLaterHint')}</p>
-              <button onClick={() => void handleMaintenanceAdd()} disabled={!newMaintenanceTitle.trim()} className="w-full rounded-lg bg-primary py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50">{t('tasks.maintenance.addTicket')}</button>
+              <button onClick={() => void handleMaintenanceAdd()} disabled={!newMaintenanceTitle.trim()} className="w-full rounded-lg bg-primary py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50 dark:bg-white dark:text-black">{t('tasks.maintenance.addTicket')}</button>
             </AddSheet>
           </motion.div>
         )}
@@ -1125,7 +1119,7 @@ function TasksMain() {
                       <div className="mt-3 flex gap-2">
                         <button
                           onClick={() => void resolveTaskSwap(request.id, 'ACCEPTED')}
-                          className="rounded-full bg-primary px-3 py-2 text-xs font-bold text-primary-foreground"
+                          className="rounded-full bg-primary px-3 py-2 text-xs font-bold text-primary-foreground dark:bg-white dark:text-black"
                         >
                           {t('tasks.swap.accept')}
                         </button>
@@ -1352,7 +1346,7 @@ function TasksMain() {
                         <button
                           onClick={() => void requestTaskSwap(task.id)}
                           disabled={!swapRecipient}
-                          className="rounded-lg bg-primary px-3 py-2 text-xs font-bold text-primary-foreground disabled:opacity-50"
+                          className="rounded-lg bg-primary px-3 py-2 text-xs font-bold text-primary-foreground disabled:opacity-50 dark:bg-white dark:text-black"
                         >
                           {t('tasks.swap.send')}
                         </button>
@@ -1818,7 +1812,7 @@ function TasksMain() {
                     <textarea value={editTicketDescription} onChange={(event) => setEditTicketDescription(event.target.value)} placeholder={t('tasks.maintenance.descriptionPlaceholder')} rows={2} className="w-full resize-none rounded-lg bg-muted/50 px-3 py-2 text-sm" />
                     <input type="date" value={editTicketDue} onChange={(event) => setEditTicketDue(event.target.value)} className="w-full rounded-lg bg-muted/50 px-3 py-2 text-sm" />
                     <div className="flex gap-2">
-                      <button onClick={() => void saveEditTicket()} disabled={!editTicketTitle.trim()} className="flex-1 rounded-lg bg-primary py-2 text-xs font-bold text-primary-foreground disabled:opacity-50">{t('tasks.maintenance.saveEdit')}</button>
+                      <button onClick={() => void saveEditTicket()} disabled={!editTicketTitle.trim()} className="flex-1 rounded-lg bg-primary py-2 text-xs font-bold text-primary-foreground disabled:opacity-50 dark:bg-white dark:text-black">{t('tasks.maintenance.saveEdit')}</button>
                       <button onClick={() => setEditingTicketId(null)} className="flex-1 rounded-lg glass py-2 text-xs font-medium">{t('common.cancel')}</button>
                     </div>
                   </div>
@@ -1872,7 +1866,7 @@ function TasksMain() {
                         <button
                           key={member}
                           onClick={() => setCompleteSplit((prev) => selected ? prev.filter((m) => m !== member) : [...prev, member])}
-                          className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${selected ? 'bg-primary text-primary-foreground' : 'bg-muted/60 text-muted-foreground'}`}
+                          className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${selected ? 'bg-primary text-primary-foreground dark:bg-white dark:text-black' : 'bg-muted/60 text-muted-foreground'}`}
                         >
                           {member}
                         </button>
@@ -1885,7 +1879,7 @@ function TasksMain() {
               <button
                 onClick={() => void confirmCompleteTicket()}
                 disabled={Number(completeCost) > 0 && completeSplit.length === 0}
-                className="w-full rounded-xl bg-primary py-2.5 text-sm font-bold text-primary-foreground disabled:opacity-50"
+                className="w-full rounded-xl bg-primary py-2.5 text-sm font-bold text-primary-foreground disabled:opacity-50 dark:bg-white dark:text-black"
               >
                 {t('tasks.maintenance.completeConfirm')}
               </button>
