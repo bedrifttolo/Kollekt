@@ -229,7 +229,7 @@ export default function CreateHouseholdPage() {
               type="button"
               onClick={() => { setMode(m); setError(''); }}
               className={`flex-1 py-2.5 rounded-[.85rem] text-sm font-bold transition-all ${
-                mode === m ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'
+                mode === m ? 'bg-primary text-primary-foreground dark:bg-white dark:text-black' : 'text-muted-foreground'
               }`}
             >
               {m === 'create' ? t('createHousehold.tabCreate') : t('createHousehold.tabJoin')}

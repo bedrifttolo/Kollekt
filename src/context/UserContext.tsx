@@ -1,11 +1,14 @@
-import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useRef, useState, useCallback, type ReactNode } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { api, getAccessToken, logoutSession, deleteNotification, deleteAllNotifications } from '../lib/api';
 import { onAppResume } from '../lib/appLifecycle';
 import { prefetchMainData } from '../lib/prefetch';
-import { connectCollectiveRealtime } from '../lib/realtime';
+import { connectCollectiveRealtime, type RealtimeEvent } from '../lib/realtime';
 import { registerPushNotifications, unregisterPushNotifications } from '../lib/pushNotifications';
 import type { AppUser, Notification } from '../lib/types';
+
+type RealtimeEventListener = (event: RealtimeEvent) => void;
+type RealtimeReconnectListener = () => void;
 
 interface UserContextValue {
   currentUser: AppUser | null;
@@ -18,6 +21,10 @@ interface UserContextValue {
   dismissNotification: (id: number) => void;
   clearAllNotifications: () => void;
   markAllNotificationsRead: () => void;
+  /** Subscribe to every event on the single shared collective WebSocket. Prefer the
+   *  useRealtimeEvent hook below over calling this directly. */
+  subscribeRealtimeEvent: (listener: RealtimeEventListener) => () => void;
+  subscribeRealtimeReconnect: (listener: RealtimeReconnectListener) => () => void;
 }
 
 const UserContext = createContext<UserContextValue | null>(null);
@@ -32,6 +39,23 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [notificationsLoading, setNotificationsLoading] = useState(false);
   const queryClient = useQueryClient();
+  // Every page used to open its own `connectCollectiveRealtime` socket, so switching bottom-nav
+  // tabs tore one connection down and stood a new one up on every navigation (plus a re-auth
+  // round trip and a MEMBER_ONLINE/OFFLINE broadcast to the whole collective each time). This is
+  // the one connection for the whole session; pages register interest via useRealtimeEvent below
+  // instead of opening their own socket.
+  const eventListenersRef = useRef(new Set<RealtimeEventListener>());
+  const reconnectListenersRef = useRef(new Set<RealtimeReconnectListener>());
+
+  const subscribeRealtimeEvent = useCallback((listener: RealtimeEventListener) => {
+    eventListenersRef.current.add(listener);
+    return () => { eventListenersRef.current.delete(listener); };
+  }, []);
+
+  const subscribeRealtimeReconnect = useCallback((listener: RealtimeReconnectListener) => {
+    reconnectListenersRef.current.add(listener);
+    return () => { reconnectListenersRef.current.delete(listener); };
+  }, []);
 
   // Warm secondary tabs only after session verification and the active screen's first
   // request. Eagerly firing every screen request here used to contend with /me and the
@@ -129,8 +153,14 @@ export function UserProvider({ children }: { children: ReactNode }) {
         if (event.type === 'NOTIFICATION_CREATED') {
           fetchNotifications(name);
         }
+        eventListenersRef.current.forEach((listener) => listener(event));
       },
-      { onReconnected: () => fetchNotifications(name) },
+      {
+        onReconnected: () => {
+          fetchNotifications(name);
+          reconnectListenersRef.current.forEach((listener) => listener());
+        },
+      },
     );
     return disconnect;
   }, [currentUser?.name, fetchNotifications]);
@@ -183,6 +213,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
       dismissNotification,
       clearAllNotifications,
       markAllNotificationsRead,
+      subscribeRealtimeEvent,
+      subscribeRealtimeReconnect,
     }}>
       {children}
     </UserContext.Provider>
@@ -193,4 +225,26 @@ export function useUser() {
   const ctx = useContext(UserContext);
   if (!ctx) throw new Error('useUser must be used inside UserProvider');
   return ctx;
+}
+
+/**
+ * Registers interest in the single shared collective WebSocket instead of opening a page-scoped
+ * one. `onEvent`/`onReconnected` are read from a ref on every call, so passing a fresh inline
+ * closure each render is fine — the subscription itself is only (re)established once, on mount.
+ */
+export function useRealtimeEvent(onEvent: RealtimeEventListener, onReconnected?: RealtimeReconnectListener) {
+  const { subscribeRealtimeEvent, subscribeRealtimeReconnect } = useUser();
+  const eventRef = useRef(onEvent);
+  eventRef.current = onEvent;
+  const reconnectRef = useRef(onReconnected);
+  reconnectRef.current = onReconnected;
+
+  useEffect(() => {
+    const unsubscribeEvent = subscribeRealtimeEvent((event) => eventRef.current(event));
+    const unsubscribeReconnect = subscribeRealtimeReconnect(() => reconnectRef.current?.());
+    return () => {
+      unsubscribeEvent();
+      unsubscribeReconnect();
+    };
+  }, [subscribeRealtimeEvent, subscribeRealtimeReconnect]);
 }

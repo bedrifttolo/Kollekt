@@ -30,7 +30,7 @@ import {
   getUserMessage,
 } from "../lib/api";
 import { qk } from "../lib/queryKeys";
-import { useUser } from "../context/UserContext";
+import { useUser, useRealtimeEvent } from "../context/UserContext";
 import { translateKey } from "../i18n/helpers";
 import type {
   AppUser,
@@ -47,7 +47,16 @@ import { useTheme } from "../context/ThemeContext";
 import { Eyebrow } from "../components/ui-kit";
 import LanguageSwitcher from "../components/LanguageSwitcher";
 import { MEMBER_COLORS, colorForMember } from "../lib/memberColors";
-import { connectCollectiveRealtime } from "../lib/realtime";
+
+const PROFILE_REFRESH_EVENTS = new Set([
+  "TASK_CREATED",
+  "TASK_UPDATED",
+  "TASK_DELETED",
+  "TASK_COMPLETED_LATE",
+  "XP_UPDATED",
+  "ACHIEVEMENT_CONFIG_UPDATED",
+  "HOUSE_RULES_UPDATED",
+]);
 
 const STATUS_OPTIONS: { value: MemberStatus; dotClass: string }[] = [
   { value: "ACTIVE", dotClass: "bg-emerald-500" },
@@ -266,33 +275,18 @@ export default function ProfilePage() {
     if (paymentHandlesQuery.data) setPaymentHandles(paymentHandlesQuery.data);
   }, [paymentHandlesQuery.data]);
 
-  useEffect(() => {
-    if (!name) return;
-    const refreshEvents = new Set([
-      "TASK_CREATED",
-      "TASK_UPDATED",
-      "TASK_DELETED",
-      "TASK_COMPLETED_LATE",
-      "XP_UPDATED",
-      "ACHIEVEMENT_CONFIG_UPDATED",
-      "HOUSE_RULES_UPDATED",
-    ]);
-    return connectCollectiveRealtime(
-      name,
-      (event) => {
-        if (refreshEvents.has(event.type)) void loadStatsAndAchievements();
-        if (event.type === "HOUSE_RULES_UPDATED") void loadHouseRules();
-        if (event.type === "KUDOS_CREATED") void loadKudos();
-      },
-      {
-        onReconnected: () => {
-          void loadStatsAndAchievements();
-          void loadHouseRules();
-          void loadKudos();
-        },
-      },
-    );
-  }, [name, loadStatsAndAchievements, loadHouseRules, loadKudos]);
+  useRealtimeEvent(
+    (event) => {
+      if (PROFILE_REFRESH_EVENTS.has(event.type)) void loadStatsAndAchievements();
+      if (event.type === "HOUSE_RULES_UPDATED") void loadHouseRules();
+      if (event.type === "KUDOS_CREATED") void loadKudos();
+    },
+    () => {
+      void loadStatsAndAchievements();
+      void loadHouseRules();
+      void loadKudos();
+    },
+  );
 
   const saveHouseRules = async () => {
     if (!collectiveId || !rulesDraft.trim() || rulesSaving) return;
@@ -721,7 +715,7 @@ export default function ProfilePage() {
           {houseRules.version > 0 && !houseRules.acknowledged && (
             <div className="rounded-xl border border-secondary/40 bg-secondary/10 p-3">
               <p className="text-xs font-semibold">{t("profile.houseRules.ackBanner")}</p>
-              <button onClick={() => void acknowledgeHouseRules()} className="mt-2 rounded-lg bg-primary px-3 py-2 text-xs font-bold text-primary-foreground">
+              <button onClick={() => void acknowledgeHouseRules()} className="mt-2 rounded-lg bg-primary px-3 py-2 text-xs font-bold text-primary-foreground dark:bg-white dark:text-black">
                 {t("profile.houseRules.acknowledge")}
               </button>
             </div>
@@ -770,7 +764,7 @@ export default function ProfilePage() {
                 </div>
               )}
               <div className="flex gap-2">
-                <button onClick={() => void saveQuietHours()} className="flex-1 rounded-xl bg-primary py-2 text-sm font-bold text-primary-foreground">{t("quietHours.save")}</button>
+                <button onClick={() => void saveQuietHours()} className="flex-1 rounded-xl bg-primary py-2 text-sm font-bold text-primary-foreground dark:bg-white dark:text-black">{t("quietHours.save")}</button>
                 <button
                   onClick={() => {
                     if (quietHoursBackup) setQuietHours(quietHoursBackup);
@@ -802,7 +796,7 @@ export default function ProfilePage() {
               <button
                 key={option}
                 onClick={() => setViolationType(option)}
-                className={`flex-1 rounded-lg px-2 py-1.5 text-[11px] font-bold ${violationType === option ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+                className={`flex-1 rounded-lg px-2 py-1.5 text-[11px] font-bold ${violationType === option ? "bg-primary text-primary-foreground dark:bg-white dark:text-black" : "text-muted-foreground"}`}
               >
                 {t(`profile.violations.types.${option}`)}
               </button>
@@ -841,7 +835,7 @@ export default function ProfilePage() {
           <button
             onClick={() => void handleReportViolation()}
             disabled={violationSaving}
-            className="w-full rounded-xl bg-primary py-2 text-sm font-bold text-primary-foreground disabled:opacity-50"
+            className="w-full rounded-xl bg-primary py-2 text-sm font-bold text-primary-foreground disabled:opacity-50 dark:bg-white dark:text-black"
           >
             {violationSaving ? t("profile.violations.sending") : t("profile.violations.send")}
           </button>
@@ -877,7 +871,7 @@ export default function ProfilePage() {
             <button
               key={option}
               onClick={() => setTheme(option)}
-              className={`px-2 py-1.5 rounded-lg text-[9px] font-bold ${theme === option ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+              className={`px-2 py-1.5 rounded-lg text-[9px] font-bold ${theme === option ? "bg-primary text-primary-foreground dark:bg-white dark:text-black" : "text-muted-foreground"}`}
             >
               {t(`profile.appearance.${option}Label`)}
             </button>
@@ -1130,7 +1124,7 @@ export default function ProfilePage() {
                 className="mt-4 w-full resize-none rounded-xl border border-border bg-card p-3 text-sm"
                 placeholder={t("profile.houseRules.placeholder")}
               />
-              <button onClick={() => void saveHouseRules()} disabled={!rulesDraft.trim() || rulesSaving} className="mt-3 w-full rounded-xl bg-primary py-2.5 text-sm font-bold text-primary-foreground disabled:opacity-50">
+              <button onClick={() => void saveHouseRules()} disabled={!rulesDraft.trim() || rulesSaving} className="mt-3 w-full rounded-xl bg-primary py-2.5 text-sm font-bold text-primary-foreground disabled:opacity-50 dark:bg-white dark:text-black">
                 {rulesSaving ? t("profile.loading.saving") : t("profile.houseRules.publish")}
               </button>
             </motion.div>

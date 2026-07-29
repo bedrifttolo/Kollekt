@@ -602,7 +602,7 @@ export function SegmentedControl<T extends string>({
               <motion.span
                 layoutId={layoutId}
                 transition={springSoft}
-                className="elev-1 absolute inset-0 rounded-[--r-md] bg-primary"
+                className="elev-1 absolute inset-0 rounded-[--r-md] bg-primary dark:bg-white"
               />
             )}
             <span className={cn('relative z-10 transition-colors', isActive ? 'text-primary-foreground' : 'text-muted-foreground')}>

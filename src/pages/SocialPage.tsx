@@ -24,7 +24,7 @@ export default function SocialPage() {
             key={value}
             onClick={() => setTab(value)}
             className={`flex-1 rounded-[.85rem] py-2.5 text-sm font-bold transition-all ${
-              tab === value ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'
+              tab === value ? 'bg-primary text-primary-foreground dark:bg-white dark:text-black' : 'text-muted-foreground'
             }`}
           >
             {value === 'ranks' ? t('social.ranksTab') : t('social.gamesTab')}
