@@ -1,5 +1,7 @@
 package com.kollekt.service
 
+import com.kollekt.api.dto.PaymentHandlesDto
+import com.kollekt.api.dto.UpdatePaymentHandlesRequest
 import com.kollekt.domain.Member
 import com.kollekt.domain.MemberStatus
 import com.kollekt.domain.TaskCategory
@@ -237,6 +239,114 @@ class MemberOperationsTest {
         verify(memberRepository).save(expired.copy(status = MemberStatus.ACTIVE, awayUntil = null))
         verify(memberRepository, never()).save(stillAway.copy(status = MemberStatus.ACTIVE, awayUntil = null))
         verify(taskOperations).regenerateRecurringTasksForCollective("ABC123")
+    }
+
+    @Test
+    fun `get payment handles returns the stored handles`() {
+        val kasper =
+            member("Kasper", "kasper@example.com")
+                .copy(
+                    vippsHandle = "+4791234567",
+                    mobilepayHandle = "12345678",
+                    paypalHandle = "kasper",
+                    bankAccount = "NO9386011117947",
+                )
+        whenever(memberRepository.findByName("Kasper")).thenReturn(kasper)
+
+        val result = operations.getPaymentHandles("Kasper")
+
+        assertEquals("+4791234567", result.vipps)
+        assertEquals("12345678", result.mobilepay)
+        assertEquals("kasper", result.paypal)
+        assertEquals("NO9386011117947", result.bankAccount)
+    }
+
+    @Test
+    fun `get payment handles rejects an unknown member`() {
+        whenever(memberRepository.findByName("Missing")).thenReturn(null)
+
+        assertThrows(IllegalArgumentException::class.java) {
+            operations.getPaymentHandles("Missing")
+        }
+    }
+
+    @Test
+    fun `update payment handles strips formatting before saving`() {
+        val kasper = member("Kasper", "kasper@example.com")
+        whenever(memberRepository.findByName("Kasper")).thenReturn(kasper)
+
+        val result =
+            operations.updatePaymentHandles(
+                UpdatePaymentHandlesRequest(
+                    memberName = "Kasper",
+                    vipps = "+47 912 34 567",
+                    mobilepay = "12-34-56-78",
+                    // Both the full URL and a bare @handle are things people paste in.
+                    paypal = "https://paypal.me/@Kasper",
+                    bankAccount = "no93 8601 1117 947",
+                ),
+            )
+
+        assertEquals("+4791234567", result.vipps)
+        assertEquals("12345678", result.mobilepay)
+        assertEquals("Kasper", result.paypal)
+        // IBANs are stored upper-cased so settle-up links compare equal regardless of entry.
+        assertEquals("NO9386011117947", result.bankAccount)
+        verify(memberRepository).save(
+            kasper.copy(
+                vippsHandle = "+4791234567",
+                mobilepayHandle = "12345678",
+                paypalHandle = "Kasper",
+                bankAccount = "NO9386011117947",
+            ),
+        )
+    }
+
+    @Test
+    fun `blank payment handles clear the stored value`() {
+        val kasper =
+            member("Kasper", "kasper@example.com")
+                .copy(vippsHandle = "+4791234567", paypalHandle = "kasper")
+        whenever(memberRepository.findByName("Kasper")).thenReturn(kasper)
+
+        val result =
+            operations.updatePaymentHandles(
+                UpdatePaymentHandlesRequest(memberName = "Kasper", vipps = "   ", paypal = ""),
+            )
+
+        assertEquals(PaymentHandlesDto(), result)
+        verify(memberRepository).save(
+            kasper.copy(vippsHandle = null, mobilepayHandle = null, paypalHandle = null, bankAccount = null),
+        )
+    }
+
+    @Test
+    fun `malformed payment handles are rejected without saving`() {
+        val kasper = member("Kasper", "kasper@example.com")
+        whenever(memberRepository.findByName("Kasper")).thenReturn(kasper)
+        whenever(memberRepository.findByName("Missing")).thenReturn(null)
+
+        // Too short for a phone number.
+        assertThrows(IllegalArgumentException::class.java) {
+            operations.updatePaymentHandles(UpdatePaymentHandlesRequest("Kasper", vipps = "12345"))
+        }
+        // Letters are not a phone number.
+        assertThrows(IllegalArgumentException::class.java) {
+            operations.updatePaymentHandles(UpdatePaymentHandlesRequest("Kasper", mobilepay = "not-a-number"))
+        }
+        // PayPal.Me handles are alphanumeric only.
+        assertThrows(IllegalArgumentException::class.java) {
+            operations.updatePaymentHandles(UpdatePaymentHandlesRequest("Kasper", paypal = "kasper!"))
+        }
+        // Below the 6-character IBAN floor.
+        assertThrows(IllegalArgumentException::class.java) {
+            operations.updatePaymentHandles(UpdatePaymentHandlesRequest("Kasper", bankAccount = "NO93"))
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            operations.updatePaymentHandles(UpdatePaymentHandlesRequest("Missing", vipps = "+4791234567"))
+        }
+
+        verify(memberRepository, never()).save(any())
     }
 
     private fun member(

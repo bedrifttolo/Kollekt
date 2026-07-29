@@ -669,7 +669,6 @@ class EconomyOperations(
         val CATEGORIES = setOf("Groceries", "Bills", "Cleaning", "Entertainment", "Food", "Other")
 
         /** Maps a caller-supplied category onto the canonical set, case-insensitively. */
-        fun canonicalCategory(raw: String): String =
-            CATEGORIES.firstOrNull { it.equals(raw.trim(), ignoreCase = true) } ?: "Other"
+        fun canonicalCategory(raw: String): String = CATEGORIES.firstOrNull { it.equals(raw.trim(), ignoreCase = true) } ?: "Other"
     }
 }

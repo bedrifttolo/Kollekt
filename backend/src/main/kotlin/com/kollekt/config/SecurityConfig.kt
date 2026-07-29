@@ -70,7 +70,6 @@ class SecurityConfig(
             }.oauth2ResourceServer { it.jwt(Customizer.withDefaults()) }
             .build()
 
-
     @Bean
     fun jwtDecoder(): JwtDecoder {
         val key = SecretKeySpec(jwtSecret.toByteArray(), "HmacSHA256")

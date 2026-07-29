@@ -10,7 +10,7 @@ import { ThemeProvider } from './context/ThemeContext';
 import { queryClient } from './lib/queryClient';
 import { warmUpBackend } from './lib/api';
 
-// Start waking the (possibly cold) backend before anything renders.
+// Open the connection before anything renders, so the first request is not the one that pays for it.
 warmUpBackend();
 
 // Persist the query cache to localStorage (persisted across app launches in the iOS/Android

@@ -15,7 +15,6 @@ export default function LoginPage() {
   const { setCurrentUser } = useUser();
 
   const [error, setError] = useState('');
-  const [waking, setWaking] = useState(false);
   const [socialLoading, setSocialLoading] = useState<SocialProvider | null>(null);
   const socialProviders = getSocialProviders();
 
@@ -54,7 +53,6 @@ export default function LoginPage() {
   const handleSocialLogin = async (provider: SocialProvider) => {
     setError('');
     setSocialLoading(provider);
-    const slowTimer = setTimeout(() => setWaking(true), 4000);
     try {
       const identity = await getSocialIdentity(provider);
       const res = await api.post<AuthResponse>(`/onboarding/oauth/${provider}`, identity);
@@ -62,8 +60,6 @@ export default function LoginPage() {
     } catch (err: unknown) {
       setError(getUserMessage(err, t('errors.generic')));
     } finally {
-      clearTimeout(slowTimer);
-      setWaking(false);
       setSocialLoading(null);
     }
   };
@@ -99,9 +95,6 @@ export default function LoginPage() {
 
         <div className="w-full space-y-3 pb-6">
           {error && <p className="text-center text-sm text-destructive">{error}</p>}
-          {waking && !error && (
-            <p className="text-center text-sm text-muted-foreground">{t('auth.wakingServer')}</p>
-          )}
 
           {socialProviders.length === 0 ? (
             // With email/password gone, no configured provider means there is no way into the app
