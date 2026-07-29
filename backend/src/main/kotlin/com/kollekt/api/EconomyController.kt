@@ -125,4 +125,22 @@ class EconomyController(
         @RequestBody request: SettleWithRequest,
         @AuthenticationPrincipal jwt: Jwt,
     ) = economyOperations.settleWith(jwt.subject, request.creditorName)
+
+    @GetMapping("/budgets")
+    fun getBudgets(
+        @RequestParam memberName: String,
+        @AuthenticationPrincipal jwt: Jwt,
+    ): List<BudgetDto> {
+        requireTokenSubject(jwt, memberName)
+        return economyOperations.getBudgets(memberName)
+    }
+
+    @PutMapping("/budgets")
+    fun upsertBudget(
+        @RequestBody request: UpsertBudgetRequest,
+        @AuthenticationPrincipal jwt: Jwt,
+    ): BudgetDto {
+        requireTokenSubject(jwt, request.memberName)
+        return economyOperations.upsertBudget(request)
+    }
 }

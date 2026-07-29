@@ -1,15 +1,19 @@
 package com.kollekt.service
 
+import com.kollekt.api.dto.BudgetDto
 import com.kollekt.api.dto.CreateExpenseRequest
 import com.kollekt.api.dto.CreatePantEntryRequest
 import com.kollekt.api.dto.UpdateExpenseRequest
 import com.kollekt.api.dto.UpdatePantEntryRequest
+import com.kollekt.api.dto.UpsertBudgetRequest
+import com.kollekt.domain.Budget
 import com.kollekt.domain.Collective
 import com.kollekt.domain.Expense
 import com.kollekt.domain.Member
 import com.kollekt.domain.PantEntry
 import com.kollekt.domain.PersonalSettlement
 import com.kollekt.domain.SettlementCheckpoint
+import com.kollekt.repository.BudgetRepository
 import com.kollekt.repository.CollectiveRepository
 import com.kollekt.repository.ExpenseRepository
 import com.kollekt.repository.MemberRepository
@@ -23,6 +27,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.mockito.kotlin.any
 import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.check
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
@@ -39,6 +44,7 @@ class EconomyOperationsTest {
     private lateinit var settlementCheckpointRepository: SettlementCheckpointRepository
     private lateinit var personalSettlementRepository: PersonalSettlementRepository
     private lateinit var pantEntryRepository: PantEntryRepository
+    private lateinit var budgetRepository: BudgetRepository
     private lateinit var realtimeUpdateService: RealtimeUpdateService
     private lateinit var notificationService: NotificationService
     private lateinit var collectiveAccessService: CollectiveAccessService
@@ -52,6 +58,7 @@ class EconomyOperationsTest {
         settlementCheckpointRepository = mock()
         personalSettlementRepository = mock()
         pantEntryRepository = mock()
+        budgetRepository = mock()
         realtimeUpdateService = mock()
         notificationService = mock()
         collectiveAccessService = CollectiveAccessService(memberRepository, collectiveRepository)
@@ -62,6 +69,7 @@ class EconomyOperationsTest {
                 settlementCheckpointRepository = settlementCheckpointRepository,
                 personalSettlementRepository = personalSettlementRepository,
                 pantEntryRepository = pantEntryRepository,
+                budgetRepository = budgetRepository,
                 collectiveRepository = collectiveRepository,
                 realtimeUpdateService = realtimeUpdateService,
                 notificationService = notificationService,
@@ -786,6 +794,56 @@ class EconomyOperationsTest {
         assertEquals(false, saved.recurring)
         assertEquals(today, saved.date)
         verify(realtimeUpdateService).publish(eq("ABC123"), eq("EXPENSE_CREATED"), any())
+    }
+
+    @Test
+    fun `get budgets returns every canonical category with zero for ones never set`() {
+        whenever(budgetRepository.findAllByCollectiveCode("ABC123")).thenReturn(
+            listOf(Budget(id = 1, collectiveCode = "ABC123", category = "Groceries", monthlyLimit = 3000)),
+        )
+
+        val result = operations.getBudgets("Kasper")
+
+        assertEquals(6, result.size)
+        assertEquals(3000, result.first { it.category == "Groceries" }.monthlyLimit)
+        assertEquals(0, result.first { it.category == "Entertainment" }.monthlyLimit)
+    }
+
+    @Test
+    fun `upsert budget creates a new row when none exists yet`() {
+        whenever(budgetRepository.findByCollectiveCodeAndCategory("ABC123", "Groceries")).thenReturn(null)
+        whenever(budgetRepository.save(any<Budget>())).thenAnswer { it.arguments[0] as Budget }
+
+        val result = operations.upsertBudget(UpsertBudgetRequest("Kasper", "groceries", 2500))
+
+        assertEquals(BudgetDto("Groceries", 2500), result)
+        verify(budgetRepository).save(
+            check<Budget> {
+                assertEquals("ABC123", it.collectiveCode)
+                assertEquals("Groceries", it.category)
+                assertEquals(2500, it.monthlyLimit)
+            },
+        )
+        verify(realtimeUpdateService).publish("ABC123", "BUDGET_UPDATED", BudgetDto("Groceries", 2500))
+    }
+
+    @Test
+    fun `upsert budget replaces the limit on an existing row`() {
+        val existing = Budget(id = 9, collectiveCode = "ABC123", category = "Bills", monthlyLimit = 1000)
+        whenever(budgetRepository.findByCollectiveCodeAndCategory("ABC123", "Bills")).thenReturn(existing)
+        whenever(budgetRepository.save(any<Budget>())).thenAnswer { it.arguments[0] as Budget }
+
+        operations.upsertBudget(UpsertBudgetRequest("Kasper", "Bills", 1500))
+
+        verify(budgetRepository).save(existing.copy(monthlyLimit = 1500))
+    }
+
+    @Test
+    fun `upsert budget rejects a negative limit`() {
+        assertThrows<IllegalArgumentException> {
+            operations.upsertBudget(UpsertBudgetRequest("Kasper", "Bills", -1))
+        }
+        verify(budgetRepository, never()).save(any())
     }
 
     private fun member(

@@ -13,6 +13,7 @@ import com.kollekt.api.dto.MemberStatsDto
 import com.kollekt.api.dto.PeriodStatsDto
 import com.kollekt.api.dto.ShoppingItemDto
 import com.kollekt.api.dto.TaskDto
+import com.kollekt.api.dto.VibeBreakdownDto
 import com.kollekt.domain.CalendarEvent
 import com.kollekt.domain.CustomAchievement
 import com.kollekt.domain.CustomAchievementMetric
@@ -494,19 +495,15 @@ class StatsService(
         // The vibe is a positive, encouraging signal — most inputs add to it, and the only
         // negative (money imbalance) is small and capped so it can never dominate the score.
         // Positive reinforcement: completing chores this week lifts the vibe.
-        val activityBonus =
+        val tasksCompletedThisWeek =
             allTasks.count { it.completedAt?.toLocalDate()?.let { date -> date in weekStart..today } == true }
-                .coerceAtMost(10)
+        val activityBonus = tasksCompletedThisWeek.coerceAtMost(10)
         // Planning life together (shared events, guest nights) is a healthy-household signal.
-        val planningBonus =
-            events
-                .count { it.date in weekStart..today.plusWeeks(1) }
-                .coerceAtMost(6)
+        val eventsThisWeek = events.count { it.date in weekStart..today.plusWeeks(1) }
+        val planningBonus = eventsThisWeek.coerceAtMost(6)
         // Sharing costs as a group shows the household is actively cooperating.
-        val togethernessBonus =
-            expenses
-                .count { it.date in weekStart..today }
-                .coerceAtMost(4)
+        val expensesLoggedThisWeek = expenses.count { it.date in weekStart..today }
+        val togethernessBonus = expensesLoggedThisWeek.coerceAtMost(4)
         // A gentle nudge toward settling up — capped low so money imbalance never dominates.
         val balanceSpread =
             (balances.maxOfOrNull { it.amount } ?: 0) - (balances.minOfOrNull { it.amount } ?: 0)
@@ -525,10 +522,34 @@ class StatsService(
         val moodAdjustment =
             weeklyAverageMood?.let { (((it - 3.0) / 2.0) * 4.0).roundToInt().coerceIn(-4, 4) } ?: 0
         // Encouraging baseline with a generous floor, so the household never feels punished.
+        val vibeBase = 58
+        val taskCompletionPoints = (onTrackRate * 22).roundToInt()
         val vibeScore =
-            (58 + onTrackRate * 22 + activityBonus + planningBonus + togethernessBonus + moodAdjustment - balancePenalty)
+            (vibeBase + onTrackRate * 22 + activityBonus + planningBonus + togethernessBonus + moodAdjustment - balancePenalty)
                 .toInt()
                 .coerceIn(50, 100)
+        val vibeBreakdown =
+            VibeBreakdownDto(
+                base = vibeBase,
+                taskCompletionRate = (onTrackRate * 100).roundToInt(),
+                taskCompletionPoints = taskCompletionPoints,
+                dueTasksThisWeek = dueTasks.size,
+                completedDueTasksThisWeek = dueTasks.count { it.completed },
+                activityBonus = activityBonus,
+                activityBonusCap = 10,
+                tasksCompletedThisWeek = tasksCompletedThisWeek,
+                planningBonus = planningBonus,
+                planningBonusCap = 6,
+                eventsThisWeek = eventsThisWeek,
+                togethernessBonus = togethernessBonus,
+                togethernessBonusCap = 4,
+                expensesLoggedThisWeek = expensesLoggedThisWeek,
+                moodAdjustment = moodAdjustment,
+                weeklyAverageMood = weeklyAverageMood,
+                balancePenalty = balancePenalty,
+                balancePenaltyCap = 6,
+                balanceSpread = balanceSpread,
+            )
 
         val response =
             DashboardResponse(
@@ -565,6 +586,7 @@ class StatsService(
                         .take(3)
                         .map { ShoppingItemDto(it.id, it.item, it.addedBy, it.completed) },
                 vibeScore = vibeScore,
+                vibeBreakdown = vibeBreakdown,
             )
 
         return response

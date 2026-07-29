@@ -530,7 +530,7 @@ export default function CalendarPage() {
 
         {dayGuests.map((notice) => (
           <div key={`guest-${notice.id}`} className={`event !flex items-center gap-3 !p-3.5 ${notice.overlapsQuietHours ? "border-secondary/60" : ""}`}>
-            <House className="h-6 w-6 shrink-0 text-primary" />
+            <House className="h-6 w-6 shrink-0 text-foreground" />
             <div className="min-w-0 flex-1">
               <h4 className="text-[15px] font-bold">{t("calendar.guestVisit", { guest: notice.guestName })}</h4>
               <p className="text-xs text-muted-foreground">{formatTime(notice.startTime)}–{formatTime(notice.endTime)} · {notice.createdBy}</p>
@@ -728,7 +728,7 @@ export default function CalendarPage() {
           )}
         </AnimatePresence>
       </div>
-      {!showAdd && <Fab onClick={() => setShowAdd(true)} label={t("calendar.newEvent")} />}
+      {!showAdd && <Fab tone="peri" onClick={() => setShowAdd(true)} label={t("calendar.newEvent")} />}
     </motion.div>
   );
 }

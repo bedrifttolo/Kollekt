@@ -292,7 +292,7 @@ export default function PantTrackerPage() {
         ) : (
           <p className="flex items-center gap-1.5 font-display font-bold text-lg">
             {t("pant.goalTitle")}
-            <PartyPopper className="h-4 w-4 shrink-0 text-primary" />
+            <PartyPopper className="h-4 w-4 shrink-0 text-foreground" />
           </p>
         )}
         {/* The goal ring. This screen is entirely about closing a gap, and it reported that gap as
@@ -346,7 +346,7 @@ export default function PantTrackerPage() {
                   className="glass rounded-xl p-3 flex items-center gap-3"
                 >
                   <div className="h-9 w-9 rounded-lg bg-muted flex items-center justify-center shrink-0">
-                    <Recycle className="h-4 w-4 text-primary" />
+                    <Recycle className="h-4 w-4 text-foreground" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium">

@@ -317,7 +317,37 @@
     "noUpcomingTasksBody": "Nothing due right now. Add one so the house stays on top of it.",
     "noShoppingItemsBody": "Add what the house is out of and anyone can grab it.",
     "noUpcomingEventsBody": "Dinners, house meetings, visits — put them here so nobody misses them.",
-    "noRecentExpensesBody": "Log a shared cost and Kollekt does the splitting."
+    "noRecentExpensesBody": "Log a shared cost and Kollekt does the splitting.",
+    "vibeSheet": {
+      "title": "What's shaping your vibe",
+      "subtitle": "{{score}}/100 this week",
+      "base": "Every household starts at {{base}}",
+      "taskCompletionLabel": "Chores on track",
+      "taskCompletionSubtitle": "{{done}} of {{due}} due this week done",
+      "taskCompletionTipDone": "Perfect week — keep it up",
+      "taskCompletionTip": "Finish the rest to add more points",
+      "activityLabel": "Chores completed",
+      "activitySubtitle": "{{count}} this week",
+      "activityTipCapped": "Maxed out for this week",
+      "activityTip": "Complete {{remaining}} more to max this out",
+      "planningLabel": "Plans together",
+      "planningSubtitle": "{{count}} events this week",
+      "planningTipCapped": "Maxed out for this week",
+      "planningTip": "Plan {{remaining}} more to max this out",
+      "togethernessLabel": "Shared costs",
+      "togethernessSubtitle": "{{count}} expenses logged this week",
+      "togethernessTipCapped": "Maxed out for this week",
+      "togethernessTip": "Log {{remaining}} more to max this out",
+      "moodLabel": "House mood",
+      "moodSubtitleKnown": "Average {{mood}}/5 from this week’s check-in",
+      "moodSubtitleUnknown": "No check-in yet this week",
+      "moodTip": "Answer this week's check-in to factor mood in",
+      "balanceLabel": "Money balance",
+      "balanceSubtitleEven": "Everyone is settled up",
+      "balanceSubtitleUneven": "{{amount}} spread between the highest and lowest balance",
+      "balanceTip": "Settle up to remove this penalty",
+      "balanceCta": "Go to Economy"
+    }
   },
   "tasks": {
     "title": "Tasks",
@@ -664,6 +694,14 @@
       "expenseCount": "{{count}} expense",
       "expenseCount_plural": "{{count}} expenses",
       "emptyMonthBody": "Log an expense and this month’s split shows up here."
+    },
+    "budgets": {
+      "title": "Budgets",
+      "subtitle": "Set a monthly cap per category and see how this month is tracking.",
+      "spentOfLimit": "{{spent}} of {{limit}}",
+      "setBudget": "Set a budget",
+      "limitPlaceholder": "Monthly limit",
+      "over": "{{amount}} over"
     },
     "setupPayment": {
       "title": "Nobody can pay you back yet",
@@ -1814,12 +1852,12 @@
     "language": "Language",
     "appearance": {
       "title": "Appearance",
-      "light": "Warm paper theme",
+      "system": "Matches your phone",
+      "light": "Bright white theme",
       "dark": "Night pine theme",
+      "systemLabel": "System",
       "lightLabel": "Light",
       "darkLabel": "Dark",
-      "pink": "Soft pink theme",
-      "pinkLabel": "Pink",
       "toggle": "Toggle light or dark appearance"
     },
     "status": {

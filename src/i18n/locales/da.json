@@ -317,7 +317,37 @@
     "noUpcomingTasksBody": "Intet på programmet nu. Tilføj en, så har huset styr på det.",
     "noShoppingItemsBody": "Tilføj det huset mangler, så kan hvem som helst tage det.",
     "noUpcomingEventsBody": "Middage, husmøder, besøg — læg dem her, så ingen glemmer dem.",
-    "noRecentExpensesBody": "Tilføj en fælles udgift, så deler Kollekt den for jer."
+    "noRecentExpensesBody": "Tilføj en fælles udgift, så deler Kollekt den for jer.",
+    "vibeSheet": {
+      "title": "Det her former stemningen",
+      "subtitle": "{{score}}/100 denne uge",
+      "base": "Alle kollektiver starter på {{base}}",
+      "taskCompletionLabel": "Opgaver til tiden",
+      "taskCompletionSubtitle": "{{done}} af {{due}} forfaldne klaret denne uge",
+      "taskCompletionTipDone": "Perfekt uge — bliv ved",
+      "taskCompletionTip": "Fuldfør resten for flere point",
+      "activityLabel": "Opgaver fuldført",
+      "activitySubtitle": "{{count}} denne uge",
+      "activityTipCapped": "Loftet nået for denne uge",
+      "activityTip": "Fuldfør {{remaining}} mere for at nå loftet",
+      "planningLabel": "Planer sammen",
+      "planningSubtitle": "{{count}} begivenheder denne uge",
+      "planningTipCapped": "Loftet nået for denne uge",
+      "planningTip": "Planlæg {{remaining}} mere for at nå loftet",
+      "togethernessLabel": "Delte udgifter",
+      "togethernessSubtitle": "{{count}} udgifter registreret denne uge",
+      "togethernessTipCapped": "Loftet nået for denne uge",
+      "togethernessTip": "Registrer {{remaining}} mere for at nå loftet",
+      "moodLabel": "Stemningen i huset",
+      "moodSubtitleKnown": "Gennemsnit {{mood}}/5 fra ugens tjek-in",
+      "moodSubtitleUnknown": "Endnu intet tjek-in denne uge",
+      "moodTip": "Svar på ugens tjek-in for at tælle humør med",
+      "balanceLabel": "Pengebalance",
+      "balanceSubtitleEven": "Alle er gjort op",
+      "balanceSubtitleUneven": "{{amount}} spænd mellem højeste og laveste saldo",
+      "balanceTip": "Gør op for at fjerne dette fradrag",
+      "balanceCta": "Gå til Økonomi"
+    }
   },
   "tasks": {
     "title": "Opgaver",
@@ -664,6 +694,14 @@
       "expenseCount": "{{count}} udgift",
       "expenseCount_plural": "{{count}} udgifter",
       "emptyMonthBody": "Tilføj en udgift, så dukker månedens fordeling op her."
+    },
+    "budgets": {
+      "title": "Budgetter",
+      "subtitle": "Sæt et månedligt loft pr. kategori, og se hvordan måneden ligger.",
+      "spentOfLimit": "{{spent}} af {{limit}}",
+      "setBudget": "Sæt et budget",
+      "limitPlaceholder": "Månedlig grænse",
+      "over": "{{amount}} over"
     },
     "setupPayment": {
       "title": "Ingen kan betale dig tilbage endnu",
@@ -1814,12 +1852,12 @@
     "language": "Sprog",
     "appearance": {
       "title": "Udseende",
-      "light": "Varmt papirtema",
+      "system": "Følger din telefon",
+      "light": "Lyst hvidt tema",
       "dark": "Mørkt fyrretema",
+      "systemLabel": "System",
       "lightLabel": "Lys",
       "darkLabel": "Mørk",
-      "pink": "Blødt lyserødt tema",
-      "pinkLabel": "Lyserød",
       "toggle": "Skift mellem lyst og mørkt udseende"
     },
     "status": {

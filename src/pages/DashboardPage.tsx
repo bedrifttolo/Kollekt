@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { CheckSquare, Calendar, Wallet, Zap, ShoppingCart, MessageCircleHeart, Leaf, PartyPopper, CircleCheckBig, CalendarPlus, Receipt } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { CheckSquare, Calendar, Wallet, Zap, ShoppingCart, MessageCircleHeart, Leaf, PartyPopper, CircleCheckBig, CalendarPlus, Receipt, ChevronRight, ChevronDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api';
@@ -13,6 +13,7 @@ import { connectCollectiveRealtime } from '../lib/realtime';
 import type { AppUser, DashboardResponse, HouseCheckin } from '../lib/types';
 import { TASK_CATEGORY_ICONS } from '../lib/categoryIcons';
 import { AvatarStack, CountUp, EmptyState, Eyebrow, ProgressRing, VibeRing } from '../components/ui-kit';
+import { VibeSheetPortal } from '../components/VibeSheet';
 import { dailyIndex, listContainer, listItem, pressableSubtle } from '../lib/motion';
 import { celebrate } from '../lib/celebrate';
 import type { Tone } from '../lib/tones';
@@ -102,6 +103,8 @@ export default function DashboardPage() {
   const [issue, setIssue] = useState('');
   const [improvement, setImprovement] = useState('');
   const [anonymous, setAnonymous] = useState(false);
+  const [showVibeSheet, setShowVibeSheet] = useState(false);
+  const [checkinExpanded, setCheckinExpanded] = useState(false);
 
   // Home-screen AdMob banner (no-op until ads are enabled in src/lib/ads.ts).
   useEffect(() => {
@@ -256,46 +259,69 @@ export default function DashboardPage() {
         </div>
       </motion.div>
 
-      <motion.div variants={listItem} className="card flex items-center gap-4">
+      <motion.button
+        variants={listItem}
+        onClick={() => setShowVibeSheet(true)}
+        {...pressableSubtle}
+        className="card flex w-full items-center gap-4 text-left"
+      >
         <VibeRing score={data.vibeScore} />
-        <div>
+        <div className="min-w-0 flex-1">
           <h3 className="font-display text-lg font-bold">{translate('dashboard.vibeTitle')}</h3>
           <p className="text-sm text-muted-foreground mt-1">
             {data.vibeScore >= 75 ? translate('dashboard.vibeGreat') : data.vibeScore >= 50 ? translate('dashboard.vibeSteady') : translate('dashboard.vibeNeedsLove')}
           </p>
         </div>
-      </motion.div>
+        <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+      </motion.button>
 
       {checkin && (
-        <motion.div variants={listItem} className="card space-y-3">
-          <div className="flex items-center gap-3">
-            <MessageCircleHeart className="h-5 w-5 text-primary" />
-            <div>
+        <motion.div variants={listItem} className="card !p-0">
+          <button
+            onClick={() => setCheckinExpanded((v) => !v)}
+            className="flex w-full items-center gap-3 p-4 text-left"
+          >
+            <MessageCircleHeart className="h-5 w-5 shrink-0 text-foreground" />
+            <div className="min-w-0 flex-1">
               <h3 className="font-display text-lg font-bold">{translate('checkin.title')}</h3>
               <p className="text-xs text-muted-foreground">
                 {translate('checkin.progress', { count: checkin.responseCount, total: checkin.memberCount })}
               </p>
             </div>
-          </div>
-          {checkin.hasResponded ? (
-            <p className="text-sm text-primary">{translate('checkin.thanks')}</p>
-          ) : (
-            <>
-              <label className="block text-xs font-semibold">
-                {translate('checkin.mood')}
-                <input className="mt-2 w-full accent-primary" type="range" min="1" max="5" value={mood} onChange={(event) => setMood(Number(event.target.value))} />
-              </label>
-              <input value={issue} onChange={(event) => setIssue(event.target.value)} placeholder={translate('checkin.issue')} className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm" />
-              <input value={improvement} onChange={(event) => setImprovement(event.target.value)} placeholder={translate('checkin.improvement')} className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm" />
-              <label className="flex items-center gap-2 text-xs text-muted-foreground">
-                <input type="checkbox" checked={anonymous} onChange={(event) => setAnonymous(event.target.checked)} />
-                {translate('checkin.anonymous')}
-              </label>
-              <button onClick={() => void submitCheckin()} disabled={!issue.trim() || !improvement.trim()} className="w-full rounded-xl bg-primary py-2 text-sm font-bold text-primary-foreground disabled:opacity-50">
-                {translate('checkin.submit')}
-              </button>
-            </>
-          )}
+            <ChevronDown className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform ${checkinExpanded ? 'rotate-180' : ''}`} />
+          </button>
+          <AnimatePresence>
+            {checkinExpanded && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="overflow-hidden"
+              >
+                <div className="space-y-3 px-4 pb-4">
+                  {checkin.hasResponded ? (
+                    <p className="text-sm text-primary">{translate('checkin.thanks')}</p>
+                  ) : (
+                    <>
+                      <label className="block text-xs font-semibold">
+                        {translate('checkin.mood')}
+                        <input className="mt-2 w-full accent-primary" type="range" min="1" max="5" value={mood} onChange={(event) => setMood(Number(event.target.value))} />
+                      </label>
+                      <input value={issue} onChange={(event) => setIssue(event.target.value)} placeholder={translate('checkin.issue')} className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm" />
+                      <input value={improvement} onChange={(event) => setImprovement(event.target.value)} placeholder={translate('checkin.improvement')} className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm" />
+                      <label className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <input type="checkbox" checked={anonymous} onChange={(event) => setAnonymous(event.target.checked)} />
+                        {translate('checkin.anonymous')}
+                      </label>
+                      <button onClick={() => void submitCheckin()} disabled={!issue.trim() || !improvement.trim()} className="w-full rounded-xl bg-primary py-2 text-sm font-bold text-primary-foreground disabled:opacity-50">
+                        {translate('checkin.submit')}
+                      </button>
+                    </>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
       )}
 
@@ -424,6 +450,13 @@ export default function DashboardPage() {
           />
         ))}
       </PreviewSection>
+
+      <VibeSheetPortal
+        open={showVibeSheet}
+        score={data.vibeScore}
+        breakdown={data.vibeBreakdown}
+        onClose={() => setShowVibeSheet(false)}
+      />
     </motion.div>
   );
 }

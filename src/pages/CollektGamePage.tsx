@@ -327,7 +327,7 @@ export default function CollektGamePage() {
 
         <div className="glass rounded-2xl p-5 space-y-4">
           <div className="flex items-center gap-2">
-            <Users className="h-4 w-4 text-primary" />
+            <Users className="h-4 w-4 text-foreground" />
             <p className="text-sm font-semibold">{t('kollektGame.setup.selectPlayers')}</p>
             <span className="ml-auto text-xs text-muted-foreground">
               {t('kollektGame.setup.activePlayers', { count: active.length })}

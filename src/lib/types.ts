@@ -214,6 +214,13 @@ export interface EconomySummary {
   payOptions: PayOption[];
 }
 
+/** One category's self-set monthly cap. `monthlyLimit: 0` means the household never set one —
+ *  the backend always returns all six canonical categories, never a sparse list. */
+export interface Budget {
+  category: string;
+  monthlyLimit: number;
+}
+
 export interface SettleUpResponse {
   collectiveCode: string;
   settledBy: string;
@@ -307,6 +314,31 @@ export interface DashboardResponse {
   recentExpenses: Expense[];
   pendingShoppingItems: ShoppingItem[];
   vibeScore: number;
+  vibeBreakdown: VibeBreakdown;
+}
+
+/** Every input behind `vibeScore`, mirroring StatsService.getDashboard's computation — enough to
+ *  show, factor by factor, what is currently helping or hurting and what to do about it. */
+export interface VibeBreakdown {
+  base: number;
+  taskCompletionRate: number;
+  taskCompletionPoints: number;
+  dueTasksThisWeek: number;
+  completedDueTasksThisWeek: number;
+  activityBonus: number;
+  activityBonusCap: number;
+  tasksCompletedThisWeek: number;
+  planningBonus: number;
+  planningBonusCap: number;
+  eventsThisWeek: number;
+  togethernessBonus: number;
+  togethernessBonusCap: number;
+  expensesLoggedThisWeek: number;
+  moodAdjustment: number;
+  weeklyAverageMood?: number | null;
+  balancePenalty: number;
+  balancePenaltyCap: number;
+  balanceSpread: number;
 }
 
 export interface DrinkingQuestion {

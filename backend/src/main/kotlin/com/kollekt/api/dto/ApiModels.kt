@@ -546,6 +546,31 @@ data class DashboardResponse(
     val recentExpenses: List<ExpenseDto>,
     val pendingShoppingItems: List<ShoppingItemDto>,
     val vibeScore: Int,
+    val vibeBreakdown: VibeBreakdownDto,
+)
+
+/** Every input that feeds `vibeScore`, plus the raw counts behind each one — enough for the app
+ *  to explain, factor by factor, what is currently helping or hurting and what to do about it. */
+data class VibeBreakdownDto(
+    val base: Int,
+    val taskCompletionRate: Int,
+    val taskCompletionPoints: Int,
+    val dueTasksThisWeek: Int,
+    val completedDueTasksThisWeek: Int,
+    val activityBonus: Int,
+    val activityBonusCap: Int,
+    val tasksCompletedThisWeek: Int,
+    val planningBonus: Int,
+    val planningBonusCap: Int,
+    val eventsThisWeek: Int,
+    val togethernessBonus: Int,
+    val togethernessBonusCap: Int,
+    val expensesLoggedThisWeek: Int,
+    val moodAdjustment: Int,
+    val weeklyAverageMood: Double? = null,
+    val balancePenalty: Int,
+    val balancePenaltyCap: Int,
+    val balanceSpread: Int,
 )
 
 data class PeriodStatsDto(
@@ -627,6 +652,17 @@ data class EconomySummaryDto(
     val balances: List<BalanceDto>,
     val pantSummary: PantSummaryDto,
     val payOptions: List<PayOptionDto> = emptyList(),
+)
+
+data class BudgetDto(
+    val category: String,
+    val monthlyLimit: Int,
+)
+
+data class UpsertBudgetRequest(
+    val memberName: String,
+    val category: String,
+    val monthlyLimit: Int,
 )
 
 data class SettleUpRequest(

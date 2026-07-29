@@ -13,6 +13,7 @@ import {
   X,
   Sun,
   Moon,
+  Smartphone,
   Globe2,
   Wallet,
   ArrowLeft,
@@ -85,7 +86,7 @@ const NOTIFICATION_TYPES = [
 export default function ProfilePage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme, resolvedTheme } = useTheme();
   const {
     currentUser,
     setCurrentUser,
@@ -859,14 +860,20 @@ export default function ProfilePage() {
 
       <div className="glass rounded-2xl p-4 flex items-center gap-3">
         <div className="h-9 w-9 rounded-xl bg-secondary/25 flex items-center justify-center shrink-0">
-          {theme === "light" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4 text-secondary" />}
+          {theme === "system" ? (
+            <Smartphone className="h-4 w-4" />
+          ) : resolvedTheme === "light" ? (
+            <Sun className="h-4 w-4" />
+          ) : (
+            <Moon className="h-4 w-4 text-secondary" />
+          )}
         </div>
         <div className="flex-1">
           <p className="text-sm font-semibold">{t("profile.appearance.title")}</p>
           <p className="text-[10px] text-muted-foreground">{t(`profile.appearance.${theme}`)}</p>
         </div>
         <div className="seg !p-1" role="group" aria-label={t("profile.appearance.toggle")}>
-          {(["light", "dark", "pink"] as const).map((option) => (
+          {(["system", "light", "dark"] as const).map((option) => (
             <button
               key={option}
               onClick={() => setTheme(option)}

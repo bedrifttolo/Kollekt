@@ -76,7 +76,7 @@ export default function LoginPage() {
         {/* items-center would size each child to its content, which stops the long headline from
             wrapping and overflows the viewport — hence w-full on everything textual below. */}
         <div className="flex flex-1 flex-col items-center justify-center text-center">
-          <BrandMark className="h-14 w-14 text-primary" />
+          <BrandMark className="h-14 w-14" />
           <p className="mt-3 font-display text-2xl font-extrabold tracking-[-.03em]">{t('app.name')}</p>
 
           {/* No .mark highlighter here: at display-xl's tight leading the bar covers the lower half

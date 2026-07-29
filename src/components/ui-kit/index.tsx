@@ -3,6 +3,7 @@ import type { ButtonHTMLAttributes, CSSProperties, FocusEvent, InputHTMLAttribut
 import { AnimatePresence, motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { MoreHorizontal, Plus, X } from 'lucide-react';
 import { cn } from '../ui/utils';
+import brandmarkSrc from '../../assets/brandmark.png';
 import { colorForMember } from '../../lib/memberColors';
 import { backdropVariants, pressable, sheetVariants, springPop, springSoft } from '../../lib/motion';
 import { tapFeedback } from '../../lib/haptics';
@@ -21,12 +22,10 @@ export function Field({ label, className, ...props }: InputHTMLAttributes<HTMLIn
 }
 
 export function BrandMark({ className = 'h-7 w-7' }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 32 32" fill="none" aria-hidden="true">
-      <path d="M6 14.2 16 5l10 9.2V26H6V14.2Z" stroke="currentColor" strokeWidth="3" strokeLinejoin="round" />
-      <path d="m12 16 4-4 4 4v6h-8v-6Z" stroke="currentColor" strokeWidth="2.5" strokeLinejoin="round" />
-    </svg>
-  );
+  // The source PNG is a light silver glyph cut from a black background (transparent everywhere
+  // else), so it reads fine on dark surfaces as-is. `invert` flips it to dark-on-transparent for
+  // light surfaces; `dark:invert-0` restores the original silver tone in dark mode.
+  return <img src={brandmarkSrc} alt="" className={cn('invert dark:invert-0', className)} />;
 }
 
 /** Apple's wordless logo, for the Sign in with Apple button. Inherits currentColor, which is what
@@ -334,7 +333,7 @@ export function OverflowMenu({
   );
 }
 
-export function Fab({ label, className, onClick, ...props }: Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'onAnimationStart' | 'onDragStart' | 'onDragEnd' | 'onDrag'> & { label: string }) {
+export function Fab({ label, className, onClick, tone, ...props }: Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'onAnimationStart' | 'onDragStart' | 'onDragEnd' | 'onDrag'> & { label: string; tone?: Tone }) {
   return (
     <motion.button
       aria-label={label}
@@ -349,7 +348,10 @@ export function Fab({ label, className, onClick, ...props }: Omit<ButtonHTMLAttr
       whileTap={{ scale: 0.9, rotate: 90 }}
       data-motion-press
       className={cn(
-        'elev-3 fixed right-5 z-30 grid place-items-center rounded-full bg-secondary text-secondary-foreground',
+        'elev-3 fixed right-5 z-30 grid place-items-center rounded-full',
+        // Matches the tinted page header on pages that carry a tone identity (see AppHeader) —
+        // no tone means the neutral page (Home) keeps the app's default secondary-colour FAB.
+        tone ? `tone-tile tone-${tone}` : 'bg-secondary text-secondary-foreground',
         className,
       )}
       {...props}
@@ -649,7 +651,7 @@ export function Chip({
         interactive && 'pressable',
         !interactive && 'py-1.5',
         active
-          ? 'border-transparent bg-primary text-primary-foreground'
+          ? 'border-transparent bg-primary text-primary-foreground dark:bg-white dark:text-black'
           : tone
             ? `tone-${tone} tone-wash tone-edge`
             : 'border-border bg-card text-foreground',

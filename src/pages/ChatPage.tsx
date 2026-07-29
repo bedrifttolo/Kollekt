@@ -600,7 +600,7 @@ export default function ChatPage() {
           <h2 className="truncate font-display text-lg font-extrabold">{isDirect ? activeThread : t('chat.threadTitle')}</h2>
           <p className="text-xs text-muted-foreground">
             {isDirect ? (
-              <span className="font-semibold text-primary">{t('chat.directSubtitle')}</span>
+              <span className="font-semibold text-foreground">{t('chat.directSubtitle')}</span>
             ) : (
               <>
                 <span className="font-semibold text-primary">● {onlineCount === null ? t('common.connecting') : t('chat.onlineCount', { count: onlineCount })}</span>
@@ -767,7 +767,7 @@ export default function ChatPage() {
                       <Reply className="h-2.5 w-2.5" />
                       <span>{t('chat.replyingTo', { name: replyTarget.sender })}</span>
                     </div>
-                    <p className={`font-semibold ${isSelf ? 'text-foreground' : 'text-primary'}`}>{replyTarget.sender}</p>
+                    <p className="font-semibold text-foreground">{replyTarget.sender}</p>
                     <p className="truncate">{replyTarget.text || t('chat.imageAlt')}</p>
                   </div>
                 )}
@@ -779,8 +779,8 @@ export default function ChatPage() {
 	                  transition={springPop}
 	                  className={`elev-1 select-none bub ${
 	                    isSelf
-	                      ? `bg-primary text-primary-foreground ${isLastOfGroup ? 'bub-tail-self' : ''}`
-	                      : `border border-border bg-card ${isLastOfGroup ? 'bub-tail-other' : ''}`
+	                      ? `bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white ${isLastOfGroup ? 'bub-tail-self' : ''}`
+	                      : `border border-border bg-neutral-200 text-black dark:bg-card dark:text-foreground ${isLastOfGroup ? 'bub-tail-other' : ''}`
 	                  }`}
 	                  style={!isSelf ? { borderLeftColor: senderColor, borderLeftWidth: 3 } : undefined}
 	                  onPointerDown={(event) => startMessagePress(message.id, event)}
@@ -983,7 +983,7 @@ export default function ChatPage() {
       {replyingToId != null && messageById.get(replyingToId) && (
         <div className="glass rounded-lg px-3 py-2 mb-2 flex items-start justify-between gap-2">
           <div className="min-w-0">
-            <p className="text-[10px] font-semibold text-primary">{t('chat.replyingTo', { name: messageById.get(replyingToId)?.sender })}</p>
+            <p className="text-[10px] font-semibold text-foreground">{t('chat.replyingTo', { name: messageById.get(replyingToId)?.sender })}</p>
             <p className="text-xs truncate text-muted-foreground">{messageById.get(replyingToId)?.text || t('chat.imageAlt')}</p>
           </div>
           <button onClick={() => setReplyingToId(null)} className="text-[10px] text-muted-foreground hover:text-foreground shrink-0">

@@ -18,9 +18,6 @@ export const springSoft: Transition = { type: 'spring', stiffness: 320, damping:
 /** Presses, badges, counters, celebration marks. Deliberately overshoots; use on small things only. */
 export const springPop: Transition = { type: 'spring', stiffness: 520, damping: 22, mass: 0.6 };
 
-/** The nav indicator's existing feel, kept as-is so the redesign doesn't change what already works. */
-export const springIndicator: Transition = { type: 'spring', stiffness: 400, damping: 30 };
-
 /** Non-spring easing for opacity-only and colour crossfades, where a spring has nothing to overshoot. */
 export const easeOut: Transition = { duration: 0.22, ease: [0, 0, 0.2, 1] };
 export const easeOutSlow: Transition = { duration: 0.38, ease: [0, 0, 0.2, 1] };

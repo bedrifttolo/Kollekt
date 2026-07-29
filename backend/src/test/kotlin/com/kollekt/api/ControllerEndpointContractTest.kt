@@ -2,6 +2,7 @@ package com.kollekt.api
 
 import com.kollekt.api.dto.AchievementDto
 import com.kollekt.api.dto.BalanceDto
+import com.kollekt.api.dto.BudgetDto
 import com.kollekt.api.dto.CollectiveCodeDto
 import com.kollekt.api.dto.CreateCustomAchievementRequest
 import com.kollekt.api.dto.CreateEventRequest
@@ -19,6 +20,7 @@ import com.kollekt.api.dto.SettleUpResponse
 import com.kollekt.api.dto.TaskDto
 import com.kollekt.api.dto.UpdateExpenseRequest
 import com.kollekt.api.dto.UpdatePantEntryRequest
+import com.kollekt.api.dto.UpsertBudgetRequest
 import com.kollekt.api.dto.UserDto
 import com.kollekt.domain.CustomAchievementMetric
 import com.kollekt.domain.EventType
@@ -61,6 +63,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.LocalDate
@@ -530,6 +533,39 @@ class ControllerEndpointContractTest {
             ).andExpect(status().isNoContent)
 
         verify(economyOperations).settleWith("Kasper", "Emma")
+    }
+
+    @Test
+    fun `economy budgets uses get budgets endpoint`() {
+        whenever(economyOperations.getBudgets("Kasper"))
+            .thenReturn(listOf(BudgetDto("Groceries", 3000)))
+
+        mockMvc
+            .perform(
+                get("/api/economy/budgets")
+                    .param("memberName", "Kasper")
+                    .with(jwt().jwt { it.subject("Kasper") }),
+            ).andExpect(status().isOk)
+            .andExpect(jsonPath("$[0].category").value("Groceries"))
+            .andExpect(jsonPath("$[0].monthlyLimit").value(3000))
+    }
+
+    @Test
+    fun `economy budgets uses put budgets endpoint`() {
+        whenever(economyOperations.upsertBudget(UpsertBudgetRequest("Kasper", "Groceries", 3000)))
+            .thenReturn(BudgetDto("Groceries", 3000))
+
+        mockMvc
+            .perform(
+                put("/api/economy/budgets")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .with(csrf())
+                    .with(jwt().jwt { it.subject("Kasper") })
+                    .content("""{"memberName":"Kasper","category":"Groceries","monthlyLimit":3000}"""),
+            ).andExpect(status().isOk)
+            .andExpect(jsonPath("$.monthlyLimit").value(3000))
+
+        verify(economyOperations).upsertBudget(UpsertBudgetRequest("Kasper", "Groceries", 3000))
     }
 
     @Test
