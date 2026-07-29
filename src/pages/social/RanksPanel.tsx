@@ -1,19 +1,22 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { TrendingUp, Flame, Star, Pencil, X, SlidersHorizontal, Plus, Trash2, Check, StarHalf, Home, Trophy, Zap, Award, Sparkles, Heart, Crown, Medal, Target, Rocket, Leaf, Sun, Gift, type LucideIcon } from 'lucide-react';
+import { TrendingUp, Flame, Star, Pencil, X, SlidersHorizontal, Plus, Trash2, Check, StarHalf, Home, Trophy, Zap, Award, Sparkles, Heart, Crown, Medal, Target, Rocket, Leaf, Sun, Gift, Scale, type LucideIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../lib/api';
 import { connectCollectiveRealtime } from '../../lib/realtime';
 import { useUser } from '../../context/UserContext';
 import { translateKey } from '../../i18n/helpers';
-import { Avatar, OverflowMenu } from '../../components/ui-kit';
+import { Avatar, CountUp, OverflowMenu, ProgressRing, StatTile } from '../../components/ui-kit';
+import { listContainer, listItem, springSoft } from '../../lib/motion';
+import { toneByKey } from '../../lib/tones';
 import type {
   LeaderboardResponse,
   Achievement,
   AchievementCatalogItem,
   LeaderboardPeriod,
   MemberStats,
+  Fairness,
   CustomAchievementMetric,
   TaskCategory,
 } from '../../lib/types';
@@ -99,6 +102,14 @@ export default function RanksPanel() {
       ]);
       return { lb, ach };
     },
+  });
+
+  // Fairness is period-independent (the backend windows it itself), so it is its own query rather
+  // than another leg of the ranks fetch — switching OVERALL/YEAR/MONTH should not refetch it.
+  const { data: fairness } = useQuery({
+    queryKey: ['fairness', name],
+    enabled: !!name,
+    queryFn: () => api.get<Fairness>(`/fairness?memberName=${encodeURIComponent(name)}`),
   });
 
   useEffect(() => {
@@ -241,12 +252,20 @@ export default function RanksPanel() {
                   {user.rank}
                 </span>
               </div>
-              <div className={`${barHeight[user.rank] ?? 'h-28'} w-full rounded-t-3xl ${barTone[user.rank] ?? 'bg-muted'} flex flex-col items-center justify-end pb-4 pt-8`}>
-                <p className="font-display text-2xl font-extrabold tabular-nums">{user.xp}</p>
+              {/* The bar grows from the floor on mount. A podium that is simply *there* on load
+                  states a result; one that rises reads as the result of the month's work. */}
+              <motion.div
+                initial={{ scaleY: 0 }}
+                animate={{ scaleY: 1 }}
+                transition={{ ...springSoft, delay: 0.1 + i * 0.08 }}
+                style={{ originY: 1 }}
+                className={`${barHeight[user.rank] ?? 'h-28'} w-full rounded-t-3xl ${barTone[user.rank] ?? 'bg-muted'} flex flex-col items-center justify-end pb-4 pt-8`}
+              >
+                <CountUp value={user.xp} className="font-display text-2xl font-extrabold" />
                 <p className="mt-1 text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
                   {user.name} · {t('leaderboard.levelShort', { level: user.level })}
                 </p>
-              </div>
+              </motion.div>
             </motion.button>
           ))}
         </div>
@@ -336,26 +355,97 @@ export default function RanksPanel() {
         ))}
       </div>
 
-      {/* Period stats */}
-      <div className="card glow-accent">
-        <div className="flex items-center gap-2 mb-3">
+      {/* Period stats. PeriodStatsDto has eleven fields and this card used to show four; the rest
+          were fetched on every load and thrown away. The streak, late and skipped counts are the
+          ones a household actually argues about, so they belong here. */}
+      <div className="card">
+        <div className="mb-3 flex items-center gap-2">
           <TrendingUp className="h-4 w-4 text-primary" />
           <p className="text-sm font-semibold">{t('leaderboard.statsTitle', { period: translateKey('common.leaderboardPeriods', period) })}</p>
         </div>
         <div className="grid grid-cols-2 gap-2">
-          {[
-            { label: t('leaderboard.stats.totalTasks'), value: ps.totalTasks.toString() },
-            { label: t('leaderboard.stats.totalXp'), value: ps.totalXp.toString() },
-            { label: t('leaderboard.stats.avgXp'), value: Math.round(ps.avgPerPerson).toString() },
-            { label: t('leaderboard.stats.topContributor'), value: ps.topContributor },
-          ].map((s) => (
-            <div key={s.label} className="rounded-lg bg-background/30 p-2">
-              <p className="text-[10px] text-muted-foreground">{s.label}</p>
-              <p className="text-xs font-medium truncate">{s.value}</p>
-            </div>
-          ))}
+          <StatTile tone="mint" label={t('leaderboard.stats.totalTasks')} value={<CountUp value={ps.totalTasks} />} />
+          <StatTile tone="butter" label={t('leaderboard.stats.totalXp')} value={<CountUp value={ps.totalXp} />} />
+          <StatTile tone="peri" label={t('leaderboard.stats.avgXp')} value={<CountUp value={Math.round(ps.avgPerPerson)} />} />
+          <StatTile tone="lilac" label={t('leaderboard.stats.topContributor')} value={<span className="truncate text-lg">{ps.topContributor}</span>} />
+          {ps.bestStreak > 0 && (
+            <StatTile
+              tone="blush"
+              icon={<Flame className="h-3 w-3" />}
+              label={t('leaderboard.stats.bestStreak')}
+              value={<CountUp value={ps.bestStreak} />}
+              hint={ps.bestStreakHolder}
+            />
+          )}
+          {ps.lateCompletions > 0 && (
+            <StatTile
+              label={t('leaderboard.stats.lateCompletions')}
+              value={<CountUp value={ps.lateCompletions} />}
+              hint={ps.lateCompletionsHolder}
+            />
+          )}
+          {ps.skippedCount > 0 && (
+            <StatTile
+              label={t('leaderboard.stats.skipped')}
+              value={<CountUp value={ps.skippedCount} />}
+              hint={ps.skippedHolder}
+            />
+          )}
+          {ps.totalPenaltyXp !== 0 && (
+            <StatTile label={t('leaderboard.stats.penaltyXp')} value={<CountUp value={ps.totalPenaltyXp} />} />
+          )}
         </div>
       </div>
+
+      {/* Fairness. GET /api/fairness has existed since the smart-assignment scaffolding went in and
+          has never been called by the app — it answers "is the work actually split evenly", which
+          is the question a shared-chores app exists to settle. */}
+      {fairness && fairness.shares.length > 1 && (
+        <div className="card">
+          <div className="mb-3 flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <Scale className="h-4 w-4 text-primary" />
+              <p className="text-sm font-semibold">{t('leaderboard.fairness.title')}</p>
+            </div>
+            <span className="text-xs text-muted-foreground">
+              {t('leaderboard.fairness.window', { days: fairness.windowDays })}
+            </span>
+          </div>
+          <div className="flex items-center gap-4">
+            <ProgressRing
+              value={fairness.balancePercent}
+              size={92}
+              thickness={10}
+              color={fairness.balancePercent >= 75 ? 'var(--tone-mint)' : fairness.balancePercent >= 50 ? 'var(--tone-butter)' : 'var(--tone-blush)'}
+            >
+              <div>
+                <CountUp value={fairness.balancePercent} className="font-display text-xl font-extrabold" />
+                <span className="block text-[8px] font-bold tracking-[.14em] text-muted-foreground">
+                  {t('leaderboard.fairness.balanced')}
+                </span>
+              </div>
+            </ProgressRing>
+            <ul className="min-w-0 flex-1 space-y-1.5">
+              {fairness.shares.map((share) => (
+                <li key={share.name} className="flex items-center gap-2">
+                  <span className="w-16 shrink-0 truncate text-xs font-semibold">{share.name}</span>
+                  <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
+                    <motion.span
+                      className="block h-full rounded-full bg-primary"
+                      initial={{ width: 0 }}
+                      animate={{ width: `${share.sharePercent}%` }}
+                      transition={springSoft}
+                    />
+                  </span>
+                  <span className="w-9 shrink-0 text-right text-[11px] font-semibold tabular-nums text-muted-foreground">
+                    {share.sharePercent}%
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
 
       {/* Achievements */}
       {achievements.length > 0 && (
@@ -368,33 +458,48 @@ export default function RanksPanel() {
               <SlidersHorizontal className="h-3.5 w-3.5 text-muted-foreground" />
             </button>
           </div>
-          <div className="space-y-2">
+          <motion.div variants={listContainer} initial="hidden" animate="show" className="space-y-2">
             {achievements.map((a) => {
               const Icon = iconFor(a.icon);
+              // Every AchievementDto already carries progress/total; it was rendered as a 1.5px
+              // line under the card. A ring around the badge makes "how close am I" the first
+              // thing you see rather than a detail below the fold.
+              const hasProgress = a.progress !== undefined && a.total !== undefined && a.total > 0;
+              const pct = hasProgress ? (a.progress! / a.total!) * 100 : 0;
               return (
-              <div key={a.key} className={`card !p-3 ${a.unlocked ? 'glow-primary' : 'opacity-60'}`}>
-                <div className="flex items-center gap-3 mb-2">
-                  <div className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl ${a.unlocked ? 'gradient-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
-                    <Icon className="h-4 w-4" />
-                  </div>
+              <motion.div
+                key={a.key}
+                variants={listItem}
+                className={`card !p-3 ${a.unlocked ? `tone-${toneByKey(a.key)} tone-wash tone-edge` : 'opacity-60'}`}
+              >
+                <div className="flex items-center gap-3">
+                  {hasProgress ? (
+                    <ProgressRing
+                      value={a.unlocked ? 100 : pct}
+                      size={44}
+                      thickness={4}
+                      color={a.unlocked ? 'var(--primary)' : 'var(--secondary)'}
+                    >
+                      <Icon className={`h-4 w-4 ${a.unlocked ? 'text-primary' : 'text-muted-foreground'}`} />
+                    </ProgressRing>
+                  ) : (
+                    <div className={`grid h-11 w-11 shrink-0 place-items-center rounded-full ${a.unlocked ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
+                      <Icon className="h-4 w-4" />
+                    </div>
+                  )}
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium">{t(`leaderboard.achievementKeys.${a.key}.title`, { defaultValue: a.title })}</p>
+                    <p className="text-sm font-bold">{t(`leaderboard.achievementKeys.${a.key}.title`, { defaultValue: a.title })}</p>
                     <p className="text-[10px] text-muted-foreground">{t(`leaderboard.achievementKeys.${a.key}.description`, { defaultValue: a.description })}</p>
+                    {hasProgress && !a.unlocked && (
+                      <p className="mt-1 text-[10px] font-bold tabular-nums text-muted-foreground">{a.progress}/{a.total}</p>
+                    )}
                     {a.custom && <p className="mt-1 text-[9px] font-bold uppercase tracking-wide text-primary">{t('leaderboard.custom.houseGoal')}</p>}
                   </div>
-                  {a.progress !== undefined && a.total !== undefined && (
-                    <span className="text-xs font-medium text-muted-foreground shrink-0">{a.progress}/{a.total}</span>
-                  )}
                 </div>
-                {a.progress !== undefined && a.total !== undefined && (
-                  <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                    <div className="h-full gradient-primary rounded-full" style={{ width: `${(a.progress / a.total) * 100}%` }} />
-                  </div>
-                )}
-              </div>
+              </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         </div>
       )}
 

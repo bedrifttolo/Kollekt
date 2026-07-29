@@ -62,7 +62,9 @@ export default function AppHeader() {
             data-tour="profile"
             onClick={() => navigate("/profile")}
             style={currentUser ? { backgroundColor: colorForMember(currentUser.name, currentUser.color) } : undefined}
-            className="h-10 w-10 rounded-full bg-primary text-white flex items-center justify-center border border-border"
+            // pressable-tight keeps the avatar visually 40px — the size the header is balanced
+            // around — while growing its hit area to the 44px minimum every other icon button uses.
+            className="pressable-tight h-10 w-10 rounded-full bg-primary text-white flex items-center justify-center border border-border"
             aria-label={t("header.profile")}
           >
             {currentUser ? (

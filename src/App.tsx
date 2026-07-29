@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { MotionConfig } from 'framer-motion';
 import { UserProvider, useUser } from './context/UserContext';
 import AppLayout from './components/AppLayout';
 
@@ -83,10 +84,16 @@ function AppRoutes() {
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <UserProvider>
-        <AppRoutes />
-      </UserProvider>
-    </BrowserRouter>
+    // reducedMotion="user" is the only thing that actually stills framer-motion when the OS setting
+    // is on. The `prefers-reduced-motion` block in globals.css clamps CSS animations, but JS-driven
+    // springs ignore it entirely, so without this the app kept animating for people who asked it not
+    // to. Transform/opacity animations are skipped; layout and colour changes still apply.
+    <MotionConfig reducedMotion="user">
+      <BrowserRouter>
+        <UserProvider>
+          <AppRoutes />
+        </UserProvider>
+      </BrowserRouter>
+    </MotionConfig>
   );
 }

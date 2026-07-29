@@ -306,7 +306,19 @@
     "xpValue": "+{{xp}} XP",
     "shoppingList": "Shopping List",
     "noShoppingItems": "No pending shopping items",
-    "addedBy": "Added by {{name}}"
+    "addedBy": "Added by {{name}}",
+    "prompts": {
+      "0": "A tidy kitchen makes tomorrow easier.",
+      "1": "Someone probably deserves a kudos today.",
+      "2": "Small chores now, free weekend later.",
+      "3": "Check the fridge before the shop run.",
+      "4": "A quick message keeps the house in sync.",
+      "5": "Whose turn is it, really?"
+    },
+    "noUpcomingTasksBody": "Nothing due right now. Add one so the house stays on top of it.",
+    "noShoppingItemsBody": "Add what the house is out of and anyone can grab it.",
+    "noUpcomingEventsBody": "Dinners, house meetings, visits — put them here so nobody misses them.",
+    "noRecentExpensesBody": "Log a shared cost and Kollekt does the splitting."
   },
   "tasks": {
     "title": "Tasks",
@@ -548,7 +560,8 @@
       "pass": "Pass"
     },
     "deleteEvent": "Delete event",
-    "saveChanges": "Save changes"
+    "saveChanges": "Save changes",
+    "noEventsForDayBody": "Dinners, house meetings, visits — add one so nobody misses it."
   },
   "chat": {
     "threadTitle": "The Kollektiv",
@@ -589,7 +602,10 @@
     },
     "today": "Today",
     "yesterday": "Yesterday",
-    "newDivider": "New"
+    "newDivider": "New",
+    "pinMessage": "Pin message",
+    "unpinMessage": "Unpin message",
+    "pinnedLabel": "Pinned · {{name}}"
   },
   "economy": {
     "title": "Economy",
@@ -641,10 +657,14 @@
     "stats": {
       "monthTotal": "Total this month",
       "yourShare": "Your share {{amount}}",
-      "emptyMonth": "No expenses logged this month.",
+      "emptyMonth": "Nothing spent yet",
       "previousMonth": "Previous month",
       "nextMonth": "Next month",
-      "monthsLabel": "Spending by month"
+      "monthsLabel": "Spending by month",
+      "donutLabel": "Spending by category, {{total}} in total",
+      "expenseCount": "{{count}} expense",
+      "expenseCount_plural": "{{count}} expenses",
+      "emptyMonthBody": "Log an expense and this month’s split shows up here."
     },
     "setupPayment": {
       "title": "Nobody can pay you back yet",
@@ -1523,7 +1543,11 @@
       "totalTasks": "Total tasks",
       "totalXp": "Total XP",
       "avgXp": "Avg XP",
-      "topContributor": "Top contributor"
+      "topContributor": "Top contributor",
+      "bestStreak": "Best streak",
+      "lateCompletions": "Completed late",
+      "skipped": "Skipped",
+      "penaltyXp": "Penalty XP"
     },
     "achievements": "Achievements",
     "manageAchievements": "Manage Achievements",
@@ -1636,6 +1660,11 @@
         "RECURRING_COMPLETIONS": "Recurring tasks",
         "CATEGORY_COMPLETIONS": "Tasks in category"
       }
+    },
+    "fairness": {
+      "title": "Fair share",
+      "balanced": "BALANCED",
+      "window": "Last {{days}} days"
     }
   },
   "kollektGame": {

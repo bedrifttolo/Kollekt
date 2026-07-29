@@ -390,7 +390,7 @@ export default function CollektGamePage() {
             />
             <button
               onClick={handleAddGuest}
-              className="h-10 w-10 rounded-xl gradient-primary text-primary-foreground flex items-center justify-center shrink-0"
+              className="pressable-tight h-10 w-10 rounded-xl gradient-primary text-primary-foreground flex items-center justify-center shrink-0"
               aria-label={t('kollektGame.setup.addGuestAria')}
             >
               <Plus className="h-4 w-4" />
@@ -704,7 +704,7 @@ export default function CollektGamePage() {
         {phase !== 'playing' && phase !== 'summary' && (
           <button
             onClick={() => navigate(-1)}
-            className="h-9 w-9 glass rounded-xl flex items-center justify-center text-muted-foreground shrink-0"
+            className="pressable-tight h-9 w-9 glass rounded-xl flex items-center justify-center text-muted-foreground shrink-0"
             aria-label={t('common.back')}
           >
             <ArrowLeft className="h-4 w-4" />

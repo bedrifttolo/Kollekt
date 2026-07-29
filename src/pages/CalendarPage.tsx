@@ -31,7 +31,9 @@ import {
 } from "../i18n/helpers";
 import { connectCollectiveRealtime } from "../lib/realtime";
 import type { CalendarEvent, EventType, GuestNotice, HouseCheckin } from "../lib/types";
-import { AddSheet, Eyebrow, Fab, OverflowMenu } from "../components/ui-kit";
+import { AddSheet, EmptyState, Eyebrow, Fab, OverflowMenu } from "../components/ui-kit";
+import { pressable, springSoft } from "../lib/motion";
+import { selectionFeedback } from "../lib/haptics";
 
 const EVENT_TYPES: EventType[] = ["PARTY", "MOVIE", "DINNER", "GAME_NIGHT", "CLEANING", "SPORTS", "BIRTHDAY", "MEETING", "TRIP", "OTHER"];
 
@@ -349,18 +351,30 @@ export default function CalendarPage() {
             const isOutsideMonth = date.getMonth() !== month;
             const isToday = dateString === toDateString(new Date());
             return (
-              <button
+              <motion.button
                 key={dateString}
                 onClick={() => {
+                  if (isSelected) return;
+                  void selectionFeedback();
                   setYear(date.getFullYear());
                   setMonth(date.getMonth());
                   setSelectedDay(date.getDate());
                 }}
                 aria-pressed={isSelected}
-                className={`flex flex-1 flex-col items-center gap-1 rounded-full py-2.5 transition-colors ${
-                  isSelected ? "bg-primary text-primary-foreground" : "hover:bg-muted"
-                }`}
+                {...pressable}
+                className="relative flex flex-1 flex-col items-center gap-1 rounded-full py-2.5"
+                style={{ minHeight: 'var(--ctl-md)' }}
               >
+                {/* The selected pill travels between days instead of blinking on and off, so a
+                    week's worth of taps reads as one control rather than seven. */}
+                {isSelected && (
+                  <motion.span
+                    layoutId="calendar-day-pill"
+                    transition={springSoft}
+                    className="absolute inset-0 rounded-full bg-primary"
+                  />
+                )}
+                <span className={`relative z-10 contents ${isSelected ? 'text-primary-foreground' : ''}`}>
                 <span
                   className={`text-[10px] font-bold uppercase tracking-[.04em] ${
                     isSelected ? "text-primary-foreground/70" : "text-muted-foreground"
@@ -383,7 +397,7 @@ export default function CalendarPage() {
                 </span>
                 {/* Reserve the dot's row on every day so selecting one doesn't shift the strip. */}
                 <span
-                  className={`h-1 w-1 rounded-full ${
+                  className={`h-1.5 w-1.5 rounded-full ${
                     !eventDays.has(dateString)
                       ? "bg-transparent"
                       : isSelected
@@ -391,7 +405,8 @@ export default function CalendarPage() {
                         : "bg-secondary"
                   }`}
                 />
-              </button>
+                </span>
+              </motion.button>
             );
           })}
         </div>
@@ -504,9 +519,13 @@ export default function CalendarPage() {
         </AnimatePresence>
 
         {dayEvents.length === 0 && dayGuests.length === 0 && (
-          <p className="text-sm text-muted-foreground text-center py-4">
-            {t("calendar.noEventsForDay")}
-          </p>
+          <EmptyState
+            tone="peri"
+            icon={<CalendarPlus className="h-6 w-6" />}
+            title={t("calendar.noEventsForDay")}
+            body={t("calendar.noEventsForDayBody")}
+            action={{ label: t("calendar.addEvent"), onClick: () => setShowAdd(true) }}
+          />
         )}
 
         {dayGuests.map((notice) => (

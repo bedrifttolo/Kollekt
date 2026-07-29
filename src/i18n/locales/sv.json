@@ -306,7 +306,19 @@
     "xpValue": "+{{xp}} XP",
     "shoppingList": "Inköpslista",
     "noShoppingItems": "Inga väntande inköp",
-    "addedBy": "Tillagd av {{name}}"
+    "addedBy": "Tillagd av {{name}}",
+    "prompts": {
+      "0": "Ett städat kök gör morgondagen lättare.",
+      "1": "Någon förtjänar nog en kudos i dag.",
+      "2": "Små sysslor nu, ledig helg sen.",
+      "3": "Kolla kylen innan du går till affären.",
+      "4": "Ett snabbt meddelande håller huset i synk.",
+      "5": "Vems tur är det egentligen?"
+    },
+    "noUpcomingTasksBody": "Inget på gång just nu. Lägg till en så har huset koll.",
+    "noShoppingItemsBody": "Lägg in det huset är slut på, så kan vem som helst ta det.",
+    "noUpcomingEventsBody": "Middagar, husmöten, besök — lägg dem här så ingen glömmer.",
+    "noRecentExpensesBody": "Lägg in en gemensam utgift, så delar Kollekt den åt er."
   },
   "tasks": {
     "title": "Uppgifter",
@@ -548,7 +560,8 @@
       "pass": "Passar"
     },
     "deleteEvent": "Ta bort händelse",
-    "saveChanges": "Spara ändringar"
+    "saveChanges": "Spara ändringar",
+    "noEventsForDayBody": "Middagar, husmöten, besök — lägg till en så ingen glömmer."
   },
   "chat": {
     "threadTitle": "Kollektivet",
@@ -589,7 +602,10 @@
     },
     "today": "I dag",
     "yesterday": "I går",
-    "newDivider": "Ny"
+    "newDivider": "Ny",
+    "pinMessage": "Fäst meddelande",
+    "unpinMessage": "Lossa meddelande",
+    "pinnedLabel": "Fäst · {{name}}"
   },
   "economy": {
     "title": "Ekonomi",
@@ -641,10 +657,14 @@
     "stats": {
       "monthTotal": "Totalt denna månad",
       "yourShare": "Din andel {{amount}}",
-      "emptyMonth": "Inga utgifter denna månad.",
+      "emptyMonth": "Inget spenderat ännu",
       "previousMonth": "Föregående månad",
       "nextMonth": "Nästa månad",
-      "monthsLabel": "Utgifter per månad"
+      "monthsLabel": "Utgifter per månad",
+      "donutLabel": "Utgifter per kategori, {{total}} totalt",
+      "expenseCount": "{{count}} utgift",
+      "expenseCount_plural": "{{count}} utgifter",
+      "emptyMonthBody": "Lägg in en utgift så visas månadens fördelning här."
     },
     "setupPayment": {
       "title": "Ingen kan betala tillbaka till dig än",
@@ -1523,7 +1543,11 @@
       "totalTasks": "Totalt uppgifter",
       "totalXp": "Total XP",
       "avgXp": "Snitt-XP",
-      "topContributor": "Toppbidragsgivare"
+      "topContributor": "Toppbidragsgivare",
+      "bestStreak": "Bästa streak",
+      "lateCompletions": "Slutfört sent",
+      "skipped": "Överhoppat",
+      "penaltyXp": "Straff-XP"
     },
     "achievements": "Prestationer",
     "manageAchievements": "Hantera prestationer",
@@ -1636,6 +1660,11 @@
         "RECURRING_COMPLETIONS": "Återkommande uppgifter",
         "CATEGORY_COMPLETIONS": "Uppgifter i kategori"
       }
+    },
+    "fairness": {
+      "title": "Rättvis fördelning",
+      "balanced": "BALANSERAT",
+      "window": "Senaste {{days}} dagarna"
     }
   },
   "kollektGame": {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Recycle, Target, Edit3, Check, X, Plus, Pencil, Trash2, PartyPopper } from "lucide-react";
@@ -11,7 +11,8 @@ import { connectCollectiveRealtime } from "../lib/realtime";
 import { useUser } from "../context/UserContext";
 import { formatCurrency, formatDate } from "../i18n/helpers";
 import type { PantSummary, PantEntry } from "../lib/types";
-import { Eyebrow, OverflowMenu, ProgressBar } from "../components/ui-kit";
+import { CountUp, Eyebrow, OverflowMenu, ProgressBar, ProgressRing } from "../components/ui-kit";
+import { celebrate } from "../lib/celebrate";
 
 export default function PantTrackerPage() {
   const navigate = useNavigate();
@@ -34,6 +35,10 @@ export default function PantTrackerPage() {
   const [editingEntryId, setEditingEntryId] = useState<number | null>(null);
   const [editBottles, setEditBottles] = useState("");
   const [deletingEntryId, setDeletingEntryId] = useState<number | null>(null);
+  // Whether the goal was already met last render, so crossing the line fires once rather than on
+  // every refetch while the goal stays met. Starts undefined so arriving at an already-met goal
+  // is silent — the celebration belongs to the moment you reach it, not to opening the screen.
+  const goalMetRef = useRef<boolean | undefined>(undefined);
 
   const name = currentUser?.name ?? "";
   const queryClient = useQueryClient();
@@ -49,6 +54,10 @@ export default function PantTrackerPage() {
     if (!pantData) return;
     setPantSummary(pantData);
     setLoading(false);
+    const met = pantData.goalAmount > 0 && pantData.currentAmount >= pantData.goalAmount;
+    const previously = goalMetRef.current;
+    goalMetRef.current = met;
+    if (previously === false && met) celebrate("goal-reached");
   }, [pantData]);
 
   const fetchPant = async () => {
@@ -157,7 +166,7 @@ export default function PantTrackerPage() {
       <div className="flex items-center gap-3">
         <button
           onClick={() => navigate("/economy")}
-          className="h-9 w-9 rounded-xl glass flex items-center justify-center"
+          className="pressable-tight h-9 w-9 rounded-xl glass flex items-center justify-center"
           aria-label={t("common.back")}
         >
           <ArrowLeft className="h-4 w-4" />
@@ -286,11 +295,22 @@ export default function PantTrackerPage() {
             <PartyPopper className="h-4 w-4 shrink-0 text-primary" />
           </p>
         )}
-        <div className="flex items-center justify-between text-xs text-muted-foreground mt-1 mb-2">
-          <span>{t("pant.saved", { amount: formatCurrency(earned) })}</span>
-          <span>{t("pant.goal", { amount: formatCurrency(goal) })}</span>
+        {/* The goal ring. This screen is entirely about closing a gap, and it reported that gap as
+            two numbers either side of a 8px bar — the one place in the app a ring was most obviously
+            missing. */}
+        <div className="mt-3 flex items-center gap-4">
+          <ProgressRing value={progress} size={104} thickness={11} color="var(--tone-mint)">
+            <div>
+              <CountUp value={Math.round(progress)} className="font-display text-2xl font-extrabold" />
+              <span className="block text-[9px] font-bold tracking-[.14em] text-muted-foreground">%</span>
+            </div>
+          </ProgressRing>
+          <div className="min-w-0 flex-1 space-y-1">
+            <p className="text-xs text-muted-foreground">{t("pant.saved", { amount: formatCurrency(earned) })}</p>
+            <p className="text-xs text-muted-foreground">{t("pant.goal", { amount: formatCurrency(goal) })}</p>
+            <ProgressBar value={progress} className="mt-2" />
+          </div>
         </div>
-        <ProgressBar value={progress} />
         <p className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground">
           {progress >= 100 ? (
             <>

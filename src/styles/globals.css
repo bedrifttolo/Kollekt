@@ -37,6 +37,18 @@
   --sidebar-ring: #6366f1;
   --radius: 1.25rem;
   --shadow: 0 8px 28px rgba(60, 44, 30, 0.09);
+  /* Elevation scale. One --shadow for every surface is what made the app read flat: a resting list
+     row, a hero and a modal all sat at the same depth. --elev-1/2/3 are resting / raised / floating.
+     --shadow stays as the alias for --elev-1 so existing callers keep working. */
+  --elev-1: 0 8px 28px rgba(60, 44, 30, 0.09);
+  --elev-2: 0 14px 40px rgba(60, 44, 30, 0.14);
+  --elev-3: 0 24px 60px rgba(60, 44, 30, 0.20);
+  /* Surface ramp. --card alone against --background gave a single contrast step (white on cream);
+     --surface-3 is the inset tone for rows nested *inside* a card, which previously had to borrow
+     --muted and collided with the segmented control. */
+  --surface-1: #f7f2ec;
+  --surface-2: #ffffff;
+  --surface-3: #f4ede5;
   /* Hero surfaces (.househero/.wallet/.gamehero) are a single deep tone rather than a gradient,
      so the white-on-hero text every caller already uses is guaranteed to read. */
   --hero: #16262c;
@@ -92,6 +104,26 @@
   --r-xl: 1.35rem;
   --r-2xl: 1.7rem;
 
+  /* Control sizes. Same reasoning as the radius scale: every icon button picked its own value, so
+     some ended up at 12-14px (the chip X's) — far under the 44px a thumb needs. --ctl-md is the
+     floor for anything pressable; a control may *look* smaller but its hit area may not be.
+       --ctl-sm  visual size of an inline chip glyph (its hit area is still expanded to --ctl-md)
+       --ctl-md  the standard: every icon button, list row, segmented option
+       --ctl-lg  primary CTAs
+       --ctl-xl  the FAB */
+  --ctl-sm: 2.25rem;
+  --ctl-md: 2.75rem;
+  --ctl-lg: 3.25rem;
+  --ctl-xl: 3.5rem;
+
+  /* Motion. Shared with src/lib/motion.ts, which mirrors these for the framer-motion side — the two
+     must agree or a CSS transition and the spring next to it read as two different apps. */
+  --dur-fast: 140ms;
+  --dur-base: 220ms;
+  --dur-slow: 380ms;
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
   /* Display type scale, consumed by .display-xl/lg/md/sm. */
   --text-display-xl: 2.75rem;
   --text-display-lg: 2.55rem;
@@ -130,6 +162,14 @@
   --sidebar-border: #223029;
   --sidebar-ring: #818cf8;
   --shadow: 0 12px 36px rgba(0, 0, 0, 0.5);
+  /* Shadow alone barely separates surfaces on a near-black page, so the dark elevations lean on the
+     surface ramp below doing the lifting and only deepen the cast slightly per step. */
+  --elev-1: 0 12px 36px rgba(0, 0, 0, 0.5);
+  --elev-2: 0 18px 48px rgba(0, 0, 0, 0.62);
+  --elev-3: 0 28px 68px rgba(0, 0, 0, 0.74);
+  --surface-1: #060a09;
+  --surface-2: #0e1513;
+  --surface-3: #16201d;
   --hero: #101b17;
   --hero-foreground: #f1eee2;
   --hero-positive: #6ee7a8;
@@ -188,6 +228,12 @@
   --sidebar-border: #d4628c;
   --sidebar-ring: #ffd9e7;
   --shadow: 0 10px 32px rgba(150, 40, 80, 0.10);
+  --elev-1: 0 10px 32px rgba(150, 40, 80, 0.10);
+  --elev-2: 0 16px 44px rgba(150, 40, 80, 0.16);
+  --elev-3: 0 26px 64px rgba(150, 40, 80, 0.22);
+  --surface-1: #fdeef4;
+  --surface-2: #fff5fa;
+  --surface-3: #fbe6ef;
   --hero: #7d2547;
   --hero-foreground: #fff2f7;
   --hero-positive: #8ef0be;
@@ -224,8 +270,14 @@
   --color-sidebar-primary-foreground: var(--sidebar-primary-foreground); --color-sidebar-accent: var(--sidebar-accent);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground); --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-  --radius-sm: calc(var(--radius) - 8px); --radius-md: calc(var(--radius) - 5px);
-  --radius-lg: var(--radius); --radius-xl: calc(var(--radius) + 4px);
+  --color-surface-1: var(--surface-1); --color-surface-2: var(--surface-2); --color-surface-3: var(--surface-3);
+  --color-hero: var(--hero); --color-hero-foreground: var(--hero-foreground);
+  /* Derived from the --r-* scale rather than --radius. These two used to be independent ladders:
+     `rounded-xl` in a TSX file and `.card`'s radius resolved to different numbers, which is what
+     forced the `card !rounded-2xl` overrides across the pages. One scale now, two spellings. */
+  --radius-sm: var(--r-sm); --radius-md: var(--r-md);
+  --radius-lg: var(--r-lg); --radius-xl: var(--r-xl); --radius-2xl: var(--r-2xl);
+  --shadow-elev-1: var(--elev-1); --shadow-elev-2: var(--elev-2); --shadow-elev-3: var(--elev-3);
   --font-sans: 'Schibsted Grotesk', system-ui, sans-serif;
   --font-display: 'Bricolage Grotesque', 'Schibsted Grotesk', sans-serif;
 }
@@ -313,6 +365,29 @@
   .tone-lilac { --tone: var(--tone-lilac); --tone-fg: var(--tone-lilac-fg); }
   /* A quieter wash of the same tone, for large areas where a full-strength fill would shout. */
   .tone-soft { background: color-mix(in srgb, var(--tone, var(--muted)) 38%, var(--card)); color: var(--foreground); }
+  /* Quieter still. The default for giving a whole card a colour identity: enough hue to tell two
+     sections apart at a glance, not enough to fight the text on top of it. This is the workhorse
+     that lets every screen carry colour without inventing new fills. */
+  .tone-wash { background: color-mix(in srgb, var(--tone, var(--muted)) 12%, var(--card)); color: var(--foreground); }
+  .tone-edge { border-color: color-mix(in srgb, var(--tone, var(--border)) 34%, var(--border)); }
+  /* The tone's own hue as ink, darkened enough to carry small text on .tone-wash. */
+  .tone-ink { color: color-mix(in srgb, var(--tone-fg, var(--foreground)) 82%, var(--tone, transparent)); }
+
+  /* Elevation, as utilities so a component can state its depth instead of every card sharing one. */
+  .elev-1 { box-shadow: var(--elev-1); }
+  .elev-2 { box-shadow: var(--elev-2); }
+  .elev-3 { box-shadow: var(--elev-3); }
+
+  /* Guarantees a 44px hit area without forcing a 44px *look*. A 16px chip X keeps its size and
+     grows an invisible pseudo-element out to the minimum instead — the reason the old rule only
+     covered `button.w-full` and `.seg button` was that widening it would have visually inflated
+     every inline chip. */
+  .pressable { position: relative; min-height: var(--ctl-md); min-width: var(--ctl-md); }
+  .pressable-tight { position: relative; }
+  .pressable-tight::after {
+    content: ''; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+    width: max(100%, var(--ctl-md)); height: max(100%, var(--ctl-md));
+  }
 
   .mark { position: relative; display: inline; z-index: 0; }
   .mark::after { content: ''; position: absolute; z-index: -1; left: -.04em; right: -.04em; bottom: .03em; height: .34em; background: var(--secondary); }
@@ -323,27 +398,35 @@
 
 @layer components {
   .page-enter { animation: page-enter 260ms ease-out; }
-  .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--r-xl); padding: 1rem; box-shadow: var(--shadow); }
-  .btn-pine, .btn-lemon, .btn-ghost { min-height: 3rem; border-radius: var(--r-md); padding: .75rem 1rem; font-weight: 750; display: inline-flex; align-items: center; justify-content: center; gap: .5rem; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--r-xl); padding: 1rem; box-shadow: var(--elev-1); }
+  /* A row nested inside a .card. Previously these borrowed --muted, which is also the segmented
+     control's fill, so a list row and a tab strip were the same colour on the same screen. */
+  .card-inset { background: var(--surface-3); border-radius: var(--r-md); padding: .75rem; }
+  .btn-pine, .btn-lemon, .btn-ghost { min-height: var(--ctl-lg); border-radius: var(--r-md); padding: .75rem 1rem; font-weight: 750; display: inline-flex; align-items: center; justify-content: center; gap: .5rem; }
   .btn-pine { background: var(--primary); color: var(--primary-foreground); }
   .btn-lemon { background: var(--secondary); color: var(--secondary-foreground); }
   .btn-ghost { background: var(--card); color: var(--foreground); border: 1px solid var(--border); }
   .seg { display: flex; gap: .25rem; padding: .3rem; background: var(--muted); border-radius: var(--r-lg); }
   .field { background: var(--card); border: 1px solid var(--border); border-radius: var(--r-lg); min-height: 4.1rem; padding: .75rem 1rem; }
-  .househero, .wallet, .gamehero { background: var(--hero); color: var(--hero-foreground); border-radius: var(--r-2xl); padding: 1.25rem; box-shadow: var(--shadow); }
+  .househero, .wallet, .gamehero { background: var(--hero); color: var(--hero-foreground); border-radius: var(--r-2xl); padding: 1.25rem; box-shadow: var(--elev-2); }
   /* Amount colours for text sitting on a hero surface. The theme `--primary`/`--destructive` are
      tuned for the page background and can collide with the hero itself (in the light theme
      `--primary` *is* the hero colour), so on-hero amounts use their own light tints. */
   .hero-amount-positive { color: var(--hero-positive); }
   .hero-amount-negative { color: var(--hero-negative); }
   .bignum { font-family: var(--font-display); font-size: clamp(2.6rem, 12vw, 4.5rem); font-weight: 800; letter-spacing: -.06em; line-height: .9; }
-  .podium { background: var(--card); border: 1px solid var(--border); border-radius: var(--r-2xl); padding: 1rem; box-shadow: var(--shadow); }
+  .podium { background: var(--card); border: 1px solid var(--border); border-radius: var(--r-2xl); padding: 1rem; box-shadow: var(--elev-1); }
   .gamegrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
-  .gcard { min-height: 8.25rem; border-radius: var(--r-xl); border: 1px solid var(--border); background: var(--card); padding: 1rem; text-align: left; box-shadow: var(--shadow); }
-  .task { border-radius: var(--r-lg); border: 1px solid var(--border); background: var(--card); padding: .9rem; box-shadow: var(--shadow); }
-  .event { border-radius: var(--r-lg); border: 1px solid var(--border); background: var(--card); padding: .85rem; box-shadow: var(--shadow); }
+  .gcard { min-height: 8.25rem; border-radius: var(--r-xl); border: 1px solid var(--border); background: var(--card); padding: 1rem; text-align: left; box-shadow: var(--elev-1); }
+  .task { border-radius: var(--r-lg); border: 1px solid var(--border); background: var(--card); padding: .9rem; box-shadow: var(--elev-1); }
+  .event { border-radius: var(--r-lg); border: 1px solid var(--border); background: var(--card); padding: .85rem; box-shadow: var(--elev-1); }
   .msg { display: flex; }
-  .bub { border-radius: var(--r-xl); padding: .65rem .9rem; }
+  /* Chat bubbles. The tail is a *smaller* radius on the corner nearest the sender, applied only to
+     the last bubble of a run — .bub-tail-self / -other below. Mid-run bubbles stay fully round on
+     both bottom corners so a run reads as one continuous shape. */
+  .bub { border-radius: var(--r-2xl); padding: .7rem 1rem; }
+  .bub-tail-self { border-bottom-right-radius: var(--r-sm); }
+  .bub-tail-other { border-bottom-left-radius: var(--r-sm); }
   .stat-tile { border-radius: var(--r-md); padding: .8rem; background: color-mix(in srgb, white 12%, transparent); }
   .pill { border-radius: 999px; padding: .3rem .65rem; font-size: .72rem; font-weight: 700; }
   .pill-pine { background: color-mix(in srgb, var(--primary) 15%, transparent); color: var(--primary); }
@@ -368,15 +451,19 @@ select {
   appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--muted-foreground) 50%), linear-gradient(135deg, var(--muted-foreground) 50%, transparent 50%);
   background-position: calc(100% - 16px) 50%, calc(100% - 11px) 50%; background-size: 5px 5px; background-repeat: no-repeat; padding-right: 2.25rem;
 }
-/* Mobile touch targets: give real action buttons a comfortable ~44px minimum tap
-   height. Scoped to full-width CTAs/list-rows and segmented toggles so inline text
-   links ("See all"), chips and compact icon/emoji buttons stay visually intact. */
-.seg button { min-height: 2.75rem; display: inline-flex; align-items: center; justify-content: center; }
-button.w-full { min-height: 2.75rem; }
+/* Mobile touch targets. --ctl-md (44px) is the floor for anything a thumb aims at. Inline chips and
+   compact icon buttons opt into .pressable-tight instead, which grows an invisible hit area rather
+   than inflating the glyph — that is why this rule can now be broad where it used to be scoped to
+   full-width CTAs and segmented toggles only. */
+.seg button { min-height: var(--ctl-md); display: inline-flex; align-items: center; justify-content: center; }
+button.w-full { min-height: var(--ctl-md); }
 button.w-full:not(.flex):not(.grid):not(.inline-flex) { display: flex; align-items: center; justify-content: center; }
-button:not(:disabled) { cursor: pointer; transition: filter 150ms ease, transform 150ms ease; }
+button:not(:disabled) { cursor: pointer; transition: filter var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out); }
 @media (hover: hover) and (pointer: fine) { button:not(:disabled):hover { filter: brightness(1.04); transform: translateY(-1px); } }
-button:not(:disabled):active { transform: scale(.97); }
+/* Fallback press feedback. Components using the shared `pressable` motion preset from
+   src/lib/motion.ts drive their own whileTap and set data-motion-press to opt out of this, so the
+   CSS scale and the spring never fight over the same transform. */
+button:not(:disabled):not([data-motion-press]):active { transform: scale(.97); }
 /* iOS paints a grey block over any tapped element by default, which reads as lag on every button
    and list row. The :active transform above is the intended press feedback. */
 button, a, label, [role="tab"], [role="button"] { -webkit-tap-highlight-color: transparent; }

@@ -1,8 +1,10 @@
 import { Suspense, useEffect } from 'react';
 import { Outlet, Navigate, useLocation } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
 import AppHeader from './AppHeader';
 import BottomNav from './BottomNav';
 import TourOverlay, { type TourStep } from './TourOverlay';
+import { pageVariants } from '../lib/motion';
 import { useUser } from '../context/UserContext';
 
 const APP_TOUR_STEPS: TourStep[] = [
@@ -75,7 +77,15 @@ export default function AppLayout() {
             </div>
           }
         >
-          <Outlet />
+          {/* mode="wait" so the outgoing page finishes before the incoming one lifts in — with both
+              on screen at once the fixed FAB and bottom nav end up rendered twice. Keyed on the
+              pathname alone, not the search string, so /tasks?tab=shopping does not re-run the
+              whole page transition for an in-page tab switch. */}
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div key={pathname} variants={pageVariants} initial="initial" animate="animate" exit="exit">
+              <Outlet />
+            </motion.div>
+          </AnimatePresence>
         </Suspense>
       </main>
       <BottomNav />

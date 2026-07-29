@@ -1,7 +1,12 @@
+import { useEffect, useRef, useState } from 'react';
 import type { ButtonHTMLAttributes, CSSProperties, FocusEvent, InputHTMLAttributes, ReactNode } from 'react';
+import { AnimatePresence, motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { MoreHorizontal, Plus, X } from 'lucide-react';
 import { cn } from '../ui/utils';
 import { colorForMember } from '../../lib/memberColors';
+import { backdropVariants, pressable, sheetVariants, springPop, springSoft } from '../../lib/motion';
+import { tapFeedback } from '../../lib/haptics';
+import type { Tone } from '../../lib/tones';
 
 export function Field({ label, className, ...props }: InputHTMLAttributes<HTMLInputElement> & { label: string }) {
   return (
@@ -46,16 +51,101 @@ export function GoogleMark({ className = 'h-5 w-5' }: { className?: string }) {
   );
 }
 
+/**
+ * A single-value progress ring.
+ *
+ * Replaces the `.vibe-ring` conic-gradient, which could not animate: a conic-gradient stop is not an
+ * interpolatable property, so the old ring could only ever snap to its final value. An SVG arc
+ * animates its dash offset instead, which is what makes progress read as progress.
+ *
+ * `size` and `thickness` are in px because this draws to an SVG viewBox; everything else about it
+ * follows the theme.
+ */
+export function ProgressRing({
+  value,
+  size = 84,
+  thickness = 9,
+  color = 'var(--primary)',
+  trackColor = 'var(--muted)',
+  children,
+  className,
+  delay = 0,
+}: {
+  /** 0-100. Values outside the range are clamped rather than overdrawing the circle. */
+  value: number;
+  size?: number;
+  thickness?: number;
+  color?: string;
+  trackColor?: string;
+  children?: ReactNode;
+  className?: string;
+  delay?: number;
+}) {
+  const pct = Math.max(0, Math.min(100, value));
+  const radius = (size - thickness) / 2;
+  const circumference = 2 * Math.PI * radius;
+
+  return (
+    <div className={cn('relative shrink-0', className)} style={{ width: size, height: size }}>
+      {/* -90deg so the arc starts at 12 o'clock, which is where people expect a gauge to begin. */}
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="-rotate-90" aria-hidden="true">
+        <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke={trackColor} strokeWidth={thickness} />
+        <motion.circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke={color}
+          strokeWidth={thickness}
+          strokeLinecap="round"
+          strokeDasharray={circumference}
+          initial={{ strokeDashoffset: circumference }}
+          animate={{ strokeDashoffset: circumference * (1 - pct / 100) }}
+          transition={{ ...springSoft, delay }}
+        />
+      </svg>
+      <div className="absolute inset-0 grid place-items-center text-center leading-none">{children}</div>
+    </div>
+  );
+}
+
 export function VibeRing({ score }: { score: number }) {
   const value = Math.max(0, Math.min(100, score));
   return (
-    <div className="vibe-ring shrink-0" style={{ '--vibe': `${value}%` } as CSSProperties}>
-      <div className="text-center leading-none">
-        <strong className="font-display text-xl">{value}</strong>
-        <span className="block mt-1 text-[8px] font-bold tracking-[.14em] text-muted-foreground">VIBE</span>
+    <ProgressRing value={value} size={84} thickness={9} color="var(--secondary)">
+      <div>
+        <CountUp value={value} className="font-display text-xl font-extrabold" />
+        <span className="mt-1 block text-[8px] font-bold tracking-[.14em] text-muted-foreground">VIBE</span>
       </div>
-    </div>
+    </ProgressRing>
   );
+}
+
+/**
+ * A number that counts to its value instead of snapping.
+ *
+ * Used for balances, XP and month totals. The spring is deliberately slow and non-overshooting —
+ * money that bounces past its value and settles back reads as a glitch, not as polish.
+ */
+export function CountUp({
+  value,
+  format,
+  className,
+}: {
+  value: number;
+  /** Defaults to a plain rounded integer; pass formatCurrency for money. */
+  format?: (n: number) => string;
+  className?: string;
+}) {
+  const motionValue = useMotionValue(0);
+  const spring = useSpring(motionValue, { stiffness: 90, damping: 22, mass: 1 });
+  const text = useTransform(spring, (latest) => (format ? format(Math.round(latest)) : String(Math.round(latest))));
+
+  useEffect(() => {
+    motionValue.set(value);
+  }, [motionValue, value]);
+
+  return <motion.span className={cn('tabular-nums', className)}>{text}</motion.span>;
 }
 
 export function Eyebrow({ children }: { children: ReactNode }) {
@@ -72,15 +162,106 @@ export function AddSheet({ title, onClose, children, className }: { title: strin
     }
   };
   return (
-    <div onFocusCapture={scrollFocusedIntoView} className={cn('glass w-full max-w-full space-y-3 overflow-hidden rounded-xl p-4', className)}>
+    <motion.div
+      onFocusCapture={scrollFocusedIntoView}
+      initial={{ opacity: 0, y: -8, scale: 0.99 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={springSoft}
+      className={cn('glass elev-2 w-full max-w-full space-y-3 overflow-hidden rounded-2xl p-4', className)}
+    >
       <div className="flex items-center justify-between gap-3">
         <p className="text-sm font-semibold">{title}</p>
-        <button onClick={onClose} className="grid h-11 w-11 shrink-0 place-items-center rounded-full" aria-label={title}>
-          <X className="h-4 w-4 text-muted-foreground" />
-        </button>
+        <CloseButton onClick={onClose} label={title} />
       </div>
       {children}
-    </div>
+    </motion.div>
+  );
+}
+
+/**
+ * The standard icon button: 44px hit area, springy press, optional haptic.
+ *
+ * Before this existed there were four different close-button treatments across the app (bare
+ * rounded-full, rounded-full bg-muted, rounded-xl bg-card, bordered) and inline chip X's as small as
+ * 12px. `variant="bare"` keeps a small glyph visually small while `.pressable` still guarantees the
+ * hit area, which is what makes it safe to use everywhere.
+ */
+export function IconButton({
+  label,
+  icon,
+  variant = 'solid',
+  haptic = true,
+  className,
+  onClick,
+  ...props
+}: Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'onAnimationStart' | 'onDragStart' | 'onDragEnd' | 'onDrag'> & {
+  label: string;
+  icon: ReactNode;
+  variant?: 'solid' | 'bare' | 'muted' | 'danger';
+  haptic?: boolean;
+}) {
+  const variants = {
+    solid: 'border border-border bg-card text-foreground',
+    bare: 'text-muted-foreground',
+    muted: 'bg-muted text-foreground',
+    danger: 'bg-destructive/12 text-destructive',
+  } as const;
+
+  return (
+    <motion.button
+      type="button"
+      aria-label={label}
+      onClick={(event) => {
+        if (haptic) void tapFeedback();
+        onClick?.(event);
+      }}
+      {...pressable}
+      className={cn(
+        'pressable grid shrink-0 place-items-center rounded-full transition-colors',
+        variants[variant],
+        className,
+      )}
+      {...props}
+    >
+      {icon}
+    </motion.button>
+  );
+}
+
+/** The one close affordance. Every sheet, modal and dismissible card should use this. */
+export function CloseButton({ onClick, label, className }: { onClick: () => void; label: string; className?: string }) {
+  return (
+    <IconButton
+      label={label}
+      onClick={onClick}
+      variant="muted"
+      icon={<X className="h-4 w-4" />}
+      className={className}
+    />
+  );
+}
+
+/**
+ * A small inline remove affordance — the X on a selected member chip, a filter tag, a room row.
+ *
+ * These are the targets that were 12-14px across the app. The glyph stays small on purpose (a 44px
+ * circle inside a 28px chip looks broken), and `.pressable-tight` grows an invisible hit area out to
+ * the 44px minimum instead of inflating what you can see.
+ */
+export function ChipRemoveButton({ onClick, label, className }: { onClick: () => void; label: string; className?: string }) {
+  return (
+    <motion.button
+      type="button"
+      aria-label={label}
+      onClick={() => {
+        void tapFeedback();
+        onClick();
+      }}
+      {...pressable}
+      className={cn('pressable-tight grid h-5 w-5 shrink-0 place-items-center rounded-full bg-foreground/10 text-current', className)}
+    >
+      <X className="h-3 w-3" />
+    </motion.button>
   );
 }
 
@@ -153,6 +334,366 @@ export function OverflowMenu({
   );
 }
 
-export function Fab({ label, className, ...props }: ButtonHTMLAttributes<HTMLButtonElement> & { label: string }) {
-  return <button aria-label={label} style={{ bottom: 'calc(env(safe-area-inset-bottom) + 6.5rem)' }} className={cn('fixed right-5 z-30 grid h-14 w-14 place-items-center rounded-full bg-secondary text-secondary-foreground shadow-[0_12px_28px_rgba(16,32,25,.24)]', className)} {...props}><Plus className="h-6 w-6" /></button>;
+export function Fab({ label, className, onClick, ...props }: Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'onAnimationStart' | 'onDragStart' | 'onDragEnd' | 'onDrag'> & { label: string }) {
+  return (
+    <motion.button
+      aria-label={label}
+      onClick={(event) => {
+        void tapFeedback();
+        onClick?.(event);
+      }}
+      style={{ bottom: 'calc(env(safe-area-inset-bottom) + 6.5rem)' }}
+      initial={{ scale: 0, rotate: -90 }}
+      animate={{ scale: 1, rotate: 0 }}
+      transition={{ ...springPop, delay: 0.15 }}
+      whileTap={{ scale: 0.9, rotate: 90 }}
+      data-motion-press
+      className={cn(
+        'elev-3 fixed right-5 z-30 grid place-items-center rounded-full bg-secondary text-secondary-foreground',
+        className,
+      )}
+      {...props}
+    >
+      <span className="grid place-items-center" style={{ width: 'var(--ctl-xl)', height: 'var(--ctl-xl)' }}>
+        <Plus className="h-6 w-6" />
+      </span>
+    </motion.button>
+  );
+}
+
+/**
+ * A card with a stated depth and an optional colour identity.
+ *
+ * `tone` is what stops every screen being white-on-cream: it applies a ~12% wash of one of the six
+ * theme tones plus a matching border, which is enough for two sections to read as different things
+ * without any of them shouting. Leave it off for neutral content.
+ */
+export function Card({
+  tone,
+  elevation = 1,
+  as = 'div',
+  className,
+  children,
+  ...props
+}: {
+  tone?: Tone;
+  elevation?: 0 | 1 | 2 | 3;
+  as?: 'div' | 'section' | 'article' | 'li';
+  className?: string;
+  children: ReactNode;
+} & Record<string, unknown>) {
+  const Tag = as;
+  return (
+    <Tag
+      className={cn(
+        'rounded-2xl border border-border p-4',
+        tone ? `tone-${tone} tone-wash tone-edge` : 'bg-card',
+        elevation > 0 && `elev-${elevation}`,
+        className,
+      )}
+      {...props}
+    >
+      {children}
+    </Tag>
+  );
+}
+
+/**
+ * A bottom sheet with its backdrop.
+ *
+ * Consolidates the hand-rolled `fixed inset-0 z-[60]` pattern that appeared in 20-plus places with
+ * backdrop opacity drifting between /35, /40 and /50 and slide distances between 24 and 40px.
+ * Handles the things each copy got wrong somewhere: Escape to close, backdrop click that ignores
+ * clicks originating inside the panel, and scroll lock while open.
+ */
+export function Sheet({
+  open,
+  onClose,
+  title,
+  children,
+  footer,
+  className,
+}: {
+  open: boolean;
+  onClose: () => void;
+  title?: ReactNode;
+  children: ReactNode;
+  footer?: ReactNode;
+  className?: string;
+}) {
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', onKey);
+    // Without this the page behind the sheet scrolls under it on iOS as soon as the sheet's own
+    // content hits its end.
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [open, onClose]);
+
+  return (
+    <AnimatePresence>
+      {open && (
+        <motion.div
+          className="fixed inset-0 z-[60] flex items-end justify-center bg-black/45 px-2 pb-2 backdrop-blur-[2px]"
+          variants={backdropVariants}
+          initial="hidden"
+          animate="show"
+          exit="exit"
+          onClick={onClose}
+          role="presentation"
+        >
+          <motion.div
+            role="dialog"
+            aria-modal="true"
+            variants={sheetVariants}
+            // Stop a click that started on the panel (a drag across a slider, a text selection that
+            // ends outside) from being read as a backdrop dismissal.
+            onClick={(event) => event.stopPropagation()}
+            className={cn(
+              'elev-3 max-h-[88vh] w-full max-w-xl overflow-y-auto overscroll-contain rounded-2xl border border-border bg-card p-4 safe-bottom',
+              className,
+            )}
+          >
+            {/* Always rendered: a sheet without a visible way out strands anyone who dismisses by
+                backdrop tap less readily than by button. Title is optional, the close button is not. */}
+            <div className="mb-3 flex items-center justify-between gap-3">
+              {typeof title === 'string' ? <p className="font-display text-lg font-extrabold">{title}</p> : title}
+              <CloseButton onClick={onClose} label={typeof title === 'string' ? title : 'Close'} className="ml-auto" />
+            </div>
+            {children}
+            {footer && <div className="mt-4">{footer}</div>}
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
+/** A labelled number. Replaces the ad-hoc stat grids in Ranks, Profile and Economy. */
+export function StatTile({
+  label,
+  value,
+  hint,
+  tone,
+  icon,
+  className,
+}: {
+  label: string;
+  value: ReactNode;
+  hint?: string;
+  tone?: Tone;
+  icon?: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div
+      className={cn(
+        'rounded-xl border border-border p-3',
+        tone ? `tone-${tone} tone-wash tone-edge` : 'bg-surface-3 border-transparent',
+        className,
+      )}
+    >
+      <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[.08em] text-muted-foreground">
+        {icon}
+        <span className="truncate">{label}</span>
+      </div>
+      <p className="mt-1 font-display text-2xl font-extrabold leading-none tabular-nums">{value}</p>
+      {hint && <p className="mt-1 truncate text-[11px] text-muted-foreground">{hint}</p>}
+    </div>
+  );
+}
+
+/**
+ * The "nothing here yet" state.
+ *
+ * A new household previously saw a grey sentence on an empty screen and could not tell an empty list
+ * from a broken one. An icon, a reason and a way forward turn the emptiest screens — a fresh
+ * calendar, a month with no expenses — into the start of something instead of a dead end.
+ */
+export function EmptyState({
+  icon,
+  title,
+  body,
+  action,
+  tone = 'peri',
+  className,
+}: {
+  icon: ReactNode;
+  title: string;
+  body?: string;
+  action?: { label: string; onClick: () => void };
+  tone?: Tone;
+  className?: string;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={springSoft}
+      className={cn('flex flex-col items-center rounded-2xl border border-dashed border-border px-6 py-8 text-center', className)}
+    >
+      <motion.span
+        initial={{ scale: 0.8, rotate: -8 }}
+        animate={{ scale: 1, rotate: 0 }}
+        transition={{ ...springPop, delay: 0.08 }}
+        className={cn('tone-tile grid h-14 w-14 place-items-center rounded-2xl', `tone-${tone}`)}
+      >
+        {icon}
+      </motion.span>
+      <p className="mt-3 font-display text-lg font-extrabold">{title}</p>
+      {body && <p className="mt-1 max-w-[36ch] text-sm text-muted-foreground">{body}</p>}
+      {action && (
+        <motion.button type="button" onClick={action.onClick} {...pressable} className="btn-pine mt-4 px-5">
+          {action.label}
+        </motion.button>
+      )}
+    </motion.div>
+  );
+}
+
+/**
+ * Segmented control with a sliding thumb.
+ *
+ * The `.seg` CSS class swapped background colours between options, so switching tabs was an instant
+ * repaint with nothing connecting the two states. A shared `layoutId` makes the thumb travel, which
+ * is what tells you the two tabs are the same control.
+ */
+export function SegmentedControl<T extends string>({
+  options,
+  value,
+  onChange,
+  layoutId,
+  className,
+}: {
+  options: Array<{ value: T; label: ReactNode }>;
+  value: T;
+  onChange: (value: T) => void;
+  /** Must be unique per mounted control — two controls sharing an id animate into each other. */
+  layoutId: string;
+  className?: string;
+}) {
+  return (
+    <div role="tablist" className={cn('seg', className)}>
+      {options.map((option) => {
+        const isActive = option.value === value;
+        return (
+          <button
+            key={option.value}
+            role="tab"
+            type="button"
+            aria-selected={isActive}
+            onClick={() => {
+              if (isActive) return;
+              void tapFeedback();
+              onChange(option.value);
+            }}
+            className="relative flex-1 rounded-[--r-md] px-3 text-sm font-bold"
+          >
+            {isActive && (
+              <motion.span
+                layoutId={layoutId}
+                transition={springSoft}
+                className="elev-1 absolute inset-0 rounded-[--r-md] bg-primary"
+              />
+            )}
+            <span className={cn('relative z-10 transition-colors', isActive ? 'text-primary-foreground' : 'text-muted-foreground')}>
+              {option.label}
+            </span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+/** A filter/category pill. One shape for the chips in Tasks, Games, Social and Economy. */
+export function Chip({
+  label,
+  active = false,
+  onClick,
+  icon,
+  tone,
+  className,
+}: {
+  label: ReactNode;
+  active?: boolean;
+  onClick?: () => void;
+  icon?: ReactNode;
+  tone?: Tone;
+  className?: string;
+}) {
+  const interactive = Boolean(onClick);
+  const Tag = interactive ? motion.button : motion.span;
+  return (
+    <Tag
+      type={interactive ? 'button' : undefined}
+      aria-pressed={interactive ? active : undefined}
+      onClick={
+        interactive
+          ? () => {
+              void tapFeedback();
+              onClick?.();
+            }
+          : undefined
+      }
+      {...(interactive ? pressable : {})}
+      className={cn(
+        'inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 text-sm font-bold transition-colors',
+        interactive && 'pressable',
+        !interactive && 'py-1.5',
+        active
+          ? 'border-transparent bg-primary text-primary-foreground'
+          : tone
+            ? `tone-${tone} tone-wash tone-edge`
+            : 'border-border bg-card text-foreground',
+        className,
+      )}
+    >
+      {icon}
+      {label}
+    </Tag>
+  );
+}
+
+/**
+ * The "+20 XP" chip that flies off a completed task toward the XP meter.
+ *
+ * Purely decorative and self-cleaning: mount it with a key, it removes itself when the flight ends.
+ * This is the routine-completion reward — the one that fires many times a day and therefore must
+ * stay quiet enough not to wear out.
+ */
+export function XpBurst({ amount, onDone }: { amount: number; onDone?: () => void }) {
+  const [visible, setVisible] = useState(true);
+  const doneRef = useRef(onDone);
+  doneRef.current = onDone;
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setVisible(false);
+      doneRef.current?.();
+    }, 900);
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  return (
+    <AnimatePresence>
+      {visible && (
+        <motion.span
+          initial={{ opacity: 0, y: 0, scale: 0.6 }}
+          animate={{ opacity: [0, 1, 1, 0], y: -46, scale: [0.6, 1.15, 1, 0.95] }}
+          transition={{ duration: 0.9, times: [0, 0.18, 0.7, 1], ease: 'easeOut' }}
+          className="pointer-events-none absolute -top-1 left-1/2 z-20 -translate-x-1/2 whitespace-nowrap rounded-full bg-secondary px-2.5 py-1 text-xs font-extrabold text-secondary-foreground"
+        >
+          +{amount} XP
+        </motion.span>
+      )}
+    </AnimatePresence>
+  );
 }
