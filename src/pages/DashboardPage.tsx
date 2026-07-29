@@ -51,7 +51,7 @@ function PreviewSection({
     <motion.div variants={listItem}>
       <div className="mb-2 flex items-center justify-between">
         <h3 className="font-display text-base font-bold">{title}</h3>
-        <button onClick={onSeeAll} className="-mr-2 min-h-11 px-2 text-xs font-semibold text-primary">
+        <button onClick={onSeeAll} className="-mr-2 min-h-11 px-2 text-xs font-semibold text-primary dark:text-white">
           {seeAllLabel}
         </button>
       </div>
@@ -205,7 +205,7 @@ export default function DashboardPage() {
         <p className="mt-2 text-sm text-muted-foreground">{translate(promptKey)}</p>
       </motion.div>
 
-      <motion.div variants={listItem} className="househero">
+      <motion.div variants={listItem} className="househero hero-lilac">
         <p className="eyebrow !text-white/65">{translate('dashboard.householdTitle')}</p>
         <h3 className="mt-2 font-display text-2xl font-extrabold leading-tight text-white">
           {data.collectiveName}

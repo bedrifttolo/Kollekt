@@ -32,7 +32,7 @@ const pageIcons: Record<string, LucideIcon> = {
 // app's neutral header rather than borrowing one tab's colour.
 const pageTones: Record<string, Tone> = {
   "/tasks": "mint",
-  "/calendar": "peri",
+  "/calendar": "sage",
   "/chat": "blush",
   "/economy": "butter",
   "/economy/pant": "butter",

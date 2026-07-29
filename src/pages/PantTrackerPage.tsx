@@ -325,7 +325,7 @@ export default function PantTrackerPage() {
               {t("pant.collectionHistory")}
             </h3>
             {pantSummary.entries.length > 2 && (
-              <button onClick={() => setShowAllHistory((v) => !v)} className="text-xs text-primary font-medium">
+              <button onClick={() => setShowAllHistory((v) => !v)} className="text-xs text-primary dark:text-white font-medium">
                 {showAllHistory ? t('common.showLess') : t('common.seeAll')}
               </button>
             )}

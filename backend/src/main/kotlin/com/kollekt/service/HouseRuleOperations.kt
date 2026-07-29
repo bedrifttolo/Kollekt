@@ -30,13 +30,13 @@ class HouseRuleOperations(
     ): HouseRulesDto {
         val collective = requireCollectiveMember(collectiveId, actorName)
         val latest = ruleRepository.findFirstByCollectiveCodeOrderByVersionDesc(collective.joinCode)
-        return latest?.toDto(actorName, collective.ownerMemberId) ?: HouseRulesDto(
+        return latest?.toDto(actorName) ?: HouseRulesDto(
             version = 0,
             content = "",
             updatedBy = null,
             createdAt = null,
             acknowledged = true,
-            canEdit = memberRepository.findByName(actorName)?.id == collective.ownerMemberId,
+            canEdit = true,
         )
     }
 
@@ -47,8 +47,6 @@ class HouseRuleOperations(
         actorName: String,
     ): HouseRulesDto {
         val collective = requireCollectiveMember(collectiveId, actorName)
-        val actor = memberRepository.findByName(actorName) ?: throw IllegalArgumentException("User not found")
-        if (actor.id != collective.ownerMemberId) throw AccessDeniedException("Only the household owner can edit house rules")
         val lockedCollective =
             collectiveRepository.findByJoinCodeForUpdate(collective.joinCode)
                 ?: throw IllegalArgumentException("Collective not found")
@@ -74,7 +72,7 @@ class HouseRuleOperations(
             params = mapOf("version" to nextVersion.toString()),
         )
         realtimeUpdateService.publish(lockedCollective.joinCode, "HOUSE_RULES_UPDATED", mapOf("version" to nextVersion))
-        return saved.toDto(actorName, lockedCollective.ownerMemberId)
+        return saved.toDto(actorName)
     }
 
     @Transactional
@@ -94,7 +92,7 @@ class HouseRuleOperations(
         if (!ackRepository.existsByRuleIdAndMemberName(latest.id, actorName)) {
             ackRepository.save(HouseRuleAck(ruleId = latest.id, memberName = actorName))
         }
-        return latest.toDto(actorName, collective.ownerMemberId)
+        return latest.toDto(actorName)
     }
 
     // Reports a quiet-hours or house-rule violation either to a single household member or to
@@ -154,14 +152,13 @@ class HouseRuleOperations(
 
     private fun HouseRule.toDto(
         actorName: String,
-        ownerMemberId: Long,
     ) = HouseRulesDto(
         version = version,
         content = content,
         updatedBy = updatedBy,
         createdAt = createdAt,
         acknowledged = ackRepository.existsByRuleIdAndMemberName(id, actorName),
-        canEdit = memberRepository.findByName(actorName)?.id == ownerMemberId,
+        canEdit = true,
     )
 
     companion object {

@@ -36,6 +36,7 @@ import { capturePhotoFile, nativeCameraAvailable } from '../lib/camera';
 import { useUser, useRealtimeEvent } from '../context/UserContext';
 import { tapFeedback } from '../lib/haptics';
 import { formatDate, formatDateTime, translateKey } from '../i18n/helpers';
+import { EXPENSE_CATEGORIES } from '../lib/expenseStats';
 import type { AppUser, Task, ShoppingItem, TaskCategory, TaskSwapRequest, MaintenanceTicket, MaintenancePriority, MaintenanceStatus } from '../lib/types';
 import { AddSheet, Avatar, Chip, Eyebrow, Fab, OverflowMenu, ProgressBar, XpBurst } from '../components/ui-kit';
 import { pressable, springPop } from '../lib/motion';
@@ -276,6 +277,7 @@ function TasksMain() {
   const [completingTicket, setCompletingTicket] = useState<MaintenanceTicket | null>(null);
   const [completeCost, setCompleteCost] = useState('');
   const [completeSplit, setCompleteSplit] = useState<string[]>([]);
+  const [completeCategory, setCompleteCategory] = useState<string>('Bills');
   const [editingTicketId, setEditingTicketId] = useState<number | null>(null);
   const [editTicketTitle, setEditTicketTitle] = useState('');
   const [editTicketDescription, setEditTicketDescription] = useState('');
@@ -306,6 +308,7 @@ function TasksMain() {
   const [buyParticipants, setBuyParticipants] = useState<string[]>([]);
   const [buyDate, setBuyDate] = useState('');
   const [buyDeadline, setBuyDeadline] = useState('');
+  const [buyCategory, setBuyCategory] = useState<string>('Groceries');
   const [loading, setLoading] = useState(() => !cachedTaskBundle());
   const [pendingTaskIds, setPendingTaskIds] = useState<Set<number>>(new Set());
   // Which task's checkbox is currently flying its "+N XP" chip. One at a time — the chip clears
@@ -570,6 +573,7 @@ function TasksMain() {
     if (status === 'DONE' && ticket.status !== 'DONE') {
       setCompleteCost('');
       setCompleteSplit(memberOptions);
+      setCompleteCategory('Bills');
       setCompletingTicket(ticket);
     } else {
       void updateMaintenanceTicket(ticket.id, { status });
@@ -583,6 +587,7 @@ function TasksMain() {
       status: 'DONE',
       costEstimate: actualCost,
       splitParticipants: actualCost > 0 ? completeSplit : [],
+      category: completeCategory,
     });
     setCompletingTicket(null);
     setCompleteCost('');
@@ -613,7 +618,7 @@ function TasksMain() {
     setDeletingTicketId(null);
   };
 
-  const updateMaintenanceTicket = async (ticketId: number, updates: Partial<MaintenanceTicket>) => {
+  const updateMaintenanceTicket = async (ticketId: number, updates: Partial<MaintenanceTicket> & { category?: string }) => {
     const updated = await api.patch<MaintenanceTicket>(`/maintenance/tickets/${ticketId}`, updates);
     setMaintenanceTickets((tickets) => tickets.map((ticket) => ticket.id === ticketId ? updated : ticket));
   };
@@ -886,6 +891,7 @@ function TasksMain() {
     setBuyParticipants(memberOptions);
     setBuyDate(new Date().toISOString().split('T')[0]);
     setBuyDeadline('');
+    setBuyCategory('Groceries');
   };
 
   const toggleBuyParticipant = (member: string) => {
@@ -906,6 +912,7 @@ function TasksMain() {
         paidBy: buyPaidBy || name,
         participantNames: buyParticipants,
         date: buyDate,
+        category: buyCategory,
         ...(buyDeadline ? { deadlineDate: buyDeadline } : {}),
       },
     );
@@ -1011,7 +1018,7 @@ function TasksMain() {
       </div>
 
       {tab === 'tasks' && (
-        <div className="househero">
+        <div className="househero hero-lilac">
           <p className="text-xs font-bold uppercase tracking-[.15em] text-white/65">{t('tasks.progressLabel')}</p>
           <p className="bignum mt-3">{completedCount}<span className="text-secondary">/{taskTotal}</span> <span className="text-2xl tracking-normal">{t('tasks.done')}</span></p>
           <p className="mt-2 text-sm text-white/70">{t('tasks.remaining', { count: Math.max(0, taskTotal - completedCount) })}</p>
@@ -1505,7 +1512,7 @@ function TasksMain() {
         </>
       ) : tab === 'shopping' ? (
         <div className="space-y-3">
-          <div className="househero">
+          <div className="househero hero-lilac">
             <p className="text-xs font-bold uppercase tracking-[.15em] text-white/65">{t('tasks.restockTitle')}</p>
             <p className="bignum mt-3">{shoppingToBuy} <span className="text-2xl tracking-normal">{t('tasks.shopping.toBuyUnit')}</span></p>
             <p className="mt-2 text-sm text-white/70">{t('tasks.shopping.boughtCount', { count: shoppingBought })}</p>
@@ -1624,6 +1631,21 @@ function TasksMain() {
                         </select>
                       </div>
 
+                      <label className="block space-y-1">
+                        <span className="text-[10px] text-muted-foreground">{t('economy.categoryLabel')}</span>
+                        <select
+                          value={buyCategory}
+                          onChange={(event) => setBuyCategory(event.target.value)}
+                          className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                        >
+                          {EXPENSE_CATEGORIES.map((c) => (
+                            <option key={c} value={c}>
+                              {translateKey('common.expenseCategories', c)}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+
                       <p className="text-[10px] text-muted-foreground">
                         {t('tasks.shopping.splitWith')}
                       </p>
@@ -1722,7 +1744,7 @@ function TasksMain() {
         </div>
       ) : (
         <div className="space-y-3">
-          <div className="househero">
+          <div className="househero hero-lilac">
             <p className="text-xs font-bold uppercase tracking-[.15em] text-white/65">{t('tasks.maintenance.boardTitle')}</p>
             <p className="bignum mt-3">{maintenanceOpen} <span className="text-2xl tracking-normal">{t('tasks.maintenance.openUnit')}</span></p>
             <p className="mt-2 text-sm text-white/70">{t('tasks.maintenance.heroSubtitle', { overdue: maintenanceOverdue, done: maintenanceDone })}</p>
@@ -1855,6 +1877,20 @@ function TasksMain() {
                   placeholder={t('tasks.maintenance.costPlaceholder')}
                   className="w-full rounded-lg bg-muted/50 px-3 py-2 text-sm"
                 />
+              </label>
+              <label className="block space-y-1">
+                <span className="text-xs font-semibold text-muted-foreground">{t('economy.categoryLabel')}</span>
+                <select
+                  value={completeCategory}
+                  onChange={(event) => setCompleteCategory(event.target.value)}
+                  className="w-full rounded-lg bg-muted/50 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                >
+                  {EXPENSE_CATEGORIES.map((c) => (
+                    <option key={c} value={c}>
+                      {translateKey('common.expenseCategories', c)}
+                    </option>
+                  ))}
+                </select>
               </label>
               {Number(completeCost) > 0 && (
                 <div>

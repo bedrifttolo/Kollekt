@@ -125,7 +125,7 @@ class MaintenanceTicketOperations(
         }
         // Completing a ticket with a cost turns it into a shared expense the completer paid.
         if (status == MaintenanceStatus.DONE && ticket.status != MaintenanceStatus.DONE) {
-            settleTicketCost(saved, actorName, collectiveCode)
+            settleTicketCost(saved, actorName, collectiveCode, request.category ?: "Bills")
         }
         val dto = saved.toDto()
         realtimeUpdateService.publish(collectiveCode, "MAINTENANCE_UPDATED", dto)
@@ -150,6 +150,7 @@ class MaintenanceTicketOperations(
         ticket: MaintenanceTicket,
         completedBy: String,
         collectiveCode: String,
+        category: String,
     ) {
         val cost = ticket.costEstimate ?: return
         if (cost <= 0) return
@@ -162,7 +163,7 @@ class MaintenanceTicketOperations(
                 description = "🔧 ${ticket.title}",
                 amount = cost,
                 paidBy = completedBy,
-                category = "Bills",
+                category = category,
                 date = LocalDate.now(),
                 participantNames = participants,
             ),

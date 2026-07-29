@@ -772,8 +772,8 @@ export default function ChatPage() {
 	                  transition={springPop}
 	                  className={`elev-1 select-none bub ${
 	                    isSelf
-	                      ? `bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white ${isLastOfGroup ? 'bub-tail-self' : ''}`
-	                      : `border border-border bg-neutral-200 text-black dark:bg-card dark:text-foreground ${isLastOfGroup ? 'bub-tail-other' : ''}`
+	                      ? `bg-secondary text-white ${isLastOfGroup ? 'bub-tail-self' : ''}`
+	                      : `border border-border bg-white text-black dark:bg-neutral-700 dark:text-white ${isLastOfGroup ? 'bub-tail-other' : ''}`
 	                  }`}
 	                  style={!isSelf ? { borderLeftColor: senderColor, borderLeftWidth: 3 } : undefined}
 	                  onPointerDown={(event) => startMessagePress(message.id, event)}
@@ -783,7 +783,7 @@ export default function ChatPage() {
 	                  onPointerLeave={clearLongPress}
 	                >
                   {message.text && !message.poll && (
-                    <p className={`text-[15px] leading-relaxed ${isSelf ? 'text-black dark:text-white' : 'text-black dark:text-foreground'}`}>
+                    <p className={`text-[15px] leading-relaxed ${isSelf ? 'text-white' : 'text-black dark:text-white'}`}>
                       {message.text}
                     </p>
                   )}
@@ -825,7 +825,7 @@ export default function ChatPage() {
                     </div>
                   )}
                   {isLastOfGroup && (
-                    <p className={`text-[9px] mt-1 ${isSelf ? 'text-primary-foreground/60' : 'text-muted-foreground'}`}>
+                    <p className={`text-[9px] mt-1 ${isSelf ? 'text-white/70' : 'text-muted-foreground'}`}>
                       {formatMessageTimestamp(message.timestamp)}
                     </p>
                   )}

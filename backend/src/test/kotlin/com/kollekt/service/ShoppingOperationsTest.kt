@@ -1,6 +1,8 @@
 package com.kollekt.service
 
+import com.kollekt.api.dto.CreateExpenseRequest
 import com.kollekt.api.dto.CreateShoppingItemRequest
+import com.kollekt.api.dto.MarkSupplyBoughtRequest
 import com.kollekt.api.dto.UpdateShoppingItemRequest
 import com.kollekt.domain.Member
 import com.kollekt.domain.ShoppingItem
@@ -14,10 +16,12 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.mockito.kotlin.any
+import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 class ShoppingOperationsTest {
@@ -26,6 +30,7 @@ class ShoppingOperationsTest {
     private lateinit var collectiveRepository: CollectiveRepository
     private lateinit var notificationService: NotificationService
     private lateinit var collectiveAccessService: CollectiveAccessService
+    private lateinit var economyOperations: EconomyOperations
     private lateinit var operations: ShoppingOperations
 
     @BeforeEach
@@ -35,13 +40,14 @@ class ShoppingOperationsTest {
         collectiveRepository = mock()
         notificationService = mock()
         collectiveAccessService = CollectiveAccessService(memberRepository, collectiveRepository)
+        economyOperations = mock()
         operations =
             ShoppingOperations(
                 shoppingItemRepository,
                 memberRepository,
                 notificationService,
                 collectiveAccessService,
-                mock(),
+                economyOperations,
             )
         whenever(memberRepository.findByName("Kasper")).thenReturn(member("Kasper", "kasper@example.com"))
     }
@@ -180,6 +186,31 @@ class ShoppingOperationsTest {
             )
 
         assertTrue(result.staple)
+    }
+
+    @Test
+    fun `mark supply bought creates expense under chosen category`() {
+        whenever(shoppingItemRepository.findByIdAndCollectiveCode(9, "ABC123")).thenReturn(
+            ShoppingItem(id = 9, item = "Lightbulbs", addedBy = "Kasper", collectiveCode = "ABC123", completed = false),
+        )
+        whenever(shoppingItemRepository.save(any<ShoppingItem>())).thenAnswer { it.arguments[0] as ShoppingItem }
+
+        operations.markSupplyBought(
+            itemId = 9,
+            request =
+                MarkSupplyBoughtRequest(
+                    amount = 50,
+                    paidBy = "Kasper",
+                    participantNames = listOf("Kasper"),
+                    date = LocalDate.now(),
+                    category = "Other",
+                ),
+            memberName = "Kasper",
+        )
+
+        val captor = argumentCaptor<CreateExpenseRequest>()
+        verify(economyOperations).createExpense(captor.capture(), any())
+        assertEquals("Other", captor.firstValue.category)
     }
 
     private fun member(

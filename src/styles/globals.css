@@ -362,6 +362,11 @@
   .seg { display: flex; gap: .25rem; padding: .3rem; background: var(--muted); border-radius: var(--r-lg); }
   .field { background: var(--card); border: 1px solid var(--border); border-radius: var(--r-lg); min-height: 4.1rem; padding: .75rem 1rem; }
   .househero, .wallet, .gamehero { background: var(--hero); color: var(--hero-foreground); border-radius: var(--r-2xl); padding: 1.25rem; box-shadow: var(--elev-2); }
+  /* A purple-tinted variant for specific hero cards (layer alongside .househero/.wallet, not
+     instead of it). Reuses --tone-lilac-fg — already a deep, near-black purple in both themes,
+     tuned to carry text — rather than inventing a new colour. --hero-foreground (white/cream)
+     is untouched, so the existing hardcoded white text/icons on these cards stay as they are. */
+  .hero-lilac { --hero: var(--tone-lilac-fg); }
   /* Amount colours for text sitting on a hero surface. The theme `--primary`/`--destructive` are
      tuned for the page background and can collide with the hero itself (in the light theme
      `--primary` *is* the hero colour), so on-hero amounts use their own light tints. */
