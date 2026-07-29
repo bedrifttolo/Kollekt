@@ -18,15 +18,13 @@ if (Capacitor.isNativePlatform() && !configuredApiBase?.startsWith('https://')) 
 
 export const API_BASE = (configuredApiBase || '/api').replace(/\/$/, '');
 
-// Upper bound for any single request. Long enough to survive a free-tier cold start,
-// short enough that a truly dead connection doesn't hang the UI indefinitely.
+// Upper bound for any single request, so a dead connection never hangs the UI
+// indefinitely. Generous, because a slow network is not the same as a broken one.
 const REQUEST_TIMEOUT_MS = 60_000;
 
 /**
- * Fire-and-forget ping that starts waking the free-tier backend the moment the app
- * launches, so a cold start overlaps with the splash/login screen instead of the
- * user's first real request. Safety net for when the scheduled keep-alive workflow
- * is delayed or disabled (GitHub pauses cron workflows after 60 days of inactivity).
+ * Fire-and-forget ping issued at launch so the first real request finds a ready
+ * connection. Silent by design: failures are irrelevant to the user.
  */
 export function warmUpBackend(): void {
   void fetch(`${API_BASE}/health`).catch(() => undefined);
@@ -277,8 +275,7 @@ async function request<T>(path: string, init?: RequestInit, retryOnAuthFailure =
         });
       } // If it's a string, ignore (rare, not recommended)
     }
-    // Abort a request that hangs far longer than even a cold backend start, so the UI
-    // never waits forever. Generous (60s) so a genuine cold start still completes.
+    // Abort a request that hangs, so the UI never waits forever.
     const timeoutController = new AbortController();
     const timeoutId = setTimeout(() => timeoutController.abort(), REQUEST_TIMEOUT_MS);
     try {

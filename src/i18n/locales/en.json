@@ -204,7 +204,6 @@
   },
   "auth": {
     "pleaseWait": "Please wait...",
-    "wakingServer": "Waking up the server — this can take up to a minute…",
     "tagline": "Shared living simplified",
     "taglineSub": "made by students, for students",
     "headingLead": "Welcome",

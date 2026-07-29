@@ -204,7 +204,6 @@
   },
   "auth": {
     "pleaseWait": "Vänta lite...",
-    "wakingServer": "Väcker servern — det kan ta upp till en minut…",
     "tagline": "Kollektivliv, förenklat",
     "taglineSub": "gjort av studenter, för studenter",
     "headingLead": "Välkommen",

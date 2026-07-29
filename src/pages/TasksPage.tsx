@@ -667,10 +667,11 @@ function TasksMain() {
       const updatedTask = await request();
       setTaskOverride(updatedTask);
       updateTaskInPlace(task.id, updatedTask);
-    } catch (error) {
+    } catch {
+      // Roll the optimistic update back; the task snapping to its previous state is the
+      // user-visible signal that the change did not stick.
       clearTaskOverride(task.id);
       updateTaskInPlace(task.id, task);
-      console.error(error);
     } finally {
       pendingTaskIdsRef.current.delete(task.id);
       setPendingTaskIds((prev) => {
