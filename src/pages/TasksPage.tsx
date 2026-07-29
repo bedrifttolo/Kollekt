@@ -38,7 +38,9 @@ import { connectCollectiveRealtime } from '../lib/realtime';
 import { tapFeedback } from '../lib/haptics';
 import { formatDate, formatDateTime, translateKey } from '../i18n/helpers';
 import type { AppUser, Task, ShoppingItem, TaskCategory, TaskSwapRequest, MaintenanceTicket, MaintenancePriority, MaintenanceStatus } from '../lib/types';
-import { AddSheet, Avatar, Eyebrow, Fab, OverflowMenu, ProgressBar } from '../components/ui-kit';
+import { AddSheet, Avatar, Chip, Eyebrow, Fab, OverflowMenu, ProgressBar, XpBurst } from '../components/ui-kit';
+import { pressable, springPop } from '../lib/motion';
+import { celebrate } from '../lib/celebrate';
 import { DEFAULT_ROOM_ICON as DEFAULT_TASK_ICON, TASK_CATEGORY_ICONS } from '../lib/categoryIcons';
 
 const CATEGORIES: TaskCategory[] = ['CLEANING', 'SMALL_CLEANING', 'VACUUMING', 'MOPPING', 'BATHROOM', 'KITCHEN', 'LAUNDRY', 'DISHES', 'TRASH', 'DUSTING', 'WINDOWS', 'OTHER'];
@@ -307,6 +309,9 @@ function TasksMain() {
   const [buyDeadline, setBuyDeadline] = useState('');
   const [loading, setLoading] = useState(() => !cachedTaskBundle());
   const [pendingTaskIds, setPendingTaskIds] = useState<Set<number>>(new Set());
+  // Which task's checkbox is currently flying its "+N XP" chip. One at a time — the chip clears
+  // itself after ~900ms via XpBurst's onDone.
+  const [xpBurstTaskId, setXpBurstTaskId] = useState<number | null>(null);
   const pendingTaskIdsRef = useRef<Set<number>>(new Set());
   const tasksRef = useRef<Task[]>([]);
   const taskOverridesRef = useRef<Map<number, Task>>(new Map());
@@ -695,7 +700,11 @@ function TasksMain() {
       return;
     }
 
-    void tapFeedback();
+    // Completing a chore is the app's most frequent action, so the reward is deliberately quiet:
+    // a haptic and the XP chip flying to the meter, no confetti. celebrate('task-complete') is the
+    // haptic-only recipe for exactly this reason — see src/lib/celebrate.ts.
+    celebrate('task-complete');
+    setXpBurstTaskId(task.id);
 
     if (isOverdueTask(task)) {
       if ((task.penaltyXp ?? 0) < 0) {
@@ -1130,19 +1139,14 @@ function TasksMain() {
               </div>
             </section>
           )}
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex flex-wrap gap-2">
             {TASK_FILTERS.map((value) => (
-              <button
+              <Chip
                 key={value}
+                label={t(`tasks.filters.${value}`)}
+                active={value === filter}
                 onClick={() => setFilter(value)}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                  value === filter
-                    ? 'gradient-primary text-primary-foreground'
-                    : 'glass text-muted-foreground'
-                }`}
-              >
-                {t(`tasks.filters.${value}`)}
-              </button>
+              />
             ))}
           </div>
 
@@ -1195,22 +1199,32 @@ function TasksMain() {
                     className={`task !rounded-[1.35rem] !p-4 ${task.completed ? 'opacity-60' : ''}`}
                   >
                     <div className="flex items-center gap-4">
-                      <button
-                        type="button"
-                        disabled={taskIsPending}
-                        aria-label={task.completed ? t('tasks.markIncomplete') : t('tasks.markComplete')}
-                        className={`grid h-12 w-12 shrink-0 place-items-center rounded-2xl border-[3px] transition-colors disabled:opacity-60 ${
-                          task.completed
-                            ? 'border-primary bg-primary text-primary-foreground'
-                            : 'border-muted-foreground/70 text-transparent hover:border-primary'
-                        }`}
-                        onClick={() => {
-                          if (taskIsPending) return;
-                          void handlePrimaryToggle(task);
-                        }}
-                      >
-                        <CheckCircle2 className="h-6 w-6" />
-                      </button>
+                      <div className="relative shrink-0">
+                        {/* The XP chip flies from the checkbox that was tapped, so the reward is
+                            anchored to the thing you did rather than appearing from nowhere. */}
+                        {xpBurstTaskId === task.id && (
+                          <XpBurst amount={task.xp} onDone={() => setXpBurstTaskId(null)} />
+                        )}
+                        <motion.button
+                          type="button"
+                          disabled={taskIsPending}
+                          aria-label={task.completed ? t('tasks.markIncomplete') : t('tasks.markComplete')}
+                          {...pressable}
+                          animate={task.completed ? { scale: [1, 1.18, 1] } : { scale: 1 }}
+                          transition={springPop}
+                          className={`grid h-12 w-12 place-items-center rounded-2xl border-[3px] transition-colors disabled:opacity-60 ${
+                            task.completed
+                              ? 'border-primary bg-primary text-primary-foreground'
+                              : 'border-muted-foreground/70 text-transparent hover:border-primary'
+                          }`}
+                          onClick={() => {
+                            if (taskIsPending) return;
+                            void handlePrimaryToggle(task);
+                          }}
+                        >
+                          <CheckCircle2 className="h-6 w-6" />
+                        </motion.button>
+                      </div>
                       <div className="flex-1 min-w-0">
                         <p
                           className={`text-base font-bold leading-snug ${task.completed ? 'line-through' : ''}`}
@@ -1504,19 +1518,14 @@ function TasksMain() {
             <ProgressBar value={shoppingPercent} className="mt-4 bg-white/20" />
           </div>
 
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex flex-wrap gap-2">
             {(['ALL', 'TO_BUY', 'BOUGHT'] as const).map((value) => (
-              <button
+              <Chip
                 key={value}
+                label={t(`tasks.shopping.filters.${value}`)}
+                active={value === shoppingFilter}
                 onClick={() => setShoppingFilter(value)}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                  value === shoppingFilter
-                    ? 'gradient-primary text-primary-foreground'
-                    : 'glass text-muted-foreground'
-                }`}
-              >
-                {t(`tasks.shopping.filters.${value}`)}
-              </button>
+              />
             ))}
           </div>
 
@@ -1668,7 +1677,7 @@ function TasksMain() {
                         </button>
                         <button
                           onClick={() => setBuyingShopId(null)}
-                          className="h-9 w-9 shrink-0 rounded-lg glass flex items-center justify-center"
+                          className="pressable-tight h-9 w-9 shrink-0 rounded-lg glass flex items-center justify-center"
                           aria-label={t('tasks.shopping.closePurchaseForm')}
                         >
                           <X className="h-3 w-3 text-muted-foreground" />

@@ -4,6 +4,8 @@ import { Home, CheckSquare, Calendar, MessageCircle, Wallet, Trophy } from 'luci
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useUser } from '../context/UserContext';
+import { springIndicator, springPop } from '../lib/motion';
+import { selectionFeedback } from '../lib/haptics';
 
 const tabs = [
   { labelKey: 'bottomNav.home', icon: Home, path: '/', tour: 'home' },
@@ -74,7 +76,7 @@ export default function BottomNav() {
 
   return (
     <nav className="app-bottom-nav fixed bottom-0 left-2 right-2 z-50 safe-bottom">
-      <div role="tablist" className="flex items-center justify-around h-[4.75rem] max-w-xl mx-auto px-1 mb-2 rounded-[1.45rem] bg-sidebar text-sidebar-foreground border border-sidebar-border shadow-[0_12px_34px_rgba(9,25,16,.24)]">
+      <div role="tablist" className="flex items-center justify-around h-[4.75rem] max-w-xl mx-auto px-1 mb-2 rounded-[--r-2xl] bg-sidebar text-sidebar-foreground border border-sidebar-border shadow-[0_12px_34px_rgba(9,25,16,.24)]">
         {tabs.map((tab) => {
           const isActive =
             tab.path === '/'
@@ -89,7 +91,11 @@ export default function BottomNav() {
               aria-selected={isActive}
               aria-current={isActive ? 'page' : undefined}
               data-tour={`nav-${tab.tour}`}
-              onClick={() => navigate(tab.path)}
+              onClick={() => {
+                if (isActive) return;
+                void selectionFeedback();
+                navigate(tab.path);
+              }}
               className="relative flex flex-1 flex-col items-center justify-center gap-1 self-stretch px-1 rounded-xl transition-colors"
               aria-label={t(tab.labelKey)}
             >
@@ -97,17 +103,30 @@ export default function BottomNav() {
                 <motion.div
                   layoutId="tab-indicator"
                   className="absolute top-1.5 w-6 h-1 rounded-full bg-sidebar-primary"
-                  transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                  transition={springIndicator}
                 />
               )}
               <span className="relative">
-                <tab.icon
-                  className={`h-6 w-6 transition-colors ${
-                    isActive ? 'text-sidebar-primary' : 'text-sidebar-foreground/60'
-                  }`}
-                />
+                {/* The icon pops when its tab becomes active. The sliding indicator says *where*
+                    you are; this says the tap landed, which the colour swap alone never did. */}
+                <motion.span
+                  className="block"
+                  animate={isActive ? { scale: [1, 1.22, 1], y: [0, -2, 0] } : { scale: 1, y: 0 }}
+                  transition={springPop}
+                >
+                  <tab.icon
+                    className={`h-6 w-6 transition-colors ${
+                      isActive ? 'text-sidebar-primary' : 'text-sidebar-foreground/60'
+                    }`}
+                  />
+                </motion.span>
                 {hasBadge && (
-                  <span className="absolute -top-1 -right-1.5 h-3 w-3 rounded-full bg-destructive border-2 border-sidebar" />
+                  <motion.span
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={springPop}
+                    className="absolute -top-1 -right-1.5 h-3 w-3 rounded-full bg-destructive border-2 border-sidebar"
+                  />
                 )}
               </span>
               <span

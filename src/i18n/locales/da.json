@@ -306,7 +306,19 @@
     "xpValue": "+{{xp}} XP",
     "shoppingList": "Indkøbsliste",
     "noShoppingItems": "Ingen ventende indkøb",
-    "addedBy": "Tilføjet af {{name}}"
+    "addedBy": "Tilføjet af {{name}}",
+    "prompts": {
+      "0": "Et ryddeligt køkken gør morgendagen lettere.",
+      "1": "Nogen fortjener nok en kudos i dag.",
+      "2": "Små opgaver nu, fri weekend senere.",
+      "3": "Tjek køleskabet før indkøbsturen.",
+      "4": "En hurtig besked holder huset i sync.",
+      "5": "Hvis tur er det egentlig?"
+    },
+    "noUpcomingTasksBody": "Intet på programmet nu. Tilføj en, så har huset styr på det.",
+    "noShoppingItemsBody": "Tilføj det huset mangler, så kan hvem som helst tage det.",
+    "noUpcomingEventsBody": "Middage, husmøder, besøg — læg dem her, så ingen glemmer dem.",
+    "noRecentExpensesBody": "Tilføj en fælles udgift, så deler Kollekt den for jer."
   },
   "tasks": {
     "title": "Opgaver",
@@ -548,7 +560,8 @@
       "pass": "Springer over"
     },
     "deleteEvent": "Slet begivenhed",
-    "saveChanges": "Gem ændringer"
+    "saveChanges": "Gem ændringer",
+    "noEventsForDayBody": "Middage, husmøder, besøg — tilføj en, så ingen glemmer det."
   },
   "chat": {
     "threadTitle": "Kollektivet",
@@ -589,7 +602,10 @@
     },
     "today": "I dag",
     "yesterday": "I går",
-    "newDivider": "Ny"
+    "newDivider": "Ny",
+    "pinMessage": "Fastgør besked",
+    "unpinMessage": "Frigør besked",
+    "pinnedLabel": "Fastgjort · {{name}}"
   },
   "economy": {
     "title": "Økonomi",
@@ -641,10 +657,14 @@
     "stats": {
       "monthTotal": "I alt denne måned",
       "yourShare": "Din andel {{amount}}",
-      "emptyMonth": "Ingen udgifter denne måned.",
+      "emptyMonth": "Intet brugt endnu",
       "previousMonth": "Forrige måned",
       "nextMonth": "Næste måned",
-      "monthsLabel": "Forbrug pr. måned"
+      "monthsLabel": "Forbrug pr. måned",
+      "donutLabel": "Forbrug efter kategori, {{total}} i alt",
+      "expenseCount": "{{count}} udgift",
+      "expenseCount_plural": "{{count}} udgifter",
+      "emptyMonthBody": "Tilføj en udgift, så dukker månedens fordeling op her."
     },
     "setupPayment": {
       "title": "Ingen kan betale dig tilbage endnu",
@@ -1523,7 +1543,11 @@
       "totalTasks": "Opgaver i alt",
       "totalXp": "Samlet XP",
       "avgXp": "Gns.-XP",
-      "topContributor": "Topbidragyder"
+      "topContributor": "Topbidragyder",
+      "bestStreak": "Bedste streak",
+      "lateCompletions": "Fuldført sent",
+      "skipped": "Sprunget over",
+      "penaltyXp": "Straf-XP"
     },
     "achievements": "Præstationer",
     "manageAchievements": "Administrer præstationer",
@@ -1636,6 +1660,11 @@
         "RECURRING_COMPLETIONS": "Gentagne opgaver",
         "CATEGORY_COMPLETIONS": "Opgaver i kategori"
       }
+    },
+    "fairness": {
+      "title": "Fair fordeling",
+      "balanced": "BALANCERET",
+      "window": "Sidste {{days}} dage"
     }
   },
   "kollektGame": {

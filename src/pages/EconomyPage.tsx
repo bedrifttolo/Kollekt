@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowUpRight, ArrowDownLeft, Check, Recycle, ChevronRight, ChevronLeft, X, Users, Pencil, Trash2, Copy, ExternalLink, CircleCheckBig, Wallet } from 'lucide-react';
+import { ArrowUpRight, ArrowDownLeft, Check, Recycle, ChevronRight, ChevronLeft, X, Users, Pencil, Trash2, Copy, ExternalLink, CircleCheckBig, Wallet, PiggyBank } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api';
@@ -11,7 +11,9 @@ import { useUser } from '../context/UserContext';
 import { formatCurrency, formatDate, translateKey } from '../i18n/helpers';
 import { connectCollectiveRealtime } from '../lib/realtime';
 import type { AppUser, EconomySummary, Expense, PaymentHandles, PayOption } from '../lib/types';
-import { Eyebrow, Fab, OverflowMenu } from '../components/ui-kit';
+import { Avatar, CountUp, EmptyState, Eyebrow, Fab, IconButton, OverflowMenu, ProgressRing } from '../components/ui-kit';
+import { listContainer, listItem, pressableSubtle } from '../lib/motion';
+import { celebrate } from '../lib/celebrate';
 import { colorForMember } from '../lib/memberColors';
 import {
   availableMethods,
@@ -23,6 +25,7 @@ import {
 } from '../lib/paymentLinks';
 import { onAppResume } from '../lib/appLifecycle';
 import CategoryBars from '../components/charts/CategoryBars';
+import CategoryDonut from '../components/charts/CategoryDonut';
 import MonthStrip from '../components/charts/MonthStrip';
 import {
   breakdownForMonth,
@@ -31,6 +34,7 @@ import {
   parseMonthKey,
   shiftMonthKey,
   EXPENSE_CATEGORIES as CANONICAL_CATEGORIES,
+  type ExpenseCategory,
 } from '../lib/expenseStats';
 import { formatMonthYear } from '../i18n/helpers';
 
@@ -66,6 +70,9 @@ export default function EconomyPage() {
   // null until the summary lands, then defaults to the newest month that actually has expenses —
   // a household that logs sporadically shouldn't open on an empty "this month".
   const [statsMonth, setStatsMonth] = useState<string | null>(null);
+  // Shared by the donut and its legend so highlighting in one highlights in the other. null = the
+  // whole month, which is what the ring's centre reports by default.
+  const [selectedCategory, setSelectedCategory] = useState<ExpenseCategory | null>(null);
   const [newDeadline, setNewDeadline] = useState('');
   const [editingExpenseId, setEditingExpenseId] = useState<number | null>(null);
   const [editTitle, setEditTitle] = useState('');
@@ -226,6 +233,10 @@ export default function EconomyPage() {
       await api.post('/economy/settle-with', { creditorName: selectedPayOption.name });
       setShowPaySheet(false);
       setAwaitingReturn(false);
+      // Clearing a debt is the moment the whole economy feature exists for, and it is rare enough
+      // that a full burst never wears out. Fired after the sheet closes so the confetti is not
+      // painted behind it.
+      celebrate('settled');
       fetchSummary();
     } catch {}
     setSettling(false);
@@ -303,6 +314,10 @@ export default function EconomyPage() {
   const myBalance = summary.balances.find((b) => b.name === name);
   const oweAmount = myBalance && myBalance.amount < 0 ? Math.abs(myBalance.amount) : 0;
   const getAmount = myBalance && myBalance.amount > 0 ? myBalance.amount : 0;
+  // Guarded against a zero goal, which the API allows and which would otherwise divide to Infinity.
+  const pantPercent = summary.pantSummary && summary.pantSummary.goalAmount > 0
+    ? Math.min(100, (summary.pantSummary.currentAmount / summary.pantSummary.goalAmount) * 100)
+    : 0;
   const fallbackCreditor = summary.balances.find((b) => b.amount > 0 && b.name !== name);
   const selectedPayOption = payOptions.find((option) => option.name === selectedCreditorName) ?? payOptions[0];
   const hasPayOptions = payOptions.length > 0;
@@ -320,8 +335,10 @@ export default function EconomyPage() {
         {/* Amount colours come from the hero palette, not the page palette: `text-foreground` and
             `text-primary` are both the hero's own colour in the light theme, which made a settled
             balance disappear into the card. A zero balance just inherits the hero foreground. */}
-        <p className={`font-display text-3xl font-bold ${oweAmount > 0 ? 'hero-amount-negative' : getAmount > 0 ? 'hero-amount-positive' : ''}`}>
-          {oweAmount > 0 ? `- ${formatCurrency(oweAmount)}` : getAmount > 0 ? `+ ${formatCurrency(getAmount)}` : formatCurrency(0)}
+        <p className={`font-display text-4xl font-extrabold tracking-tight ${oweAmount > 0 ? 'hero-amount-negative' : getAmount > 0 ? 'hero-amount-positive' : ''}`}>
+          {oweAmount > 0 && '- '}
+          {getAmount > 0 && '+ '}
+          <CountUp value={oweAmount > 0 ? oweAmount : getAmount} format={formatCurrency} />
         </p>
         <p className="mt-1 flex items-center gap-1.5 text-xs text-white/70">
           {hasPayOptions && selectedPayOption ? t('economy.owe', { name: selectedPayOption.name, amount: formatCurrency(selectedPayOption.amount) })
@@ -407,7 +424,7 @@ export default function EconomyPage() {
                         </div>
                         <button
                           onClick={() => void copyValue(m.value)}
-                          className="h-9 w-9 rounded-lg glass flex items-center justify-center shrink-0"
+                          className="pressable-tight h-9 w-9 rounded-lg glass flex items-center justify-center shrink-0"
                           aria-label={t('economy.pay.copy')}
                         >
                           {copiedValue === m.value ? <Check className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4 text-muted-foreground" />}
@@ -508,17 +525,16 @@ export default function EconomyPage() {
       )}
 
       {/* Spending stats — where the household's money went, and how this month compares. All
-          derived client-side from summary.expenses; see src/lib/expenseStats.ts. */}
+          derived client-side from summary.expenses; see src/lib/expenseStats.ts. The ring answers
+          "how is the month divided", the bars under it answer "which category is actually bigger". */}
       <section className="card space-y-4">
         <div className="flex items-center justify-between gap-2">
-          <button
-            type="button"
+          <IconButton
+            label={t('economy.stats.previousMonth')}
+            variant="muted"
             onClick={() => setStatsMonth(shiftMonthKey(activeMonth, -1))}
-            aria-label={t('economy.stats.previousMonth')}
-            className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-muted text-muted-foreground"
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </button>
+            icon={<ChevronLeft className="h-4 w-4" />}
+          />
           <div className="min-w-0 text-center">
             <p className="truncate font-display text-lg font-extrabold">
               {formatMonthYear(parseMonthKey(activeMonth).year, parseMonthKey(activeMonth).monthIndex)}
@@ -527,30 +543,55 @@ export default function EconomyPage() {
               {t('economy.stats.yourShare', { amount: formatCurrency(stats.breakdown.yourShare) })}
             </p>
           </div>
-          <button
-            type="button"
+          <IconButton
+            label={t('economy.stats.nextMonth')}
+            variant="muted"
             onClick={() => setStatsMonth(shiftMonthKey(activeMonth, 1))}
-            aria-label={t('economy.stats.nextMonth')}
-            className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-muted text-muted-foreground"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </button>
+            icon={<ChevronRight className="h-4 w-4" />}
+          />
         </div>
 
         <MonthStrip months={stats.months} selectedKey={activeMonth} onSelect={setStatsMonth} />
 
-        <CategoryBars categories={stats.breakdown.categories} total={stats.breakdown.total} />
+        {stats.breakdown.categories.length > 0 ? (
+          <>
+            <CategoryDonut
+              categories={stats.breakdown.categories}
+              total={stats.breakdown.total}
+              selected={selectedCategory}
+              onSelect={setSelectedCategory}
+            />
+            <CategoryBars
+              categories={stats.breakdown.categories}
+              total={stats.breakdown.total}
+              selected={selectedCategory}
+              onSelect={setSelectedCategory}
+            />
+          </>
+        ) : (
+          <EmptyState
+            tone="mint"
+            icon={<PiggyBank className="h-6 w-6" />}
+            title={t('economy.stats.emptyMonth')}
+            body={t('economy.stats.emptyMonthBody')}
+            action={{ label: t('economy.addExpense'), onClick: () => setShowAdd(true) }}
+          />
+        )}
       </section>
 
-      {/* Pant card */}
-      <button onClick={() => navigate('/economy/pant')}
-        className="w-full glass rounded-2xl p-4 flex items-center gap-3 hover:scale-[1.01] active:scale-[0.99] transition-transform glow-accent">
-        <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-accent/30 to-accent/5 flex items-center justify-center shrink-0">
+      {/* Pant card. The goal was already a ratio in the data (currentAmount / goalAmount) but had
+          only ever been rendered as two numbers in a sentence — a ring makes the progress visible. */}
+      <motion.button
+        onClick={() => navigate('/economy/pant')}
+        {...pressableSubtle}
+        className="tone-mint tone-wash tone-edge elev-1 flex w-full items-center gap-3 rounded-2xl border p-4"
+      >
+        <ProgressRing value={pantPercent} size={54} thickness={7} color="var(--tone-mint)" trackColor="var(--surface-3)">
           <Recycle className="h-5 w-5 text-foreground" />
-        </div>
+        </ProgressRing>
         <div className="flex-1 text-left">
-          <p className="text-sm font-semibold">{t('economy.pantTracker')}</p>
-          <p className="text-[10px] text-muted-foreground">
+          <p className="text-sm font-bold">{t('economy.pantTracker')}</p>
+          <p className="text-xs text-muted-foreground">
             {summary.pantSummary
               ? t('economy.pantTrackerSummary', {
                 bottles: summary.pantSummary.entries.reduce((s, e) => s + e.bottles, 0),
@@ -560,20 +601,24 @@ export default function EconomyPage() {
               : t('economy.pantTrackerEmpty')}
           </p>
         </div>
-        <ChevronRight className="h-4 w-4 text-muted-foreground" />
-      </button>
+        <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+      </motion.button>
 
       {/* Balances */}
       <div>
-        <h3 className="text-sm font-semibold text-muted-foreground mb-2">{t('economy.balances')}</h3>
-        <div className="grid grid-cols-2 gap-2">
+        <h3 className="mb-2 text-sm font-semibold text-muted-foreground">{t('economy.balances')}</h3>
+        <motion.div variants={listContainer} initial="hidden" animate="show" className="grid grid-cols-2 gap-2">
           {summary.balances.map((b) => (
-            <motion.div key={b.name} className="glass rounded-xl p-3 flex items-center gap-2">
-              <div style={{ backgroundColor: colorForMember(b.name) }} className="h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0">
-                {b.name[0]}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-medium truncate">{b.name}</p>
+            <motion.div
+              key={b.name}
+              variants={listItem}
+              className={`elev-1 flex items-center gap-2.5 rounded-xl border p-3 ${
+                b.amount === 0 ? 'border-border bg-card' : b.amount > 0 ? 'tone-mint tone-wash tone-edge' : 'tone-blush tone-wash tone-edge'
+              }`}
+            >
+              <Avatar name={b.name} className="h-9 w-9 text-sm" />
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-xs font-medium">{b.name}</p>
                 <p className={`flex items-center gap-1 text-sm font-bold ${b.amount >= 0 ? 'text-primary' : 'text-destructive'}`}>
                   {b.amount === 0 ? (
                     <>
@@ -587,7 +632,7 @@ export default function EconomyPage() {
               </div>
             </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
 
       {/* Expense history */}

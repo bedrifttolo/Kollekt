@@ -306,7 +306,19 @@
     "xpValue": "+{{xp}} XP",
     "shoppingList": "Handleliste",
     "noShoppingItems": "Ingen ventende handlelistepunkter",
-    "addedBy": "Lagt til av {{name}}"
+    "addedBy": "Lagt til av {{name}}",
+    "prompts": {
+      "0": "Et ryddig kjøkken gjør morgendagen lettere.",
+      "1": "Noen fortjener nok en kudos i dag.",
+      "2": "Små oppgaver nå, fri helg senere.",
+      "3": "Sjekk kjøleskapet før du drar på butikken.",
+      "4": "En kjapp melding holder huset i sync.",
+      "5": "Hvem sin tur er det egentlig?"
+    },
+    "noUpcomingTasksBody": "Ingenting på plan nå. Legg til en så holder huset oversikten.",
+    "noShoppingItemsBody": "Legg inn det huset er tomt for, så kan hvem som helst ta det.",
+    "noUpcomingEventsBody": "Middager, husmøter, besøk — legg dem her så ingen glemmer dem.",
+    "noRecentExpensesBody": "Legg inn en felles utgift, så deler Kollekt den for dere."
   },
   "tasks": {
     "title": "Oppgaver",
@@ -548,7 +560,8 @@
       "pass": "Står over"
     },
     "deleteEvent": "Slett hendelse",
-    "saveChanges": "Lagre endringer"
+    "saveChanges": "Lagre endringer",
+    "noEventsForDayBody": "Middager, husmøter, besøk — legg til en så ingen glemmer det."
   },
   "chat": {
     "threadTitle": "Kollektivet",
@@ -589,7 +602,10 @@
     },
     "today": "I dag",
     "yesterday": "I går",
-    "newDivider": "Ny"
+    "newDivider": "Ny",
+    "pinMessage": "Fest melding",
+    "unpinMessage": "Løsne melding",
+    "pinnedLabel": "Festet · {{name}}"
   },
   "economy": {
     "title": "Økonomi",
@@ -641,10 +657,14 @@
     "stats": {
       "monthTotal": "Totalt denne måneden",
       "yourShare": "Din andel {{amount}}",
-      "emptyMonth": "Ingen utgifter denne måneden.",
+      "emptyMonth": "Ingenting brukt ennå",
       "previousMonth": "Forrige måned",
       "nextMonth": "Neste måned",
-      "monthsLabel": "Forbruk per måned"
+      "monthsLabel": "Forbruk per måned",
+      "donutLabel": "Forbruk etter kategori, {{total}} totalt",
+      "expenseCount": "{{count}} utgift",
+      "expenseCount_plural": "{{count}} utgifter",
+      "emptyMonthBody": "Legg inn en utgift, så dukker fordelingen for måneden opp her."
     },
     "setupPayment": {
       "title": "Ingen kan betale deg tilbake ennå",
@@ -1523,7 +1543,11 @@
       "totalTasks": "Totale oppgaver",
       "totalXp": "Total XP",
       "avgXp": "Snitt-XP",
-      "topContributor": "Topp bidragsyter"
+      "topContributor": "Topp bidragsyter",
+      "bestStreak": "Beste streak",
+      "lateCompletions": "Fullført sent",
+      "skipped": "Hoppet over",
+      "penaltyXp": "Straff-XP"
     },
     "achievements": "Prestasjoner",
     "manageAchievements": "Administrer prestasjoner",
@@ -1636,6 +1660,11 @@
         "RECURRING_COMPLETIONS": "Gjentakende oppgaver",
         "CATEGORY_COMPLETIONS": "Oppgaver i kategori"
       }
+    },
+    "fairness": {
+      "title": "Rettferdig fordeling",
+      "balanced": "BALANSERT",
+      "window": "Siste {{days}} dager"
     }
   },
   "kollektGame": {

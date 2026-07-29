@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Image as ImageIcon, BarChart3, X, Smile, Reply, HeartHandshake, ChevronDown, WashingMachine, Film, Lock, Plus, ThumbsUp, ThumbsDown, Heart, Laugh, PartyPopper, Flame, Frown, MessageCircle, Wallpaper, type LucideIcon } from 'lucide-react';
+import { Send, Image as ImageIcon, BarChart3, X, Smile, Reply, HeartHandshake, ChevronDown, WashingMachine, Film, Lock, Plus, ThumbsUp, ThumbsDown, Heart, Laugh, PartyPopper, Flame, Frown, MessageCircle, Wallpaper, Pin, PinOff, type LucideIcon } from 'lucide-react';
 
 type LaundryType = 'WHITES' | 'COLORS' | 'DELICATES' | 'WOOL' | 'SPORTS' | 'TOWELS';
 const LAUNDRY_TYPES: LaundryType[] = ['WHITES', 'COLORS', 'DELICATES', 'WOOL', 'SPORTS', 'TOWELS'];
@@ -26,7 +26,8 @@ import SubscriptionPaywall from '../components/SubscriptionPaywall';
 import type { AppUser, ChatMessage, CheckinSummary, HouseCheckin, Kudo, KudoType, Task } from '../lib/types';
 
 const KUDO_TYPES: KudoType[] = ['THANK_YOU', 'CLEANEST', 'MOST_HELPFUL', 'PEACEMAKER'];
-import { AddSheet, AvatarStack } from '../components/ui-kit';
+import { AddSheet, AvatarStack, IconButton } from '../components/ui-kit';
+import { collapseVariants, popIn, pressable, springPop } from '../lib/motion';
 import { colorForMember } from '../lib/memberColors';
 
 // The backend validates reactions against a fixed emoji allowlist and stores them as emoji
@@ -159,6 +160,9 @@ export default function ChatPage() {
     ? memberNames.filter((m) => m !== name && m.toLowerCase().includes(mention.query.toLowerCase())).slice(0, 6)
     : [];
   const actionMenuMessage = actionMenuMessageId != null ? messageById.get(actionMenuMessageId) : undefined;
+  // The backend allows several messages to carry `pinned`, but the banner only has room for one, so
+  // the newest wins — pinning something new supersedes rather than stacks.
+  const pinnedMessage = [...messages].reverse().find((message) => message.pinned);
   const reactionPickerMessage = expandedReactionId != null ? messageById.get(expandedReactionId) : undefined;
   /** Label for a day-separator chip: "Today"/"Yesterday" near the present, an absolute date
    *  further back — the relative words are what people actually scan for. */
@@ -431,6 +435,26 @@ export default function ChatPage() {
     setExpandedReactionId(null);
   };
 
+  /**
+   * Pin or unpin a message.
+   *
+   * The endpoint and MessageDto.pinned have existed on the backend all along — a household could
+   * never reach them because nothing in the UI read or called either. Pinning is a toggle server
+   * side, so the same call covers both directions; the MESSAGE_PINNED websocket event refetches the
+   * thread for everyone else.
+   */
+  const togglePin = async (messageId: number) => {
+    setActionMenuMessageId(null);
+    void tapFeedback();
+    try {
+      await api.post(`/chat/messages/${messageId}/pin`, {});
+      fetchMessages();
+    } catch {
+      // Refetch anyway so the UI never keeps an optimistic pin the server rejected.
+      fetchMessages();
+    }
+  };
+
   const sendStarterGif = async (gif: (typeof STARTER_GIFS)[number]) => {
     const response = await fetch(starterGifDataUrl(gif));
     const blob = await response.blob();
@@ -660,6 +684,32 @@ export default function ChatPage() {
         </div>
       )}
 
+      {/* Pinned message. Surfaces MessageDto.pinned, which the backend has always sent and the app
+          never read — the house rule or the address everyone keeps scrolling back for. */}
+      <AnimatePresence>
+        {pinnedMessage && (
+          <motion.button
+            variants={collapseVariants}
+            initial="hidden"
+            animate="show"
+            exit="exit"
+            onClick={() => void togglePin(pinnedMessage.id)}
+            className="tone-butter tone-wash tone-edge mb-2 flex w-full items-center gap-2.5 overflow-hidden rounded-xl border px-3 py-2 text-left"
+          >
+            <Pin className="h-4 w-4 shrink-0 text-muted-foreground" />
+            <span className="min-w-0 flex-1">
+              <span className="block text-[10px] font-bold uppercase tracking-[.1em] text-muted-foreground">
+                {t('chat.pinnedLabel', { name: pinnedMessage.sender })}
+              </span>
+              <span className="block truncate text-sm font-semibold">
+                {pinnedMessage.text || t('chat.imageAlt')}
+              </span>
+            </span>
+            <PinOff className="h-4 w-4 shrink-0 text-muted-foreground" />
+          </motion.button>
+        )}
+      </AnimatePresence>
+
       {/* Message list. The negative margin lets the wallpaper bleed past <main>'s px-4 to the
           screen edges; the scroller puts the same padding back so bubbles keep their inset. */}
       <div className="relative -mx-4 min-h-0 flex-1 overflow-hidden sm:-mx-6">
@@ -671,10 +721,12 @@ export default function ChatPage() {
           </div>
         )}
         <div className="relative h-full overflow-y-auto px-4 py-4 sm:px-6" onTouchStart={handleSwipeStart} onTouchEnd={handleSwipeEnd}>
-        {decorateMessages(messages, seenCursor).map(({ message, isFirstOfGroup, isLastOfGroup, startsNewDay, startsUnread }, i) => {
+        {decorateMessages(messages, seenCursor).map(({ message, isFirstOfGroup, isLastOfGroup, startsNewDay, startsUnread }, i, all) => {
           const isSelf = message.sender === name;
           const senderColor = colorForMember(message.sender, memberColorMap.get(message.sender));
           const replyTarget = message.replyToMessageId != null ? messageById.get(message.replyToMessageId) : undefined;
+          // Only the tail of the thread animates on arrival — see the bubble's `initial` below.
+          const isRecent = i >= all.length - 3;
           return (
             <div key={message.id}>
               {startsNewDay && (
@@ -692,13 +744,16 @@ export default function ChatPage() {
                 </div>
               )}
             <motion.div
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: Math.min(i * 0.02, 0.3) }}
+              /* Only the newest few messages animate in. The thread is refetched in full on every
+                 websocket event, so animating every bubble would replay the whole conversation each
+                 time someone sends one. `i` counts from the end for exactly that reason. */
+              initial={isRecent ? { opacity: 0, y: 12, scale: 0.96 } : false}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={springPop}
               /* Tight inside a run, roomy between runs — the grouping is carried by the gap. */
               className={`flex ${isSelf ? 'justify-end' : 'justify-start'} ${isFirstOfGroup && !startsNewDay && !startsUnread ? 'mt-3' : 'mt-0.5'}`}
             >
-              <div className="max-w-[82%] space-y-1">
+              <div className="max-w-[78%] space-y-1">
                 {!isSelf && isFirstOfGroup && <p className="px-1 text-xs font-bold" style={{ color: senderColor }}>{message.sender}</p>}
                 {replyTarget && (
                   <div
@@ -716,11 +771,16 @@ export default function ChatPage() {
                     <p className="truncate">{replyTarget.text || t('chat.imageAlt')}</p>
                   </div>
                 )}
-	                <div
-	                  className={`select-none px-4 py-3 rounded-[--r-xl] ${
+	                {/* The tail is the *last* bubble of a run: mid-run bubbles stay fully round on
+	                    both bottom corners so a run reads as one continuous shape. The old rule had
+	                    this inverted, which is why a run looked like a stack of unrelated boxes. */}
+	                <motion.div
+	                  whileTap={{ scale: 0.985 }}
+	                  transition={springPop}
+	                  className={`elev-1 select-none bub ${
 	                    isSelf
-	                      ? `bg-primary text-primary-foreground ${isLastOfGroup ? 'rounded-br-md' : 'rounded-br-[--r-sm]'}`
-	                      : `border border-border bg-card ${isLastOfGroup ? 'rounded-bl-md' : 'rounded-bl-[--r-sm]'}`
+	                      ? `bg-primary text-primary-foreground ${isLastOfGroup ? 'bub-tail-self' : ''}`
+	                      : `border border-border bg-card ${isLastOfGroup ? 'bub-tail-other' : ''}`
 	                  }`}
 	                  style={!isSelf ? { borderLeftColor: senderColor, borderLeftWidth: 3 } : undefined}
 	                  onPointerDown={(event) => startMessagePress(message.id, event)}
@@ -772,22 +832,33 @@ export default function ChatPage() {
                       {formatMessageTimestamp(message.timestamp)}
                     </p>
                   )}
-                </div>
+                </motion.div>
 
 	                {message.reactions.length > 0 && (
 	                  <div className={`px-1 flex gap-1 flex-wrap ${isSelf ? 'justify-end' : 'justify-start'}`}>
-	                    {message.reactions.map((r) => {
-	                      const reacted = r.users.includes(name);
-	                      // Reactions sent before the icon set existed fall back to their emoji.
-	                      const ReactionIcon = REACTION_ICON_BY_EMOJI.get(r.emoji);
-	                      return (
-	                        <button key={r.emoji} onClick={() => chooseReaction(message.id, r.emoji)}
-	                          className={`flex min-h-11 items-center gap-1.5 rounded-full border px-3 py-2 text-xs ${reacted ? 'border-primary/40 bg-primary/20' : 'border-border bg-card'}`}>
-	                          {ReactionIcon ? <ReactionIcon className="h-3.5 w-3.5 shrink-0" /> : r.emoji}
-	                          {r.users.length}
-	                        </button>
-	                      );
-	                    })}
+	                    <AnimatePresence initial={false}>
+	                      {message.reactions.map((r) => {
+	                        const reacted = r.users.includes(name);
+	                        // Reactions sent before the icon set existed fall back to their emoji.
+	                        const ReactionIcon = REACTION_ICON_BY_EMOJI.get(r.emoji);
+	                        return (
+	                          <motion.button
+	                            key={r.emoji}
+	                            layout
+	                            variants={popIn}
+	                            initial="hidden"
+	                            animate="show"
+	                            exit="exit"
+	                            {...pressable}
+	                            onClick={() => chooseReaction(message.id, r.emoji)}
+	                            className={`elev-1 pressable-tight flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-bold ${reacted ? 'border-primary/40 bg-primary/20' : 'border-border bg-card'}`}
+	                          >
+	                            {ReactionIcon ? <ReactionIcon className="h-3.5 w-3.5 shrink-0" /> : r.emoji}
+	                            {r.users.length}
+	                          </motion.button>
+	                        );
+	                      })}
+	                    </AnimatePresence>
 	                  </div>
 	                )}
 	              </div>
@@ -941,8 +1012,15 @@ export default function ChatPage() {
           </div>
         )}
         {/* Action bar — revealed by the + button */}
+        <AnimatePresence>
         {!isDirect && showActionBar && (
-          <div className="mb-2 flex gap-2 overflow-x-auto rounded-2xl border border-border bg-card px-3 py-2 shadow-sm">
+          <motion.div
+            variants={collapseVariants}
+            initial="hidden"
+            animate="show"
+            exit="exit"
+            className="elev-2 mb-2 flex gap-2 overflow-x-auto overflow-y-hidden rounded-2xl border border-border bg-card px-3 py-2"
+          >
             <button
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => {
@@ -988,34 +1066,39 @@ export default function ChatPage() {
                 <span className="text-[9px] font-medium text-muted-foreground">{t('chat.background.remove')}</span>
               </button>
             )}
-          </div>
+          </motion.div>
         )}
-        <div className="flex gap-2 rounded-[1.35rem] border border-border bg-card p-2 shadow-sm">
+        </AnimatePresence>
+        {/* Fully round rather than a rounded rectangle — the composer is the one control that is
+            always on screen, and the pill shape is what makes the chat read as a chat. */}
+        <div className="elev-2 flex gap-2 rounded-full border border-border bg-card p-2">
           <input ref={fileInputRef} type="file" accept="image/*" capture="environment"
             className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) sendImage(f); }} />
           {/* Web fallback for the wallpaper picker; native uses the Camera plugin's own sheet. */}
           <input ref={backgroundInputRef} type="file" accept="image/*"
             className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) void applyBackgroundFile(f); }} />
           {!isDirect && (
-            <button
+            <motion.button
               onMouseDown={(e) => e.preventDefault()}
-              onClick={() => setShowActionBar((v) => !v)}
-              className={`grid h-11 w-11 shrink-0 place-items-center rounded-full transition-colors ${showActionBar ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}
+              onClick={() => { void tapFeedback(); setShowActionBar((v) => !v); }}
+              {...pressable}
+              className={`pressable grid shrink-0 place-items-center rounded-full transition-colors ${showActionBar ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}
               aria-label="Actions"
             >
-              <Plus className={`h-5 w-5 transition-transform ${showActionBar ? 'rotate-45' : ''}`} />
-            </button>
+              <motion.span animate={{ rotate: showActionBar ? 45 : 0 }} transition={springPop}>
+                <Plus className="h-5 w-5" />
+              </motion.span>
+            </motion.button>
           )}
           {/* Camera lives in the composer rather than behind "+": sending a photo is the most
               common non-text action, and this makes it one tap instead of two. */}
-          <button
+          <IconButton
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => void handlePickImage()}
-            className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-muted"
-            aria-label={t('chat.sendImage')}
-          >
-            <ImageIcon className="h-5 w-5 text-muted-foreground" />
-          </button>
+            variant="muted"
+            label={t('chat.sendImage')}
+            icon={<ImageIcon className="h-5 w-5 text-muted-foreground" />}
+          />
           <textarea
             ref={messageInputRef}
             value={input}
@@ -1031,11 +1114,20 @@ export default function ChatPage() {
               if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
             }}
             placeholder={t('chat.messagePlaceholder')}
-            className="min-w-36 flex-1 resize-none self-center rounded-[--r-xl] bg-muted px-4 py-2.5 text-sm leading-snug placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+            className="min-w-36 flex-1 resize-none self-center rounded-3xl bg-muted px-4 py-2.5 text-sm leading-snug placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
           />
-          <button onClick={sendMessage} className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-primary" aria-label={t('common.send')}>
+          {/* The send button wakes up when there is something to send: dimmed and slightly small
+              while the composer is empty, full size and full colour the moment you type. */}
+          <motion.button
+            onClick={sendMessage}
+            {...pressable}
+            animate={{ scale: input.trim() ? 1 : 0.88, opacity: input.trim() ? 1 : 0.5 }}
+            transition={springPop}
+            className="pressable grid shrink-0 place-items-center rounded-full bg-primary"
+            aria-label={t('common.send')}
+          >
             <Send className="h-4 w-4 text-primary-foreground" />
-          </button>
+          </motion.button>
         </div>
       </div>
 
@@ -1069,6 +1161,16 @@ export default function ChatPage() {
                 <Smile className="h-4 w-4 text-muted-foreground" />
                 {t('chat.reactToMessage')}
               </button>
+              {!isDirect && (
+                <button
+                  onClick={() => void togglePin(actionMenuMessage.id)}
+                  className="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-semibold hover:bg-muted/60"
+                >
+                  {actionMenuMessage.pinned
+                    ? <><PinOff className="h-4 w-4 text-muted-foreground" />{t('chat.unpinMessage')}</>
+                    : <><Pin className="h-4 w-4 text-muted-foreground" />{t('chat.pinMessage')}</>}
+                </button>
+              )}
               <button
                 onClick={() => setActionMenuMessageId(null)}
                 className="mt-1 flex min-h-11 w-full items-center justify-center rounded-xl px-3 text-sm font-semibold text-muted-foreground hover:bg-muted/60"
@@ -1123,7 +1225,7 @@ export default function ChatPage() {
             onClick={() => setExpandedImage(null)}
           >
             <button
-              className="absolute top-4 right-4 h-10 w-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center"
+              className="pressable-tight absolute top-4 right-4 h-10 w-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center"
               onClick={() => setExpandedImage(null)}
               aria-label={t('chat.closeImage')}
             >

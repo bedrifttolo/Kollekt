@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import type { ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { CheckSquare, Calendar, Wallet, Zap, ShoppingCart, MessageCircleHeart, Leaf, PartyPopper, CircleCheckBig } from 'lucide-react';
+import { CheckSquare, Calendar, Wallet, Zap, ShoppingCart, MessageCircleHeart, Leaf, PartyPopper, CircleCheckBig, CalendarPlus, Receipt } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api';
@@ -11,29 +12,83 @@ import { formatCurrency, formatDate, formatTime, translateKey } from '../i18n/he
 import { connectCollectiveRealtime } from '../lib/realtime';
 import type { AppUser, DashboardResponse, HouseCheckin } from '../lib/types';
 import { TASK_CATEGORY_ICONS } from '../lib/categoryIcons';
-import { AvatarStack, Eyebrow, VibeRing } from '../components/ui-kit';
+import { AvatarStack, CountUp, EmptyState, Eyebrow, ProgressRing, VibeRing } from '../components/ui-kit';
+import { dailyIndex, listContainer, listItem, pressableSubtle } from '../lib/motion';
+import { celebrate } from '../lib/celebrate';
+import type { Tone } from '../lib/tones';
 import { colorForMember } from '../lib/memberColors';
 import { showHomeBanner, hideHomeBanner } from '../lib/ads';
 
-const container = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.07 } },
-};
-const item = {
-  hidden: { opacity: 0, y: 16 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0, 0, 0.2, 1] as const } },
-};
+/** Mirrors TaskOperations.XP_PER_LEVEL on the backend — a level is 200 XP. */
+const XP_PER_LEVEL = 200;
 
-function XpProgress({ xp, label }: { xp: number; label: string }) {
-  const xpPerLevel = 200;
-  const progress = Math.min((xp % xpPerLevel) / xpPerLevel * 100, 100);
+/**
+ * One row of the home feed: a titled section whose card carries a colour identity.
+ *
+ * All four preview sections were previously identical white rows differing only by their icon
+ * tile, so the screen read as one undifferentiated stack. Giving each its tone lets you find
+ * "expenses" by colour before you have read a word, and collapses four near-identical blocks into
+ * one component.
+ */
+function PreviewSection({
+  title,
+  tone,
+  onSeeAll,
+  seeAllLabel,
+  isEmpty,
+  empty,
+  children,
+}: {
+  title: string;
+  tone: Tone;
+  onSeeAll: () => void;
+  seeAllLabel: string;
+  isEmpty: boolean;
+  empty: ReactNode;
+  children: ReactNode;
+}) {
   return (
-    <div className="flex items-center gap-2 mt-1">
-      <div className="h-2 flex-1 overflow-hidden rounded-full bg-white/80">
-        <div className="h-full rounded-full bg-secondary transition-all" style={{ width: `${progress}%` }} />
+    <motion.div variants={listItem}>
+      <div className="mb-2 flex items-center justify-between">
+        <h3 className="font-display text-base font-bold">{title}</h3>
+        <button onClick={onSeeAll} className="-mr-2 min-h-11 px-2 text-xs font-semibold text-primary">
+          {seeAllLabel}
+        </button>
       </div>
-      <span className="shrink-0 text-[10px] text-white/75">{label}</span>
-    </div>
+      <div className="space-y-2">{isEmpty ? empty : children}</div>
+    </motion.div>
+  );
+}
+
+/** A tappable row inside a PreviewSection. */
+function PreviewRow({
+  icon,
+  tone,
+  title,
+  subtitle,
+  trailing,
+  onClick,
+}: {
+  icon: ReactNode;
+  tone: Tone;
+  title: string;
+  subtitle: string;
+  trailing?: ReactNode;
+  onClick: () => void;
+}) {
+  return (
+    <motion.button
+      onClick={onClick}
+      {...pressableSubtle}
+      className={`elev-1 flex w-full items-center gap-3 rounded-2xl border p-3.5 text-left tone-${tone} tone-wash tone-edge`}
+    >
+      <span className={`tone-tile tone-${tone} grid h-10 w-10 shrink-0 place-items-center rounded-[--r-sm]`}>{icon}</span>
+      <span className="min-w-0 flex-1">
+        <span className="block truncate text-sm font-semibold">{title}</span>
+        <span className="mt-0.5 block text-[11px] text-muted-foreground">{subtitle}</span>
+      </span>
+      {trailing}
+    </motion.button>
   );
 }
 
@@ -53,6 +108,11 @@ export default function DashboardPage() {
     void showHomeBanner();
     return () => { void hideHomeBanner(); };
   }, []);
+
+  // Level-up celebration. The API reports a level, never an event, so the rise has to be noticed
+  // client-side by comparing against the last level this component saw. The ref starts undefined so
+  // the first load — where every level looks "new" — stays silent.
+  const lastLevelRef = useRef<number | undefined>(undefined);
 
   const { data, isPending } = useQuery({
     queryKey: qk.dashboard(currentUser?.name),
@@ -85,6 +145,14 @@ export default function DashboardPage() {
     });
   };
 
+  const currentLevel = data?.currentUserLevel;
+  useEffect(() => {
+    if (currentLevel === undefined) return;
+    const previous = lastLevelRef.current;
+    lastLevelRef.current = currentLevel;
+    if (previous !== undefined && currentLevel > previous) celebrate('level-up');
+  }, [currentLevel]);
+
   // Keyed on the stable member name (not the currentUser object) so the socket isn't torn
   // down and reconnected on every unrelated re-render — same presence logic as the chat.
   const name = currentUser?.name;
@@ -116,24 +184,30 @@ export default function DashboardPage() {
     );
   }
 
-  const xpLabel = `${data.currentUserXp % 200}/200 XP`;
+  const xpLabel = `${data.currentUserXp % XP_PER_LEVEL}/${XP_PER_LEVEL} XP`;
 
   const hour = new Date().getHours();
   const greetingKey =
     hour < 12 ? 'dashboard.greetingMorning' : hour < 18 ? 'dashboard.greetingAfternoon' : 'dashboard.greetingEvening';
 
+  // One of six house prompts, rotating once a day. Seeded by the calendar date rather than random,
+  // so it is the same line all day for everyone in the household and cannot reshuffle under you
+  // when a websocket event refetches the dashboard.
+  const promptKey = `dashboard.prompts.${dailyIndex(6)}`;
+
   return (
-    <motion.div variants={container} initial={false} animate="show" className="space-y-5 pt-3 pb-6">
+    <motion.div variants={listContainer} initial={false} animate="show" className="space-y-5 pt-3 pb-6">
       {/* Welcome */}
-      <motion.div variants={item}>
+      <motion.div variants={listItem}>
         <Eyebrow>{translate('dashboard.today')}</Eyebrow>
         <h2 className="display-lg mt-2">
           {translate(greetingKey, { name: currentUser?.name })}{' '}
           <Leaf className="mark inline h-8 w-8 align-baseline" strokeWidth={2.5} />
         </h2>
+        <p className="mt-2 text-sm text-muted-foreground">{translate(promptKey)}</p>
       </motion.div>
 
-      <motion.div variants={item} className="househero">
+      <motion.div variants={listItem} className="househero">
         <p className="eyebrow !text-white/65">{translate('dashboard.householdTitle')}</p>
         <h3 className="mt-2 font-display text-2xl font-extrabold leading-tight text-white">
           {data.collectiveName}
@@ -143,43 +217,46 @@ export default function DashboardPage() {
             <AvatarStack members={members} />
           </div>
         )}
-        <div className="flex items-center gap-3 mb-3">
-          <div
-            style={currentUser ? { backgroundColor: colorForMember(currentUser.name, currentUser.color) } : undefined}
-            className="h-12 w-12 rounded-full border-2 border-white/30 flex items-center justify-center shrink-0"
+        <div className="mb-3 flex items-center gap-3">
+          {/* The level ring replaces a flat XP bar. It reads as a gauge you are filling rather than
+              a line that happens to be partly coloured, and it animates, which the bar never did. */}
+          <ProgressRing
+            value={(data.currentUserXp % XP_PER_LEVEL) / XP_PER_LEVEL * 100}
+            size={64}
+            thickness={7}
+            color="var(--hero-positive)"
+            trackColor="rgba(255,255,255,.18)"
           >
-            <span className="font-display text-lg font-bold text-white">
-              {currentUser?.name[0].toUpperCase()}
-            </span>
-          </div>
-          <div className="flex-1 min-w-0">
+            <span className="font-display text-base font-extrabold text-white">{data.currentUserLevel}</span>
+          </ProgressRing>
+          <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
-              <p className="font-semibold text-sm">{translate('dashboard.level', { level: data.currentUserLevel })}</p>
+              <p className="text-sm font-semibold">{translate('dashboard.level', { level: data.currentUserLevel })}</p>
               <span className="rounded-full bg-white/15 px-2 py-0.5 text-xs font-medium text-white/85">
                 {translate('dashboard.rank', { rank: data.currentUserRank })}
               </span>
             </div>
-            <XpProgress xp={data.currentUserXp} label={xpLabel} />
+            <p className="mt-1 text-[11px] text-white/75">{xpLabel}</p>
           </div>
         </div>
         <div className="grid grid-cols-3 gap-3">
           {[
             // Only the icon takes the tone: these tiles sit on the dark hero, where a pastel fill
             // would fight the hero surface, but a tinted glyph still separates the three stats.
-            { label: translate('dashboard.stats.tasksDone'), value: data.completedTasksCount.toString(), icon: CheckSquare, tone: 'mint' as const },
-            { label: translate('dashboard.stats.balance'), value: formatCurrency(data.currentUserBalance), icon: Wallet, tone: 'butter' as const },
-            { label: translate('dashboard.stats.xpEarned'), value: data.currentUserXp.toString(), icon: Zap, tone: 'peri' as const },
+            { label: translate('dashboard.stats.tasksDone'), value: data.completedTasksCount, icon: CheckSquare, tone: 'mint' as const },
+            { label: translate('dashboard.stats.balance'), value: data.currentUserBalance, format: formatCurrency, icon: Wallet, tone: 'butter' as const },
+            { label: translate('dashboard.stats.xpEarned'), value: data.currentUserXp, icon: Zap, tone: 'peri' as const },
           ].map((s) => (
             <div key={s.label} className="stat-tile text-center">
               <s.icon className="mx-auto mb-1 h-3.5 w-3.5" style={{ color: `var(--tone-${s.tone})` }} />
-              <p className="font-display font-bold text-base">{s.value}</p>
+              <CountUp value={s.value} format={s.format} className="block font-display text-base font-bold" />
               <p className="text-[10px] text-white/70">{s.label}</p>
             </div>
           ))}
         </div>
       </motion.div>
 
-      <motion.div variants={item} className="card flex items-center gap-4">
+      <motion.div variants={listItem} className="card flex items-center gap-4">
         <VibeRing score={data.vibeScore} />
         <div>
           <h3 className="font-display text-lg font-bold">{translate('dashboard.vibeTitle')}</h3>
@@ -190,7 +267,7 @@ export default function DashboardPage() {
       </motion.div>
 
       {checkin && (
-        <motion.div variants={item} className="card space-y-3">
+        <motion.div variants={listItem} className="card space-y-3">
           <div className="flex items-center gap-3">
             <MessageCircleHeart className="h-5 w-5 text-primary" />
             <div>
@@ -223,123 +300,130 @@ export default function DashboardPage() {
       )}
 
       {/* Real-time indicator */}
-      <motion.div variants={item} className="flex items-center gap-2">
+      <motion.div variants={listItem} className="flex items-center gap-2">
         <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
         <p className="text-[10px] text-muted-foreground">
           {translate('common.live')} • {onlineCount === null ? translate('common.connecting') : translate('dashboard.onlineRoommates', { count: onlineCount })}
         </p>
       </motion.div>
 
-      {/* Upcoming tasks */}
-      <motion.div variants={item}>
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="font-display text-base font-bold">{translate('dashboard.upcomingTasks')}</h3>
-          <button onClick={() => navigate('/tasks')} className="-mr-2 min-h-11 px-2 text-xs text-primary font-semibold">{translate('common.seeAll')}</button>
-        </div>
-        <div className="space-y-2">
-          {data.upcomingTasks.length === 0 && (
-            <div className="rounded-2xl border border-border bg-card p-4 text-center">
-              <PartyPopper className="mx-auto mb-1 h-6 w-6 text-primary" />
-              <p className="text-sm font-medium">{translate('dashboard.noUpcomingTasks')}</p>
-            </div>
-          )}
-          {data.upcomingTasks.slice(0, 5).map((task) => {
-            const CategoryIcon = TASK_CATEGORY_ICONS[task.category] ?? CircleCheckBig;
-            return (
-            <button key={task.id} onClick={() => navigate('/tasks')} className="card !rounded-2xl !p-3.5 flex items-center gap-3 w-full text-left group hover:shadow-md transition-shadow">
-              <div className="tone-tile tone-mint h-10 w-10 rounded-[--r-sm] flex items-center justify-center shrink-0">
-                <CategoryIcon className="h-5 w-5" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold truncate">{task.title}</p>
-                <p className="text-[11px] text-muted-foreground mt-0.5">{task.assignee} · {formatDate(task.dueDate)}</p>
-              </div>
-              <span className="shrink-0 rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-bold text-primary">+{task.xp} XP</span>
-            </button>
-            );
-          })}
-        </div>
-      </motion.div>
+      <PreviewSection
+        title={translate('dashboard.upcomingTasks')}
+        tone="mint"
+        onSeeAll={() => navigate('/tasks')}
+        seeAllLabel={translate('common.seeAll')}
+        isEmpty={data.upcomingTasks.length === 0}
+        empty={
+          <EmptyState
+            tone="mint"
+            icon={<PartyPopper className="h-6 w-6" />}
+            title={translate('dashboard.noUpcomingTasks')}
+            body={translate('dashboard.noUpcomingTasksBody')}
+            action={{ label: translate('tasks.addTask'), onClick: () => navigate('/tasks') }}
+          />
+        }
+      >
+        {data.upcomingTasks.slice(0, 5).map((task) => {
+          const CategoryIcon = TASK_CATEGORY_ICONS[task.category] ?? CircleCheckBig;
+          return (
+            <PreviewRow
+              key={task.id}
+              tone="mint"
+              icon={<CategoryIcon className="h-5 w-5" />}
+              title={task.title}
+              subtitle={`${task.assignee} · ${formatDate(task.dueDate)}`}
+              trailing={<span className="shrink-0 rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-bold text-primary">+{task.xp} XP</span>}
+              onClick={() => navigate('/tasks')}
+            />
+          );
+        })}
+      </PreviewSection>
 
-      {/* Shopping list */}
-      <motion.div variants={item}>
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="font-display text-base font-bold">{translate('dashboard.shoppingList')}</h3>
-          <button onClick={() => navigate('/tasks?tab=shopping')} className="-mr-2 min-h-11 px-2 text-xs text-primary font-semibold">{translate('common.seeAll')}</button>
-        </div>
-        <div className="space-y-2">
-          {data.pendingShoppingItems.length === 0 && (
-            <div className="rounded-2xl border border-border bg-card p-4 text-center">
-              <p className="text-sm text-muted-foreground">{translate('dashboard.noShoppingItems')}</p>
-            </div>
-          )}
-          {data.pendingShoppingItems.slice(0, 3).map((s) => (
-            <button key={s.id} onClick={() => navigate('/tasks?tab=shopping')} className="card !rounded-2xl !p-3.5 flex items-center gap-3 w-full text-left hover:shadow-md transition-shadow">
-              <div className="tone-tile tone-butter h-10 w-10 rounded-[--r-sm] flex items-center justify-center shrink-0">
-                <ShoppingCart className="h-5 w-5" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold truncate">{s.item}</p>
-                <p className="text-[11px] text-muted-foreground mt-0.5">{translate('dashboard.addedBy', { name: s.addedBy })}</p>
-              </div>
-            </button>
-          ))}
-        </div>
-      </motion.div>
+      <PreviewSection
+        title={translate('dashboard.shoppingList')}
+        tone="butter"
+        onSeeAll={() => navigate('/tasks?tab=shopping')}
+        seeAllLabel={translate('common.seeAll')}
+        isEmpty={data.pendingShoppingItems.length === 0}
+        empty={
+          <EmptyState
+            tone="butter"
+            icon={<ShoppingCart className="h-6 w-6" />}
+            title={translate('dashboard.noShoppingItems')}
+            body={translate('dashboard.noShoppingItemsBody')}
+            action={{ label: translate('tasks.addSupply'), onClick: () => navigate('/tasks?tab=shopping') }}
+          />
+        }
+      >
+        {data.pendingShoppingItems.slice(0, 3).map((s) => (
+          <PreviewRow
+            key={s.id}
+            tone="butter"
+            icon={<ShoppingCart className="h-5 w-5" />}
+            title={s.item}
+            subtitle={translate('dashboard.addedBy', { name: s.addedBy })}
+            onClick={() => navigate('/tasks?tab=shopping')}
+          />
+        ))}
+      </PreviewSection>
 
-      {/* Upcoming events */}
-      <motion.div variants={item}>
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="font-display text-base font-bold">{translate('dashboard.upcomingEvents')}</h3>
-          <button onClick={() => navigate('/calendar')} className="-mr-2 min-h-11 px-2 text-xs text-primary font-semibold">{translate('common.seeAll')}</button>
-        </div>
-        <div className="space-y-2">
-          {data.upcomingEvents.length === 0 && (
-            <div className="rounded-2xl border border-border bg-card p-4 text-center">
-              <p className="text-sm text-muted-foreground">{translate('dashboard.noUpcomingEvents')}</p>
-            </div>
-          )}
-          {data.upcomingEvents.slice(0, 3).map((e) => (
-            <button key={e.id} onClick={() => navigate('/calendar')} className="card !rounded-2xl !p-3.5 flex items-center gap-3 w-full text-left hover:shadow-md transition-shadow">
-              <div className="tone-tile tone-peri h-10 w-10 rounded-[--r-sm] flex items-center justify-center shrink-0">
-                <Calendar className="h-5 w-5" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold">{e.title}</p>
-                <p className="text-[11px] text-muted-foreground mt-0.5">{formatDate(e.date)}{e.time ? ` · ${formatTime(e.time)}` : ''}</p>
-              </div>
-              <span className="shrink-0 rounded-full bg-muted px-2.5 py-1 text-[10px] font-bold text-muted-foreground">{translateKey('common.eventTypes', e.type)}</span>
-            </button>
-          ))}
-        </div>
-      </motion.div>
+      <PreviewSection
+        title={translate('dashboard.upcomingEvents')}
+        tone="peri"
+        onSeeAll={() => navigate('/calendar')}
+        seeAllLabel={translate('common.seeAll')}
+        isEmpty={data.upcomingEvents.length === 0}
+        empty={
+          <EmptyState
+            tone="peri"
+            icon={<CalendarPlus className="h-6 w-6" />}
+            title={translate('dashboard.noUpcomingEvents')}
+            body={translate('dashboard.noUpcomingEventsBody')}
+            action={{ label: translate('calendar.addEvent'), onClick: () => navigate('/calendar') }}
+          />
+        }
+      >
+        {data.upcomingEvents.slice(0, 3).map((e) => (
+          <PreviewRow
+            key={e.id}
+            tone="peri"
+            icon={<Calendar className="h-5 w-5" />}
+            title={e.title}
+            subtitle={`${formatDate(e.date)}${e.time ? ` · ${formatTime(e.time)}` : ''}`}
+            trailing={<span className="shrink-0 rounded-full bg-muted px-2.5 py-1 text-[10px] font-bold text-muted-foreground">{translateKey('common.eventTypes', e.type)}</span>}
+            onClick={() => navigate('/calendar')}
+          />
+        ))}
+      </PreviewSection>
 
-      {/* Recent expenses */}
-      <motion.div variants={item}>
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="font-display text-base font-bold">{translate('dashboard.recentExpenses')}</h3>
-          <button onClick={() => navigate('/economy')} className="-mr-2 min-h-11 px-2 text-xs text-primary font-semibold">{translate('common.seeAll')}</button>
-        </div>
-        <div className="space-y-2">
-          {data.recentExpenses.length === 0 && (
-            <div className="rounded-2xl border border-border bg-card p-4 text-center">
-              <p className="text-sm text-muted-foreground">{translate('dashboard.noRecentExpenses')}</p>
-            </div>
-          )}
-          {data.recentExpenses.slice(0, 3).map((e) => (
-            <button key={e.id} onClick={() => navigate('/economy')} className="card !rounded-2xl !p-3.5 flex items-center gap-3 w-full text-left hover:shadow-md transition-shadow">
-              <div className="tone-tile tone-blush h-10 w-10 rounded-[--r-sm] flex items-center justify-center shrink-0">
-                <Wallet className="h-5 w-5" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold truncate">{e.description}</p>
-                <p className="text-[11px] text-muted-foreground mt-0.5">{translate('dashboard.paidBy', { name: e.paidBy })} · {formatDate(e.date)}</p>
-              </div>
-              <p className="shrink-0 text-sm font-bold">{formatCurrency(e.amount)}</p>
-            </button>
-          ))}
-        </div>
-      </motion.div>
+      <PreviewSection
+        title={translate('dashboard.recentExpenses')}
+        tone="blush"
+        onSeeAll={() => navigate('/economy')}
+        seeAllLabel={translate('common.seeAll')}
+        isEmpty={data.recentExpenses.length === 0}
+        empty={
+          <EmptyState
+            tone="blush"
+            icon={<Receipt className="h-6 w-6" />}
+            title={translate('dashboard.noRecentExpenses')}
+            body={translate('dashboard.noRecentExpensesBody')}
+            action={{ label: translate('economy.addExpense'), onClick: () => navigate('/economy') }}
+          />
+        }
+      >
+        {data.recentExpenses.slice(0, 3).map((e) => (
+          <PreviewRow
+            key={e.id}
+            tone="blush"
+            icon={<Wallet className="h-5 w-5" />}
+            title={e.description}
+            subtitle={`${translate('dashboard.paidBy', { name: e.paidBy })} · ${formatDate(e.date)}`}
+            trailing={<p className="shrink-0 text-sm font-bold">{formatCurrency(e.amount)}</p>}
+            onClick={() => navigate('/economy')}
+          />
+        ))}
+      </PreviewSection>
     </motion.div>
   );
 }

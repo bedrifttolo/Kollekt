@@ -571,7 +571,7 @@ export default function ProfilePage() {
                   onClick={() => void handleColorChange(swatch)}
                   disabled={colorSaving}
                   style={{ backgroundColor: swatch }}
-                  className={`grid h-8 w-8 place-items-center rounded-full transition-transform ${active ? "scale-110 ring-2 ring-foreground ring-offset-2 ring-offset-card" : ""}`}
+                  className={`pressable-tight grid h-8 w-8 place-items-center rounded-full transition-transform ${active ? "scale-110 ring-2 ring-foreground ring-offset-2 ring-offset-card" : ""}`}
                   aria-label={swatch}
                 >
                   {active && <Check className="h-4 w-4 text-white" />}
@@ -594,7 +594,7 @@ export default function ProfilePage() {
             <button
               onClick={() => void handleCopyCode()}
               disabled={copyingCode}
-              className="h-8 w-8 rounded-lg glass flex items-center justify-center disabled:opacity-60"
+              className="pressable-tight h-8 w-8 rounded-lg glass flex items-center justify-center disabled:opacity-60"
               aria-label={t("profile.copyHouseholdCode")}
             >
               {codeCopied ? (
@@ -1112,7 +1112,7 @@ export default function ProfilePage() {
             >
               <div className="flex items-center justify-between">
                 <h3 className="font-display text-xl font-bold">{t("profile.houseRules.editorTitle")}</h3>
-                <button onClick={() => setShowRulesEditor(false)} aria-label={t("common.close")} className="grid h-9 w-9 place-items-center rounded-full bg-muted">
+                <button onClick={() => setShowRulesEditor(false)} aria-label={t("common.close")} className="pressable-tight grid h-9 w-9 place-items-center rounded-full bg-muted">
                   <X className="h-4 w-4" />
                 </button>
               </div>
