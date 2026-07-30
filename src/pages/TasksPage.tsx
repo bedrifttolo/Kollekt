@@ -38,7 +38,7 @@ import { tapFeedback } from '../lib/haptics';
 import { formatDate, formatDateTime, translateKey } from '../i18n/helpers';
 import { EXPENSE_CATEGORIES } from '../lib/expenseStats';
 import type { AppUser, Task, ShoppingItem, TaskCategory, TaskSwapRequest, MaintenanceTicket, MaintenancePriority, MaintenanceStatus } from '../lib/types';
-import { AddSheet, Avatar, Chip, Eyebrow, Fab, OverflowMenu, ProgressBar, XpBurst } from '../components/ui-kit';
+import { AddSheet, Avatar, Chip, Eyebrow, Fab, LoadingDot, OverflowMenu, ProgressBar, XpBurst } from '../components/ui-kit';
 import { pressable, springPop } from '../lib/motion';
 import { celebrate } from '../lib/celebrate';
 import { DEFAULT_ROOM_ICON as DEFAULT_TASK_ICON, TASK_CATEGORY_ICONS } from '../lib/categoryIcons';
@@ -962,10 +962,8 @@ function TasksMain() {
 
   if (loading) {
     return (
-      <div className="space-y-3 pt-4 animate-pulse">
-        {[...Array(5)].map((_, index) => (
-          <div key={index} className="glass rounded-xl h-14" />
-        ))}
+      <div className="flex items-center justify-center pt-16">
+        <LoadingDot />
       </div>
     );
   }
