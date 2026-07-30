@@ -1846,6 +1846,7 @@
     "eyebrow": "Your household life",
     "title": "Profile & settings",
     "avatarColor": "Profile color",
+    "avatarColorTaken": "Already used by another household member",
     "householdMembers": "Household members",
     "language": "Language",
     "appearance": {

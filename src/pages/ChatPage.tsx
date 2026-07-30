@@ -25,9 +25,10 @@ import SubscriptionPaywall from '../components/SubscriptionPaywall';
 import type { AppUser, ChatMessage, CheckinSummary, HouseCheckin, Kudo, KudoType, Task } from '../lib/types';
 
 const KUDO_TYPES: KudoType[] = ['THANK_YOU', 'CLEANEST', 'MOST_HELPFUL', 'PEACEMAKER'];
-import { AddSheet, AvatarStack, IconButton, LoadingDot } from '../components/ui-kit';
+import { AddSheet, AvatarStack, IconButton } from '../components/ui-kit';
 import { collapseVariants, popIn, pressable, springPop } from '../lib/motion';
 import { colorForMember } from '../lib/memberColors';
+import { useScrollDirection } from '../lib/useScrollDirection';
 
 // The backend validates reactions against a fixed emoji allowlist and stores them as emoji
 // strings, so the emoji stays the wire format — icons are presentation only.
@@ -141,6 +142,7 @@ export default function ChatPage() {
   const formatMood = (value?: number | null) =>
     value == null ? '' : Number.isInteger(value) ? String(value) : value.toFixed(1);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const messageScrollRef = useRef<HTMLDivElement>(null);
   // True until the thread currently on screen has done its first scroll-to-bottom. Opening (or
   // switching) a thread should land on the latest message instantly, not animate down through
   // the whole history — only messages that arrive after that should scroll smoothly.
@@ -259,6 +261,11 @@ export default function ChatPage() {
         const count = (event.payload as { count?: number })?.count;
         if (count !== undefined) setOnlineCount(count);
       }
+      if (event.type === 'MEMBER_UPDATED') {
+        api.get<AppUser[]>(`/members/collective?memberName=${encodeURIComponent(name)}`)
+          .then(setMembers)
+          .catch(() => {});
+      }
     },
     () => {
       void fetchMessages(activeThreadRef.current);
@@ -296,6 +303,11 @@ export default function ChatPage() {
       clearLongPress();
     };
   }, []);
+
+  // Chat's `.app-screen-full` layout never grows past the viewport, so the window never scrolls —
+  // the bottom nav's scroll-aware hide/show (see AppLayout) has to watch this page's own message
+  // list instead.
+  useScrollDirection(messageScrollRef);
 
   const sendMessage = async () => {
     if (!input.trim()) return;
@@ -587,8 +599,16 @@ export default function ChatPage() {
   if (loading) {
     wasLoadingRef.current = true;
     return (
-      <div className="app-screen-full flex items-center justify-center">
-        <LoadingDot />
+      <div className="app-screen-full relative flex flex-col">
+        <div className="-mx-4 -mt-2 h-[3.75rem] animate-pulse border-b border-border bg-muted/20 sm:-mx-6" />
+        <div className="min-h-0 flex-1 space-y-3 px-4 py-4 sm:px-6">
+          {[70, 45, 60, 35].map((width, i) => (
+            <div key={i} className={`flex ${i % 2 ? 'justify-end' : 'justify-start'}`}>
+              <div className="h-9 animate-pulse rounded-3xl bg-muted/20" style={{ width: `${width}%` }} />
+            </div>
+          ))}
+        </div>
+        <div className="h-12 animate-pulse rounded-full bg-muted/20" />
       </div>
     );
   }
@@ -596,7 +616,7 @@ export default function ChatPage() {
   wasLoadingRef.current = false;
 
   return (
-    <motion.div initial={justFinishedLoading ? { opacity: 0 } : false} animate={{ opacity: 1 }} className="app-screen-full relative flex flex-col overflow-hidden">
+    <motion.div initial={justFinishedLoading ? { opacity: 0 } : false} animate={{ opacity: 1 }} className="app-screen-full relative flex flex-col">
       {/* Chat hides the shared AppHeader (see AppLayout's hideHeader), so this row carries its
           own page-identity wash instead — bled edge-to-edge like every other page's header,
           matching AppHeader's tone-tile treatment for tone-blush. */}
@@ -626,7 +646,7 @@ export default function ChatPage() {
             messages without losing the identity row (still the only way back to Profile). */}
         <button
           onClick={() => setHeaderExpanded((v) => !v)}
-          className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-muted-foreground"
+          className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-muted/60 text-muted-foreground"
           aria-label={headerExpanded ? t('chat.collapseHeader') : t('chat.expandHeader')}
         >
           <ChevronDown className={`h-4 w-4 transition-transform ${headerExpanded ? '' : 'rotate-180'}`} />
@@ -675,7 +695,7 @@ export default function ChatPage() {
             </div>
 
             {!isDirect && checkinSummary && checkinSummary.responseCount > 0 && (
-              <div className="mt-3 rounded-[1.35rem] border border-primary/25 bg-primary/5">
+              <div className="card mt-3 !p-0">
                 <button
                   onClick={() => setCheckinExpanded((v) => !v)}
                   className="flex w-full items-center justify-between gap-3 p-3 text-left"
@@ -689,7 +709,9 @@ export default function ChatPage() {
                   </div>
                   <div className="flex shrink-0 items-center gap-2">
                     <span className="text-xs font-bold text-primary">{t('checkin.averageMood', { mood: formatMood(checkinSummary.averageMood) })}</span>
-                    <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${checkinExpanded ? 'rotate-180' : ''}`} />
+                    <span className="grid h-7 w-7 place-items-center rounded-full bg-muted/60">
+                      <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${checkinExpanded ? 'rotate-180' : ''}`} />
+                    </span>
                   </div>
                 </button>
                 <AnimatePresence>
@@ -749,7 +771,7 @@ export default function ChatPage() {
             <div className="absolute inset-0 bg-background/55" />
           </div>
         )}
-        <div className="relative h-full overflow-y-auto px-4 py-4 sm:px-6" onTouchStart={handleSwipeStart} onTouchEnd={handleSwipeEnd}>
+        <div ref={messageScrollRef} data-chat-scroll className="relative h-full overflow-y-auto px-4 py-4 sm:px-6" onTouchStart={handleSwipeStart} onTouchEnd={handleSwipeEnd}>
         {decorateMessages(messages, seenCursor).map(({ message, isFirstOfGroup, isLastOfGroup, startsNewDay, startsUnread }, i, all) => {
           const isSelf = message.sender === name;
           const senderColor = colorForMember(message.sender, memberColorMap.get(message.sender));
@@ -788,11 +810,11 @@ export default function ChatPage() {
                   <div
                     className={`mx-1 rounded-lg px-2.5 py-1.5 text-[10px] leading-tight border ${
                       isSelf
-                        ? 'border-primary/25 bg-primary/10 text-foreground'
+                        ? 'border-border bg-card text-foreground'
                         : 'border-border/60 bg-muted/40 text-muted-foreground'
                     }`}
                   >
-                    <div className={`mb-1 flex items-center gap-1 ${isSelf ? 'text-primary/80' : 'text-muted-foreground'}`}>
+                    <div className={`mb-1 flex items-center gap-1 ${isSelf ? 'text-foreground/70' : 'text-muted-foreground'}`}>
                       <Reply className="h-2.5 w-2.5" />
                       <span>{t('chat.replyingTo', { name: replyTarget.sender })}</span>
                     </div>
@@ -1026,8 +1048,10 @@ export default function ChatPage() {
       )}
 
       {/* Input bar. pb-2 keeps the composer off the bottom nav's rounded top edge (and off the
-          keyboard once the nav hides) instead of sitting flush against it. */}
-      <div className="relative pb-2">
+          keyboard once the nav hides) instead of sitting flush against it. Bleeds edge-to-edge
+          like the header/list above, then reapplies the inset as padding so the pill itself
+          still sits clear of the screen edges. */}
+      <div className="relative -mx-4 px-4 pb-2 sm:-mx-6 sm:px-6">
         {mention && mentionCandidates.length > 0 && (
           <div className="absolute bottom-full left-0 right-0 mb-2 z-30 max-h-52 overflow-y-auto rounded-2xl border border-border bg-popover p-1 shadow-xl">
             {mentionCandidates.map((member) => (
@@ -1137,7 +1161,13 @@ export default function ChatPage() {
             value={input}
             rows={1}
             onChange={handleInputChange}
-            onFocus={() => setShowActionBar(false)}
+            onFocus={() => {
+              setShowActionBar(false);
+              // The keyboard opening shrinks the message list's viewport (see .app-screen-full's
+              // keyboard-open override), which otherwise leaves it looking scrolled to the middle
+              // of the thread — re-anchor to the latest message once the resize settles.
+              window.setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'auto' }), 50);
+            }}
             onKeyDown={(e) => {
               if (mention && mentionCandidates.length > 0) {
                 if (e.key === 'Enter') { e.preventDefault(); insertMention(mentionCandidates[0]); return; }

@@ -30,7 +30,7 @@ import {
   translateKey,
 } from "../i18n/helpers";
 import type { CalendarEvent, EventType, GuestNotice, HouseCheckin } from "../lib/types";
-import { AddSheet, EmptyState, Eyebrow, Fab, LoadingDot, OverflowMenu } from "../components/ui-kit";
+import { AddSheet, EmptyState, Eyebrow, Fab, OverflowMenu } from "../components/ui-kit";
 import { pressable, springSoft } from "../lib/motion";
 import { selectionFeedback } from "../lib/haptics";
 
@@ -286,8 +286,21 @@ export default function CalendarPage() {
   if (loading) {
     wasLoadingRef.current = true;
     return (
-      <div className="flex items-center justify-center pt-16">
-        <LoadingDot />
+      <div className="space-y-4 pt-2">
+        <div className="space-y-2">
+          <div className="h-3 w-20 animate-pulse rounded-full bg-muted/30" />
+          <div className="h-7 w-36 animate-pulse rounded-lg bg-muted/30" />
+        </div>
+        <div className="flex gap-2">
+          {[...Array(7)].map((_, i) => (
+            <div key={i} className="h-16 flex-1 animate-pulse rounded-2xl bg-muted/20" />
+          ))}
+        </div>
+        <div className="space-y-3">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="h-20 animate-pulse rounded-[--r-lg] bg-muted/20" />
+          ))}
+        </div>
       </div>
     );
   }

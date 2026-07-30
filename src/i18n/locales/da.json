@@ -1846,6 +1846,7 @@
     "eyebrow": "Livet i kollektivet",
     "title": "Profil og indstillinger",
     "avatarColor": "Profilfarve",
+    "avatarColorTaken": "Allerede brugt af et andet husstandsmedlem",
     "householdMembers": "Medlemmer i kollektivet",
     "language": "Sprog",
     "appearance": {

@@ -15,6 +15,7 @@ class MemberOperations(
     private val taskOperations: TaskOperations,
     private val userProfileService: UserProfileService,
     private val collectiveAccessService: CollectiveAccessService,
+    private val realtimeUpdateService: RealtimeUpdateService,
 ) {
     @Transactional
     fun deleteUser(memberName: String) {
@@ -53,7 +54,25 @@ class MemberOperations(
                 ?: throw IllegalArgumentException("User '$memberName' not found")
         val normalized = color.trim()
         require(normalized.matches(Regex("^#[0-9a-fA-F]{6}$"))) { "Color must be a hex value like #1f563f" }
+
+        val collectiveCode = member.collectiveCode
+        if (collectiveCode != null) {
+            val taken =
+                memberRepository
+                    .findAllByCollectiveCode(collectiveCode)
+                    .any { it.name != memberName && it.color.equals(normalized, ignoreCase = true) }
+            require(!taken) { "That color is already taken by someone else in your household" }
+        }
+
         memberRepository.save(member.copy(color = normalized))
+
+        if (collectiveCode != null) {
+            realtimeUpdateService.publish(
+                collectiveCode,
+                "MEMBER_UPDATED",
+                mapOf("memberName" to memberName, "color" to normalized),
+            )
+        }
     }
 
     fun getPaymentHandles(memberName: String): PaymentHandlesDto {

@@ -51,7 +51,7 @@ function PreviewSection({
     <motion.div variants={listItem}>
       <div className="mb-2 flex items-center justify-between">
         <h3 className="font-display text-base font-bold">{title}</h3>
-        <button onClick={onSeeAll} className={`-mr-2 min-h-11 px-2 text-xs font-semibold tone-${tone} tone-ink`}>
+        <button onClick={onSeeAll} className="-mr-2 min-h-11 px-2 text-xs font-semibold text-foreground">
           {seeAllLabel}
         </button>
       </div>
@@ -80,12 +80,12 @@ function PreviewRow({
     <motion.button
       onClick={onClick}
       {...pressableSubtle}
-      className={`elev-1 flex w-full items-center gap-3 rounded-2xl border p-3.5 text-left tone-${tone} tone-wash tone-edge`}
+      className={`elev-1 flex w-full items-center gap-3 rounded-2xl p-3.5 text-left tone-${tone} tone-tile`}
     >
-      <span className={`tone-tile tone-${tone} grid h-10 w-10 shrink-0 place-items-center rounded-[--r-sm]`}>{icon}</span>
+      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-[--r-sm] bg-current/15">{icon}</span>
       <span className="min-w-0 flex-1">
         <span className="block truncate text-sm font-semibold">{title}</span>
-        <span className="mt-0.5 block text-[11px] text-muted-foreground">{subtitle}</span>
+        <span className="mt-0.5 block text-[11px] text-current/70">{subtitle}</span>
       </span>
       {trailing}
     </motion.button>
@@ -97,7 +97,6 @@ export default function DashboardPage() {
   const { t: translate } = useTranslation();
   const { currentUser } = useUser();
   const queryClient = useQueryClient();
-  const [onlineCount, setOnlineCount] = useState<number | null>(null);
   const [mood, setMood] = useState(3);
   const [issue, setIssue] = useState('');
   const [improvement, setImprovement] = useState('');
@@ -164,9 +163,8 @@ export default function DashboardPage() {
       if (['TASK_UPDATED', 'TASK_COMPLETED_LATE', 'EXPENSE_CREATED', 'EVENT_CREATED', 'BALANCES_SETTLED'].includes(event.type)) {
         void queryClient.invalidateQueries({ queryKey: qk.dashboard(name) });
       }
-      if (event.type === 'MEMBER_ONLINE' || event.type === 'MEMBER_OFFLINE') {
-        const count = (event.payload as { count?: number })?.count;
-        if (count !== undefined) setOnlineCount(count);
+      if (event.type === 'MEMBER_UPDATED') {
+        void queryClient.invalidateQueries({ queryKey: qk.members(name) });
       }
     },
     () => { if (name) void queryClient.invalidateQueries({ queryKey: qk.dashboard(name) }); },
@@ -300,7 +298,7 @@ export default function DashboardPage() {
                     <>
                       <label className="block text-xs font-semibold">
                         {translate('checkin.mood')}
-                        <input className="mt-2 w-full accent-primary" type="range" min="1" max="5" value={mood} onChange={(event) => setMood(Number(event.target.value))} />
+                        <input className="mood-slider mt-2 w-full accent-primary" type="range" min="1" max="5" value={mood} onChange={(event) => setMood(Number(event.target.value))} />
                       </label>
                       <input value={issue} onChange={(event) => setIssue(event.target.value)} placeholder={translate('checkin.issue')} className="w-full min-h-[var(--ctl-lg)] rounded-xl border border-border bg-background px-3 py-2 text-sm" />
                       <input value={improvement} onChange={(event) => setImprovement(event.target.value)} placeholder={translate('checkin.improvement')} className="w-full min-h-[var(--ctl-lg)] rounded-xl border border-border bg-background px-3 py-2 text-sm" />
@@ -319,14 +317,6 @@ export default function DashboardPage() {
           </AnimatePresence>
         </motion.div>
       )}
-
-      {/* Real-time indicator */}
-      <motion.div variants={listItem} className="flex items-center gap-2">
-        <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
-        <p className="text-[10px] text-muted-foreground">
-          {translate('common.live')} • {onlineCount === null ? translate('common.connecting') : translate('dashboard.onlineRoommates', { count: onlineCount })}
-        </p>
-      </motion.div>
 
       <PreviewSection
         title={translate('dashboard.upcomingTasks')}
@@ -353,7 +343,7 @@ export default function DashboardPage() {
               icon={<CategoryIcon className="h-5 w-5" />}
               title={task.title}
               subtitle={`${task.assignee} · ${formatDate(task.dueDate)}`}
-              trailing={<span className="shrink-0 rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-bold text-primary">+{task.xp} XP</span>}
+              trailing={<span className="shrink-0 rounded-full bg-current/15 px-2.5 py-1 text-[10px] font-bold text-current">+{task.xp} XP</span>}
               onClick={() => navigate('/tasks')}
             />
           );
@@ -411,7 +401,7 @@ export default function DashboardPage() {
             icon={<Calendar className="h-5 w-5" />}
             title={e.title}
             subtitle={`${formatDate(e.date)}${e.time ? ` · ${formatTime(e.time)}` : ''}`}
-            trailing={<span className="shrink-0 rounded-full bg-muted px-2.5 py-1 text-[10px] font-bold text-muted-foreground">{translateKey('common.eventTypes', e.type)}</span>}
+            trailing={<span className="shrink-0 rounded-full bg-current/15 px-2.5 py-1 text-[10px] font-bold text-current">{translateKey('common.eventTypes', e.type)}</span>}
             onClick={() => navigate('/calendar')}
           />
         ))}

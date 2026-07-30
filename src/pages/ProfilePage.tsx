@@ -280,6 +280,7 @@ export default function ProfilePage() {
       if (PROFILE_REFRESH_EVENTS.has(event.type)) void loadStatsAndAchievements();
       if (event.type === "HOUSE_RULES_UPDATED") void loadHouseRules();
       if (event.type === "KUDOS_CREATED") void loadKudos();
+      if (event.type === "MEMBER_UPDATED") void queryClient.invalidateQueries({ queryKey: qk.members(name) });
     },
     () => {
       void loadStatsAndAchievements();
@@ -560,14 +561,16 @@ export default function ProfilePage() {
           <div className="flex flex-wrap gap-2">
             {MEMBER_COLORS.map((swatch) => {
               const active = colorForMember(name, currentUser?.color) === swatch;
+              const takenByOther = householdMembers.some((member) => member.name !== name && member.color === swatch);
               return (
                 <button
                   key={swatch}
                   onClick={() => void handleColorChange(swatch)}
-                  disabled={colorSaving}
+                  disabled={colorSaving || (takenByOther && !active)}
                   style={{ backgroundColor: swatch }}
-                  className={`pressable-tight grid h-8 w-8 place-items-center rounded-full transition-transform ${active ? "scale-110 ring-2 ring-foreground ring-offset-2 ring-offset-card" : ""}`}
-                  aria-label={swatch}
+                  className={`pressable-tight grid h-8 w-8 place-items-center rounded-full transition-transform ${active ? "scale-110 ring-2 ring-foreground ring-offset-2 ring-offset-card" : ""} ${takenByOther && !active ? "opacity-30" : ""}`}
+                  aria-label={takenByOther && !active ? `${swatch} — ${t("profile.avatarColorTaken")}` : swatch}
+                  title={takenByOther && !active ? t("profile.avatarColorTaken") : undefined}
                 >
                   {active && <Check className="h-4 w-4 text-white" />}
                 </button>

@@ -606,7 +606,7 @@ export default function EconomyPage() {
       <motion.button
         onClick={() => navigate('/economy/pant')}
         {...pressableSubtle}
-        className="tone-mint tone-wash tone-edge elev-1 flex w-full items-center gap-3 rounded-2xl border p-4"
+        className="card flex w-full items-center gap-3"
       >
         <ProgressRing value={pantPercent} size={54} thickness={7} color="var(--tone-mint)" trackColor="var(--surface-3)">
           <Recycle className="h-5 w-5 text-foreground" />
@@ -671,7 +671,10 @@ export default function EconomyPage() {
           {(showAllExpenses ? summary.expenses : summary.expenses.slice(0, 2)).map((e, i) => (
             <div key={e.id}>
               <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
-                className="glass rounded-xl p-4 flex items-center gap-3">
+                onClick={() => { if (e.paidBy === name) startEdit(e); }}
+                role={e.paidBy === name ? 'button' : undefined}
+                tabIndex={e.paidBy === name ? 0 : undefined}
+                className={`glass rounded-xl p-4 flex items-center gap-3 ${e.paidBy === name ? 'cursor-pointer' : ''}`}>
                 <div className="h-9 w-9 rounded-lg bg-muted flex items-center justify-center shrink-0">
                   {e.paidBy === name
                     ? <ArrowUpRight className="h-4 w-4 text-primary" />
@@ -689,7 +692,7 @@ export default function EconomyPage() {
                   )}
                 </div>
 	                {e.paidBy === name ? (
-	                  <div className="flex shrink-0 items-center gap-2">
+	                  <div className="flex shrink-0 items-center gap-2" onClick={(event) => event.stopPropagation()}>
 	                    <p className="text-sm font-bold">{formatCurrency(e.amount)}</p>
 	                    <OverflowMenu
 	                      label={t('common.actions')}

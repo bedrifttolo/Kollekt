@@ -50,8 +50,8 @@ export interface GameEntry {
 }
 
 export const GAME_CATALOG: GameEntry[] = [
-  { id: 'dice', titleKey: 'dice', descriptionKey: 'dice', icon: Dices, category: 'classic', difficulty: 'easy', minPlayers: 1, minutes: 2, playable: true, soloGame: true, requiresSubscription: true },
   { id: 'kollekt', titleKey: 'kollekt', descriptionKey: 'kollekt', icon: House, category: 'classic', difficulty: 'medium', minPlayers: 2, minutes: 20, playable: true, requiresSubscription: false },
+  { id: 'dice', titleKey: 'dice', descriptionKey: 'dice', icon: Dices, category: 'classic', difficulty: 'easy', minPlayers: 1, minutes: 2, playable: true, soloGame: true, requiresSubscription: true },
   { id: 'spin-the-wheel', titleKey: 'spinTheWheel', descriptionKey: 'spinTheWheel', icon: FerrisWheel, category: 'party', difficulty: 'easy', minPlayers: 2, minutes: 5, playable: true, requiresSubscription: true },
   { id: 'prompt-relay', titleKey: 'promptRelay', descriptionKey: 'promptRelay', icon: PenLine, category: 'party', difficulty: 'party', minPlayers: 2, minutes: 20, playable: true, roomGame: true, requiresSubscription: true },
   { id: 'hundred-questions', titleKey: 'hundredQuestions', descriptionKey: 'hundredQuestions', icon: MessageCircleQuestionMark, category: 'party', difficulty: 'party', minPlayers: 2, minutes: 20, playable: true, drinkingGameId: 'hundred-questions', requiresSubscription: true },

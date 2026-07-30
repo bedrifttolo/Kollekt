@@ -71,7 +71,10 @@ class CollectiveOperations(
             )
         }
 
-        memberRepository.save(owner.copy(collectiveCode = collective.joinCode))
+        val usedColors = mutableListOf<String>()
+        val ownerColor = owner.color ?: MemberColors.nextAvailable(usedColors)
+        usedColors += ownerColor
+        memberRepository.save(owner.copy(collectiveCode = collective.joinCode, color = ownerColor))
 
         val residentNames =
             request.residents
@@ -81,15 +84,20 @@ class CollectiveOperations(
         residentNames.forEach { name ->
             val existing = memberRepository.findByName(name)
             if (existing == null) {
+                val color = MemberColors.nextAvailable(usedColors)
+                usedColors += color
                 memberRepository.save(
                     Member(
                         name = name,
                         email = "${name.lowercase()}@example.com",
                         collectiveCode = collective.joinCode,
+                        color = color,
                     ),
                 )
             } else if (existing.collectiveCode == null) {
-                memberRepository.save(existing.copy(collectiveCode = collective.joinCode))
+                val color = existing.color ?: MemberColors.nextAvailable(usedColors)
+                usedColors += color
+                memberRepository.save(existing.copy(collectiveCode = collective.joinCode, color = color))
             }
         }
 
@@ -117,7 +125,9 @@ class CollectiveOperations(
             throw IllegalArgumentException("User '${user.name}' is already in a collective")
         }
 
-        val updated = memberRepository.save(user.copy(collectiveCode = joinCode))
+        val usedColors = memberRepository.findAllByCollectiveCode(joinCode).mapNotNull { it.color }
+        val color = user.color ?: MemberColors.nextAvailable(usedColors)
+        val updated = memberRepository.save(user.copy(collectiveCode = joinCode, color = color))
         acceptInvitationIfPresent(updated.email, joinCode)
         taskOperations.regenerateRecurringTasksForCollective(joinCode)
         return userProfileService.toUserDto(updated)
