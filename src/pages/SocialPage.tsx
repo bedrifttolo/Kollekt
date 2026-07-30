@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { Eyebrow } from '../components/ui-kit';
 import RanksPanel from './social/RanksPanel';
@@ -10,7 +9,7 @@ export default function SocialPage() {
   const [tab, setTab] = useState<'ranks' | 'games'>('ranks');
 
   return (
-    <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-5 pt-3 pb-6">
+    <div className="space-y-5 pt-3 pb-6">
       <div>
         <Eyebrow>{t('social.eyebrow')}</Eyebrow>
         <h2 className="mt-2 display-lg">
@@ -33,6 +32,6 @@ export default function SocialPage() {
       </div>
 
       {tab === 'ranks' ? <RanksPanel /> : <GamesPanel />}
-    </motion.div>
+    </div>
   );
 }

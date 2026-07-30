@@ -370,7 +370,7 @@ export default function CollektGamePage() {
                   </span>
                   <button
                     onClick={() => handleRemoveGuest(guest.name)}
-                    className="text-muted-foreground hover:text-destructive transition-colors"
+                    className="pressable-tight text-muted-foreground hover:text-destructive transition-colors"
                     aria-label={t('kollektGame.setup.removeGuestAria', { name: guest.name })}
                   >
                     <X className="h-4 w-4" />
@@ -386,7 +386,7 @@ export default function CollektGamePage() {
               onChange={(e) => { setGuestName(e.target.value); setGuestNameErrorKey(null); }}
               onKeyDown={(e) => { if (e.key === 'Enter') handleAddGuest(); }}
               placeholder={t('kollektGame.setup.guestPlaceholder')}
-              className="flex-1 rounded-xl bg-background/40 border border-border px-3 py-2.5 text-sm outline-none focus:border-accent/50 transition-colors"
+              className="flex-1 min-h-[var(--ctl-lg)] rounded-xl bg-background/40 border border-border px-3 py-2.5 text-sm outline-none focus:border-accent/50 transition-colors"
             />
             <button
               onClick={handleAddGuest}

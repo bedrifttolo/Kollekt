@@ -1,10 +1,9 @@
 import { Suspense, useEffect } from 'react';
-import { Outlet, Navigate, useLocation } from 'react-router-dom';
-import { AnimatePresence, motion } from 'framer-motion';
+import { Outlet, useLocation, Navigate } from 'react-router-dom';
 import AppHeader from './AppHeader';
 import BottomNav from './BottomNav';
 import TourOverlay, { type TourStep } from './TourOverlay';
-import { pageVariants } from '../lib/motion';
+import { LoadingDot } from './ui-kit';
 import { useUser } from '../context/UserContext';
 
 const APP_TOUR_STEPS: TourStep[] = [
@@ -57,7 +56,7 @@ export default function AppLayout() {
   if (isLoading && !currentUser) {
     return (
       <div className="app-viewport bg-background flex items-center justify-center">
-        <div className="h-8 w-8 rounded-full gradient-primary animate-pulse" />
+        <LoadingDot />
       </div>
     );
   }
@@ -69,23 +68,17 @@ export default function AppLayout() {
     <div className="app-viewport bg-background max-w-xl mx-auto relative overflow-x-hidden">
       {!hideHeader && <AppHeader />}
       <main className="safe-content-bottom px-4 sm:px-6 pt-2">
-        {/* Keeps header + bottom nav visible while a lazily loaded tab's chunk downloads. */}
+        {/* Keeps header + bottom nav visible while a lazily loaded tab's chunk downloads. No
+            route-level fade here: each page seeds its own loading/data state from the shared query
+            cache, so a warm tab paints instantly on mount instead of fading in from a blank frame. */}
         <Suspense
           fallback={
-            <div className="space-y-3 pt-4 animate-pulse">
-              {[...Array(4)].map((_, i) => <div key={i} className="glass rounded-2xl h-20" />)}
+            <div className="flex items-center justify-center pt-16">
+              <LoadingDot />
             </div>
           }
         >
-          {/* mode="wait" so the outgoing page finishes before the incoming one lifts in — with both
-              on screen at once the fixed FAB and bottom nav end up rendered twice. Keyed on the
-              pathname alone, not the search string, so /tasks?tab=shopping does not re-run the
-              whole page transition for an in-page tab switch. */}
-          <AnimatePresence mode="wait" initial={false}>
-            <motion.div key={pathname} variants={pageVariants} initial="initial" animate="animate" exit="exit">
-              <Outlet />
-            </motion.div>
-          </AnimatePresence>
+          <Outlet />
         </Suspense>
       </main>
       <BottomNav />

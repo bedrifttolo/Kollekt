@@ -113,7 +113,7 @@ function TaskEditor({
           value={newTitle}
           onChange={(event) => setNewTitle(event.target.value)}
           placeholder={t('tasks.taskTitlePlaceholder')}
-          className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+          className="w-full min-h-[var(--ctl-lg)] bg-muted/50 rounded-lg px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
           onKeyDown={(event) => event.key === 'Enter' && canSave && onSave()}
           autoFocus
         />
@@ -208,7 +208,7 @@ function TaskEditor({
         <div className="space-y-2 pt-2">
           <label className="space-y-1 block">
             <span className="text-xs font-semibold text-muted-foreground">{t('tasks.recurrenceLabel')}</span>
-            <select value={newRecurrence} onChange={(event) => setNewRecurrence(event.target.value)} className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary">
+            <select value={newRecurrence} onChange={(event) => setNewRecurrence(event.target.value)} className="w-full min-h-[var(--ctl-lg)] bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary">
               {RECURRENCE_OPTIONS.map((recurrence) => <option key={recurrence} value={recurrence}>{translateKey('common.recurrence', recurrence)}</option>)}
             </select>
           </label>
@@ -1051,7 +1051,7 @@ function TasksMain() {
                 value={newShoppingName}
                 onChange={(e) => setNewShoppingName(e.target.value)}
                 placeholder={t('tasks.supplyNamePlaceholder')}
-                className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                className="w-full min-h-[var(--ctl-lg)] bg-muted/50 rounded-lg px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
                 onKeyDown={(e) => e.key === 'Enter' && void handleShoppingAdd()}
                 autoFocus
               />
@@ -1088,15 +1088,15 @@ function TasksMain() {
             <AddSheet title={t('tasks.maintenance.newTicket')} onClose={() => setShowMaintenanceAdd(false)}>
               <label className="block space-y-1">
                 <span className="text-xs font-semibold text-muted-foreground">{t('tasks.maintenance.titleLabel')}</span>
-                <input value={newMaintenanceTitle} onChange={(event) => setNewMaintenanceTitle(event.target.value)} placeholder={t('tasks.maintenance.titlePlaceholder')} autoFocus className="w-full rounded-lg bg-muted/50 px-3 py-2 text-sm" />
+                <input value={newMaintenanceTitle} onChange={(event) => setNewMaintenanceTitle(event.target.value)} placeholder={t('tasks.maintenance.titlePlaceholder')} autoFocus className="w-full min-h-[var(--ctl-lg)] rounded-lg bg-muted/50 px-3 py-2 text-sm" />
               </label>
               <label className="block space-y-1">
                 <span className="text-xs font-semibold text-muted-foreground">{t('tasks.maintenance.descriptionLabel')}</span>
                 <textarea value={newMaintenanceDescription} onChange={(event) => setNewMaintenanceDescription(event.target.value)} placeholder={t('tasks.maintenance.descriptionPlaceholder')} rows={3} className="w-full resize-none rounded-lg bg-muted/50 px-3 py-2 text-sm" />
               </label>
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                <label className="min-w-0 space-y-1"><span className="text-xs font-semibold text-muted-foreground">{t('tasks.maintenance.priorityLabel')}</span><select value={newMaintenancePriority} onChange={(event) => setNewMaintenancePriority(event.target.value as MaintenancePriority)} className="w-full min-w-0 rounded-lg bg-muted/50 px-3 py-2 text-sm">{(['LOW', 'MEDIUM', 'HIGH', 'URGENT'] as const).map((priority) => <option key={priority} value={priority}>{t(`tasks.maintenance.priorities.${priority}`)}</option>)}</select></label>
-                <label className="min-w-0 space-y-1"><span className="text-xs font-semibold text-muted-foreground">{t('tasks.maintenance.assigneeLabel')}</span><select value={newMaintenanceAssignee} onChange={(event) => setNewMaintenanceAssignee(event.target.value)} className="w-full min-w-0 rounded-lg bg-muted/50 px-3 py-2 text-sm"><option value="">{t('tasks.maintenance.unassigned')}</option>{memberOptions.map((member) => <option key={member} value={member}>{member}</option>)}</select></label>
+                <label className="min-w-0 space-y-1"><span className="text-xs font-semibold text-muted-foreground">{t('tasks.maintenance.priorityLabel')}</span><select value={newMaintenancePriority} onChange={(event) => setNewMaintenancePriority(event.target.value as MaintenancePriority)} className="w-full min-w-0 min-h-[var(--ctl-lg)] rounded-lg bg-muted/50 px-3 py-2 text-sm">{(['LOW', 'MEDIUM', 'HIGH', 'URGENT'] as const).map((priority) => <option key={priority} value={priority}>{t(`tasks.maintenance.priorities.${priority}`)}</option>)}</select></label>
+                <label className="min-w-0 space-y-1"><span className="text-xs font-semibold text-muted-foreground">{t('tasks.maintenance.assigneeLabel')}</span><select value={newMaintenanceAssignee} onChange={(event) => setNewMaintenanceAssignee(event.target.value)} className="w-full min-w-0 min-h-[var(--ctl-lg)] rounded-lg bg-muted/50 px-3 py-2 text-sm"><option value="">{t('tasks.maintenance.unassigned')}</option>{memberOptions.map((member) => <option key={member} value={member}>{member}</option>)}</select></label>
                 <label className="min-w-0 space-y-1"><span className="text-xs font-semibold text-muted-foreground">{t('tasks.maintenance.dueDateLabel')}</span><input type="date" value={newMaintenanceDue} onChange={(event) => setNewMaintenanceDue(event.target.value)} className="w-full min-w-0 rounded-lg bg-muted/50 px-3 py-2 text-sm" /></label>
               </div>
               <p className="text-[10px] text-muted-foreground">{t('tasks.maintenance.costLaterHint')}</p>
@@ -1636,7 +1636,7 @@ function TasksMain() {
                         <select
                           value={buyCategory}
                           onChange={(event) => setBuyCategory(event.target.value)}
-                          className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                          className="w-full min-h-[var(--ctl-lg)] bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                         >
                           {EXPENSE_CATEGORIES.map((c) => (
                             <option key={c} value={c}>
@@ -1875,7 +1875,7 @@ function TasksMain() {
                   value={completeCost}
                   onChange={(event) => setCompleteCost(event.target.value)}
                   placeholder={t('tasks.maintenance.costPlaceholder')}
-                  className="w-full rounded-lg bg-muted/50 px-3 py-2 text-sm"
+                  className="w-full min-h-[var(--ctl-lg)] rounded-lg bg-muted/50 px-3 py-2 text-sm"
                 />
               </label>
               <label className="block space-y-1">
@@ -1883,7 +1883,7 @@ function TasksMain() {
                 <select
                   value={completeCategory}
                   onChange={(event) => setCompleteCategory(event.target.value)}
-                  className="w-full rounded-lg bg-muted/50 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                  className="w-full min-h-[var(--ctl-lg)] rounded-lg bg-muted/50 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                 >
                   {EXPENSE_CATEGORIES.map((c) => (
                     <option key={c} value={c}>

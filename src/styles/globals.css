@@ -7,48 +7,48 @@
 
 :root {
   color-scheme: light;
-  --background: #ffffff;
+  --background: #f6f6f7;
   --foreground: #000000;
-  --card: #f7f2ec;
+  --card: #ffffff;
   --card-foreground: #000000;
-  --popover: #f7f2ec;
+  --popover: #ffffff;
   --popover-foreground: #000000;
-  --primary: #16262c;
+  --primary: #111113;
   --primary-foreground: #ffffff;
   --secondary: #6366f1;
   --secondary-foreground: #ffffff;
-  --muted: #efe7df;
+  --muted: #eef0f1;
   --muted-foreground: #6f6459;
   --accent: #c7b7ee;
   --accent-foreground: #16262c;
   --destructive: #b84d6d;
   --destructive-foreground: #ffffff;
-  --border: #e4d9ce;
-  --input: #e4d9ce;
-  --ring: #16262c;
-  --glass-border: #e4d9ce;
-  --sidebar: #16262c;
+  --border: #e3e5e7;
+  --input: #e3e5e7;
+  --ring: #111113;
+  --glass-border: #e3e5e7;
+  --sidebar: #111113;
   --sidebar-foreground: #ffffff;
   --sidebar-primary: #6366f1;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #24373d;
+  --sidebar-accent: #232326;
   --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #34474d;
+  --sidebar-border: #333336;
   --sidebar-ring: #6366f1;
   --radius: 1.25rem;
-  --shadow: 0 8px 28px rgba(60, 44, 30, 0.09);
+  --shadow: 0 8px 28px rgba(20, 20, 22, 0.09);
   /* Elevation scale. One --shadow for every surface is what made the app read flat: a resting list
      row, a hero and a modal all sat at the same depth. --elev-1/2/3 are resting / raised / floating.
      --shadow stays as the alias for --elev-1 so existing callers keep working. */
-  --elev-1: 0 8px 28px rgba(60, 44, 30, 0.09);
-  --elev-2: 0 14px 40px rgba(60, 44, 30, 0.14);
-  --elev-3: 0 24px 60px rgba(60, 44, 30, 0.20);
+  --elev-1: 0 8px 28px rgba(20, 20, 22, 0.09);
+  --elev-2: 0 14px 40px rgba(20, 20, 22, 0.14);
+  --elev-3: 0 24px 60px rgba(20, 20, 22, 0.2);
   /* Surface ramp. --card alone against --background gave a single contrast step (white on cream);
      --surface-3 is the inset tone for rows nested *inside* a card, which previously had to borrow
      --muted and collided with the segmented control. */
-  --surface-1: #ffffff;
-  --surface-2: #f7f2ec;
-  --surface-3: #eeeae4;
+  --surface-1: #f6f6f7;
+  --surface-2: #ffffff;
+  --surface-3: #eceded;
   /* Hero surfaces (.househero/.wallet/.gamehero) are a single deep tone rather than a gradient,
      so the white-on-hero text every caller already uses is guaranteed to read. */
   --hero: #16262c;
@@ -133,33 +133,33 @@
 
 .dark {
   color-scheme: dark;
-  --background: #060a09;
+  --background: #0a0a0a;
   --foreground: #f1eee2;
-  --card: #0e1513;
+  --card: #1a1a1a;
   --card-foreground: #f1eee2;
-  --popover: #0e1513;
+  --popover: #1a1a1a;
   --popover-foreground: #f1eee2;
   --primary: #4ade9a;
   --primary-foreground: #08120d;
   --secondary: #818cf8;
   --secondary-foreground: #1e1b4b;
-  --muted: #131d19;
+  --muted: #232326;
   --muted-foreground: #8a9490;
   --accent: #b29ae8;
   --accent-foreground: #1d1730;
   --destructive: #d25b7d;
   --destructive-foreground: #fff8f2;
-  --border: #182420;
-  --input: #182420;
+  --border: #2c2c2e;
+  --input: #2c2c2e;
   --ring: #4ade9a;
-  --glass-border: #182420;
-  --sidebar: #0b1310;
+  --glass-border: #2c2c2e;
+  --sidebar: #1a1a1a;
   --sidebar-foreground: #f1eee2;
   --sidebar-primary: #818cf8;
   --sidebar-primary-foreground: #1e1b4b;
-  --sidebar-accent: #16211c;
+  --sidebar-accent: #252528;
   --sidebar-accent-foreground: #f1eee2;
-  --sidebar-border: #223029;
+  --sidebar-border: #2f2f32;
   --sidebar-ring: #818cf8;
   --shadow: 0 12px 36px rgba(0, 0, 0, 0.5);
   /* Shadow alone barely separates surfaces on a near-black page, so the dark elevations lean on the
@@ -167,9 +167,9 @@
   --elev-1: 0 12px 36px rgba(0, 0, 0, 0.5);
   --elev-2: 0 18px 48px rgba(0, 0, 0, 0.62);
   --elev-3: 0 28px 68px rgba(0, 0, 0, 0.74);
-  --surface-1: #060a09;
-  --surface-2: #0e1513;
-  --surface-3: #16201d;
+  --surface-1: #0a0a0a;
+  --surface-2: #1a1a1a;
+  --surface-3: #242426;
   --hero: #101b17;
   --hero-foreground: #f1eee2;
   --hero-positive: #6ee7a8;

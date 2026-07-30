@@ -6,7 +6,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../lib/api';
 import { useUser, useRealtimeEvent } from '../../context/UserContext';
 import { translateKey } from '../../i18n/helpers';
-import { Avatar, CountUp, OverflowMenu, ProgressRing, StatTile } from '../../components/ui-kit';
+import { Avatar, CountUp, LoadingDot, OverflowMenu, ProgressRing, StatTile } from '../../components/ui-kit';
 import { listContainer, listItem, springSoft } from '../../lib/motion';
 import { toneByKey } from '../../lib/tones';
 import type {
@@ -65,11 +65,9 @@ export default function RanksPanel() {
   const { t } = useTranslation();
   const { currentUser } = useUser();
   const [period, setPeriod] = useState<LeaderboardPeriod>('OVERALL');
-  const [data, setData] = useState<LeaderboardResponse | null>(null);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [showPrize, setShowPrize] = useState(false);
   const [prize, setPrize] = useState('');
-  const [loading, setLoading] = useState(true);
 
   const [selectedMember, setSelectedMember] = useState<string | null>(null);
   const [memberStats, setMemberStats] = useState<MemberStats | null>(null);
@@ -113,15 +111,15 @@ export default function RanksPanel() {
 
   useEffect(() => {
     if (!ranksQuery.data) return;
-    setData(ranksQuery.data.lb);
     setAchievements(ranksQuery.data.ach);
     setPrize(ranksQuery.data.lb.monthlyPrize ?? '');
   }, [ranksQuery.data]);
 
-  // Spinner only when there is no cached data yet; cached periods render instantly.
-  useEffect(() => {
-    setLoading(ranksQuery.isPending);
-  }, [ranksQuery.isPending]);
+  // Read straight off the query rather than mirroring into local state, so a warm cache
+  // (switching back to an already-viewed period, or a prefetched first visit) renders
+  // instantly on the very first paint instead of flashing the skeleton for one frame.
+  const data = ranksQuery.data?.lb ?? null;
+  const loading = ranksQuery.isPending;
 
   const fetchData = async (_p: LeaderboardPeriod) => {
     await queryClient.invalidateQueries({ queryKey: ['ranks', name] });
@@ -220,7 +218,11 @@ export default function RanksPanel() {
   };
 
   if (loading || !data) {
-    return <div className="space-y-3 animate-pulse">{[...Array(4)].map((_, i) => <div key={i} className="glass rounded-xl h-14" />)}</div>;
+    return (
+      <div className="flex items-center justify-center pt-16">
+        <LoadingDot />
+      </div>
+    );
   }
 
   const top3 = data.players.slice(0, 3);
@@ -276,7 +278,7 @@ export default function RanksPanel() {
                 value={prize}
                 onChange={(e) => setPrize(e.target.value)}
                 placeholder={t('leaderboard.monthlyPrizePlaceholder')}
-                className="w-full rounded-lg bg-card px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                className="w-full min-h-[var(--ctl-lg)] rounded-lg bg-card px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
               />
               <div className="flex gap-2">
                 <button onClick={handleSetPrize} className="btn-pine min-h-11 flex-1 rounded-lg px-4 py-2 text-sm">
@@ -328,7 +330,7 @@ export default function RanksPanel() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: i * 0.05 }}
             onClick={() => handleOpenMemberStats(user.name)}
-            className={`card !p-3.5 flex w-full items-center gap-3 text-left ${user.name === name ? 'ring-1 ring-primary/30' : ''}`}
+            className={`card !p-4 flex w-full items-center gap-3 text-left ${user.name === name ? 'ring-1 ring-primary/30' : ''}`}
           >
             <div className="w-6 text-center font-display font-bold text-sm text-muted-foreground">#{user.rank}</div>
             <Avatar name={user.name} />

@@ -337,7 +337,7 @@ export default function PantTrackerPage() {
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.05 }}
-                  className="glass rounded-xl p-3 flex items-center gap-3"
+                  className="glass rounded-xl p-4 flex items-center gap-3"
                 >
                   <div className="h-9 w-9 rounded-lg bg-muted flex items-center justify-center shrink-0">
                     <Recycle className="h-4 w-4 text-foreground" />
