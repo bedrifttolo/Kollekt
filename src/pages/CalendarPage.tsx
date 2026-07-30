@@ -30,7 +30,7 @@ import {
   translateKey,
 } from "../i18n/helpers";
 import type { CalendarEvent, EventType, GuestNotice, HouseCheckin } from "../lib/types";
-import { AddSheet, EmptyState, Eyebrow, Fab, OverflowMenu } from "../components/ui-kit";
+import { AddSheet, EmptyState, Eyebrow, Fab, LoadingDot, OverflowMenu } from "../components/ui-kit";
 import { pressable, springSoft } from "../lib/motion";
 import { selectionFeedback } from "../lib/haptics";
 
@@ -282,8 +282,8 @@ export default function CalendarPage() {
 
   if (loading)
     return (
-      <div className="space-y-3 pt-4 animate-pulse">
-        <div className="glass rounded-2xl h-64" />
+      <div className="flex items-center justify-center pt-16">
+        <LoadingDot />
       </div>
     );
 

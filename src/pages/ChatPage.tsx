@@ -25,7 +25,7 @@ import SubscriptionPaywall from '../components/SubscriptionPaywall';
 import type { AppUser, ChatMessage, CheckinSummary, HouseCheckin, Kudo, KudoType, Task } from '../lib/types';
 
 const KUDO_TYPES: KudoType[] = ['THANK_YOU', 'CLEANEST', 'MOST_HELPFUL', 'PEACEMAKER'];
-import { AddSheet, AvatarStack, IconButton } from '../components/ui-kit';
+import { AddSheet, AvatarStack, IconButton, LoadingDot } from '../components/ui-kit';
 import { collapseVariants, popIn, pressable, springPop } from '../lib/motion';
 import { colorForMember } from '../lib/memberColors';
 
@@ -573,14 +573,14 @@ export default function ChatPage() {
 
   if (loading) {
     return (
-      <div className="app-screen-full flex flex-col animate-pulse space-y-3">
-        {[...Array(5)].map((_, i) => <div key={i} className={`glass rounded-2xl h-12 ${i % 2 === 0 ? 'w-2/3' : 'w-1/2 ml-auto'}`} />)}
+      <div className="app-screen-full flex items-center justify-center">
+        <LoadingDot />
       </div>
     );
   }
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="app-screen-full relative flex flex-col overflow-hidden">
+    <motion.div initial={false} animate={{ opacity: 1 }} className="app-screen-full relative flex flex-col overflow-hidden">
       <div className="flex items-center gap-2 border-b border-border py-2.5">
         {isDirect ? (
           <span style={{ backgroundColor: colorForMember(activeThread!, memberColorMap.get(activeThread!)) }} className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-xs font-bold text-white">
