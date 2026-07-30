@@ -116,8 +116,14 @@ export default function ChatPage() {
   const [loading, setLoading] = useState(
     () => !sharedQueryClient.getQueryData(qk.chat(currentUser?.name ?? '')),
   );
+  // Tracks whether this render followed a real loading state, so the content fade-in below only
+  // plays right after a genuine cold load — a warm revisit (loading never true) renders instantly.
+  const wasLoadingRef = useRef(loading);
   const [checkinSummary, setCheckinSummary] = useState<CheckinSummary | null>(null);
   const [checkinExpanded, setCheckinExpanded] = useState(false);
+  // Collapses the thread switcher + house-meeting banner so more of the message list is visible;
+  // the identity row above stays put since it's the only way back to Profile from this page.
+  const [headerExpanded, setHeaderExpanded] = useState(true);
   const [mention, setMention] = useState<{ query: string; start: number } | null>(null);
   // Snapshot of the seen-cursor taken when the thread opened. Held in state rather than read live
   // so the "NY" divider stays anchored while the user reads, instead of disappearing as soon as
@@ -135,6 +141,10 @@ export default function ChatPage() {
   const formatMood = (value?: number | null) =>
     value == null ? '' : Number.isInteger(value) ? String(value) : value.toFixed(1);
   const bottomRef = useRef<HTMLDivElement>(null);
+  // True until the thread currently on screen has done its first scroll-to-bottom. Opening (or
+  // switching) a thread should land on the latest message instantly, not animate down through
+  // the whole history — only messages that arrive after that should scroll smoothly.
+  const instantScrollRef = useRef(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const backgroundInputRef = useRef<HTMLInputElement>(null);
   const messageInputRef = useRef<HTMLTextAreaElement>(null);
@@ -202,6 +212,7 @@ export default function ChatPage() {
   const selectThread = (thread: string | null) => {
     if (thread === activeThreadRef.current) return;
     activeThreadRef.current = thread;
+    instantScrollRef.current = true;
     setActiveThread(thread);
     setMessages([]);
     setLoading(true);
@@ -262,7 +273,9 @@ export default function ChatPage() {
   }, [name]);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (messages.length === 0) return;
+    bottomRef.current?.scrollIntoView({ behavior: instantScrollRef.current ? 'auto' : 'smooth' });
+    instantScrollRef.current = false;
   }, [messages]);
 
   // Re-read the cursor whenever the thread changes, before any new messages land.
@@ -572,15 +585,18 @@ export default function ChatPage() {
   };
 
   if (loading) {
+    wasLoadingRef.current = true;
     return (
       <div className="app-screen-full flex items-center justify-center">
         <LoadingDot />
       </div>
     );
   }
+  const justFinishedLoading = wasLoadingRef.current;
+  wasLoadingRef.current = false;
 
   return (
-    <motion.div initial={false} animate={{ opacity: 1 }} className="app-screen-full relative flex flex-col overflow-hidden">
+    <motion.div initial={justFinishedLoading ? { opacity: 0 } : false} animate={{ opacity: 1 }} className="app-screen-full relative flex flex-col overflow-hidden">
       <div className="flex items-center gap-2 border-b border-border py-2.5">
         {isDirect ? (
           <span style={{ backgroundColor: colorForMember(activeThread!, memberColorMap.get(activeThread!)) }} className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-xs font-bold text-white">
@@ -602,6 +618,15 @@ export default function ChatPage() {
             )}
           </p>
         </div>
+        {/* Collapses the thread switcher + house-meeting banner below, freeing up space for
+            messages without losing the identity row (still the only way back to Profile). */}
+        <button
+          onClick={() => setHeaderExpanded((v) => !v)}
+          className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-muted-foreground"
+          aria-label={headerExpanded ? t('chat.collapseHeader') : t('chat.expandHeader')}
+        >
+          <ChevronDown className={`h-4 w-4 transition-transform ${headerExpanded ? '' : 'rotate-180'}`} />
+        </button>
         {/* Chat hides the shared app header, so profile access lives here instead. */}
         <button
           data-tour="profile"
@@ -614,59 +639,62 @@ export default function ChatPage() {
         </button>
       </div>
 
-      {/* Thread switcher: household + a private 1:1 thread per housemate. */}
-      <div className="relative -mx-1">
-        <div className="flex gap-2 overflow-x-auto py-1.5 px-1 scrollbar-none">
-        <button
-          onClick={() => selectThread(null)}
-          className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${!isDirect ? 'bg-primary text-primary-foreground dark:bg-white dark:text-black' : 'bg-muted text-muted-foreground'}`}
-        >
-          {t('chat.householdThread')}
-        </button>
-        {members.filter((member) => member.name !== name).map((member) => (
-          <button
-            key={member.name}
-            onClick={() => selectThread(member.name)}
-            className={`flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1.5 text-xs font-semibold transition-colors ${activeThread === member.name ? 'bg-primary text-primary-foreground dark:bg-white dark:text-black' : 'bg-muted text-muted-foreground'}`}
-          >
-            <span style={{ backgroundColor: colorForMember(member.name, member.color) }} className="grid h-5 w-5 place-items-center rounded-full text-[10px] font-bold text-white">
-              {member.name[0]?.toUpperCase()}
-            </span>
-            {member.name}
-          </button>
-        ))}
-        </div>
-        {members.length > 3 && (
-          <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-background to-transparent" />
-        )}
-      </div>
+      <AnimatePresence initial={false}>
+        {headerExpanded && (
+          <motion.div variants={collapseVariants} initial="hidden" animate="show" exit="exit" className="overflow-hidden">
+            {/* Thread switcher: household + a private 1:1 thread per housemate. */}
+            <div className="relative -mx-1">
+              <div className="flex gap-2 overflow-x-auto py-1.5 px-1 scrollbar-none">
+              <button
+                onClick={() => selectThread(null)}
+                className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${!isDirect ? 'bg-ink text-ink-foreground' : 'bg-muted text-muted-foreground'}`}
+              >
+                {t('chat.householdThread')}
+              </button>
+              {members.filter((member) => member.name !== name).map((member) => (
+                <button
+                  key={member.name}
+                  onClick={() => selectThread(member.name)}
+                  className={`flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1.5 text-xs font-semibold transition-colors ${activeThread === member.name ? 'bg-ink text-ink-foreground' : 'bg-muted text-muted-foreground'}`}
+                >
+                  <span style={{ backgroundColor: colorForMember(member.name, member.color) }} className="grid h-5 w-5 place-items-center rounded-full text-[10px] font-bold text-white">
+                    {member.name[0]?.toUpperCase()}
+                  </span>
+                  {member.name}
+                </button>
+              ))}
+              </div>
+              {members.length > 3 && (
+                <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-background to-transparent" />
+              )}
+            </div>
 
-      {!isDirect && checkinSummary && checkinSummary.responseCount > 0 && (
-        <div className="mt-3 rounded-[1.35rem] border border-primary/25 bg-primary/5">
-          <button
-            onClick={() => setCheckinExpanded((v) => !v)}
-            className="flex w-full items-center justify-between gap-3 p-3 text-left"
-          >
-            <div className="min-w-0">
-              <h3 className="flex items-center gap-1.5 font-display text-sm font-bold truncate">
-                <MessageCircle className="h-4 w-4 shrink-0" />
-                {t('checkin.summaryTitle')}
-              </h3>
-              <p className="text-[10px] text-muted-foreground">{t('checkin.progress', { count: checkinSummary.responseCount, total: checkinSummary.memberCount })}</p>
-            </div>
-            <div className="flex shrink-0 items-center gap-2">
-              <span className="text-xs font-bold text-primary">{t('checkin.averageMood', { mood: formatMood(checkinSummary.averageMood) })}</span>
-              <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${checkinExpanded ? 'rotate-180' : ''}`} />
-            </div>
-          </button>
-          <AnimatePresence>
-            {checkinExpanded && (
-              <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-                <div className="space-y-2 px-3 pb-3">
-                  {checkinSummary.responses.map((response) => (
-                    <div key={response.id} className="rounded-xl bg-card p-3 text-xs">
-                      <p className="font-bold">{response.author ?? t('checkin.anonymousAuthor')} · {response.mood}/5</p>
-                      <p className="mt-1"><span className="text-muted-foreground">{t('checkin.issueLabel')}:</span> {response.issue}</p>
+            {!isDirect && checkinSummary && checkinSummary.responseCount > 0 && (
+              <div className="mt-3 rounded-[1.35rem] border border-primary/25 bg-primary/5">
+                <button
+                  onClick={() => setCheckinExpanded((v) => !v)}
+                  className="flex w-full items-center justify-between gap-3 p-3 text-left"
+                >
+                  <div className="min-w-0">
+                    <h3 className="flex items-center gap-1.5 font-display text-sm font-bold truncate">
+                      <MessageCircle className="h-4 w-4 shrink-0" />
+                      {t('checkin.summaryTitle')}
+                    </h3>
+                    <p className="text-[10px] text-muted-foreground">{t('checkin.progress', { count: checkinSummary.responseCount, total: checkinSummary.memberCount })}</p>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-2">
+                    <span className="text-xs font-bold text-primary">{t('checkin.averageMood', { mood: formatMood(checkinSummary.averageMood) })}</span>
+                    <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${checkinExpanded ? 'rotate-180' : ''}`} />
+                  </div>
+                </button>
+                <AnimatePresence>
+                  {checkinExpanded && (
+                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+                      <div className="space-y-2 px-3 pb-3">
+                        {checkinSummary.responses.map((response) => (
+                          <div key={response.id} className="rounded-xl bg-card p-3 text-xs">
+                            <p className="font-bold">{response.author ?? t('checkin.anonymousAuthor')} · {response.mood}/5</p>
+                            <p className="mt-1"><span className="text-muted-foreground">{t('checkin.issueLabel')}:</span> {response.issue}</p>
                       <p className="mt-1"><span className="text-muted-foreground">{t('checkin.improvementLabel')}:</span> {response.improvement}</p>
                     </div>
                   ))}
@@ -674,8 +702,11 @@ export default function ChatPage() {
               </motion.div>
             )}
           </AnimatePresence>
-        </div>
-      )}
+              </div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Pinned message. Surfaces MessageDto.pinned, which the backend has always sent and the app
           never read — the house rule or the address everyone keeps scrolling back for. */}
@@ -883,7 +914,7 @@ export default function ChatPage() {
                     <button
                       key={type}
                       onClick={() => setKudosType(type)}
-                      className={`rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors ${kudosType === type ? 'bg-primary text-primary-foreground dark:bg-white dark:text-black' : 'bg-muted/60 text-muted-foreground'}`}
+                      className={`rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors ${kudosType === type ? 'bg-ink text-ink-foreground' : 'bg-muted/60 text-muted-foreground'}`}
                     >
                       {t(`kudos.types.${type}`)}
                     </button>
@@ -895,7 +926,7 @@ export default function ChatPage() {
                 {householdTasks.map((task) => <option key={task.id} value={task.id}>{task.title}</option>)}
               </select>
               <input value={kudosContext} onChange={(event) => setKudosContext(event.target.value)} maxLength={500} placeholder={t('kudos.contextPlaceholder')} className="w-full rounded-lg bg-muted/50 px-3 py-2 text-xs" />
-              <button onClick={() => void sendKudos()} disabled={!kudosReceiver} className="w-full rounded-lg bg-primary py-2 text-xs font-bold text-primary-foreground disabled:opacity-50 dark:bg-white dark:text-black">{t('kudos.send')}</button>
+              <button onClick={() => void sendKudos()} disabled={!kudosReceiver} className="w-full rounded-lg bg-ink py-2 text-xs font-bold text-ink-foreground disabled:opacity-50">{t('kudos.send')}</button>
               <p className="text-[9px] text-muted-foreground">{t('kudos.privateNote')}</p>
             </AddSheet>
           </motion.div>
@@ -931,7 +962,7 @@ export default function ChatPage() {
               <div className="flex flex-wrap gap-1.5">
                 {LAUNDRY_TYPES.map((type) => (
                   <button key={type} onClick={() => setLaundryType(type)}
-                    className={`rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors ${laundryType === type ? 'bg-primary text-primary-foreground dark:bg-white dark:text-black' : 'bg-muted/60 text-muted-foreground'}`}>
+                    className={`rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors ${laundryType === type ? 'bg-ink text-ink-foreground' : 'bg-muted/60 text-muted-foreground'}`}>
                     {t(`laundry.types.${type}`)}
                   </button>
                 ))}
@@ -940,12 +971,12 @@ export default function ChatPage() {
               <div className="flex flex-wrap gap-1.5">
                 {LAUNDRY_TEMPS.map((temp) => (
                   <button key={temp} onClick={() => setLaundryTemp(temp)}
-                    className={`rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors ${laundryTemp === temp ? 'bg-primary text-primary-foreground dark:bg-white dark:text-black' : 'bg-muted/60 text-muted-foreground'}`}>
+                    className={`rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors ${laundryTemp === temp ? 'bg-ink text-ink-foreground' : 'bg-muted/60 text-muted-foreground'}`}>
                     {temp}°C
                   </button>
                 ))}
               </div>
-              <button onClick={() => void sendLaundry()} className="w-full rounded-lg bg-primary py-2 text-xs font-bold text-primary-foreground dark:bg-white dark:text-black">{t('laundry.send')}</button>
+              <button onClick={() => void sendLaundry()} className="w-full rounded-lg bg-ink py-2 text-xs font-bold text-ink-foreground">{t('laundry.send')}</button>
             </AddSheet>
           </motion.div>
         )}
@@ -968,7 +999,7 @@ export default function ChatPage() {
                 <button onClick={() => setPollOptions((p) => [...p, ''])} className="text-[10px] text-primary font-medium">
                   {t('chat.addOption')}
                 </button>
-                <button onClick={sendPoll} className="ml-auto px-3 py-1 rounded-lg gradient-primary text-[10px] font-semibold text-primary-foreground">
+                <button onClick={sendPoll} className="ml-auto px-3 py-1 rounded-lg gradient-primary text-[10px] font-semibold text-ink-foreground">
                   {t('chat.sendPoll')}
                 </button>
               </div>
@@ -1079,7 +1110,7 @@ export default function ChatPage() {
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => { void tapFeedback(); setShowActionBar((v) => !v); }}
               {...pressable}
-              className={`pressable grid shrink-0 place-items-center rounded-full transition-colors ${showActionBar ? 'bg-primary text-primary-foreground dark:bg-white dark:text-black' : 'bg-muted'}`}
+              className={`pressable grid shrink-0 place-items-center rounded-full transition-colors ${showActionBar ? 'bg-ink text-ink-foreground' : 'bg-muted'}`}
               aria-label="Actions"
             >
               <motion.span animate={{ rotate: showActionBar ? 45 : 0 }} transition={springPop}>

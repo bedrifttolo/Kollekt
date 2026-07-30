@@ -377,9 +377,6 @@
     "taskTitleLabel": "Hva må gjøres?",
     "assigneeLabel": "Tildelt til",
     "dueDateLabel": "Frist",
-    "quickDueToday": "I dag",
-    "quickDueTomorrow": "I morgen",
-    "quickDueNextWeek": "Neste uke",
     "fairSuggestion": "Tips: {{name}} har færrest åpne oppgaver",
     "categoryLabel": "Oppgavetype",
     "recurrenceLabel": "Gjentas",
@@ -486,8 +483,7 @@
         "BLOCKED": "Blokkert",
         "DONE": "Ferdig"
       }
-    },
-    "moreOptions": "Flere valg"
+    }
   },
   "checkin": {
     "title": "Ukentlig husmøte",
@@ -594,6 +590,8 @@
   },
   "chat": {
     "threadTitle": "Kollektivet",
+    "collapseHeader": "Skjul header",
+    "expandHeader": "Vis header",
     "householdThread": "Kollektivet",
     "directSubtitle": "Privat – bare dere to",
     "onlineCount": "{{count}} pålogget",

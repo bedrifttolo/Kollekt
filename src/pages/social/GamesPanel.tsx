@@ -91,18 +91,18 @@ export default function GamesPanel() {
   return (
     <div className="space-y-4">
       {/* Tonight's pick */}
-      <div className="househero">
-        <p className="eyebrow !text-white/65 flex items-center gap-1.5">
+      <div className="househero hero-ink">
+        <p className="eyebrow !text-ink-foreground/65 flex items-center gap-1.5">
           {t('social.games.tonightsPick')}
           <Dices className="h-3.5 w-3.5" />
         </p>
         <h3 className="font-display text-3xl font-extrabold tracking-[-.03em] mt-1">{t(`social.games.catalog.${pick.titleKey}`)}</h3>
-        <p className="mt-2 text-sm text-white/75">{t(`social.games.descriptions.${pick.descriptionKey}`)}</p>
+        <p className="mt-2 text-sm text-ink-foreground/75">{t(`social.games.descriptions.${pick.descriptionKey}`)}</p>
         <div className="mt-3 flex flex-wrap gap-2">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1.5 text-xs font-bold">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-ink-foreground/15 px-3 py-1.5 text-xs font-bold">
             <Clock className="h-3.5 w-3.5" /> {t('social.games.minutes', { min: pick.minutes })}
           </span>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1.5 text-xs font-bold">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-ink-foreground/15 px-3 py-1.5 text-xs font-bold">
             <Users className="h-3.5 w-3.5" /> {t('social.games.playersShort', { count: pick.minPlayers })}
           </span>
         </div>
@@ -110,7 +110,7 @@ export default function GamesPanel() {
           <button onClick={() => launch(pick)} className="inline-flex min-h-11 items-center gap-2 rounded-2xl bg-card px-5 py-3 font-display font-bold text-primary">
             <Play className="h-5 w-5" /> {t('social.games.startGame')}
           </button>
-          <button onClick={() => setRulesGame(pick)} className="inline-flex min-h-11 items-center gap-2 rounded-2xl bg-white/15 px-4 py-3 text-sm font-bold text-white">
+          <button onClick={() => setRulesGame(pick)} className="inline-flex min-h-11 items-center gap-2 rounded-2xl bg-ink-foreground/15 px-4 py-3 text-sm font-bold text-ink-foreground">
             <Info className="h-4 w-4" /> {t('social.games.howToPlay')}
           </button>
         </div>
@@ -123,7 +123,7 @@ export default function GamesPanel() {
             key={c.id}
             onClick={() => setFilter(c.id)}
             className={`rounded-full px-3.5 py-1.5 text-sm font-bold transition-colors ${
-              filter === c.id ? 'bg-primary text-primary-foreground dark:bg-white dark:text-black' : 'bg-card border border-border text-muted-foreground'
+              filter === c.id ? 'bg-ink text-ink-foreground' : 'bg-card border border-border text-muted-foreground'
             }`}
           >
             <span className="inline-flex items-center gap-1.5">

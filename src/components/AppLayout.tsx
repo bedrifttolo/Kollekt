@@ -53,6 +53,29 @@ export default function AppLayout() {
     };
   }, []);
 
+  // Tapping anywhere outside the focused field blurs it, dismissing the on-screen keyboard —
+  // WKWebView doesn't do this on its own the way native controls do, which is most noticeable in
+  // forms (add-task/add-event/etc. sheets) and the chat composer. A field is left alone (and any
+  // tap that lands back inside it, or on another field, doesn't blur) so tabbing between inputs
+  // still works.
+  useEffect(() => {
+    const isField = (el: Element | null): el is HTMLElement =>
+      el instanceof HTMLInputElement ||
+      el instanceof HTMLTextAreaElement ||
+      el instanceof HTMLSelectElement ||
+      (el instanceof HTMLElement && el.isContentEditable);
+    const onPointerDown = (e: PointerEvent) => {
+      const active = document.activeElement;
+      if (!isField(active)) return;
+      const target = e.target instanceof Node ? e.target : null;
+      if (target && active.contains(target)) return;
+      if (target instanceof Element && isField(target.closest('input, textarea, select, [contenteditable="true"]'))) return;
+      active.blur();
+    };
+    document.addEventListener('pointerdown', onPointerDown);
+    return () => document.removeEventListener('pointerdown', onPointerDown);
+  }, []);
+
   if (isLoading && !currentUser) {
     return (
       <div className="app-viewport bg-background flex items-center justify-center">

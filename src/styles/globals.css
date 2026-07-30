@@ -13,28 +13,33 @@
   --card-foreground: #000000;
   --popover: #ffffff;
   --popover-foreground: #000000;
-  --primary: #111113;
-  --primary-foreground: #ffffff;
-  --secondary: #6366f1;
+  --primary: #48b4a2;
+  --primary-foreground: #0f1112;
+  --secondary: #5849bf;
   --secondary-foreground: #ffffff;
   --muted: #eef0f1;
   --muted-foreground: #6f6459;
-  --accent: #c7b7ee;
-  --accent-foreground: #16262c;
+  --accent: #7364dc;
+  --accent-foreground: #ffffff;
+  /* Ink: the app's one neutral action colour — CTA buttons, the FAB, and the bottom-nav's
+     active-tab fill all read from this instead of --primary, so none of them shout the brand
+     teal. Matte black on light, white/light-gray on dark — see --ink usage in .btn-pine below. */
+  --ink: #121416;
+  --ink-foreground: #ffffff;
   --destructive: #b84d6d;
   --destructive-foreground: #ffffff;
   --border: #e3e5e7;
   --input: #e3e5e7;
-  --ring: #111113;
+  --ring: #48b4a2;
   --glass-border: #e3e5e7;
-  --sidebar: #111113;
-  --sidebar-foreground: #ffffff;
-  --sidebar-primary: #6366f1;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #232326;
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #333336;
-  --sidebar-ring: #6366f1;
+  --sidebar: #fbfbfa;
+  --sidebar-foreground: #121416;
+  --sidebar-primary: var(--ink);
+  --sidebar-primary-foreground: var(--ink-foreground);
+  --sidebar-accent: #eceded;
+  --sidebar-accent-foreground: #121416;
+  --sidebar-border: #dde1e4;
+  --sidebar-ring: #48b4a2;
   --radius: 1.25rem;
   --shadow: 0 8px 28px rgba(20, 20, 22, 0.09);
   /* Elevation scale. One --shadow for every surface is what made the app read flat: a resting list
@@ -60,18 +65,18 @@
      segment and accent surface picks from these six rather than tinting --primary/--accent, so
      one screen can show six distinct things without inventing a colour. Each tone ships with the
      foreground that is legible on it; use them in pairs via the .tone-* classes below. */
-  --tone-peri: #b9bef5;
-  --tone-peri-fg: #24264d;
-  --tone-butter: #efd98a;
-  --tone-butter-fg: #4a3b12;
-  --tone-mint: #b7dcc9;
-  --tone-mint-fg: #17402f;
-  --tone-blush: #f0d6cc;
-  --tone-blush-fg: #4d2c20;
-  --tone-sage: #8c9b6a;
-  --tone-sage-fg: #1d2411;
-  --tone-lilac: #cfc0ee;
-  --tone-lilac-fg: #2e2247;
+  --tone-peri: #c2c6ff;
+  --tone-peri-fg: #23246b;
+  --tone-butter: #f0cf95;
+  --tone-butter-fg: #4a3200;
+  --tone-mint: #82d5c7;
+  --tone-mint-fg: #0f3d33;
+  --tone-blush: #f6c3d3;
+  --tone-blush-fg: #5c1730;
+  --tone-sage: #dfe6a0;
+  --tone-sage-fg: #4c5a0a;
+  --tone-lilac: #a89ae8;
+  --tone-lilac-fg: #241a52;
 
   /* Expense-category identity colours. A *data* palette, deliberately separate from the --tone-*
      ramp above: tones are decorative fills for large tiles, these carry meaning in charts and so
@@ -98,11 +103,11 @@
 
   /* Radius scale. Component classes below pick from these instead of each declaring its own
      value — that drift is what forced the `card !rounded-2xl` style overrides across the pages. */
-  --r-sm: 0.75rem;
-  --r-md: 1rem;
-  --r-lg: 1.15rem;
-  --r-xl: 1.35rem;
-  --r-2xl: 1.7rem;
+  --r-sm: 0.875rem;
+  --r-md: 1.125rem;
+  --r-lg: 1.3125rem;
+  --r-xl: 1.5rem;
+  --r-2xl: 1.875rem;
 
   /* Control sizes. Same reasoning as the radius scale: every icon button picked its own value, so
      some ended up at 12-14px (the chip X's) — far under the 44px a thumb needs. --ctl-md is the
@@ -113,8 +118,8 @@
        --ctl-xl  the FAB */
   --ctl-sm: 2.25rem;
   --ctl-md: 2.75rem;
-  --ctl-lg: 3.25rem;
-  --ctl-xl: 3.5rem;
+  --ctl-lg: 3.5rem;
+  --ctl-xl: 3.875rem;
 
   /* Motion. Shared with src/lib/motion.ts, which mirrors these for the framer-motion side — the two
      must agree or a CSS transition and the spring next to it read as two different apps. */
@@ -139,28 +144,30 @@
   --card-foreground: #f1eee2;
   --popover: #1a1a1a;
   --popover-foreground: #f1eee2;
-  --primary: #4ade9a;
-  --primary-foreground: #08120d;
-  --secondary: #818cf8;
-  --secondary-foreground: #1e1b4b;
+  --primary: #48b4a2;
+  --primary-foreground: #0f1112;
+  --secondary: #7364dc;
+  --secondary-foreground: #ffffff;
   --muted: #232326;
   --muted-foreground: #8a9490;
-  --accent: #b29ae8;
-  --accent-foreground: #1d1730;
+  --accent: #8f7ae6;
+  --accent-foreground: #1c1030;
   --destructive: #d25b7d;
   --destructive-foreground: #fff8f2;
   --border: #2c2c2e;
   --input: #2c2c2e;
-  --ring: #4ade9a;
+  --ring: #48b4a2;
   --glass-border: #2c2c2e;
-  --sidebar: #1a1a1a;
+  --ink: #f4f4f2;
+  --ink-foreground: #121416;
+  --sidebar: #161615;
   --sidebar-foreground: #f1eee2;
-  --sidebar-primary: #818cf8;
-  --sidebar-primary-foreground: #1e1b4b;
+  --sidebar-primary: var(--ink);
+  --sidebar-primary-foreground: var(--ink-foreground);
   --sidebar-accent: #252528;
   --sidebar-accent-foreground: #f1eee2;
-  --sidebar-border: #2f2f32;
-  --sidebar-ring: #818cf8;
+  --sidebar-border: #403f3c;
+  --sidebar-ring: #48b4a2;
   --shadow: 0 12px 36px rgba(0, 0, 0, 0.5);
   /* Shadow alone barely separates surfaces on a near-black page, so the dark elevations lean on the
      surface ramp below doing the lifting and only deepen the cast slightly per step. */
@@ -176,18 +183,18 @@
   --hero-negative: #ff9fb5;
   /* Same six hues, pushed to the saturation they need to register against a near-black page —
      the light pastels turn to mud here. Foregrounds flip to dark for the same reason. */
-  --tone-peri: #7c86f0;
-  --tone-peri-fg: #0b0d24;
-  --tone-butter: #e8c44e;
-  --tone-butter-fg: #2b2205;
-  --tone-mint: #5fd3a0;
+  --tone-peri: #7c85ff;
+  --tone-peri-fg: #0d0e2e;
+  --tone-butter: #d2943e;
+  --tone-butter-fg: #2b1b02;
+  --tone-mint: #48b4a2;
   --tone-mint-fg: #04231a;
-  --tone-blush: #f09fb4;
-  --tone-blush-fg: #3a0c18;
-  --tone-sage: #9cb06b;
-  --tone-sage-fg: #131a08;
-  --tone-lilac: #b79aee;
-  --tone-lilac-fg: #1c1030;
+  --tone-blush: #ef85a3;
+  --tone-blush-fg: #3a0c1c;
+  --tone-sage: #c4d448;
+  --tone-sage-fg: #23290a;
+  --tone-lilac: #7364dc;
+  --tone-lilac-fg: #17103a;
   /* Re-stepped for the dark card surface, not flipped: validated separately against #0e1513. */
   --cat-groceries: #1ca875;
   --cat-bills: #4a9be0;
@@ -206,6 +213,7 @@
   --color-muted: var(--muted); --color-muted-foreground: var(--muted-foreground);
   --color-accent: var(--accent); --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive); --color-destructive-foreground: var(--destructive-foreground);
+  --color-ink: var(--ink); --color-ink-foreground: var(--ink-foreground);
   --color-border: var(--border); --color-input: var(--input); --color-ring: var(--ring);
   --color-glass-border: var(--glass-border); --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground); --color-sidebar-primary: var(--sidebar-primary);
@@ -247,12 +255,17 @@
     box-shadow: var(--shadow);
   }
   .glass-strong { -webkit-backdrop-filter: blur(22px); backdrop-filter: blur(22px); }
-  .gradient-primary { background: var(--primary); }
-  /* Every .gradient-primary call site is a solid CTA/active-pill fill (checked all of them), so —
-     same reasoning as .btn-pine below — it reads white in dark mode instead of the loud mint
-     accent. --primary-foreground is already near-black in dark, which was tuned to sit on green
-     but reads fine on white too, so only the background needs overriding here. */
-  .dark .gradient-primary { background: #ffffff; }
+  /* Every .gradient-primary call site is a solid CTA/active-pill fill, so it shares --ink with
+     .btn-pine below rather than the brand teal — same reasoning, see the comment there. */
+  .gradient-primary { background: var(--ink); }
+  /* The bottom nav's translucent floating pill: same shape as .glass above, but based on
+     --sidebar so it reads as near-white (light) / near-black (dark) over blurred content,
+     matching the reference design's theme-adaptive dock. */
+  .nav-glass {
+    background: color-mix(in srgb, var(--sidebar) 94%, transparent);
+    -webkit-backdrop-filter: blur(24px);
+    backdrop-filter: blur(24px);
+  }
   .gradient-warm { background: linear-gradient(135deg, var(--secondary), #e99a5c); }
   .text-gradient { color: var(--primary); background: none; }
   .glow-primary, .glow-accent { box-shadow: var(--shadow); }
@@ -352,21 +365,28 @@
      control's fill, so a list row and a tab strip were the same colour on the same screen. */
   .card-inset { background: var(--surface-3); border-radius: var(--r-md); padding: .75rem; }
   .btn-pine, .btn-lemon, .btn-ghost { min-height: var(--ctl-lg); border-radius: var(--r-md); padding: .75rem 1rem; font-weight: 750; display: inline-flex; align-items: center; justify-content: center; gap: .5rem; }
-  .btn-pine { background: var(--primary); color: var(--primary-foreground); }
-  /* Dark theme's --primary is the green accent, which reads as too loud on a full-width CTA —
-     the reference dark-mode direction (Design/Darkmode.png) uses a plain white pill for the
-     primary action instead and saves colour for data (categories, budgets, streaks). */
-  .dark .btn-pine { background: #ffffff; color: #08120d; }
+  /* The main CTA reads from --ink, not --primary: --primary is the brand teal, reserved for
+     icons/rings/progress/tags, and is too loud as a full-width button fill in either theme.
+     --ink flips matte-black/white per theme (see :root/.dark), matching the FAB and the
+     bottom nav's active-tab fill, so the app has one consistent "action" colour everywhere. */
+  .btn-pine { background: var(--ink); color: var(--ink-foreground); }
   .btn-lemon { background: var(--secondary); color: var(--secondary-foreground); }
   .btn-ghost { background: var(--card); color: var(--foreground); border: 1px solid var(--border); }
   .seg { display: flex; gap: .25rem; padding: .3rem; background: var(--muted); border-radius: var(--r-lg); }
   .field { background: var(--card); border: 1px solid var(--border); border-radius: var(--r-lg); min-height: 4.1rem; padding: .75rem 1rem; }
   .househero, .wallet, .gamehero { background: var(--hero); color: var(--hero-foreground); border-radius: var(--r-2xl); padding: 1.25rem; box-shadow: var(--elev-2); }
-  /* A purple-tinted variant for specific hero cards (layer alongside .househero/.wallet, not
-     instead of it). Reuses --tone-lilac-fg — already a deep, near-black purple in both themes,
-     tuned to carry text — rather than inventing a new colour. --hero-foreground (white/cream)
-     is untouched, so the existing hardcoded white text/icons on these cards stay as they are. */
-  .hero-lilac { --hero: var(--tone-lilac-fg); }
+  /* The "spotlight" hero cards (household summary, task/shopping/maintenance overview, wallet
+     balance, tonight's game pick) share the same neutral ink identity as the FAB and the bottom
+     nav's active tab, instead of a tinted colour — matte black on light, white/light-gray on
+     dark. --hero-foreground has to flip too: ink turns white in dark mode, so hardcoded white
+     text/icons on these cards would vanish unless every caller also swaps to --ink-foreground
+     (done at each call site — unlike a fixed-dark tint, ink genuinely isn't always dark). */
+  .hero-ink { --hero: var(--ink); --hero-foreground: var(--ink-foreground); }
+  /* --hero-positive/-negative are pastel by design — legible on the hero's usual dark surface,
+     which is all .hero-ink's own light-theme value (ink = black) needs. In dark mode ink flips to
+     white, where those same pastels would wash out, so this is the one pairing that needs its own
+     override rather than following --ink-foreground like every other hero-ink child. */
+  .dark .hero-ink { --hero-positive: #0f9d68; --hero-negative: #c23a5a; }
   /* Amount colours for text sitting on a hero surface. The theme `--primary`/`--destructive` are
      tuned for the page background and can collide with the hero itself (in the light theme
      `--primary` *is* the hero colour), so on-hero amounts use their own light tints. */
@@ -385,7 +405,7 @@
   .bub { border-radius: var(--r-2xl); padding: .7rem 1rem; }
   .bub-tail-self { border-bottom-right-radius: var(--r-sm); }
   .bub-tail-other { border-bottom-left-radius: var(--r-sm); }
-  .stat-tile { border-radius: var(--r-md); padding: .8rem; background: color-mix(in srgb, white 12%, transparent); }
+  .stat-tile { border-radius: var(--r-md); padding: .8rem; background: color-mix(in srgb, var(--ink-foreground) 12%, transparent); }
   .pill { border-radius: 999px; padding: .3rem .65rem; font-size: .72rem; font-weight: 700; }
   .pill-pine { background: color-mix(in srgb, var(--primary) 15%, transparent); color: var(--primary); }
   /* --accent-foreground is dark in every theme, which vanished against this wash once the wash

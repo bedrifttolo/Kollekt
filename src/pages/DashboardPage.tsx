@@ -51,7 +51,7 @@ function PreviewSection({
     <motion.div variants={listItem}>
       <div className="mb-2 flex items-center justify-between">
         <h3 className="font-display text-base font-bold">{title}</h3>
-        <button onClick={onSeeAll} className="-mr-2 min-h-11 px-2 text-xs font-semibold text-primary dark:text-white">
+        <button onClick={onSeeAll} className={`-mr-2 min-h-11 px-2 text-xs font-semibold tone-${tone} tone-ink`}>
           {seeAllLabel}
         </button>
       </div>
@@ -205,9 +205,9 @@ export default function DashboardPage() {
         <p className="mt-2 text-sm text-muted-foreground">{translate(promptKey)}</p>
       </motion.div>
 
-      <motion.div variants={listItem} className="househero hero-lilac">
-        <p className="eyebrow !text-white/65">{translate('dashboard.householdTitle')}</p>
-        <h3 className="mt-2 font-display text-2xl font-extrabold leading-tight text-white">
+      <motion.div variants={listItem} className="househero hero-ink">
+        <p className="eyebrow !text-ink-foreground/65">{translate('dashboard.householdTitle')}</p>
+        <h3 className="mt-2 font-display text-2xl font-extrabold leading-tight text-ink-foreground">
           {data.collectiveName}
         </h3>
         {members.length > 0 && (
@@ -223,23 +223,23 @@ export default function DashboardPage() {
             size={64}
             thickness={7}
             color="var(--hero-positive)"
-            trackColor="rgba(255,255,255,.18)"
+            trackColor="color-mix(in srgb, var(--ink-foreground) 18%, transparent)"
           >
-            <span className="font-display text-base font-extrabold text-white">{data.currentUserLevel}</span>
+            <span className="font-display text-base font-extrabold text-ink-foreground">{data.currentUserLevel}</span>
           </ProgressRing>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
               <p className="text-sm font-semibold">{translate('dashboard.level', { level: data.currentUserLevel })}</p>
-              <span className="rounded-full bg-white/15 px-2 py-0.5 text-xs font-medium text-white/85">
+              <span className="rounded-full bg-ink-foreground/15 px-2 py-0.5 text-xs font-medium text-ink-foreground/85">
                 {translate('dashboard.rank', { rank: data.currentUserRank })}
               </span>
             </div>
-            <p className="mt-1 text-[11px] text-white/75">{xpLabel}</p>
+            <p className="mt-1 text-[11px] text-ink-foreground/75">{xpLabel}</p>
           </div>
         </div>
         <div className="grid grid-cols-3 gap-3">
           {[
-            // Only the icon takes the tone: these tiles sit on the dark hero, where a pastel fill
+            // Only the icon takes the tone: these tiles sit on the ink hero, where a pastel fill
             // would fight the hero surface, but a tinted glyph still separates the three stats.
             { label: translate('dashboard.stats.tasksDone'), value: data.completedTasksCount, icon: CheckSquare, tone: 'mint' as const },
             { label: translate('dashboard.stats.balance'), value: data.currentUserBalance, format: formatCurrency, icon: Wallet, tone: 'butter' as const },
@@ -248,7 +248,7 @@ export default function DashboardPage() {
             <div key={s.label} className="stat-tile text-center">
               <s.icon className="mx-auto mb-1 h-3.5 w-3.5" style={{ color: `var(--tone-${s.tone})` }} />
               <CountUp value={s.value} format={s.format} className="block font-display text-base font-bold" />
-              <p className="text-[10px] text-white/70">{s.label}</p>
+              <p className="text-[10px] text-ink-foreground/70">{s.label}</p>
             </div>
           ))}
         </div>
@@ -308,7 +308,7 @@ export default function DashboardPage() {
                         <input type="checkbox" checked={anonymous} onChange={(event) => setAnonymous(event.target.checked)} />
                         {translate('checkin.anonymous')}
                       </label>
-                      <button onClick={() => void submitCheckin()} disabled={!issue.trim() || !improvement.trim()} className="w-full rounded-xl bg-primary py-2 text-sm font-bold text-primary-foreground disabled:opacity-50 dark:bg-white dark:text-black">
+                      <button onClick={() => void submitCheckin()} disabled={!issue.trim() || !improvement.trim()} className="w-full rounded-xl bg-ink py-2 text-sm font-bold text-ink-foreground disabled:opacity-50">
                         {translate('checkin.submit')}
                       </button>
                     </>

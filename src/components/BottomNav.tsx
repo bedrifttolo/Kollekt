@@ -82,7 +82,7 @@ export default function BottomNav() {
     // bottom-[calc(...)] lifts the dock clear of the safe area with its own visible margin, rather
     // than sitting flush against it — the gap is what reads as "floating" instead of "docked".
     <nav className="app-bottom-nav fixed left-3 right-3 z-50 bottom-[calc(env(safe-area-inset-bottom,0px)+1rem)]">
-      <div role="tablist" className="flex items-center justify-around h-[4.75rem] max-w-xl mx-auto px-1 rounded-full bg-sidebar text-sidebar-foreground border border-sidebar-border shadow-[0_16px_38px_rgba(9,25,16,.3)]">
+      <div role="tablist" className="nav-glass flex items-center justify-around h-[4.75rem] max-w-xl mx-auto px-1 rounded-full text-sidebar-foreground border border-sidebar-border shadow-[0_16px_38px_rgba(9,25,16,.3)]">
         {tabs.map((tab) => {
           const isActive =
             tab.path === '/'

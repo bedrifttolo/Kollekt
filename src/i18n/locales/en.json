@@ -377,9 +377,6 @@
     "taskTitleLabel": "What needs doing?",
     "assigneeLabel": "Assigned to",
     "dueDateLabel": "Due date",
-    "quickDueToday": "Today",
-    "quickDueTomorrow": "Tomorrow",
-    "quickDueNextWeek": "Next week",
     "fairSuggestion": "Tip: {{name}} has the fewest open tasks",
     "categoryLabel": "Task type",
     "recurrenceLabel": "Repeats",
@@ -486,8 +483,7 @@
         "BLOCKED": "Blocked",
         "DONE": "Done"
       }
-    },
-    "moreOptions": "More options"
+    }
   },
   "checkin": {
     "title": "Weekly house check-in",
@@ -594,6 +590,8 @@
   },
   "chat": {
     "threadTitle": "The Kollektiv",
+    "collapseHeader": "Collapse header",
+    "expandHeader": "Expand header",
     "householdThread": "Household",
     "directSubtitle": "Private — only the two of you",
     "onlineCount": "{{count}} online",

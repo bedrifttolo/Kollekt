@@ -9,7 +9,7 @@ import {
   Copy,
   Check,
   ChevronDown,
-  Settings,
+  Bell,
   X,
   Sun,
   Moon,
@@ -715,7 +715,7 @@ export default function ProfilePage() {
           {houseRules.version > 0 && !houseRules.acknowledged && (
             <div className="rounded-xl border border-secondary/40 bg-secondary/10 p-3">
               <p className="text-xs font-semibold">{t("profile.houseRules.ackBanner")}</p>
-              <button onClick={() => void acknowledgeHouseRules()} className="mt-2 rounded-lg bg-primary px-3 py-2 text-xs font-bold text-primary-foreground dark:bg-white dark:text-black">
+              <button onClick={() => void acknowledgeHouseRules()} className="mt-2 rounded-lg bg-ink px-3 py-2 text-xs font-bold text-ink-foreground">
                 {t("profile.houseRules.acknowledge")}
               </button>
             </div>
@@ -764,7 +764,7 @@ export default function ProfilePage() {
                 </div>
               )}
               <div className="flex gap-2">
-                <button onClick={() => void saveQuietHours()} className="flex-1 rounded-xl bg-primary py-2 text-sm font-bold text-primary-foreground dark:bg-white dark:text-black">{t("quietHours.save")}</button>
+                <button onClick={() => void saveQuietHours()} className="flex-1 rounded-xl bg-ink py-2 text-sm font-bold text-ink-foreground">{t("quietHours.save")}</button>
                 <button
                   onClick={() => {
                     if (quietHoursBackup) setQuietHours(quietHoursBackup);
@@ -796,7 +796,7 @@ export default function ProfilePage() {
               <button
                 key={option}
                 onClick={() => setViolationType(option)}
-                className={`flex-1 rounded-lg px-2 py-1.5 text-[11px] font-bold ${violationType === option ? "bg-primary text-primary-foreground dark:bg-white dark:text-black" : "text-muted-foreground"}`}
+                className={`flex-1 rounded-lg px-2 py-1.5 text-[11px] font-bold ${violationType === option ? "bg-ink text-ink-foreground" : "text-muted-foreground"}`}
               >
                 {t(`profile.violations.types.${option}`)}
               </button>
@@ -835,7 +835,7 @@ export default function ProfilePage() {
           <button
             onClick={() => void handleReportViolation()}
             disabled={violationSaving}
-            className="w-full rounded-xl bg-primary py-2 text-sm font-bold text-primary-foreground disabled:opacity-50 dark:bg-white dark:text-black"
+            className="w-full rounded-xl bg-ink py-2 text-sm font-bold text-ink-foreground disabled:opacity-50"
           >
             {violationSaving ? t("profile.violations.sending") : t("profile.violations.send")}
           </button>
@@ -871,7 +871,7 @@ export default function ProfilePage() {
             <button
               key={option}
               onClick={() => setTheme(option)}
-              className={`px-2 py-1.5 rounded-lg text-[9px] font-bold ${theme === option ? "bg-primary text-primary-foreground dark:bg-white dark:text-black" : "text-muted-foreground"}`}
+              className={`px-2 py-1.5 rounded-lg text-[9px] font-bold ${theme === option ? "bg-ink text-ink-foreground" : "text-muted-foreground"}`}
             >
               {t(`profile.appearance.${option}Label`)}
             </button>
@@ -884,7 +884,7 @@ export default function ProfilePage() {
         className="glass rounded-2xl w-full flex items-center gap-3 p-4"
       >
         <div className="h-9 w-9 rounded-xl bg-primary/20 dark:bg-accent/20 flex items-center justify-center shrink-0">
-          <Settings className="h-4 w-4 text-primary dark:text-accent" />
+          <Bell className="h-4 w-4 text-primary dark:text-accent" />
         </div>
         <div className="flex-1 text-left">
           <p className="text-sm font-semibold">
@@ -981,7 +981,7 @@ export default function ProfilePage() {
                 <button
                   onClick={() => void handleSavePayment()}
                   disabled={paymentSaving}
-                  className="w-full gradient-primary rounded-xl py-2 text-sm font-semibold text-primary-foreground flex items-center justify-center gap-2 disabled:opacity-60"
+                  className="w-full gradient-primary rounded-xl py-2 text-sm font-semibold text-ink-foreground flex items-center justify-center gap-2 disabled:opacity-60"
                 >
                   <Check className="h-4 w-4" />
                   {paymentSaving ? t("profile.loading.sending") : t("profile.paymentMethods.save")}
@@ -1032,7 +1032,7 @@ export default function ProfilePage() {
                 <button
                   onClick={() => void handleInvite()}
                   disabled={inviteSaving}
-                  className="w-full gradient-primary rounded-xl py-2 text-sm font-semibold text-primary-foreground flex items-center justify-center gap-2 disabled:opacity-60"
+                  className="w-full gradient-primary rounded-xl py-2 text-sm font-semibold text-ink-foreground flex items-center justify-center gap-2 disabled:opacity-60"
                 >
                   {inviteSent ? (
                     <>
@@ -1124,7 +1124,7 @@ export default function ProfilePage() {
                 className="mt-4 w-full resize-none rounded-xl border border-border bg-card p-3 text-sm"
                 placeholder={t("profile.houseRules.placeholder")}
               />
-              <button onClick={() => void saveHouseRules()} disabled={!rulesDraft.trim() || rulesSaving} className="mt-3 w-full rounded-xl bg-primary py-2.5 text-sm font-bold text-primary-foreground disabled:opacity-50 dark:bg-white dark:text-black">
+              <button onClick={() => void saveHouseRules()} disabled={!rulesDraft.trim() || rulesSaving} className="mt-3 w-full rounded-xl bg-ink py-2.5 text-sm font-bold text-ink-foreground disabled:opacity-50">
                 {rulesSaving ? t("profile.loading.saving") : t("profile.houseRules.publish")}
               </button>
             </motion.div>
