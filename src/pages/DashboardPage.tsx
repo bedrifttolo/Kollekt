@@ -80,12 +80,12 @@ function PreviewRow({
     <motion.button
       onClick={onClick}
       {...pressableSubtle}
-      className={`elev-1 flex w-full items-center gap-3 rounded-2xl p-3.5 text-left tone-${tone} tone-tile`}
+      className={`elev-1 flex w-full items-center gap-3 rounded-2xl border p-3.5 text-left tone-${tone} tone-wash tone-edge`}
     >
-      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-[--r-sm] bg-current/15">{icon}</span>
+      <span className={`tone-tile tone-${tone} grid h-10 w-10 shrink-0 place-items-center rounded-[--r-sm]`}>{icon}</span>
       <span className="min-w-0 flex-1">
         <span className="block truncate text-sm font-semibold">{title}</span>
-        <span className="mt-0.5 block text-[11px] text-current/70">{subtitle}</span>
+        <span className="mt-0.5 block text-[11px] text-muted-foreground">{subtitle}</span>
       </span>
       {trailing}
     </motion.button>
@@ -343,7 +343,7 @@ export default function DashboardPage() {
               icon={<CategoryIcon className="h-5 w-5" />}
               title={task.title}
               subtitle={`${task.assignee} · ${formatDate(task.dueDate)}`}
-              trailing={<span className="shrink-0 rounded-full bg-current/15 px-2.5 py-1 text-[10px] font-bold text-current">+{task.xp} XP</span>}
+              trailing={<span className="shrink-0 rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-bold text-primary">+{task.xp} XP</span>}
               onClick={() => navigate('/tasks')}
             />
           );
@@ -401,7 +401,7 @@ export default function DashboardPage() {
             icon={<Calendar className="h-5 w-5" />}
             title={e.title}
             subtitle={`${formatDate(e.date)}${e.time ? ` · ${formatTime(e.time)}` : ''}`}
-            trailing={<span className="shrink-0 rounded-full bg-current/15 px-2.5 py-1 text-[10px] font-bold text-current">{translateKey('common.eventTypes', e.type)}</span>}
+            trailing={<span className="shrink-0 rounded-full bg-muted px-2.5 py-1 text-[10px] font-bold text-muted-foreground">{translateKey('common.eventTypes', e.type)}</span>}
             onClick={() => navigate('/calendar')}
           />
         ))}

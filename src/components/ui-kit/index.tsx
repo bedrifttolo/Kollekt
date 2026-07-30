@@ -601,7 +601,7 @@ export function SegmentedControl<T extends string>({
               void tapFeedback();
               onChange(option.value);
             }}
-            className="relative flex flex-1 items-center justify-center rounded-[--r-lg] px-3 text-center text-sm font-bold"
+            className="relative flex flex-1 items-center justify-center rounded-[.85rem] px-3 text-center text-sm font-bold"
           >
             {isActive && (
               <motion.span
@@ -610,7 +610,7 @@ export function SegmentedControl<T extends string>({
                 // The active pill stays a plain white/near-black-text tab in both themes — this is
                 // a track-and-thumb switcher, not an "ink" action surface, so it doesn't follow the
                 // FAB/nav/CTA convention of flipping black-on-light / white-on-dark.
-                className="elev-1 absolute inset-0 rounded-[--r-lg] bg-white"
+                className="elev-1 absolute inset-0 rounded-[.85rem] bg-white"
               />
             )}
             <span className={cn('relative z-10 transition-colors', isActive ? 'text-neutral-900' : 'text-muted-foreground')}>

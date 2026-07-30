@@ -14,6 +14,7 @@ import type {
   LeaderboardResponse,
   Achievement,
   Fairness,
+  ChatMessage,
 } from './types';
 
 // Warms the caches after the active screen has had a chance to load. Running these
@@ -49,11 +50,6 @@ export async function prefetchMainData(queryClient: QueryClient, user: AppUser):
   });
 
   await queryClient.prefetchQuery({
-    queryKey: qk.economy(name),
-    queryFn: () => api.get<EconomySummary>(`/economy/summary?memberName=${enc}`),
-  });
-
-  await queryClient.prefetchQuery({
     queryKey: qk.calendar(name),
     queryFn: async () => {
       const [eventResponse, guestResponse] = await Promise.all([
@@ -62,6 +58,18 @@ export async function prefetchMainData(queryClient: QueryClient, user: AppUser):
       ]);
       return { eventResponse, guestResponse };
     },
+  });
+
+  // Mirrors ChatPage's own household-thread fetch (fetchMessages(null)) so the Chat tab's first
+  // visit each session renders from cache too, instead of always being a guaranteed cold load.
+  await queryClient.prefetchQuery({
+    queryKey: qk.chat(name),
+    queryFn: () => api.get<ChatMessage[]>(`/chat/messages?memberName=${enc}`),
+  });
+
+  await queryClient.prefetchQuery({
+    queryKey: qk.economy(name),
+    queryFn: () => api.get<EconomySummary>(`/economy/summary?memberName=${enc}`),
   });
 
   // Mirrors RanksPanel's default period ('OVERALL') so the Social tab's first visit each
