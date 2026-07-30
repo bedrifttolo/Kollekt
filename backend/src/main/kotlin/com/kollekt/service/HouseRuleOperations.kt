@@ -150,16 +150,15 @@ class HouseRuleOperations(
         return collective
     }
 
-    private fun HouseRule.toDto(
-        actorName: String,
-    ) = HouseRulesDto(
-        version = version,
-        content = content,
-        updatedBy = updatedBy,
-        createdAt = createdAt,
-        acknowledged = ackRepository.existsByRuleIdAndMemberName(id, actorName),
-        canEdit = true,
-    )
+    private fun HouseRule.toDto(actorName: String) =
+        HouseRulesDto(
+            version = version,
+            content = content,
+            updatedBy = updatedBy,
+            createdAt = createdAt,
+            acknowledged = ackRepository.existsByRuleIdAndMemberName(id, actorName),
+            canEdit = true,
+        )
 
     companion object {
         // Display name used as the chat sender (and notification reporter) when a violation is
