@@ -28,7 +28,6 @@ const KUDO_TYPES: KudoType[] = ['THANK_YOU', 'CLEANEST', 'MOST_HELPFUL', 'PEACEM
 import { AddSheet, AvatarStack, IconButton } from '../components/ui-kit';
 import { collapseVariants, popIn, pressable, springPop } from '../lib/motion';
 import { colorForMember } from '../lib/memberColors';
-import { useScrollDirection } from '../lib/useScrollDirection';
 
 // The backend validates reactions against a fixed emoji allowlist and stores them as emoji
 // strings, so the emoji stays the wire format — icons are presentation only.
@@ -142,7 +141,6 @@ export default function ChatPage() {
   const formatMood = (value?: number | null) =>
     value == null ? '' : Number.isInteger(value) ? String(value) : value.toFixed(1);
   const bottomRef = useRef<HTMLDivElement>(null);
-  const messageScrollRef = useRef<HTMLDivElement>(null);
   // True until the thread currently on screen has done its first scroll-to-bottom. Opening (or
   // switching) a thread should land on the latest message instantly, not animate down through
   // the whole history — only messages that arrive after that should scroll smoothly.
@@ -303,11 +301,6 @@ export default function ChatPage() {
       clearLongPress();
     };
   }, []);
-
-  // Chat's `.app-screen-full` layout never grows past the viewport, so the window never scrolls —
-  // the bottom nav's scroll-aware hide/show (see AppLayout) has to watch this page's own message
-  // list instead.
-  useScrollDirection(messageScrollRef);
 
   const sendMessage = async () => {
     if (!input.trim()) return;
@@ -619,8 +612,10 @@ export default function ChatPage() {
     <motion.div initial={justFinishedLoading ? { opacity: 0 } : false} animate={{ opacity: 1 }} className="app-screen-full relative flex flex-col">
       {/* Chat hides the shared AppHeader (see AppLayout's hideHeader), so this row carries its
           own page-identity wash instead — bled edge-to-edge like every other page's header,
-          matching AppHeader's tone-tile treatment for tone-blush. */}
-      <div className="-mx-4 -mt-2 border-b border-border tone-tile tone-blush sm:-mx-6">
+          matching AppHeader's tone-tile treatment for tone-blush. safe-top pads its own content
+          below the notch while letting the tone-blush background paint behind the status bar,
+          the same way AppHeader's sticky/safe-top header does. */}
+      <div className="safe-top -mx-4 -mt-2 border-b border-border tone-tile tone-blush sm:-mx-6">
       <div className="flex items-center gap-2 px-4 py-2.5 sm:px-6">
         {isDirect ? (
           <span style={{ backgroundColor: colorForMember(activeThread!, memberColorMap.get(activeThread!)) }} className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-xs font-bold text-white">
@@ -771,7 +766,7 @@ export default function ChatPage() {
             <div className="absolute inset-0 bg-background/55" />
           </div>
         )}
-        <div ref={messageScrollRef} data-chat-scroll className="relative h-full overflow-y-auto px-4 py-4 sm:px-6" onTouchStart={handleSwipeStart} onTouchEnd={handleSwipeEnd}>
+        <div data-chat-scroll className="relative h-full overflow-y-auto px-4 py-4 sm:px-6" onTouchStart={handleSwipeStart} onTouchEnd={handleSwipeEnd}>
         {decorateMessages(messages, seenCursor).map(({ message, isFirstOfGroup, isLastOfGroup, startsNewDay, startsUnread }, i, all) => {
           const isSelf = message.sender === name;
           const senderColor = colorForMember(message.sender, memberColorMap.get(message.sender));

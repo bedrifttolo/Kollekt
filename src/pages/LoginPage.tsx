@@ -136,6 +136,7 @@ export default function LoginPage() {
             </a>
             .
           </p>
+          <p className="pt-1 text-center text-xs text-muted-foreground/70">{t('common.credits')}</p>
         </div>
       </motion.div>
     </div>

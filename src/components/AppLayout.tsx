@@ -1,5 +1,6 @@
 import { Suspense, useEffect, useState } from 'react';
 import { Outlet, useLocation, Navigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import AppHeader from './AppHeader';
 import BottomNav from './BottomNav';
 import TourOverlay, { type TourStep } from './TourOverlay';
@@ -20,17 +21,18 @@ const APP_TOUR_STEPS: TourStep[] = [
 export default function AppLayout() {
   const { currentUser, isLoading } = useUser();
   const { pathname } = useLocation();
+  const { t } = useTranslation();
   // Chat renders its own compact header (thread info + profile button) so the shared
   // header would just duplicate it and cost the messages a full row of space.
   const hideHeader = pathname === '/chat';
 
-  // Holds the boot splash (logo + "Kollekt") on screen for a fixed 5s branding beat on every
+  // Holds the boot splash (logo + "Kollekt") on screen for a fixed 1.5s branding beat on every
   // cold launch, regardless of how fast the session restore below actually resolves. This
   // component only mounts once per fresh JS context — native app backgrounding/resume doesn't
   // remount it — so it naturally never re-fires on a plain tab switch back into the app.
   const [minSplashElapsed, setMinSplashElapsed] = useState(false);
   useEffect(() => {
-    const timer = window.setTimeout(() => setMinSplashElapsed(true), 5000);
+    const timer = window.setTimeout(() => setMinSplashElapsed(true), 1500);
     return () => window.clearTimeout(timer);
   }, []);
 
@@ -97,9 +99,10 @@ export default function AppLayout() {
 
   if (!minSplashElapsed || (isLoading && !currentUser)) {
     return (
-      <div className="app-viewport bg-background flex flex-col items-center justify-center gap-3">
-        <BrandMark className="h-16 w-16" />
-        <span className="font-display font-extrabold text-xl tracking-tight text-foreground">Kollekt</span>
+      <div className="app-viewport bg-background relative flex flex-col items-center justify-center gap-4">
+        <BrandMark className="h-24 w-24" />
+        <span className="font-display font-extrabold text-3xl tracking-tight text-foreground">Kollekt</span>
+        <p className="absolute bottom-8 text-xs text-muted-foreground/70">{t('common.credits')}</p>
       </div>
     );
   }

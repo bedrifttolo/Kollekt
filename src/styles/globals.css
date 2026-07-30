@@ -284,11 +284,13 @@
     margin-bottom: calc(-6.25rem - env(safe-area-inset-bottom, 0px));
   }
   /* Like .app-screen, but for a page rendered without the sticky app header (chat): the page
-     owns the full height above the bottom nav and pads the status bar inset itself. */
+     owns the full height above the bottom nav. The status-bar inset is NOT padded here — chat's
+     own header bleeds up to the true top of the screen and pads itself (see .safe-top on its
+     header div), the same way AppHeader does for every other page. Padding it here instead would
+     push the header's colored background down below the notch instead of painting behind it. */
   .app-screen-full {
     height: calc(100vh - var(--app-main-pt) - var(--app-nav-h) - env(safe-area-inset-bottom, 0px));
     height: calc(100dvh - var(--app-main-pt) - var(--app-nav-h) - env(safe-area-inset-bottom, 0px));
-    padding-top: env(safe-area-inset-top, 0px);
     margin-bottom: calc(-6.25rem - env(safe-area-inset-bottom, 0px));
   }
   /* When the on-screen keyboard is up, the bottom nav is hidden, so pages reclaim the space
@@ -399,17 +401,22 @@
   .field { background: var(--card); border: 1px solid var(--border); border-radius: var(--r-lg); min-height: 4.1rem; padding: .75rem 1rem; }
   .househero, .wallet, .gamehero { background: var(--hero); color: var(--hero-foreground); border-radius: var(--r-2xl); padding: 1.25rem; box-shadow: var(--elev-2); }
   /* The "spotlight" hero cards (household summary, task/shopping/maintenance overview, wallet
-     balance, tonight's game pick) share the same neutral ink identity as the FAB and the bottom
-     nav's active tab, instead of a tinted colour — matte black on light, white/light-gray on
-     dark. --hero-foreground has to flip too: ink turns white in dark mode, so hardcoded white
-     text/icons on these cards would vanish unless every caller also swaps to --ink-foreground
-     (done at each call site — unlike a fixed-dark tint, ink genuinely isn't always dark). */
-  .hero-ink { --hero: var(--ink); --hero-foreground: var(--ink-foreground); }
-  /* --hero-positive/-negative are pastel by design — legible on the hero's usual dark surface,
-     which is all .hero-ink's own light-theme value (ink = black) needs. In dark mode ink flips to
-     white, where those same pastels would wash out, so this is the one pairing that needs its own
-     override rather than following --ink-foreground like every other hero-ink child. */
-  .dark .hero-ink { --hero-positive: #0f9d68; --hero-negative: #c23a5a; }
+     balance, tonight's game pick) are always matte black with white text/icons, in both themes —
+     unlike the FAB/bottom-nav-active-tab, which deliberately follow --ink's per-theme flip, these
+     surfaces pin their own --ink/--ink-foreground locally so every descendant already using
+     `bg-ink`/`text-ink-foreground`/etc (each call site) stays matte-black-card/white-text without
+     having to change any of those classNames — the override just shadows the theme-level values
+     for this subtree. --hero-positive/-negative are pastel by design, legible on this always-dark
+     surface, so they're pinned to their light-theme values here too instead of the (now
+     unnecessary) dark-mode-white-surface tones. */
+  .hero-ink {
+    --ink: #121416;
+    --ink-foreground: #ffffff;
+    --hero: var(--ink);
+    --hero-foreground: var(--ink-foreground);
+    --hero-positive: #7df0b4;
+    --hero-negative: #ffb3c4;
+  }
   /* Amount colours for text sitting on a hero surface. The theme `--primary`/`--destructive` are
      tuned for the page background and can collide with the hero itself (in the light theme
      `--primary` *is* the hero colour), so on-hero amounts use their own light tints. */

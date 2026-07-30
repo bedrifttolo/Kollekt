@@ -22,7 +22,7 @@ export default function SocialPage() {
           <button
             key={value}
             onClick={() => setTab(value)}
-            className={`flex-1 rounded-[--r-lg] py-2.5 text-sm font-bold transition-all ${
+            className={`flex-1 rounded-[.85rem] py-2.5 text-sm font-bold transition-all ${
               tab === value ? 'bg-ink text-ink-foreground' : 'text-muted-foreground'
             }`}
           >
