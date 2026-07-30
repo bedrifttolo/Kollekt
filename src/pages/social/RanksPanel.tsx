@@ -6,7 +6,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../lib/api';
 import { useUser, useRealtimeEvent } from '../../context/UserContext';
 import { translateKey } from '../../i18n/helpers';
-import { Avatar, CountUp, LoadingDot, OverflowMenu, ProgressRing, StatTile } from '../../components/ui-kit';
+import { Avatar, CountUp, LoadingDot, OverflowMenu, ProgressRing, SegmentedControl, StatTile } from '../../components/ui-kit';
 import { listContainer, listItem, springSoft } from '../../lib/motion';
 import { toneByKey } from '../../lib/tones';
 import type {
@@ -314,16 +314,13 @@ export default function RanksPanel() {
       </div>
 
       {/* Period filter */}
-      <div className="flex gap-2">
-        {PERIODS.map((p) => (
-          <button
-            key={p}
-            onClick={() => setPeriod(p)}
-            className={`rounded-full px-3 py-1.5 text-xs font-bold transition-colors ${p === period ? 'bg-ink text-ink-foreground' : 'bg-card border border-border text-muted-foreground'}`}
-          >
-            {translateKey('common.leaderboardPeriods', p)}
-          </button>
-        ))}
+      <div className="flex justify-center">
+        <SegmentedControl
+          layoutId="ranks-period"
+          value={period}
+          onChange={setPeriod}
+          options={PERIODS.map((p) => ({ value: p, label: translateKey('common.leaderboardPeriods', p) }))}
+        />
       </div>
 
       {/* Full rankings */}

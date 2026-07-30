@@ -23,6 +23,7 @@ import DiceGame from '../../games/DiceGame';
 import LiarsDiceGame from '../../games/LiarsDiceGame';
 import DeckGame from '../../games/DeckGame';
 import { toneByKey, toneClass } from '../../lib/tones';
+import { SegmentedControl } from '../../components/ui-kit';
 
 export default function GamesPanel() {
   const { t } = useTranslation();
@@ -117,21 +118,21 @@ export default function GamesPanel() {
       </div>
 
       {/* Category chips */}
-      <div className="flex flex-wrap gap-2">
-        {GAME_CATEGORIES.map((c) => (
-          <button
-            key={c.id}
-            onClick={() => setFilter(c.id)}
-            className={`rounded-full px-3.5 py-1.5 text-sm font-bold transition-colors ${
-              filter === c.id ? 'bg-ink text-ink-foreground' : 'bg-card border border-border text-muted-foreground'
-            }`}
-          >
-            <span className="inline-flex items-center gap-1.5">
-              {t(`social.games.categories.${c.id}`)}
-              {c.icon && <c.icon className="h-3.5 w-3.5" />}
-            </span>
-          </button>
-        ))}
+      <div className="flex justify-center">
+        <SegmentedControl
+          layoutId="games-category"
+          value={filter}
+          onChange={setFilter}
+          options={GAME_CATEGORIES.map((c) => ({
+            value: c.id,
+            label: (
+              <span className="inline-flex items-center gap-1.5">
+                {t(`social.games.categories.${c.id}`)}
+                {c.icon && <c.icon className="h-3.5 w-3.5" />}
+              </span>
+            ),
+          }))}
+        />
       </div>
 
       {notice && <p className="text-sm text-center text-muted-foreground">{notice}</p>}

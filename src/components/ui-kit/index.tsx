@@ -601,16 +601,19 @@ export function SegmentedControl<T extends string>({
               void tapFeedback();
               onChange(option.value);
             }}
-            className="relative flex-1 rounded-[--r-md] px-3 text-sm font-bold"
+            className="relative flex flex-1 items-center justify-center rounded-[--r-md] px-3 text-center text-sm font-bold"
           >
             {isActive && (
               <motion.span
                 layoutId={layoutId}
                 transition={springSoft}
-                className="elev-1 absolute inset-0 rounded-[--r-md] bg-primary dark:bg-white"
+                // The active pill stays a plain white/near-black-text tab in both themes — this is
+                // a track-and-thumb switcher, not an "ink" action surface, so it doesn't follow the
+                // FAB/nav/CTA convention of flipping black-on-light / white-on-dark.
+                className="elev-1 absolute inset-0 rounded-[--r-md] bg-white"
               />
             )}
-            <span className={cn('relative z-10 transition-colors', isActive ? 'text-primary-foreground' : 'text-muted-foreground')}>
+            <span className={cn('relative z-10 transition-colors', isActive ? 'text-neutral-900' : 'text-muted-foreground')}>
               {option.label}
             </span>
           </button>
