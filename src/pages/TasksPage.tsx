@@ -37,7 +37,7 @@ import { tapFeedback } from '../lib/haptics';
 import { formatDate, formatDateTime, translateKey } from '../i18n/helpers';
 import { EXPENSE_CATEGORIES } from '../lib/expenseStats';
 import type { AppUser, Task, ShoppingItem, TaskCategory, TaskSwapRequest, MaintenanceTicket, MaintenancePriority, MaintenanceStatus } from '../lib/types';
-import { AddSheet, Avatar, Chip, Eyebrow, Fab, LoadingDot, OverflowMenu, ProgressBar, XpBurst } from '../components/ui-kit';
+import { AddSheet, Avatar, Chip, Eyebrow, Fab, OverflowMenu, ProgressBar, XpBurst } from '../components/ui-kit';
 import { pressable, springPop } from '../lib/motion';
 import { celebrate } from '../lib/celebrate';
 import { DEFAULT_ROOM_ICON as DEFAULT_TASK_ICON, TASK_CATEGORY_ICONS } from '../lib/categoryIcons';
@@ -931,8 +931,18 @@ function TasksMain() {
   if (loading) {
     wasLoadingRef.current = true;
     return (
-      <div className="flex items-center justify-center pt-16">
-        <LoadingDot />
+      <div className="space-y-4 pt-4">
+        <div className="space-y-2">
+          <div className="h-3 w-20 animate-pulse rounded-full bg-muted/30" />
+          <div className="h-7 w-40 animate-pulse rounded-lg bg-muted/30" />
+        </div>
+        <div className="h-12 animate-pulse rounded-[--r-lg] bg-muted/20" />
+        <div className="h-32 animate-pulse rounded-[--r-xl] bg-muted/20" />
+        <div className="space-y-3">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="h-16 animate-pulse rounded-[--r-lg] bg-muted/20" />
+          ))}
+        </div>
       </div>
     );
   }

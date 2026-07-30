@@ -1,14 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { TrendingUp, Flame, Star, Pencil, X, SlidersHorizontal, Plus, Trash2, Check, StarHalf, Home, Trophy, Zap, Award, Sparkles, Heart, Crown, Medal, Target, Rocket, Leaf, Sun, Gift, Scale, type LucideIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../lib/api';
 import { useUser, useRealtimeEvent } from '../../context/UserContext';
 import { translateKey } from '../../i18n/helpers';
-import { Avatar, CountUp, LoadingDot, OverflowMenu, ProgressRing, SegmentedControl, StatTile } from '../../components/ui-kit';
+import { Avatar, CountUp, LoadingDot, OverflowMenu, ProgressRing, SegmentedControl, Sheet, StatTile } from '../../components/ui-kit';
 import { listContainer, listItem, springSoft } from '../../lib/motion';
 import { toneByKey } from '../../lib/tones';
+import { qk } from '../../lib/queryKeys';
 import type {
   LeaderboardResponse,
   Achievement,
@@ -18,6 +19,7 @@ import type {
   Fairness,
   CustomAchievementMetric,
   TaskCategory,
+  AppUser,
 } from '../../lib/types';
 
 const PERIODS: LeaderboardPeriod[] = ['OVERALL', 'YEAR', 'MONTH'];
@@ -109,6 +111,15 @@ export default function RanksPanel() {
     queryFn: () => api.get<Fairness>(`/fairness?memberName=${encodeURIComponent(name)}`),
   });
 
+  // Each member's own assigned color, so podium/list avatars match "Kollektivet ditt" and chat
+  // instead of falling back to Avatar's plain name hash (which isn't guaranteed unique).
+  const { data: colorMembers = [] } = useQuery({
+    queryKey: qk.members(name),
+    enabled: !!name,
+    queryFn: () => api.get<AppUser[]>(`/members/collective?memberName=${encodeURIComponent(name)}`),
+  });
+  const colorByName = new Map(colorMembers.map((member) => [member.name, member.color]));
+
   useEffect(() => {
     if (!ranksQuery.data) return;
     setAchievements(ranksQuery.data.ach);
@@ -132,6 +143,9 @@ export default function RanksPanel() {
     (event) => {
       if (['TASK_UPDATED', 'TASK_CREATED', 'TASK_DELETED', 'EXPENSE_CREATED', 'BALANCES_SETTLED', 'ACHIEVEMENT_CONFIG_UPDATED'].includes(event.type)) {
         void fetchData(period);
+      }
+      if (event.type === 'MEMBER_UPDATED') {
+        void queryClient.invalidateQueries({ queryKey: qk.members(name) });
       }
     },
     () => void fetchData(period),
@@ -250,7 +264,7 @@ export default function RanksPanel() {
               className="relative flex flex-1 flex-col items-center"
             >
               <div className="relative z-10 -mb-5">
-                <Avatar name={user.name} className={`h-12 w-12 text-base ${avatarTone[user.rank] ?? 'bg-muted'}`} />
+                <Avatar name={user.name} color={colorByName.get(user.name)} className={`h-12 w-12 text-base ${avatarTone[user.rank] ?? 'bg-muted'}`} />
                 <span className={`absolute -bottom-1 -right-1 grid h-6 w-6 place-items-center rounded-full text-xs font-extrabold border-2 border-background ${badgeTone[user.rank] ?? 'bg-muted'}`}>
                   {user.rank}
                 </span>
@@ -265,7 +279,7 @@ export default function RanksPanel() {
                 className={`${barHeight[user.rank] ?? 'h-28'} w-full rounded-t-3xl ${barTone[user.rank] ?? 'bg-muted'} flex flex-col items-center justify-end pb-4 pt-8`}
               >
                 <CountUp value={user.xp} className="font-display text-2xl font-extrabold" />
-                <p className="mt-1 text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
+                <p className="mt-1 text-[10px] font-bold uppercase tracking-wide">
                   {user.name} · {t('leaderboard.levelShort', { level: user.level })}
                 </p>
               </motion.div>
@@ -336,7 +350,7 @@ export default function RanksPanel() {
             className={`card !p-4 flex w-full items-center gap-3 text-left ${user.name === name ? 'ring-1 ring-primary/30' : ''}`}
           >
             <div className="w-6 text-center font-display font-bold text-sm text-muted-foreground">#{user.rank}</div>
-            <Avatar name={user.name} />
+            <Avatar name={user.name} color={colorByName.get(user.name)} />
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-1">
                 <p className="text-sm font-medium">{user.name}</p>
@@ -504,60 +518,52 @@ export default function RanksPanel() {
       )}
 
       {/* Member stats sheet */}
-      <AnimatePresence>
-        {selectedMember && (
-          <>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/40 z-40" onClick={() => setSelectedMember(null)} />
-            <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              className="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 glass-strong rounded-2xl p-5 pb-6" style={{ width: 'calc(100% - 2rem)', maxWidth: '32rem' }}>
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <Avatar name={selectedMember} className="h-10 w-10" />
-                  <div>
-                    <p className="font-semibold">{selectedMember}</p>
-                    {memberStats && <p className="text-[10px] text-muted-foreground">{t('leaderboard.levelShort', { level: memberStats.level })} · #{memberStats.rank}</p>}
-                  </div>
-                </div>
-                <button onClick={() => setSelectedMember(null)} aria-label={t('common.cancel')} className="grid h-11 w-11 place-items-center rounded-xl bg-card"><X className="h-4 w-4" /></button>
+      <Sheet
+        open={!!selectedMember}
+        onClose={() => setSelectedMember(null)}
+        title={
+          selectedMember ? (
+            <div className="flex items-center gap-3">
+              <Avatar name={selectedMember} color={colorByName.get(selectedMember)} className="h-10 w-10" />
+              <div>
+                <p className="font-semibold">{selectedMember}</p>
+                {memberStats && <p className="text-[10px] text-muted-foreground">{t('leaderboard.levelShort', { level: memberStats.level })} · #{memberStats.rank}</p>}
               </div>
-              {memberStatsLoading && <div className="grid grid-cols-3 gap-2 animate-pulse">{[...Array(6)].map((_, i) => <div key={i} className="h-14 bg-muted/30 rounded-lg" />)}</div>}
-              {memberStats && !memberStatsLoading && (
-                <div className="grid grid-cols-3 gap-2">
-                  {[
-                    { label: 'XP', value: memberStats.xp.toString() },
-                    { label: 'Streak', value: `${memberStats.streak}d` },
-                    { label: 'Tasks done', value: memberStats.tasksCompleted.toString() },
-                    { label: 'Late', value: memberStats.lateCompletions.toString() },
-                    { label: 'Skipped', value: memberStats.skippedTasks.toString() },
-                    { label: 'Achievements', value: `${memberStats.achievementsUnlocked}/${memberStats.achievementsTotal}` },
-                  ].map((s) => (
-                    <div key={s.label} className="rounded-lg bg-background/30 p-2.5 text-center">
-                      <p className="font-display font-bold text-sm">{s.value}</p>
-                      <p className="text-[9px] text-muted-foreground mt-0.5">{s.label}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </motion.div>
-          </>
+            </div>
+          ) : null
+        }
+      >
+        {memberStatsLoading && <div className="grid grid-cols-3 gap-2 animate-pulse">{[...Array(6)].map((_, i) => <div key={i} className="h-14 bg-muted/30 rounded-lg" />)}</div>}
+        {memberStats && !memberStatsLoading && (
+          <div className="grid grid-cols-3 gap-2">
+            {[
+              { label: 'XP', value: memberStats.xp.toString() },
+              { label: 'Streak', value: `${memberStats.streak}d` },
+              { label: 'Tasks done', value: memberStats.tasksCompleted.toString() },
+              { label: 'Late', value: memberStats.lateCompletions.toString() },
+              { label: 'Skipped', value: memberStats.skippedTasks.toString() },
+              { label: 'Achievements', value: `${memberStats.achievementsUnlocked}/${memberStats.achievementsTotal}` },
+            ].map((s) => (
+              <div key={s.label} className="rounded-lg bg-background/30 p-2.5 text-center">
+                <p className="font-display font-bold text-sm">{s.value}</p>
+                <p className="text-[9px] text-muted-foreground mt-0.5">{s.label}</p>
+              </div>
+            ))}
+          </div>
         )}
-      </AnimatePresence>
+      </Sheet>
 
       {/* Achievement config sheet */}
-      <AnimatePresence>
-        {showAchievementConfig && (
-          <>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/40 z-40" onClick={() => setShowAchievementConfig(false)} />
-            <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              className="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 glass-strong rounded-2xl flex flex-col" style={{ maxHeight: 'calc(100vh - 6rem)', width: 'calc(100% - 2rem)', maxWidth: '32rem' }}>
-              <div className="flex items-center justify-between p-5 pb-3 shrink-0">
-                <div>
-                  <p className="font-semibold">{t('leaderboard.manageAchievements')}</p>
-                  <p className="text-[10px] text-muted-foreground">{t('leaderboard.manageAchievementsSubtitle')}</p>
-                </div>
-                <button onClick={() => setShowAchievementConfig(false)} aria-label={t('common.cancel')} className="grid h-11 w-11 place-items-center rounded-xl bg-card shrink-0"><X className="h-4 w-4" /></button>
-              </div>
-              <div className="overflow-y-auto px-5 pb-5">
+      <Sheet
+        open={showAchievementConfig}
+        onClose={() => setShowAchievementConfig(false)}
+        title={
+          <div>
+            <p className="font-semibold">{t('leaderboard.manageAchievements')}</p>
+            <p className="text-[10px] text-muted-foreground">{t('leaderboard.manageAchievementsSubtitle')}</p>
+          </div>
+        }
+      >
                 {catalogLoading && <div className="space-y-2 animate-pulse">{[...Array(5)].map((_, i) => <div key={i} className="h-12 bg-muted/30 rounded-lg" />)}</div>}
                 {!catalogLoading && (
                   <div className="space-y-5">
@@ -640,11 +646,7 @@ export default function RanksPanel() {
                     </div>
                   </div>
                 )}
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+      </Sheet>
     </motion.div>
   );
 }

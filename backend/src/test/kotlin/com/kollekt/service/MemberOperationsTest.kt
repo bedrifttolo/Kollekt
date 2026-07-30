@@ -30,6 +30,7 @@ class MemberOperationsTest {
     private lateinit var taskOperations: TaskOperations
     private lateinit var userProfileService: UserProfileService
     private lateinit var collectiveAccessService: CollectiveAccessService
+    private lateinit var realtimeUpdateService: RealtimeUpdateService
     private lateinit var operations: MemberOperations
 
     @BeforeEach
@@ -41,6 +42,7 @@ class MemberOperationsTest {
         taskOperations = mock()
         userProfileService = UserProfileService(memberRepository, friendshipRepository)
         collectiveAccessService = CollectiveAccessService(memberRepository, collectiveRepository)
+        realtimeUpdateService = mock()
         operations =
             MemberOperations(
                 memberRepository,
@@ -48,6 +50,7 @@ class MemberOperationsTest {
                 taskOperations,
                 userProfileService,
                 collectiveAccessService,
+                realtimeUpdateService,
             )
     }
 
@@ -117,6 +120,35 @@ class MemberOperationsTest {
         operations.updateMemberColor("Kasper", "  #1f563F  ")
 
         verify(memberRepository).save(kasper.copy(color = "#1f563F"))
+    }
+
+    @Test
+    fun `update member color publishes a realtime event to the collective`() {
+        val kasper = member("Kasper", "kasper@example.com")
+        whenever(memberRepository.findByName("Kasper")).thenReturn(kasper)
+        whenever(memberRepository.findAllByCollectiveCode("ABC123")).thenReturn(listOf(kasper))
+
+        operations.updateMemberColor("Kasper", "#1f563f")
+
+        verify(realtimeUpdateService).publish(
+            "ABC123",
+            "MEMBER_UPDATED",
+            mapOf("memberName" to "Kasper", "color" to "#1f563f"),
+        )
+    }
+
+    @Test
+    fun `update member color rejects a color already used by another household member`() {
+        val kasper = member("Kasper", "kasper@example.com")
+        val emma = member("Emma", "emma@example.com", id = 2).copy(color = "#1f563f")
+        whenever(memberRepository.findByName("Kasper")).thenReturn(kasper)
+        whenever(memberRepository.findAllByCollectiveCode("ABC123")).thenReturn(listOf(kasper, emma))
+
+        assertThrows(IllegalArgumentException::class.java) {
+            operations.updateMemberColor("Kasper", "#1F563F")
+        }
+
+        verify(memberRepository, never()).save(any())
     }
 
     @Test

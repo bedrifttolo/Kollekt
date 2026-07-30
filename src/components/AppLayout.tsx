@@ -1,10 +1,11 @@
-import { Suspense, useEffect } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { Outlet, useLocation, Navigate } from 'react-router-dom';
 import AppHeader from './AppHeader';
 import BottomNav from './BottomNav';
 import TourOverlay, { type TourStep } from './TourOverlay';
 import { BrandMark, LoadingDot } from './ui-kit';
 import { useUser } from '../context/UserContext';
+import { useScrollDirection } from '../lib/useScrollDirection';
 
 const APP_TOUR_STEPS: TourStep[] = [
   { route: '/', selector: '[data-tour="nav-home"]', titleKey: 'tour.steps.home.title', bodyKey: 'tour.steps.home.body' },
@@ -22,6 +23,16 @@ export default function AppLayout() {
   // Chat renders its own compact header (thread info + profile button) so the shared
   // header would just duplicate it and cost the messages a full row of space.
   const hideHeader = pathname === '/chat';
+
+  // Holds the boot splash (logo + "Kollekt") on screen for a fixed 5s branding beat on every
+  // cold launch, regardless of how fast the session restore below actually resolves. This
+  // component only mounts once per fresh JS context — native app backgrounding/resume doesn't
+  // remount it — so it naturally never re-fires on a plain tab switch back into the app.
+  const [minSplashElapsed, setMinSplashElapsed] = useState(false);
+  useEffect(() => {
+    const timer = window.setTimeout(() => setMinSplashElapsed(true), 5000);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   // While the on-screen keyboard is up, mark the root so the fixed bottom nav hides and
   // inputs dock directly above the keyboard (iOS resizes the webview natively). Focus
@@ -70,13 +81,21 @@ export default function AppLayout() {
       const target = e.target instanceof Node ? e.target : null;
       if (target && active.contains(target)) return;
       if (target instanceof Element && isField(target.closest('input, textarea, select, [contenteditable="true"]'))) return;
+      // Chat's message list scrolls independently while the composer stays focused (and the
+      // keyboard stays open) — a tap/drag there shouldn't dismiss it the way tapping real chrome
+      // (the header, another sheet) does.
+      if (target instanceof Element && target.closest('[data-chat-scroll]')) return;
       active.blur();
     };
     document.addEventListener('pointerdown', onPointerDown);
     return () => document.removeEventListener('pointerdown', onPointerDown);
   }, []);
 
-  if (isLoading && !currentUser) {
+  // Covers every page except Chat, which has its own internal scroll container (wired up in
+  // ChatPage itself) since its `.app-screen-full` layout never grows past the viewport.
+  useScrollDirection();
+
+  if (!minSplashElapsed || (isLoading && !currentUser)) {
     return (
       <div className="app-viewport bg-background flex flex-col items-center justify-center gap-3">
         <BrandMark className="h-16 w-16" />

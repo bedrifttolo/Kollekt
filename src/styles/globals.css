@@ -305,6 +305,14 @@
     height: calc(100vh - var(--app-main-pt) - env(safe-area-inset-bottom, 0px));
     height: calc(100dvh - var(--app-main-pt) - env(safe-area-inset-bottom, 0px));
   }
+  /* Scroll-aware dock: hidden on scroll-down, back on scroll-up (see useScrollDirection). Skipped
+     while the keyboard is already forcing it hidden via the rule above. */
+  .app-bottom-nav { transition: transform .25s ease, opacity .25s ease; }
+  html.nav-hidden:not(.keyboard-open) .app-bottom-nav {
+    transform: translateY(calc(100% + env(safe-area-inset-bottom, 0px) + 1rem));
+    opacity: 0;
+    pointer-events: none;
+  }
   /* Page titles. Every screen used to pick its own arbitrary size (2.55/2.4/2.25/2rem) alongside
      the same four modifiers; these bundle the whole treatment so the scale stays a scale. */
   .display-xl, .display-lg, .display-md, .display-sm {
@@ -364,6 +372,21 @@
   /* A row nested inside a .card. Previously these borrowed --muted, which is also the segmented
      control's fill, so a list row and a tab strip were the same colour on the same screen. */
   .card-inset { background: var(--surface-3); border-radius: var(--r-md); padding: .75rem; }
+  /* A bigger thumb/track than the browser default (~14px thumb, 4px track) — the house-meeting
+     mood slider is the one raw <input type="range"> in the app, and at native size it's fiddly
+     to grab with a thumb. */
+  .mood-slider { height: 1.75rem; }
+  .mood-slider::-webkit-slider-runnable-track { height: .5rem; border-radius: 999px; background: var(--muted); }
+  .mood-slider::-moz-range-track { height: .5rem; border-radius: 999px; background: var(--muted); }
+  .mood-slider::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none; margin-top: -.625rem;
+    height: 1.75rem; width: 1.75rem; border-radius: 50%;
+    background: var(--primary); border: 3px solid var(--card); box-shadow: var(--elev-1);
+  }
+  .mood-slider::-moz-range-thumb {
+    height: 1.75rem; width: 1.75rem; border-radius: 50%; border: 3px solid var(--card);
+    background: var(--primary); box-shadow: var(--elev-1);
+  }
   .btn-pine, .btn-lemon, .btn-ghost { min-height: var(--ctl-lg); border-radius: var(--r-md); padding: .75rem 1rem; font-weight: 750; display: inline-flex; align-items: center; justify-content: center; gap: .5rem; }
   /* The main CTA reads from --ink, not --primary: --primary is the brand teal, reserved for
      icons/rings/progress/tags, and is too loud as a full-width button fill in either theme.
