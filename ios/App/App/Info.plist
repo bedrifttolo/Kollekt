@@ -79,6 +79,8 @@
 	<string>Kollekt lets you take photos to share in chat and on task feedback.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Kollekt lets you attach photos from your library to chat and task feedback.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Kollekt lets you attach photos from your library to chat and task feedback.</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>GADApplicationIdentifier</key>

@@ -147,6 +147,11 @@ export function CountUp({
   return <motion.span className={cn('tabular-nums', className)}>{text}</motion.span>;
 }
 
+/** The app's one loading indicator — a plain background plus this is the whole "loading" state. */
+export function LoadingDot({ className }: { className?: string }) {
+  return <div className={cn('h-8 w-8 rounded-full gradient-primary animate-pulse', className)} />;
+}
+
 export function Eyebrow({ children }: { children: ReactNode }) {
   return <p className="eyebrow">{children}</p>;
 }

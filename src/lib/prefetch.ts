@@ -11,6 +11,9 @@ import type {
   EconomySummary,
   CalendarEvent,
   GuestNotice,
+  LeaderboardResponse,
+  Achievement,
+  Fairness,
 } from './types';
 
 // Warms the caches after the active screen has had a chance to load. Running these
@@ -59,5 +62,23 @@ export async function prefetchMainData(queryClient: QueryClient, user: AppUser):
       ]);
       return { eventResponse, guestResponse };
     },
+  });
+
+  // Mirrors RanksPanel's default period ('OVERALL') so the Social tab's first visit each
+  // session renders from cache instead of showing a spinner too.
+  await queryClient.prefetchQuery({
+    queryKey: ['ranks', name, 'OVERALL'],
+    queryFn: async () => {
+      const [lb, ach] = await Promise.all([
+        api.get<LeaderboardResponse>(`/leaderboard?memberName=${enc}&period=OVERALL`),
+        api.get<Achievement[]>(`/achievements?memberName=${enc}`),
+      ]);
+      return { lb, ach };
+    },
+  });
+
+  await queryClient.prefetchQuery({
+    queryKey: ['fairness', name],
+    queryFn: () => api.get<Fairness>(`/fairness?memberName=${enc}`),
   });
 }

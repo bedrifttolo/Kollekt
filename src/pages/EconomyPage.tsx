@@ -367,7 +367,7 @@ export default function EconomyPage() {
               <select
                 value={selectedPayOption.name}
                 onChange={(e) => setSelectedCreditorName(e.target.value)}
-                className="w-full rounded-xl border border-white/20 bg-white/10 px-3 py-2.5 text-sm font-medium focus:outline-none focus:ring-1 focus:ring-secondary"
+                className="w-full min-h-[var(--ctl-lg)] rounded-xl border border-white/20 bg-white/10 px-3 py-2.5 text-sm font-medium focus:outline-none focus:ring-1 focus:ring-secondary"
                 aria-label={t('economy.payPersonLabel')}
               >
                 {payOptions.map((option) => (
@@ -492,9 +492,9 @@ export default function EconomyPage() {
                 <p className="text-sm font-semibold">{t('economy.newExpense')}</p>
                 <button onClick={() => setShowAdd(false)} aria-label={t('common.cancel')} className="grid h-11 w-11 shrink-0 place-items-center rounded-full"><X className="h-4 w-4 text-muted-foreground" /></button>
               </div>
-              <label className="block space-y-1"><span className="text-xs font-semibold text-muted-foreground">{t('economy.descriptionLabel')}</span><input value={newTitle} onChange={(e) => setNewTitle(e.target.value)} placeholder={t('economy.expenseTitlePlaceholder')} autoFocus className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" /></label>
-              <label className="block space-y-1"><span className="text-xs font-semibold text-muted-foreground">{t('economy.amountLabel')}</span><input type="number" min="1" step="1" inputMode="decimal" value={newAmount} onChange={(e) => setNewAmount(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && canAddExpense && void handleAddExpense()} placeholder={t('economy.expenseAmountPlaceholder')} className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" /></label>
-              <label className="block space-y-1"><span className="text-xs font-semibold text-muted-foreground">{t('economy.categoryLabel')}</span><select value={newCategory} onChange={(e) => setNewCategory(e.target.value)} className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary">{EXPENSE_CATEGORIES.map((c) => <option key={c} value={c}>{translateKey('common.expenseCategories', c)}</option>)}</select></label>
+              <label className="block space-y-1"><span className="text-xs font-semibold text-muted-foreground">{t('economy.descriptionLabel')}</span><input value={newTitle} onChange={(e) => setNewTitle(e.target.value)} placeholder={t('economy.expenseTitlePlaceholder')} autoFocus className="w-full min-h-[var(--ctl-lg)] bg-muted/50 rounded-lg px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" /></label>
+              <label className="block space-y-1"><span className="text-xs font-semibold text-muted-foreground">{t('economy.amountLabel')}</span><input type="number" min="1" step="1" inputMode="decimal" value={newAmount} onChange={(e) => setNewAmount(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && canAddExpense && void handleAddExpense()} placeholder={t('economy.expenseAmountPlaceholder')} className="w-full min-h-[var(--ctl-lg)] bg-muted/50 rounded-lg px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" /></label>
+              <label className="block space-y-1"><span className="text-xs font-semibold text-muted-foreground">{t('economy.categoryLabel')}</span><select value={newCategory} onChange={(e) => setNewCategory(e.target.value)} className="w-full min-h-[var(--ctl-lg)] bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary">{EXPENSE_CATEGORIES.map((c) => <option key={c} value={c}>{translateKey('common.expenseCategories', c)}</option>)}</select></label>
               {members.length > 0 && (
                 <div>
                   <p className="text-xs text-muted-foreground mb-1.5 flex items-center gap-1"><Users className="h-3 w-3" /> {t('economy.splitWith')}</p>
@@ -671,7 +671,7 @@ export default function EconomyPage() {
           {(showAllExpenses ? summary.expenses : summary.expenses.slice(0, 2)).map((e, i) => (
             <div key={e.id}>
               <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
-                className="glass rounded-xl p-3 flex items-center gap-3">
+                className="glass rounded-xl p-4 flex items-center gap-3">
                 <div className="h-9 w-9 rounded-lg bg-muted flex items-center justify-center shrink-0">
                   {e.paidBy === name
                     ? <ArrowUpRight className="h-4 w-4 text-primary" />

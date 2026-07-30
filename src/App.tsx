@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { MotionConfig } from 'framer-motion';
 import { UserProvider, useUser } from './context/UserContext';
 import AppLayout from './components/AppLayout';
+import { LoadingDot } from './components/ui-kit';
 
 // Route-level code splitting: each page loads as its own chunk so the initial
 // download stays small (the games engine alone is a large chunk that only
@@ -25,7 +26,7 @@ function AuthOnlyRoute({ children }: { children: React.ReactNode }) {
   const { currentUser, isLoading } = useUser();
   if (isLoading && !currentUser) return (
     <div className="min-h-screen bg-background flex items-center justify-center">
-      <div className="h-8 w-8 rounded-full gradient-primary animate-pulse" />
+      <LoadingDot />
     </div>
   );
   if (!currentUser) return <Navigate to="/login" replace />;
@@ -37,7 +38,7 @@ function GuestOnlyRoute({ children }: { children: React.ReactNode }) {
   const { currentUser, isLoading } = useUser();
   if (isLoading && !currentUser) return (
     <div className="min-h-screen bg-background flex items-center justify-center">
-      <div className="h-8 w-8 rounded-full gradient-primary animate-pulse" />
+      <LoadingDot />
     </div>
   );
   if (currentUser) {
@@ -49,7 +50,7 @@ function GuestOnlyRoute({ children }: { children: React.ReactNode }) {
 function RouteFallback() {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center">
-      <div className="h-8 w-8 rounded-full gradient-primary animate-pulse" />
+      <LoadingDot />
     </div>
   );
 }

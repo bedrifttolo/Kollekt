@@ -366,7 +366,13 @@ export default function CalendarPage() {
                     className="absolute inset-0 rounded-full border border-border elev-1 bg-white dark:bg-black"
                   />
                 )}
-                <span className={`relative z-10 contents ${isSelected ? 'text-black dark:text-white' : ''}`}>
+                {/* A real flex box, not `contents` — `position`/`z-index` don't apply to
+                    `display: contents` per spec. Chrome tolerates the combination and still
+                    stacks this above the absolutely-positioned pill, but Safari/WKWebView
+                    correctly drops the z-index, so the pill (always painted above unpositioned
+                    content) covered the text entirely on-device. A real box makes the stacking
+                    context actually exist, consistently across engines. */}
+                <span className={`relative z-10 flex flex-col items-center gap-1 ${isSelected ? 'text-black dark:text-white' : ''}`}>
                 <span
                   className={`text-[10px] font-bold uppercase tracking-[.04em] ${
                     isSelected ? "text-black/70 dark:text-white/70" : "text-muted-foreground"
@@ -451,7 +457,7 @@ export default function CalendarPage() {
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
                   placeholder={t(addMode === "guest" ? "calendar.guestNamePlaceholder" : "calendar.eventTitlePlaceholder")}
-                  className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                  className="w-full min-h-[var(--ctl-lg)] bg-muted/50 rounded-lg px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
                   onKeyDown={(e) => e.key === "Enter" && handleAdd()}
                 />
                 <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -668,7 +674,7 @@ export default function CalendarPage() {
                   value={editTitle}
                   onChange={(ev) => setEditTitle(ev.target.value)}
                   placeholder={t("calendar.eventTitlePlaceholder")}
-                  className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                  className="w-full min-h-[var(--ctl-lg)] bg-muted/50 rounded-lg px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
                 />
                 <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                   <div className="min-w-0 space-y-1">

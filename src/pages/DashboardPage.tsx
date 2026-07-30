@@ -302,8 +302,8 @@ export default function DashboardPage() {
                         {translate('checkin.mood')}
                         <input className="mt-2 w-full accent-primary" type="range" min="1" max="5" value={mood} onChange={(event) => setMood(Number(event.target.value))} />
                       </label>
-                      <input value={issue} onChange={(event) => setIssue(event.target.value)} placeholder={translate('checkin.issue')} className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm" />
-                      <input value={improvement} onChange={(event) => setImprovement(event.target.value)} placeholder={translate('checkin.improvement')} className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm" />
+                      <input value={issue} onChange={(event) => setIssue(event.target.value)} placeholder={translate('checkin.issue')} className="w-full min-h-[var(--ctl-lg)] rounded-xl border border-border bg-background px-3 py-2 text-sm" />
+                      <input value={improvement} onChange={(event) => setImprovement(event.target.value)} placeholder={translate('checkin.improvement')} className="w-full min-h-[var(--ctl-lg)] rounded-xl border border-border bg-background px-3 py-2 text-sm" />
                       <label className="flex items-center gap-2 text-xs text-muted-foreground">
                         <input type="checkbox" checked={anonymous} onChange={(event) => setAnonymous(event.target.checked)} />
                         {translate('checkin.anonymous')}

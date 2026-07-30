@@ -805,7 +805,7 @@ export default function ProfilePage() {
           <select
             value={violationRecipient}
             onChange={(event) => setViolationRecipient(event.target.value)}
-            className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm"
+            className="w-full min-h-[var(--ctl-lg)] rounded-xl border border-border bg-background px-3 py-2 text-sm"
             aria-label={t("profile.violations.recipientLabel")}
           >
             <option value="ALL">{t("profile.violations.wholeHousehold")}</option>
@@ -822,7 +822,7 @@ export default function ProfilePage() {
             onChange={(event) => setViolationNote(event.target.value)}
             placeholder={t("profile.violations.notePlaceholder")}
             rows={2}
-            className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm"
+            className="w-full min-h-[var(--ctl-lg)] rounded-xl border border-border bg-background px-3 py-2 text-sm"
           />
           <label className="flex items-center gap-2 text-xs text-muted-foreground">
             <input
@@ -936,7 +936,7 @@ export default function ProfilePage() {
                     inputMode="tel"
                     autoComplete="off"
                     maxLength={32}
-                    className="w-full bg-muted/50 rounded-xl px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                    className="w-full min-h-[var(--ctl-lg)] bg-muted/50 rounded-xl px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
                   />
                 </label>
                 <label className="block space-y-1">
@@ -948,7 +948,7 @@ export default function ProfilePage() {
                     inputMode="tel"
                     autoComplete="off"
                     maxLength={32}
-                    className="w-full bg-muted/50 rounded-xl px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                    className="w-full min-h-[var(--ctl-lg)] bg-muted/50 rounded-xl px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
                   />
                 </label>
                 <label className="block space-y-1">
@@ -960,7 +960,7 @@ export default function ProfilePage() {
                     autoComplete="off"
                     spellCheck={false}
                     maxLength={64}
-                    className="w-full bg-muted/50 rounded-xl px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                    className="w-full min-h-[var(--ctl-lg)] bg-muted/50 rounded-xl px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
                   />
                 </label>
                 <label className="block space-y-1">
@@ -973,7 +973,7 @@ export default function ProfilePage() {
                     autoComplete="off"
                     spellCheck={false}
                     maxLength={64}
-                    className="w-full bg-muted/50 rounded-xl px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                    className="w-full min-h-[var(--ctl-lg)] bg-muted/50 rounded-xl px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
                   />
                 </label>
                 <p className="text-[10px] text-muted-foreground">{t("profile.paymentMethods.hint")}</p>
@@ -1027,7 +1027,7 @@ export default function ProfilePage() {
                   onChange={(event) => setInviteEmail(event.target.value)}
                   placeholder={t("profile.inviteRoommates.emailPlaceholder")}
                   type="email"
-                  className="w-full bg-muted/50 rounded-xl px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                  className="w-full min-h-[var(--ctl-lg)] bg-muted/50 rounded-xl px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
                 />
                 <button
                   onClick={() => void handleInvite()}

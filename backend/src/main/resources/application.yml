@@ -1,4 +1,12 @@
 spring:
+  servlet:
+    multipart:
+      # Spring's defaults (1MB file / 1MB request) reject a real phone camera photo outright —
+      # even a compressed JPEG from a modern camera routinely runs several MB. Chat image
+      # messages go through /chat/images as multipart (ChatController), so this is the ceiling
+      # for that upload.
+      max-file-size: ${MULTIPART_MAX_FILE_SIZE:15MB}
+      max-request-size: ${MULTIPART_MAX_REQUEST_SIZE:15MB}
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/kollekt}
     username: ${SPRING_DATASOURCE_USERNAME:kollekt}

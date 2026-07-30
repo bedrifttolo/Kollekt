@@ -99,8 +99,10 @@ export async function pickChatBackgroundFile(): Promise<File | null> {
     const mime = `image/${format === 'jpg' ? 'jpeg' : format}`;
     const bytes = Uint8Array.from(atob(photo.base64String), (char) => char.charCodeAt(0));
     return new File([bytes], `wallpaper.${format}`, { type: mime });
-  } catch {
-    // Cancelled, denied, or unavailable on this build.
+  } catch (error) {
+    // Cancelled, denied, or unavailable on this build — logged so a real native failure is
+    // visible in the device console instead of looking identical to a plain cancel.
+    console.error('pickChatBackgroundFile failed', error);
     return null;
   }
 }

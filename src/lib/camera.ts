@@ -22,8 +22,11 @@ export async function capturePhotoFile(): Promise<File | null> {
     const bytes = Uint8Array.from(atob(photo.base64String), (char) => char.charCodeAt(0));
     const blob = new Blob([bytes], { type: mime });
     return new File([blob], `photo.${format}`, { type: mime });
-  } catch {
-    // Cancelled, denied, or unavailable on this build — let the caller decide what to do.
+  } catch (error) {
+    // Cancelled, denied, or unavailable on this build — let the caller decide what to do. Logged
+    // (not surfaced to the user) so a real native failure is visible in the device console instead
+    // of looking identical to a plain cancel.
+    console.error('capturePhotoFile failed', error);
     return null;
   }
 }

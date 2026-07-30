@@ -23,24 +23,6 @@ export const easeOut: Transition = { duration: 0.22, ease: [0, 0, 0.2, 1] };
 export const easeOutSlow: Transition = { duration: 0.38, ease: [0, 0, 0.2, 1] };
 
 /**
- * Route-level page transition, driven by AppLayout's AnimatePresence.
- *
- * Opacity only, deliberately. A `transform` on the route wrapper would make it the containing block
- * for every `position: fixed` descendant, so the FAB and all 20-odd `fixed inset-0` sheets would
- * jump out of place for the duration of each navigation. Opacity creates a stacking context but not
- * a containing block, so it is the one property that is safe here.
- *
- * The vertical lift people read as a "page transition" comes from listContainer/listItem inside the
- * page, which animate content rather than the positioned wrapper. Exit is faster than entrance: a
- * page leaving should get out of the way, not perform.
- */
-export const pageVariants: Variants = {
-  initial: { opacity: 0 },
-  animate: { opacity: 1, transition: { duration: 0.2, ease: [0, 0, 0.2, 1] } },
-  exit: { opacity: 0, transition: { duration: 0.12, ease: [0.4, 0, 1, 1] } },
-};
-
-/**
  * Staggered list reveal. Promoted from DashboardPage's local container/item pair, which was the
  * de-facto house style but never exported.
  *
