@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ChevronLeft,
@@ -89,6 +89,9 @@ export default function CalendarPage() {
   const [loading, setLoading] = useState(
     () => !sharedQueryClient.getQueryData(qk.calendar(currentUser?.name ?? "")),
   );
+  // Tracks whether this render followed a real loading state, so the content fade-in below only
+  // plays right after a genuine cold load — a warm revisit (loading never true) renders instantly.
+  const wasLoadingRef = useRef(loading);
 
   const name = currentUser?.name ?? "";
   const queryClient = useQueryClient();
@@ -280,16 +283,20 @@ export default function CalendarPage() {
     weekday: formatDate(selectedDate, { weekday: "long" }),
   });
 
-  if (loading)
+  if (loading) {
+    wasLoadingRef.current = true;
     return (
       <div className="flex items-center justify-center pt-16">
         <LoadingDot />
       </div>
     );
+  }
+  const justFinishedLoading = wasLoadingRef.current;
+  wasLoadingRef.current = false;
 
   return (
     <motion.div
-      initial={false}
+      initial={justFinishedLoading ? { opacity: 0 } : false}
       animate={{ opacity: 1, y: 0 }}
       className="space-y-4 pt-2"
     >
@@ -423,7 +430,7 @@ export default function CalendarPage() {
             <p className="text-sm font-medium">{t("calendar.subscribeTitle")}</p>
             <p className="text-[10px] leading-snug text-muted-foreground">{t("calendar.subscribeSubtitle")}</p>
           </div>
-          <span className="shrink-0 rounded-lg gradient-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground">
+          <span className="shrink-0 rounded-lg gradient-primary px-3 py-1.5 text-xs font-semibold text-ink-foreground">
             {t("calendar.subscribeButton")}
           </span>
         </a>
@@ -497,7 +504,7 @@ export default function CalendarPage() {
                     <button
                       key={eventType}
                       onClick={() => setNewType(eventType)}
-                      className={`flex min-h-11 min-w-0 items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-[10px] font-medium transition-all ${newType === eventType ? "gradient-primary text-primary-foreground" : "glass text-muted-foreground"}`}
+                      className={`flex min-h-11 min-w-0 items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-[10px] font-medium transition-all ${newType === eventType ? "gradient-primary text-ink-foreground" : "glass text-muted-foreground"}`}
                     >
                       <TypeIcon className="h-3.5 w-3.5 shrink-0" />
                       <span className="truncate">{translateKey("common.eventTypes", eventType)}</span>
@@ -507,7 +514,7 @@ export default function CalendarPage() {
                 </div>}
                 <button
                   onClick={handleAdd}
-                  className="w-full gradient-primary rounded-lg py-2 text-sm font-semibold text-primary-foreground"
+                  className="w-full gradient-primary rounded-lg py-2 text-sm font-semibold text-ink-foreground"
                 >
                   {t(addMode === "guest" ? "calendar.addGuestNotice" : "calendar.addEvent")}
                 </button>
@@ -603,7 +610,7 @@ export default function CalendarPage() {
                   <button
                     onClick={() => void handleAttendance(e, "JOINING")}
                     className={`flex min-h-11 items-center gap-1 rounded-full px-3 py-2 text-xs font-semibold transition-colors ${
-                      e.joining.includes(name) ? "gradient-primary text-primary-foreground" : "glass text-muted-foreground"
+                      e.joining.includes(name) ? "gradient-primary text-ink-foreground" : "glass text-muted-foreground"
                     }`}
                   >
                     <Check className="h-3.5 w-3.5 shrink-0" />
@@ -707,7 +714,7 @@ export default function CalendarPage() {
                     <button
                       key={eventType}
                       onClick={() => setEditType(eventType)}
-                      className={`flex min-h-11 min-w-0 items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-[10px] font-medium transition-all ${editType === eventType ? "gradient-primary text-primary-foreground" : "glass text-muted-foreground"}`}
+                      className={`flex min-h-11 min-w-0 items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-[10px] font-medium transition-all ${editType === eventType ? "gradient-primary text-ink-foreground" : "glass text-muted-foreground"}`}
                     >
                       <TypeIcon className="h-3.5 w-3.5 shrink-0" />
                       <span className="truncate">{translateKey("common.eventTypes", eventType)}</span>
@@ -717,7 +724,7 @@ export default function CalendarPage() {
                 </div>
                 <button
                   onClick={handleEditSave}
-                  className="w-full gradient-primary rounded-lg py-2 text-sm font-semibold text-primary-foreground"
+                  className="w-full gradient-primary rounded-lg py-2 text-sm font-semibold text-ink-foreground"
                 >
                   {t("calendar.saveChanges")}
                 </button>
@@ -726,7 +733,7 @@ export default function CalendarPage() {
           )}
         </AnimatePresence>
       </div>
-      {!showAdd && <Fab tone="sage" onClick={() => setShowAdd(true)} label={t("calendar.newEvent")} />}
+      {!showAdd && <Fab onClick={() => setShowAdd(true)} label={t("calendar.newEvent")} />}
     </motion.div>
   );
 }

@@ -40,7 +40,7 @@ export default function LanguageSwitcher({ className }: { className?: string }) 
             title={t(`languages.${language}`)}
             className={cn(
               'shrink-0 rounded-lg px-2 py-1 text-[10px] font-semibold transition-colors sm:px-2.5 sm:text-[11px]',
-              isActive ? 'gradient-primary text-primary-foreground' : 'text-muted-foreground',
+              isActive ? 'gradient-primary text-ink-foreground' : 'text-muted-foreground',
             )}
           >
             {languageLabels[language]}

@@ -390,7 +390,7 @@ export default function CollektGamePage() {
             />
             <button
               onClick={handleAddGuest}
-              className="pressable-tight h-10 w-10 rounded-xl gradient-primary text-primary-foreground flex items-center justify-center shrink-0"
+              className="pressable-tight h-10 w-10 rounded-xl gradient-primary text-ink-foreground flex items-center justify-center shrink-0"
               aria-label={t('kollektGame.setup.addGuestAria')}
             >
               <Plus className="h-4 w-4" />
@@ -406,7 +406,7 @@ export default function CollektGamePage() {
           disabled={!canStart}
           className={`w-full rounded-2xl py-4 font-display font-bold flex items-center justify-center gap-2 transition-opacity ${
             canStart
-              ? 'gradient-primary text-primary-foreground'
+              ? 'gradient-primary text-ink-foreground'
               : 'bg-muted text-muted-foreground opacity-50 cursor-not-allowed'
           }`}
         >
@@ -509,7 +509,7 @@ export default function CollektGamePage() {
         </button>
         <button
           onClick={handleStartGame}
-          className="gradient-primary rounded-2xl py-4 font-display font-bold text-primary-foreground flex items-center justify-center gap-2"
+          className="gradient-primary rounded-2xl py-4 font-display font-bold text-ink-foreground flex items-center justify-center gap-2"
         >
           <Beer className="h-5 w-5" />
           {t('kollektGame.config.startGame')}
@@ -596,7 +596,7 @@ export default function CollektGamePage() {
         <div className="grid grid-cols-[1fr_auto] gap-2">
           <button
             onClick={handleResolve}
-            className="gradient-primary rounded-2xl py-4 font-display font-bold text-primary-foreground flex items-center justify-center gap-2"
+            className="gradient-primary rounded-2xl py-4 font-display font-bold text-ink-foreground flex items-center justify-center gap-2"
           >
             <ArrowRight className="h-5 w-5" />
             {t('kollektGame.playing.done')}
@@ -675,7 +675,7 @@ export default function CollektGamePage() {
           </button>
           <button
             onClick={() => navigate(-1)}
-            className="gradient-primary rounded-2xl py-4 font-display font-bold text-primary-foreground flex items-center justify-center gap-2 text-sm"
+            className="gradient-primary rounded-2xl py-4 font-display font-bold text-ink-foreground flex items-center justify-center gap-2 text-sm"
           >
             <CheckCircle2 className="h-4 w-4" />
             {t('kollektGame.summary.backToGames')}

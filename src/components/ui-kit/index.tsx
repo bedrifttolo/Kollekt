@@ -338,7 +338,7 @@ export function OverflowMenu({
   );
 }
 
-export function Fab({ label, className, onClick, tone, ...props }: Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'onAnimationStart' | 'onDragStart' | 'onDragEnd' | 'onDrag'> & { label: string; tone?: Tone }) {
+export function Fab({ label, className, onClick, ...props }: Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'onAnimationStart' | 'onDragStart' | 'onDragEnd' | 'onDrag'> & { label: string }) {
   return (
     <motion.button
       aria-label={label}
@@ -353,10 +353,10 @@ export function Fab({ label, className, onClick, tone, ...props }: Omit<ButtonHT
       whileTap={{ scale: 0.9, rotate: 90 }}
       data-motion-press
       className={cn(
-        'elev-3 fixed right-5 z-30 grid place-items-center rounded-full',
-        // Matches the tinted page header on pages that carry a tone identity (see AppHeader) —
-        // no tone means the neutral page (Home) keeps the app's default secondary-colour FAB.
-        tone ? `tone-tile tone-${tone}` : 'bg-secondary text-secondary-foreground',
+        // Fixed neutral ink fill everywhere — matte black on light, white/light-gray on dark —
+        // the same colour as the bottom nav's active-tab fill and .btn-pine, never the current
+        // page's identity tone (that stays on the header only, see AppHeader's pageTones).
+        'elev-3 fixed right-5 z-30 grid place-items-center rounded-full bg-ink text-ink-foreground',
         className,
       )}
       {...props}
@@ -656,7 +656,7 @@ export function Chip({
         interactive && 'pressable',
         !interactive && 'py-1.5',
         active
-          ? 'border-transparent bg-primary text-primary-foreground dark:bg-white dark:text-black'
+          ? 'border-transparent bg-ink text-ink-foreground'
           : tone
             ? `tone-${tone} tone-wash tone-edge`
             : 'border-border bg-card text-foreground',

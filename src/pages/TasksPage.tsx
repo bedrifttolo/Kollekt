@@ -29,7 +29,6 @@ import {
   Wrench,
   AlertTriangle,
   Lightbulb,
-  ChevronDown,
 } from 'lucide-react';
 import { api } from '../lib/api';
 import { capturePhotoFile, nativeCameraAvailable } from '../lib/camera';
@@ -94,16 +93,6 @@ function TaskEditor({
   const { t } = useTranslation();
   const xp = Number(newXp);
   const canSave = newTitle.trim().length > 0 && Number.isInteger(xp) && xp >= 1 && xp <= 1000;
-  const quickDueDate = (offsetDays: number) => {
-    const date = new Date();
-    date.setDate(date.getDate() + offsetDays);
-    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-  };
-  const quickDueOptions = [
-    { labelKey: 'tasks.quickDueToday', value: quickDueDate(0) },
-    { labelKey: 'tasks.quickDueTomorrow', value: quickDueDate(1) },
-    { labelKey: 'tasks.quickDueNextWeek', value: quickDueDate(7) },
-  ];
 
   return (
     <AddSheet title={title} onClose={onClose}>
@@ -130,7 +119,7 @@ function TaskEditor({
               onClick={() => setNewAssignee(member)}
               aria-pressed={newAssignee === member}
               className={`flex min-h-11 items-center gap-1.5 rounded-full py-1 pl-1 pr-3 text-xs font-bold transition-colors ${
-                newAssignee === member ? 'bg-primary text-primary-foreground dark:bg-white dark:text-black' : 'bg-muted/60 text-muted-foreground'
+                newAssignee === member ? 'bg-ink text-ink-foreground' : 'bg-muted/60 text-muted-foreground'
               }`}
             >
               <Avatar name={member} className="h-8 w-8 text-[11px]" />
@@ -150,29 +139,15 @@ function TaskEditor({
         )}
       </div>
 
-      <div className="space-y-1">
+      <label className="block space-y-1">
         <span className="text-xs font-semibold text-muted-foreground">{t('tasks.dueDateLabel')}</span>
-        <div className="flex flex-wrap gap-1.5">
-          {quickDueOptions.map((option) => (
-            <button
-              key={option.labelKey}
-              type="button"
-              onClick={() => setNewDue(newDue === option.value ? '' : option.value)}
-              className={`min-h-11 rounded-full px-3 text-xs font-bold transition-colors ${
-                newDue === option.value ? 'bg-primary text-primary-foreground dark:bg-white dark:text-black' : 'bg-muted/60 text-muted-foreground'
-              }`}
-            >
-              {t(option.labelKey)}
-            </button>
-          ))}
-          <input
-            type="date"
-            value={newDue}
-            onChange={(event) => setNewDue(event.target.value)}
-            className="min-h-11 rounded-full bg-muted/60 px-3 text-xs font-bold text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-          />
-        </div>
-      </div>
+        <input
+          type="date"
+          value={newDue}
+          onChange={(event) => setNewDue(event.target.value)}
+          className="w-full min-h-[var(--ctl-lg)] bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+        />
+      </label>
 
       <div className="space-y-1">
         <span className="text-xs font-semibold text-muted-foreground">{t('tasks.categoryLabel')}</span>
@@ -187,7 +162,7 @@ function TaskEditor({
                 onClick={() => setNewCategory(category)}
                 aria-pressed={active}
                 className={`flex min-h-11 items-center gap-1.5 rounded-full px-3 text-xs font-bold transition-colors ${
-                  active ? 'bg-primary text-primary-foreground dark:bg-white dark:text-black' : 'bg-muted/60 text-muted-foreground'
+                  active ? 'bg-ink text-ink-foreground' : 'bg-muted/60 text-muted-foreground'
                 }`}
               >
                 <CategoryIcon className="h-3.5 w-3.5 shrink-0" />
@@ -198,38 +173,28 @@ function TaskEditor({
         </div>
       </div>
 
-      {/* Recurrence and XP are set once in a blue moon; the defaults (never / 10 XP) are right
-          almost always, so they move behind a disclosure instead of padding out the form. */}
-      <details className="group">
-        <summary className="flex min-h-11 cursor-pointer list-none items-center gap-1.5 text-xs font-bold text-muted-foreground [&::-webkit-details-marker]:hidden">
-          <ChevronDown className="h-3.5 w-3.5 transition-transform group-open:rotate-180" />
-          {t('tasks.moreOptions')}
-        </summary>
-        <div className="space-y-2 pt-2">
-          <label className="space-y-1 block">
-            <span className="text-xs font-semibold text-muted-foreground">{t('tasks.recurrenceLabel')}</span>
-            <select value={newRecurrence} onChange={(event) => setNewRecurrence(event.target.value)} className="w-full min-h-[var(--ctl-lg)] bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary">
-              {RECURRENCE_OPTIONS.map((recurrence) => <option key={recurrence} value={recurrence}>{translateKey('common.recurrence', recurrence)}</option>)}
-            </select>
-          </label>
-          <div className="flex items-center gap-2">
-            <Zap className="h-4 w-4 text-primary" />
-            <input
-              type="number"
-              min={1}
-              max={1000}
-              value={newXp}
-              onChange={(event) => setNewXp(event.target.value)}
-              className="w-20 bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
-            />
-            <span className="text-xs text-muted-foreground">{t('tasks.xpReward')}</span>
-          </div>
-        </div>
-      </details>
+      <label className="space-y-1 block">
+        <span className="text-xs font-semibold text-muted-foreground">{t('tasks.recurrenceLabel')}</span>
+        <select value={newRecurrence} onChange={(event) => setNewRecurrence(event.target.value)} className="w-full min-h-[var(--ctl-lg)] bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary">
+          {RECURRENCE_OPTIONS.map((recurrence) => <option key={recurrence} value={recurrence}>{translateKey('common.recurrence', recurrence)}</option>)}
+        </select>
+      </label>
+      <div className="flex items-center gap-2">
+        <Zap className="h-4 w-4 text-primary" />
+        <input
+          type="number"
+          min={1}
+          max={1000}
+          value={newXp}
+          onChange={(event) => setNewXp(event.target.value)}
+          className="w-20 bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+        />
+        <span className="text-xs text-muted-foreground">{t('tasks.xpReward')}</span>
+      </div>
       <button
         onClick={onSave}
         disabled={!canSave}
-        className="w-full gradient-primary rounded-lg py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+        className="w-full gradient-primary rounded-lg py-2 text-sm font-semibold text-ink-foreground disabled:opacity-50"
       >
         {saveLabel}
       </button>
@@ -310,6 +275,9 @@ function TasksMain() {
   const [buyDeadline, setBuyDeadline] = useState('');
   const [buyCategory, setBuyCategory] = useState<string>('Groceries');
   const [loading, setLoading] = useState(() => !cachedTaskBundle());
+  // Tracks whether this render followed a real loading state, so the content fade-in below only
+  // plays right after a genuine cold load — a warm revisit (loading never true) renders instantly.
+  const wasLoadingRef = useRef(loading);
   const [pendingTaskIds, setPendingTaskIds] = useState<Set<number>>(new Set());
   // Which task's checkbox is currently flying its "+N XP" chip. One at a time — the chip clears
   // itself after ~900ms via XpBurst's onDone.
@@ -961,12 +929,15 @@ function TasksMain() {
     });
 
   if (loading) {
+    wasLoadingRef.current = true;
     return (
       <div className="flex items-center justify-center pt-16">
         <LoadingDot />
       </div>
     );
   }
+  const justFinishedLoading = wasLoadingRef.current;
+  wasLoadingRef.current = false;
 
   const completedCount = currentTasks.filter((task) => task.completed).length;
   const taskTotal = currentTasks.length;
@@ -986,7 +957,7 @@ function TasksMain() {
 
   return (
     <motion.div
-      initial={false}
+      initial={justFinishedLoading ? { opacity: 0 } : false}
       animate={{ opacity: 1, y: 0 }}
       className="space-y-4 pt-4"
     >
@@ -1004,7 +975,7 @@ function TasksMain() {
               onClick={() => { setTab(value); setShowAdd(false); setShowShoppingAdd(false); setShowMaintenanceAdd(false); }}
               className={`flex flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg py-2.5 text-sm font-semibold transition-all ${
                 tab === value
-                  ? 'bg-primary text-primary-foreground shadow-sm dark:bg-white dark:text-black'
+                  ? 'bg-ink text-ink-foreground shadow-sm'
                   : 'text-muted-foreground'
               }`}
             >
@@ -1016,17 +987,16 @@ function TasksMain() {
       </div>
 
       {tab === 'tasks' && (
-        <div className="househero hero-lilac">
-          <p className="text-xs font-bold uppercase tracking-[.15em] text-white/65">{t('tasks.progressLabel')}</p>
+        <div className="househero hero-ink">
+          <p className="text-xs font-bold uppercase tracking-[.15em] text-ink-foreground/65">{t('tasks.progressLabel')}</p>
           <p className="bignum mt-3">{completedCount}<span className="text-secondary">/{taskTotal}</span> <span className="text-2xl tracking-normal">{t('tasks.done')}</span></p>
-          <p className="mt-2 text-sm text-white/70">{t('tasks.remaining', { count: Math.max(0, taskTotal - completedCount) })}</p>
-          <ProgressBar value={completionPercent} className="mt-4 bg-white/20" />
+          <p className="mt-2 text-sm text-ink-foreground/70">{t('tasks.remaining', { count: Math.max(0, taskTotal - completedCount) })}</p>
+          <ProgressBar value={completionPercent} className="mt-4 bg-ink-foreground/20" />
         </div>
       )}
 
       {!showAdd && !showShoppingAdd && !showMaintenanceAdd && (
         <Fab
-          tone="mint"
           onClick={() => {
             if (tab === 'tasks') { resetForm(); setShowAdd(true); }
             else if (tab === 'shopping') setShowShoppingAdd(true);
@@ -1071,7 +1041,7 @@ function TasksMain() {
               <button
                 onClick={() => void handleShoppingAdd()}
                 disabled={!newShoppingName.trim()}
-                className="w-full gradient-primary rounded-lg py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+                className="w-full gradient-primary rounded-lg py-2 text-sm font-semibold text-ink-foreground disabled:opacity-50"
               >
                 {t('tasks.addSupply')}
               </button>
@@ -1098,7 +1068,7 @@ function TasksMain() {
                 <label className="min-w-0 space-y-1"><span className="text-xs font-semibold text-muted-foreground">{t('tasks.maintenance.dueDateLabel')}</span><input type="date" value={newMaintenanceDue} onChange={(event) => setNewMaintenanceDue(event.target.value)} className="w-full min-w-0 rounded-lg bg-muted/50 px-3 py-2 text-sm" /></label>
               </div>
               <p className="text-[10px] text-muted-foreground">{t('tasks.maintenance.costLaterHint')}</p>
-              <button onClick={() => void handleMaintenanceAdd()} disabled={!newMaintenanceTitle.trim()} className="w-full rounded-lg bg-primary py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50 dark:bg-white dark:text-black">{t('tasks.maintenance.addTicket')}</button>
+              <button onClick={() => void handleMaintenanceAdd()} disabled={!newMaintenanceTitle.trim()} className="w-full rounded-lg bg-ink py-2 text-sm font-semibold text-ink-foreground disabled:opacity-50">{t('tasks.maintenance.addTicket')}</button>
             </AddSheet>
           </motion.div>
         )}
@@ -1124,7 +1094,7 @@ function TasksMain() {
                       <div className="mt-3 flex gap-2">
                         <button
                           onClick={() => void resolveTaskSwap(request.id, 'ACCEPTED')}
-                          className="rounded-full bg-primary px-3 py-2 text-xs font-bold text-primary-foreground dark:bg-white dark:text-black"
+                          className="rounded-full bg-ink px-3 py-2 text-xs font-bold text-ink-foreground"
                         >
                           {t('tasks.swap.accept')}
                         </button>
@@ -1351,7 +1321,7 @@ function TasksMain() {
                         <button
                           onClick={() => void requestTaskSwap(task.id)}
                           disabled={!swapRecipient}
-                          className="rounded-lg bg-primary px-3 py-2 text-xs font-bold text-primary-foreground disabled:opacity-50 dark:bg-white dark:text-black"
+                          className="rounded-lg bg-ink px-3 py-2 text-xs font-bold text-ink-foreground disabled:opacity-50"
                         >
                           {t('tasks.swap.send')}
                         </button>
@@ -1418,7 +1388,7 @@ function TasksMain() {
                               onClick={() => {
                                 void addFeedback(task.id);
                               }}
-                              className="px-2 rounded-lg gradient-primary text-[10px] font-medium text-primary-foreground"
+                              className="px-2 rounded-lg gradient-primary text-[10px] font-medium text-ink-foreground"
                             >
                               {t('common.send')}
                             </button>
@@ -1510,11 +1480,11 @@ function TasksMain() {
         </>
       ) : tab === 'shopping' ? (
         <div className="space-y-3">
-          <div className="househero hero-lilac">
-            <p className="text-xs font-bold uppercase tracking-[.15em] text-white/65">{t('tasks.restockTitle')}</p>
+          <div className="househero hero-ink">
+            <p className="text-xs font-bold uppercase tracking-[.15em] text-ink-foreground/65">{t('tasks.restockTitle')}</p>
             <p className="bignum mt-3">{shoppingToBuy} <span className="text-2xl tracking-normal">{t('tasks.shopping.toBuyUnit')}</span></p>
-            <p className="mt-2 text-sm text-white/70">{t('tasks.shopping.boughtCount', { count: shoppingBought })}</p>
-            <ProgressBar value={shoppingPercent} className="mt-4 bg-white/20" />
+            <p className="mt-2 text-sm text-ink-foreground/70">{t('tasks.shopping.boughtCount', { count: shoppingBought })}</p>
+            <ProgressBar value={shoppingPercent} className="mt-4 bg-ink-foreground/20" />
           </div>
 
           <div className="flex flex-wrap gap-2">
@@ -1573,7 +1543,7 @@ function TasksMain() {
 	                    ) : (
 	                      <button
 	                        onClick={() => openBuyForm(item)}
-	                        className="flex h-12 flex-1 items-center justify-center gap-1.5 rounded-xl gradient-primary px-4 text-sm font-semibold text-primary-foreground shadow-sm"
+	                        className="flex h-12 flex-1 items-center justify-center gap-1.5 rounded-xl gradient-primary px-4 text-sm font-semibold text-ink-foreground shadow-sm"
 	                      >
 	                        <ShoppingCart className="h-4 w-4" />
 	                        {t('tasks.shopping.buy')}
@@ -1654,7 +1624,7 @@ function TasksMain() {
                             onClick={() => toggleBuyParticipant(member)}
                             className={`px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors ${
                               buyParticipants.includes(member)
-                                ? 'gradient-primary text-primary-foreground'
+                                ? 'gradient-primary text-ink-foreground'
                                 : 'glass text-muted-foreground'
                             }`}
                           >
@@ -1685,7 +1655,7 @@ function TasksMain() {
                           onClick={() => {
                             void submitBought(item.id);
                           }}
-                          className="flex-1 rounded-lg gradient-primary py-2 text-sm font-semibold text-primary-foreground"
+                          className="flex-1 rounded-lg gradient-primary py-2 text-sm font-semibold text-ink-foreground"
                         >
                           {t('tasks.shopping.logPurchase')}
                         </button>
@@ -1721,7 +1691,7 @@ function TasksMain() {
                           onClick={() => {
                             void saveEditShop(item.id);
                           }}
-                          className="px-3 rounded-lg gradient-primary text-xs font-medium text-primary-foreground"
+                          className="px-3 rounded-lg gradient-primary text-xs font-medium text-ink-foreground"
                         >
                           {t('tasks.saveChanges')}
                         </button>
@@ -1742,16 +1712,16 @@ function TasksMain() {
         </div>
       ) : (
         <div className="space-y-3">
-          <div className="househero hero-lilac">
-            <p className="text-xs font-bold uppercase tracking-[.15em] text-white/65">{t('tasks.maintenance.boardTitle')}</p>
+          <div className="househero hero-ink">
+            <p className="text-xs font-bold uppercase tracking-[.15em] text-ink-foreground/65">{t('tasks.maintenance.boardTitle')}</p>
             <p className="bignum mt-3">{maintenanceOpen} <span className="text-2xl tracking-normal">{t('tasks.maintenance.openUnit')}</span></p>
-            <p className="mt-2 text-sm text-white/70">{t('tasks.maintenance.heroSubtitle', { overdue: maintenanceOverdue, done: maintenanceDone })}</p>
-            <ProgressBar value={maintenancePercent} className="mt-4 bg-white/20" />
+            <p className="mt-2 text-sm text-ink-foreground/70">{t('tasks.maintenance.heroSubtitle', { overdue: maintenanceOverdue, done: maintenanceDone })}</p>
+            <ProgressBar value={maintenancePercent} className="mt-4 bg-ink-foreground/20" />
           </div>
 
           <div className="flex flex-wrap gap-2">
             {(['ALL', 'OPEN', 'IN_PROGRESS', 'BLOCKED', 'DONE'] as const).map((status) => (
-              <button key={status} onClick={() => setMaintenanceFilter(status)} className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${maintenanceFilter === status ? 'gradient-primary text-primary-foreground' : 'glass text-muted-foreground'}`}>
+              <button key={status} onClick={() => setMaintenanceFilter(status)} className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${maintenanceFilter === status ? 'gradient-primary text-ink-foreground' : 'glass text-muted-foreground'}`}>
                 {status === 'ALL' ? t('tasks.maintenance.all') : t(`tasks.maintenance.statuses.${status}`)}
               </button>
             ))}
@@ -1832,7 +1802,7 @@ function TasksMain() {
                     <textarea value={editTicketDescription} onChange={(event) => setEditTicketDescription(event.target.value)} placeholder={t('tasks.maintenance.descriptionPlaceholder')} rows={2} className="w-full resize-none rounded-lg bg-muted/50 px-3 py-2 text-sm" />
                     <input type="date" value={editTicketDue} onChange={(event) => setEditTicketDue(event.target.value)} className="w-full rounded-lg bg-muted/50 px-3 py-2 text-sm" />
                     <div className="flex gap-2">
-                      <button onClick={() => void saveEditTicket()} disabled={!editTicketTitle.trim()} className="flex-1 rounded-lg bg-primary py-2 text-xs font-bold text-primary-foreground disabled:opacity-50 dark:bg-white dark:text-black">{t('tasks.maintenance.saveEdit')}</button>
+                      <button onClick={() => void saveEditTicket()} disabled={!editTicketTitle.trim()} className="flex-1 rounded-lg bg-ink py-2 text-xs font-bold text-ink-foreground disabled:opacity-50">{t('tasks.maintenance.saveEdit')}</button>
                       <button onClick={() => setEditingTicketId(null)} className="flex-1 rounded-lg glass py-2 text-xs font-medium">{t('common.cancel')}</button>
                     </div>
                   </div>
@@ -1900,7 +1870,7 @@ function TasksMain() {
                         <button
                           key={member}
                           onClick={() => setCompleteSplit((prev) => selected ? prev.filter((m) => m !== member) : [...prev, member])}
-                          className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${selected ? 'bg-primary text-primary-foreground dark:bg-white dark:text-black' : 'bg-muted/60 text-muted-foreground'}`}
+                          className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${selected ? 'bg-ink text-ink-foreground' : 'bg-muted/60 text-muted-foreground'}`}
                         >
                           {member}
                         </button>
@@ -1913,7 +1883,7 @@ function TasksMain() {
               <button
                 onClick={() => void confirmCompleteTicket()}
                 disabled={Number(completeCost) > 0 && completeSplit.length === 0}
-                className="w-full rounded-xl bg-primary py-2.5 text-sm font-bold text-primary-foreground disabled:opacity-50 dark:bg-white dark:text-black"
+                className="w-full rounded-xl bg-ink py-2.5 text-sm font-bold text-ink-foreground disabled:opacity-50"
               >
                 {t('tasks.maintenance.completeConfirm')}
               </button>

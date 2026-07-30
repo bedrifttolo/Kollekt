@@ -70,7 +70,7 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
-	<true/>
+	<false/>
 	<key>NSCalendarsWriteOnlyAccessUsageDescription</key>
 	<string>Kollekt adds your household events to your calendar.</string>
 	<key>NSCalendarsUsageDescription</key>

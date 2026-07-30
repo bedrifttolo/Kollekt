@@ -377,9 +377,6 @@
     "taskTitleLabel": "Vad behöver göras?",
     "assigneeLabel": "Tilldelad till",
     "dueDateLabel": "Förfallodatum",
-    "quickDueToday": "I dag",
-    "quickDueTomorrow": "I morgon",
-    "quickDueNextWeek": "Nästa vecka",
     "fairSuggestion": "Tips: {{name}} har minst antal öppna uppgifter",
     "categoryLabel": "Uppgiftstyp",
     "recurrenceLabel": "Upprepas",
@@ -486,8 +483,7 @@
         "BLOCKED": "Blockerad",
         "DONE": "Klar"
       }
-    },
-    "moreOptions": "Fler val"
+    }
   },
   "checkin": {
     "title": "Veckans husavstämning",
@@ -594,6 +590,8 @@
   },
   "chat": {
     "threadTitle": "Kollektivet",
+    "collapseHeader": "Dölj header",
+    "expandHeader": "Visa header",
     "householdThread": "Kollektivet",
     "directSubtitle": "Privat – bara ni två",
     "onlineCount": "{{count}} online",

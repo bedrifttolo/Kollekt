@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TrendingUp, Flame, Star, Pencil, X, SlidersHorizontal, Plus, Trash2, Check, StarHalf, Home, Trophy, Zap, Award, Sparkles, Heart, Crown, Medal, Target, Rocket, Leaf, Sun, Gift, Scale, type LucideIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -120,6 +120,9 @@ export default function RanksPanel() {
   // instantly on the very first paint instead of flashing the skeleton for one frame.
   const data = ranksQuery.data?.lb ?? null;
   const loading = ranksQuery.isPending;
+  // Tracks whether this render followed a real loading state, so the content fade-in below only
+  // plays right after a genuine cold load — a warm revisit (loading never true) renders instantly.
+  const wasLoadingRef = useRef(loading);
 
   const fetchData = async (_p: LeaderboardPeriod) => {
     await queryClient.invalidateQueries({ queryKey: ['ranks', name] });
@@ -218,19 +221,22 @@ export default function RanksPanel() {
   };
 
   if (loading || !data) {
+    wasLoadingRef.current = true;
     return (
       <div className="flex items-center justify-center pt-16">
         <LoadingDot />
       </div>
     );
   }
+  const justFinishedLoading = wasLoadingRef.current;
+  wasLoadingRef.current = false;
 
   const top3 = data.players.slice(0, 3);
   const podiumOrder = top3.length >= 3 ? [top3[1], top3[0], top3[2]] : top3;
   const ps = data.periodStats;
 
   return (
-    <div className="space-y-5">
+    <motion.div initial={justFinishedLoading ? { opacity: 0 } : false} animate={{ opacity: 1 }} className="space-y-5">
       {/* Podium */}
       {podiumOrder.length >= 2 && (
         <div className="flex items-end justify-center gap-3 pt-12">
@@ -313,7 +319,7 @@ export default function RanksPanel() {
           <button
             key={p}
             onClick={() => setPeriod(p)}
-            className={`rounded-full px-3 py-1.5 text-xs font-bold transition-colors ${p === period ? 'bg-primary text-primary-foreground dark:bg-white dark:text-black' : 'bg-card border border-border text-muted-foreground'}`}
+            className={`rounded-full px-3 py-1.5 text-xs font-bold transition-colors ${p === period ? 'bg-ink text-ink-foreground' : 'bg-card border border-border text-muted-foreground'}`}
           >
             {translateKey('common.leaderboardPeriods', p)}
           </button>
@@ -614,7 +620,7 @@ export default function RanksPanel() {
                                 onClick={() => setCustomIcon(key)}
                                 aria-label={key}
                                 aria-pressed={customIcon === key}
-                                className={`grid h-11 w-11 place-items-center rounded-xl border transition-colors ${customIcon === key ? 'gradient-primary border-transparent text-primary-foreground' : 'border-border bg-card text-muted-foreground'}`}
+                                className={`grid h-11 w-11 place-items-center rounded-xl border transition-colors ${customIcon === key ? 'gradient-primary border-transparent text-ink-foreground' : 'border-border bg-card text-muted-foreground'}`}
                               >
                                 <Icon className="h-4 w-4" />
                               </button>
@@ -642,6 +648,6 @@ export default function RanksPanel() {
           </>
         )}
       </AnimatePresence>
-    </div>
+    </motion.div>
   );
 }

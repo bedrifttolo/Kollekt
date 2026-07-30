@@ -63,7 +63,7 @@ export default function SubscriptionPaywall({ onClose }: SubscriptionPaywallProp
         <button
           onClick={() => void handleSubscribe()}
           disabled={busy}
-          className="mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 text-sm font-bold text-primary-foreground disabled:opacity-50 dark:bg-white dark:text-black"
+          className="mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-ink px-4 py-3 text-sm font-bold text-ink-foreground disabled:opacity-50"
         >
           {t('social.games.paywall.subscribe')}
         </button>

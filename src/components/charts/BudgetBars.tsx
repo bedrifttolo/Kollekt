@@ -132,7 +132,7 @@ export default function BudgetBars({
                     <button
                       onClick={() => void save(category)}
                       disabled={saving}
-                      className="grid h-11 w-11 shrink-0 place-items-center rounded-lg gradient-primary text-primary-foreground disabled:opacity-60"
+                      className="grid h-11 w-11 shrink-0 place-items-center rounded-lg gradient-primary text-ink-foreground disabled:opacity-60"
                       aria-label={t('economy.saveChanges')}
                     >
                       <Check className="h-4 w-4" />

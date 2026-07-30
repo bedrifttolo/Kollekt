@@ -342,8 +342,8 @@ export default function EconomyPage() {
       </div>
 
       {/* Balance card */}
-      <div className="wallet hero-lilac">
-        <p className="text-xs font-bold uppercase tracking-[.16em] text-white/65 mb-1">{t('economy.yourBalance')}</p>
+      <div className="wallet hero-ink">
+        <p className="text-xs font-bold uppercase tracking-[.16em] text-ink-foreground/65 mb-1">{t('economy.yourBalance')}</p>
         {/* Amount colours come from the hero palette, not the page palette: `text-foreground` and
             `text-primary` are both the hero's own colour in the light theme, which made a settled
             balance disappear into the card. A zero balance just inherits the hero foreground. */}
@@ -352,7 +352,7 @@ export default function EconomyPage() {
           {getAmount > 0 && '+ '}
           <CountUp value={oweAmount > 0 ? oweAmount : getAmount} format={formatCurrency} />
         </p>
-        <p className="mt-1 flex items-center gap-1.5 text-xs text-white/70">
+        <p className="mt-1 flex items-center gap-1.5 text-xs text-ink-foreground/70">
           {hasPayOptions && selectedPayOption ? t('economy.owe', { name: selectedPayOption.name, amount: formatCurrency(selectedPayOption.amount) })
           : oweAmount > 0 && fallbackCreditor ? t('economy.owe', { name: fallbackCreditor.name, amount: formatCurrency(oweAmount) })
           : getAmount > 0 ? t('economy.othersOweYou')
@@ -367,7 +367,7 @@ export default function EconomyPage() {
               <select
                 value={selectedPayOption.name}
                 onChange={(e) => setSelectedCreditorName(e.target.value)}
-                className="w-full min-h-[var(--ctl-lg)] rounded-xl border border-white/20 bg-white/10 px-3 py-2.5 text-sm font-medium focus:outline-none focus:ring-1 focus:ring-secondary"
+                className="w-full min-h-[var(--ctl-lg)] rounded-xl border border-ink-foreground/20 bg-ink-foreground/10 px-3 py-2.5 text-sm font-medium focus:outline-none focus:ring-1 focus:ring-secondary"
                 aria-label={t('economy.payPersonLabel')}
               >
                 {payOptions.map((option) => (
@@ -444,7 +444,7 @@ export default function EconomyPage() {
                         {m.url && (
                           <button
                             onClick={() => void handleOpenPayment(m, selectedPayOption.amount)}
-                            className="rounded-lg gradient-primary px-3 py-2 text-xs font-semibold text-primary-foreground flex items-center gap-1.5 shrink-0"
+                            className="rounded-lg gradient-primary px-3 py-2 text-xs font-semibold text-ink-foreground flex items-center gap-1.5 shrink-0"
                           >
                             <ExternalLink className="h-3.5 w-3.5" /> {t('economy.pay.open')}
                           </button>
@@ -463,7 +463,7 @@ export default function EconomyPage() {
               <button
                 onClick={() => void handleMarkSettled()}
                 disabled={settling}
-                className="w-full gradient-primary rounded-xl py-2.5 text-sm font-semibold text-primary-foreground flex items-center justify-center gap-2 disabled:opacity-60"
+                className="w-full gradient-primary rounded-xl py-2.5 text-sm font-semibold text-ink-foreground flex items-center justify-center gap-2 disabled:opacity-60"
               >
                 <Check className="h-4 w-4" /> {t('economy.pay.markSettled')}
               </button>
@@ -481,7 +481,7 @@ export default function EconomyPage() {
         )}
       </AnimatePresence>
 
-      {!showAdd && <Fab tone="butter" onClick={() => setShowAdd(true)} label={t('economy.newExpense')} />}
+      {!showAdd && <Fab onClick={() => setShowAdd(true)} label={t('economy.newExpense')} />}
 
       {/* Add expense form */}
       <AnimatePresence>
@@ -502,7 +502,7 @@ export default function EconomyPage() {
                     {members.map((m) => (
                       <button key={m} onClick={() => toggleSplit(m)}
                         className={`min-h-11 px-3 py-2 rounded-full text-xs font-medium transition-all ${
-                          newSplit.includes(m) ? 'gradient-primary text-primary-foreground' : 'glass text-muted-foreground'
+                          newSplit.includes(m) ? 'gradient-primary text-ink-foreground' : 'glass text-muted-foreground'
                         }`}>
                         {m}
                       </button>
@@ -512,7 +512,7 @@ export default function EconomyPage() {
                 </div>
               )}
               <label className="block space-y-1"><span className="text-xs font-semibold text-muted-foreground">{t('economy.deadlineDateLabel')}</span><input type="date" value={newDeadline} onChange={(e) => setNewDeadline(e.target.value)} className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" /></label>
-              <button onClick={handleAddExpense} disabled={!canAddExpense} className="w-full gradient-primary rounded-lg py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50">
+              <button onClick={handleAddExpense} disabled={!canAddExpense} className="w-full gradient-primary rounded-lg py-2 text-sm font-semibold text-ink-foreground disabled:opacity-50">
                 {t('economy.addExpense')}
               </button>
             </div>
@@ -747,7 +747,7 @@ export default function EconomyPage() {
                         {EXPENSE_CATEGORIES.map((c) => <option key={c} value={c}>{translateKey('common.expenseCategories', c)}</option>)}
                       </select>
                       <div className="flex gap-2">
-                        <button onClick={handleSaveEdit} className="flex-1 gradient-primary rounded-lg py-2 text-sm font-semibold text-primary-foreground">
+                        <button onClick={handleSaveEdit} className="flex-1 gradient-primary rounded-lg py-2 text-sm font-semibold text-ink-foreground">
                           {t('economy.saveChanges')}
                         </button>
                         <button onClick={() => setEditingExpenseId(null)} className="flex-1 glass rounded-lg py-2 text-sm font-medium">
