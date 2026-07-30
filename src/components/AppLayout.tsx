@@ -3,7 +3,7 @@ import { Outlet, useLocation, Navigate } from 'react-router-dom';
 import AppHeader from './AppHeader';
 import BottomNav from './BottomNav';
 import TourOverlay, { type TourStep } from './TourOverlay';
-import { LoadingDot } from './ui-kit';
+import { BrandMark, LoadingDot } from './ui-kit';
 import { useUser } from '../context/UserContext';
 
 const APP_TOUR_STEPS: TourStep[] = [
@@ -78,8 +78,9 @@ export default function AppLayout() {
 
   if (isLoading && !currentUser) {
     return (
-      <div className="app-viewport bg-background flex items-center justify-center">
-        <LoadingDot />
+      <div className="app-viewport bg-background flex flex-col items-center justify-center gap-3">
+        <BrandMark className="h-16 w-16" />
+        <span className="font-display font-extrabold text-xl tracking-tight text-foreground">Kollekt</span>
       </div>
     );
   }

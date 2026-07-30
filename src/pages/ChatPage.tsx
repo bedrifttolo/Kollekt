@@ -597,7 +597,11 @@ export default function ChatPage() {
 
   return (
     <motion.div initial={justFinishedLoading ? { opacity: 0 } : false} animate={{ opacity: 1 }} className="app-screen-full relative flex flex-col overflow-hidden">
-      <div className="flex items-center gap-2 border-b border-border py-2.5">
+      {/* Chat hides the shared AppHeader (see AppLayout's hideHeader), so this row carries its
+          own page-identity wash instead — bled edge-to-edge like every other page's header,
+          matching AppHeader's tone-tile treatment for tone-blush. */}
+      <div className="-mx-4 -mt-2 border-b border-border tone-tile tone-blush sm:-mx-6">
+      <div className="flex items-center gap-2 px-4 py-2.5 sm:px-6">
         {isDirect ? (
           <span style={{ backgroundColor: colorForMember(activeThread!, memberColorMap.get(activeThread!)) }} className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-xs font-bold text-white">
             {activeThread![0]?.toUpperCase()}
@@ -637,6 +641,7 @@ export default function ChatPage() {
         >
           {currentUser?.name[0]?.toUpperCase()}
         </button>
+      </div>
       </div>
 
       <AnimatePresence initial={false}>

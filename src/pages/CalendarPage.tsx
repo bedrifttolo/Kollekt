@@ -297,7 +297,7 @@ export default function CalendarPage() {
   return (
     <motion.div
       initial={justFinishedLoading ? { opacity: 0 } : false}
-      animate={{ opacity: 1, y: 0 }}
+      animate={{ opacity: 1 }}
       className="space-y-4 pt-2"
     >
       {/* Header */}

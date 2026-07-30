@@ -61,7 +61,7 @@ export default function AppHeader() {
         <h1 className="min-w-0 flex-1 truncate pr-3 font-display font-extrabold text-xl tracking-tight">
           {isHomePage ? (
             <span className="inline-flex items-center gap-2">
-              <BrandMark className="h-6 w-6" />
+              <BrandMark className="h-5 w-5" />
               <span className="text-foreground">Kollekt</span>
             </span>
           ) : (

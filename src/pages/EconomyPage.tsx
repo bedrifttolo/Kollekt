@@ -335,7 +335,7 @@ export default function EconomyPage() {
   const hasPayOptions = payOptions.length > 0;
 
   return (
-    <motion.div initial={false} animate={{ opacity: 1, y: 0 }} className="space-y-5 pt-4">
+    <motion.div initial={false} animate={{ opacity: 1 }} className="space-y-5 pt-4">
       <div>
         <Eyebrow>{t('economy.eyebrow')}</Eyebrow>
         <h2 className="mt-2 display-md">{t('economy.titleLineOne')} <span className="mark">{t('economy.titleLineTwo')}</span></h2>
