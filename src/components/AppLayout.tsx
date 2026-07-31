@@ -87,6 +87,10 @@ export default function AppLayout() {
       // keyboard stays open) — a tap/drag there shouldn't dismiss it the way tapping real chrome
       // (the header, another sheet) does.
       if (target instanceof Element && target.closest('[data-chat-scroll]')) return;
+      // Same for the composer bar itself: blurring on pointerdown (before the button's click even
+      // fires) was eating the first tap on Send — the keyboard would start closing and shifting
+      // layout out from under the tap, so it took a second tap to actually land on the button.
+      if (target instanceof Element && target.closest('[data-chat-composer]')) return;
       active.blur();
     };
     document.addEventListener('pointerdown', onPointerDown);
