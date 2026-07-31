@@ -8,6 +8,7 @@ import { colorForMember } from '../../lib/memberColors';
 import { backdropVariants, pressable, sheetVariants, springPop, springSoft } from '../../lib/motion';
 import { tapFeedback } from '../../lib/haptics';
 import type { Tone } from '../../lib/tones';
+import type { Accent } from '../../lib/pageAccent';
 
 export function Field({ label, className, ...props }: InputHTMLAttributes<HTMLInputElement> & { label: string }) {
   return (
@@ -152,8 +153,8 @@ export function LoadingDot({ className }: { className?: string }) {
   return <div className={cn('h-8 w-8 rounded-full gradient-primary animate-pulse', className)} />;
 }
 
-export function Eyebrow({ children }: { children: ReactNode }) {
-  return <p className="eyebrow">{children}</p>;
+export function Eyebrow({ children, accent }: { children: ReactNode; accent?: Accent }) {
+  return <p className={cn('eyebrow', accent && `tone-${accent}`)}>{children}</p>;
 }
 
 export function AddSheet({ title, onClose, children, className }: { title: string; onClose: () => void; children: ReactNode; className?: string }) {
@@ -536,7 +537,7 @@ export function EmptyState({
   title: string;
   body?: string;
   action?: { label: string; onClick: () => void };
-  tone?: Tone;
+  tone?: Accent;
   className?: string;
 }) {
   return (

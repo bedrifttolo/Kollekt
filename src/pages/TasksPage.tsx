@@ -38,6 +38,7 @@ import { formatDate, formatDateTime, translateKey } from '../i18n/helpers';
 import { EXPENSE_CATEGORIES } from '../lib/expenseStats';
 import type { AppUser, Task, ShoppingItem, TaskCategory, TaskSwapRequest, MaintenanceTicket, MaintenancePriority, MaintenanceStatus } from '../lib/types';
 import { AddSheet, Avatar, Chip, Eyebrow, Fab, OverflowMenu, ProgressBar, XpBurst } from '../components/ui-kit';
+import { PAGE_ACCENTS } from '../lib/pageAccent';
 import { pressable, springPop } from '../lib/motion';
 import { celebrate } from '../lib/celebrate';
 import { DEFAULT_ROOM_ICON as DEFAULT_TASK_ICON, TASK_CATEGORY_ICONS } from '../lib/categoryIcons';
@@ -972,7 +973,7 @@ function TasksMain() {
       className="space-y-4 pt-4"
     >
       <div>
-        <Eyebrow>{t('tasks.eyebrow')}</Eyebrow>
+        <Eyebrow accent={PAGE_ACCENTS['/tasks']}>{t('tasks.eyebrow')}</Eyebrow>
         <h2 className="mt-2 display-md">{t('tasks.heading')}</h2>
       </div>
 
@@ -999,7 +1000,7 @@ function TasksMain() {
       {tab === 'tasks' && (
         <div className="househero hero-ink">
           <p className="text-xs font-bold uppercase tracking-[.15em] text-ink-foreground/65">{t('tasks.progressLabel')}</p>
-          <p className="bignum mt-3">{completedCount}<span className="text-secondary">/{taskTotal}</span> <span className="text-2xl tracking-normal">{t('tasks.done')}</span></p>
+          <p className="bignum mt-3">{completedCount}<span className="text-primary">/{taskTotal}</span> <span className="text-2xl tracking-normal">{t('tasks.done')}</span></p>
           <p className="mt-2 text-sm text-ink-foreground/70">{t('tasks.remaining', { count: Math.max(0, taskTotal - completedCount) })}</p>
           <ProgressBar value={completionPercent} className="mt-4 bg-ink-foreground/20" />
         </div>

@@ -10,6 +10,7 @@ import { useUser } from '../../context/UserContext';
 import { useGamesSubscription, isGameLocked } from '../../lib/purchases';
 import SubscriptionPaywall from '../../components/SubscriptionPaywall';
 import { GAME_CATALOG, GAME_CATEGORIES, tonightsPick, type GameCategoryFilter, type GameEntry } from '../../games/catalog';
+import { PAGE_ACCENTS } from '../../lib/pageAccent';
 import PlayerSetup from '../../games/PlayerSetup';
 import PromptGame from '../../games/PromptGame';
 import RoomPromptGame from '../../games/RoomPromptGame';
@@ -93,7 +94,7 @@ export default function GamesPanel() {
     <div className="space-y-4">
       {/* Tonight's pick */}
       <div className="househero hero-ink">
-        <p className="eyebrow !text-ink-foreground/65 flex items-center gap-1.5">
+        <p className={`eyebrow tone-${PAGE_ACCENTS['/social']} !text-ink-foreground/65 flex items-center gap-1.5`}>
           {t('social.games.tonightsPick')}
           <Dices className="h-3.5 w-3.5" />
         </p>

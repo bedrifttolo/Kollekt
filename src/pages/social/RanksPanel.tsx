@@ -6,9 +6,10 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../lib/api';
 import { useUser, useRealtimeEvent } from '../../context/UserContext';
 import { translateKey } from '../../i18n/helpers';
-import { Avatar, CountUp, LoadingDot, OverflowMenu, ProgressRing, SegmentedControl, Sheet, StatTile } from '../../components/ui-kit';
+import { Avatar, CountUp, OverflowMenu, ProgressRing, SegmentedControl, Sheet, StatTile } from '../../components/ui-kit';
 import { listContainer, listItem, springSoft } from '../../lib/motion';
 import { toneByKey } from '../../lib/tones';
+import { PAGE_ACCENTS } from '../../lib/pageAccent';
 import { qk } from '../../lib/queryKeys';
 import type {
   LeaderboardResponse,
@@ -237,8 +238,19 @@ export default function RanksPanel() {
   if (loading || !data) {
     wasLoadingRef.current = true;
     return (
-      <div className="flex items-center justify-center pt-16">
-        <LoadingDot />
+      <div className="space-y-5">
+        <div className="flex items-end justify-center gap-3 pt-10">
+          <div className="h-32 w-full animate-pulse rounded-t-3xl bg-muted/20" />
+          <div className="h-44 w-full animate-pulse rounded-t-3xl bg-muted/20" />
+          <div className="h-24 w-full animate-pulse rounded-t-3xl bg-muted/20" />
+        </div>
+        <div className="h-20 animate-pulse rounded-2xl bg-muted/20" />
+        <div className="mx-auto h-10 w-48 animate-pulse rounded-full bg-muted/20" />
+        <div className="space-y-2">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="h-16 animate-pulse rounded-2xl bg-muted/20" />
+          ))}
+        </div>
       </div>
     );
   }
@@ -544,7 +556,7 @@ export default function RanksPanel() {
               { label: 'Skipped', value: memberStats.skippedTasks.toString() },
               { label: 'Achievements', value: `${memberStats.achievementsUnlocked}/${memberStats.achievementsTotal}` },
             ].map((s) => (
-              <div key={s.label} className="rounded-lg bg-background/30 p-2.5 text-center">
+              <div key={s.label} className="min-h-14 rounded-lg bg-background/30 p-2.5 text-center">
                 <p className="font-display font-bold text-sm">{s.value}</p>
                 <p className="text-[9px] text-muted-foreground mt-0.5">{s.label}</p>
               </div>
@@ -568,7 +580,7 @@ export default function RanksPanel() {
                 {!catalogLoading && (
                   <div className="space-y-5">
                     <div>
-                      <p className="eyebrow mb-2">{t('leaderboard.custom.builtIn')}</p>
+                      <p className={`eyebrow tone-${PAGE_ACCENTS['/social']} mb-2`}>{t('leaderboard.custom.builtIn')}</p>
                       {catalog.map((item) => (
                         <button key={item.key} onClick={() => handleToggleAchievement(item.key, !item.enabled)} className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-muted/30 transition-colors">
                           <div className="text-left">
@@ -583,7 +595,7 @@ export default function RanksPanel() {
                     </div>
 
                     <div>
-                      <p className="eyebrow mb-2">{t('leaderboard.custom.houseGoals')}</p>
+                      <p className={`eyebrow tone-${PAGE_ACCENTS['/social']} mb-2`}>{t('leaderboard.custom.houseGoals')}</p>
                       <div className="space-y-2">
                         {achievements.filter((item) => item.custom).map((item) => (
                           <div key={item.key} className="flex items-center gap-3 rounded-xl bg-background/30 px-3 py-2.5">

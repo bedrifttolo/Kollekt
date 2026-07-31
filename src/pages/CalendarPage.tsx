@@ -31,20 +31,24 @@ import {
 } from "../i18n/helpers";
 import type { CalendarEvent, EventType, GuestNotice, HouseCheckin } from "../lib/types";
 import { AddSheet, EmptyState, Eyebrow, Fab, OverflowMenu } from "../components/ui-kit";
+import { PAGE_ACCENTS } from "../lib/pageAccent";
 import { pressable, springSoft } from "../lib/motion";
 import { selectionFeedback } from "../lib/haptics";
 
 const EVENT_TYPES: EventType[] = ["PARTY", "MOVIE", "DINNER", "GAME_NIGHT", "CLEANING", "SPORTS", "BIRTHDAY", "MEETING", "TRIP", "OTHER"];
 
+// PARTY/BIRTHDAY/MOVIE/CLEANING/MEETING used to read var(--secondary)/var(--accent), both purple —
+// now the calendar's own header tone (sage), so an event's accent matches the page it lives on.
+// DINNER/GAME_NIGHT/SPORTS/TRIP/OTHER keep their own hues since they were never purple.
 const typeColors: Record<EventType, string> = {
-  PARTY: "bg-secondary",
-  MOVIE: "bg-accent",
+  PARTY: "bg-[var(--tone-sage)]",
+  MOVIE: "bg-[var(--tone-sage)]",
   DINNER: "bg-destructive",
   GAME_NIGHT: "bg-primary",
-  CLEANING: "bg-accent",
+  CLEANING: "bg-[var(--tone-sage)]",
   SPORTS: "bg-primary",
-  BIRTHDAY: "bg-secondary",
-  MEETING: "bg-accent",
+  BIRTHDAY: "bg-[var(--tone-sage)]",
+  MEETING: "bg-[var(--tone-sage)]",
   TRIP: "bg-primary",
   OTHER: "bg-primary",
 };
@@ -315,7 +319,7 @@ export default function CalendarPage() {
     >
       {/* Header */}
       <div>
-        <Eyebrow>{t("calendar.eyebrow")}</Eyebrow>
+        <Eyebrow accent={PAGE_ACCENTS['/calendar']}>{t("calendar.eyebrow")}</Eyebrow>
         <h2 className="mt-2 display-sm">
           {t("calendar.title")}
         </h2>
@@ -420,7 +424,7 @@ export default function CalendarPage() {
                       ? "bg-transparent"
                       : isSelected
                         ? "bg-black dark:bg-white"
-                        : "bg-secondary"
+                        : "bg-[var(--tone-sage)]"
                   }`}
                 />
                 </span>

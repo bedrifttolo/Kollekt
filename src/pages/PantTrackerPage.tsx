@@ -11,6 +11,7 @@ import { useUser, useRealtimeEvent } from "../context/UserContext";
 import { formatCurrency, formatDate } from "../i18n/helpers";
 import type { PantSummary, PantEntry } from "../lib/types";
 import { CountUp, Eyebrow, OverflowMenu, ProgressBar, ProgressRing } from "../components/ui-kit";
+import { PAGE_ACCENTS } from "../lib/pageAccent";
 import { celebrate } from "../lib/celebrate";
 
 export default function PantTrackerPage() {
@@ -166,7 +167,7 @@ export default function PantTrackerPage() {
           <ArrowLeft className="h-4 w-4" />
         </button>
         <div>
-          <Eyebrow>{t("pant.eyebrow")}</Eyebrow>
+          <Eyebrow accent={PAGE_ACCENTS['/economy/pant']}>{t("pant.eyebrow")}</Eyebrow>
           <h2 className="display-md">{t("pant.title")}</h2>
           <p className="text-xs text-muted-foreground">
             {t("pant.subtitle", { goal: formatCurrency(goal) })}
