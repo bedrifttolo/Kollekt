@@ -146,6 +146,10 @@ export default function ChatPage() {
   // switching) a thread should land on the latest message instantly, not animate down through
   // the whole history — only messages that arrive after that should scroll smoothly.
   const instantScrollRef = useRef(true);
+  // False until just after the first commit, so the tail-bubble entrance animation (see `isRecent`
+  // below) never replays for messages that were already there when the page mounted — only for
+  // ones that arrive afterward.
+  const hasMountedRef = useRef(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const backgroundInputRef = useRef<HTMLInputElement>(null);
   const messageInputRef = useRef<HTMLTextAreaElement>(null);
@@ -301,6 +305,10 @@ export default function ChatPage() {
     bottomRef.current?.scrollIntoView({ behavior: instantScrollRef.current ? 'auto' : 'smooth' });
     instantScrollRef.current = false;
   }, [messages]);
+
+  useEffect(() => {
+    hasMountedRef.current = true;
+  }, []);
 
   // Re-read the cursor whenever the thread changes, before any new messages land.
   useEffect(() => {
@@ -791,7 +799,7 @@ export default function ChatPage() {
           const senderColor = colorForMember(message.sender, memberColorMap.get(message.sender));
           const replyTarget = message.replyToMessageId != null ? messageById.get(message.replyToMessageId) : undefined;
           // Only the tail of the thread animates on arrival — see the bubble's `initial` below.
-          const isRecent = i >= all.length - 3;
+          const isRecent = hasMountedRef.current && i >= all.length - 3;
           return (
             <div key={message.id}>
               {startsNewDay && (
@@ -1064,7 +1072,7 @@ export default function ChatPage() {
           keyboard once the nav hides) instead of sitting flush against it. Bleeds edge-to-edge
           like the header/list above, then reapplies the inset as padding so the pill itself
           still sits clear of the screen edges. */}
-      <div className="relative -mx-4 px-4 pb-2 sm:-mx-6 sm:px-6">
+      <div data-chat-composer className="relative -mx-4 px-4 pb-2 sm:-mx-6 sm:px-6">
         {mention && mentionCandidates.length > 0 && (
           <div className="absolute bottom-full left-0 right-0 mb-2 z-30 max-h-52 overflow-y-auto rounded-2xl border border-border bg-popover p-1 shadow-xl">
             {mentionCandidates.map((member) => (
@@ -1171,6 +1179,10 @@ export default function ChatPage() {
           />
           <textarea
             ref={messageInputRef}
+            // Opts out of nativeBootstrap's generic keyboard-scroll-assist (which centers whichever
+            // field was focused) — it fought the re-anchor-to-bottom below, and the two together are
+            // what caused the message list to visibly jump twice when the keyboard opened.
+            data-keyboard-scroll-assist="off"
             value={input}
             rows={1}
             onChange={handleInputChange}
@@ -1178,8 +1190,9 @@ export default function ChatPage() {
               setShowActionBar(false);
               // The keyboard opening shrinks the message list's viewport (see .app-screen-full's
               // keyboard-open override), which otherwise leaves it looking scrolled to the middle
-              // of the thread — re-anchor to the latest message once the resize settles.
-              window.setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'auto' }), 50);
+              // of the thread — re-anchor to the latest message once the resize settles. 350ms
+              // matches the keyboard's own animation duration (see nativeBootstrap's assist).
+              window.setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'auto' }), 350);
             }}
             onKeyDown={(e) => {
               if (mention && mentionCandidates.length > 0) {

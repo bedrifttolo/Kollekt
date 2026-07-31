@@ -16,6 +16,9 @@ function bindKeyboardScrollAssist(): void {
     ) {
       return;
     }
+    // Chat's composer keeps its own message list pinned to the newest message instead of
+    // centering the input — this generic assist would fight that and double-jump the page.
+    if (target.dataset.keyboardScrollAssist === 'off') return;
     window.setTimeout(() => {
       if (document.activeElement !== target) return;
       target.scrollIntoView({ block: 'center', behavior: 'smooth' });

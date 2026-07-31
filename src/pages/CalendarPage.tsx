@@ -89,7 +89,6 @@ export default function CalendarPage() {
   const [editTime, setEditTime] = useState("");
   const [editEndTime, setEditEndTime] = useState("");
   const [editType, setEditType] = useState<EventType>("OTHER");
-  const [feedUrl, setFeedUrl] = useState("");
   const [loading, setLoading] = useState(
     () =>
       !sharedQueryClient.getQueryData(qk.calendar(currentUser?.name ?? "")) ||
@@ -137,15 +136,16 @@ export default function CalendarPage() {
     await queryClient.invalidateQueries({ queryKey: qk.calendar(name) });
   };
 
-  useEffect(() => {
-    if (!name) return;
-    api
-      .get<{ path: string }>(
-        `/events/calendar-feed?memberName=${encodeURIComponent(name)}`,
-      )
-      .then((r) => setFeedUrl(`${API_BASE}${r.path}`))
-      .catch(() => {});
-  }, [name]);
+  // Cached like the calendar bundle above — was a raw effect before, which meant this card popped
+  // in from nothing on every navigation instead of rendering with the rest of the page.
+  const { data: feedUrl = "" } = useQuery({
+    queryKey: ["calendarFeed", name],
+    enabled: !!name,
+    queryFn: async () => {
+      const r = await api.get<{ path: string }>(`/events/calendar-feed?memberName=${encodeURIComponent(name)}`);
+      return `${API_BASE}${r.path}`;
+    },
+  });
 
   useRealtimeEvent(
     (event) => {
@@ -567,9 +567,12 @@ export default function CalendarPage() {
         {dayEvents.map((e, i) => (
           <motion.div
             key={e.id}
-            initial={{ opacity: 0, x: -10 }}
+            // Only replay the stagger-in on a genuine cold load — the page fully remounts on every
+            // tab switch (no route keep-alive), so an unconditional `initial` here would replay this
+            // entrance animation on every warm revisit too, reading as a flash.
+            initial={justFinishedLoading ? { opacity: 0, x: -10 } : false}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: i * 0.06 }}
+            transition={{ delay: justFinishedLoading ? i * 0.06 : 0 }}
             className="event !flex items-stretch gap-3 !p-3.5"
           >
             <div className="flex w-14 shrink-0 flex-col items-center pt-0.5 text-center">

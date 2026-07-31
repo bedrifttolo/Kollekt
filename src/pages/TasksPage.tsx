@@ -1175,9 +1175,12 @@ function TasksMain() {
               return (
                 <Fragment key={task.id}>
                   <motion.div
-                    initial={{ opacity: 0, y: 10 }}
+                    // Only replay the stagger-in on a genuine cold load — the page fully remounts on
+                    // every tab switch (no route keep-alive), so an unconditional `initial` here would
+                    // replay this entrance animation on every warm revisit too, reading as a flash.
+                    initial={justFinishedLoading ? { opacity: 0, y: 10 } : false}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.04 }}
+                    transition={{ delay: justFinishedLoading ? index * 0.04 : 0 }}
                     className={`task !rounded-[1.35rem] !p-4 ${task.completed ? 'opacity-60' : ''}`}
                   >
                     <div className="flex items-center gap-4">
@@ -1523,9 +1526,9 @@ function TasksMain() {
             {filteredShopping.map((item, index) => (
               <motion.div
                 key={item.id}
-                initial={{ opacity: 0, y: 8 }}
+                initial={justFinishedLoading ? { opacity: 0, y: 8 } : false}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.04 }}
+                transition={{ delay: justFinishedLoading ? index * 0.04 : 0 }}
                 className={`glass rounded-2xl p-4 ${item.completed ? 'opacity-50' : ''}`}
               >
                 <div className="flex items-center gap-3">
