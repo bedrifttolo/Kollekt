@@ -66,6 +66,7 @@ export default function EconomyPage() {
   const [loading, setLoading] = useState(
     () => !sharedQueryClient.getQueryData(qk.economy(currentUser?.name ?? '')),
   );
+  const wasLoadingRef = useRef(loading);
   const [settling, setSettling] = useState(false);
   const [showAllExpenses, setShowAllExpenses] = useState(false);
   // null until the summary lands, then defaults to the newest month that actually has expenses —
@@ -150,7 +151,7 @@ export default function EconomyPage() {
   // Budgets are their own endpoint (see EconomyOperations.getBudgets) rather than a field on
   // /economy/summary — the cap rarely changes and shouldn't force a heavier response on every
   // expense fetch.
-  const { data: budgets = [] } = useQuery({
+  const { data: budgets = [], isPending: budgetsPending } = useQuery({
     queryKey: qk.budgets(name),
     enabled: !!name,
     queryFn: () => api.get<Budget[]>(`/economy/budgets?memberName=${encodeURIComponent(name)}`),
@@ -319,9 +320,15 @@ export default function EconomyPage() {
     };
   }, [expenses, activeMonth, name]);
 
-  if (loading || !summary || !stats) {
+  if (loading || !summary || !stats || budgetsPending) {
+    wasLoadingRef.current = true;
     return <div className="space-y-3 pt-4 animate-pulse">{[...Array(4)].map((_, i) => <div key={i} className="glass rounded-2xl h-20" />)}</div>;
   }
+  // Tracks whether this render followed a real loading state, so the per-item entrance
+  // animations below only replay right after a genuine cold load — a warm revisit (loading
+  // never true) renders instantly instead of restaging the stagger-in on every tab switch.
+  const justFinishedLoading = wasLoadingRef.current;
+  wasLoadingRef.current = false;
 
   const myBalance = summary.balances.find((b) => b.name === name);
   const oweAmount = myBalance && myBalance.amount < 0 ? Math.abs(myBalance.amount) : 0;
@@ -579,6 +586,7 @@ export default function EconomyPage() {
               total={stats.breakdown.total}
               selected={selectedCategory}
               onSelect={setSelectedCategory}
+              animateIn={justFinishedLoading}
             />
           </>
         ) : (
@@ -599,7 +607,7 @@ export default function EconomyPage() {
           <h3 className="font-display text-lg font-extrabold tracking-[-.02em]">{t('economy.budgets.title')}</h3>
           <p className="text-xs text-muted-foreground">{t('economy.budgets.subtitle')}</p>
         </div>
-        <BudgetBars budgets={budgets} spentByCategory={spentByCategory} onSave={handleSaveBudget} />
+        <BudgetBars budgets={budgets} spentByCategory={spentByCategory} onSave={handleSaveBudget} animateIn={justFinishedLoading} />
       </section>
 
       {/* Pant card. The goal was already a ratio in the data (currentAmount / goalAmount) but had
@@ -630,7 +638,7 @@ export default function EconomyPage() {
       {/* Balances */}
       <div>
         <h3 className="mb-2 text-sm font-semibold text-muted-foreground">{t('economy.balances')}</h3>
-        <motion.div variants={listContainer} initial="hidden" animate="show" className="grid grid-cols-2 gap-2">
+        <motion.div variants={listContainer} initial={justFinishedLoading ? "hidden" : false} animate="show" className="grid grid-cols-2 gap-2">
           {summary.balances.map((b) => (
             <motion.div
               key={b.name}
@@ -671,7 +679,10 @@ export default function EconomyPage() {
         <div className="space-y-2">
           {(showAllExpenses ? summary.expenses : summary.expenses.slice(0, 2)).map((e, i) => (
             <div key={e.id}>
-              <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
+              <motion.div
+                initial={justFinishedLoading ? { opacity: 0, y: 8 } : false}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: justFinishedLoading ? i * 0.04 : 0 }}
                 onClick={() => { if (e.paidBy === name) startEdit(e); }}
                 role={e.paidBy === name ? 'button' : undefined}
                 tabIndex={e.paidBy === name ? 0 : undefined}

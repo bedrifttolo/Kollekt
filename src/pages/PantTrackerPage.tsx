@@ -26,6 +26,7 @@ export default function PantTrackerPage() {
   const [loading, setLoading] = useState(
     () => !sharedQueryClient.getQueryData(qk.pant(currentUser?.name ?? "")),
   );
+  const wasLoadingRef = useRef(loading);
   const [addAmount, setAddAmount] = useState("");
   const [editingTotal, setEditingTotal] = useState(false);
   const [editTotalValue, setEditTotalValue] = useState("");
@@ -139,6 +140,7 @@ export default function PantTrackerPage() {
   };
 
   if (loading || !pantSummary) {
+    wasLoadingRef.current = true;
     return (
       <div className="space-y-4 pt-4 animate-pulse">
         <div className="glass rounded-2xl h-48" />
@@ -146,6 +148,11 @@ export default function PantTrackerPage() {
       </div>
     );
   }
+  // Tracks whether this render followed a real loading state, so the history list's stagger-in
+  // below only replays right after a genuine cold load — a warm revisit (loading never true)
+  // renders instantly instead of restaging it on every tab switch.
+  const justFinishedLoading = wasLoadingRef.current;
+  wasLoadingRef.current = false;
 
   const totalBottles = pantSummary.entries.reduce((s, e) => s + e.bottles, 0);
   const earned = pantSummary.currentAmount;
@@ -335,9 +342,9 @@ export default function PantTrackerPage() {
             {(showAllHistory ? pantSummary.entries : pantSummary.entries.slice(0, 2)).map((entry, i) => (
               <div key={entry.id}>
                 <motion.div
-                  initial={{ opacity: 0, x: -10 }}
+                  initial={justFinishedLoading ? { opacity: 0, x: -10 } : false}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.05 }}
+                  transition={{ delay: justFinishedLoading ? i * 0.05 : 0 }}
                   className="glass rounded-xl p-4 flex items-center gap-3"
                 >
                   <div className="h-9 w-9 rounded-lg bg-muted flex items-center justify-center shrink-0">
