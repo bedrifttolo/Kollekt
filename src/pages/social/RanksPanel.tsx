@@ -106,7 +106,7 @@ export default function RanksPanel() {
 
   // Fairness is period-independent (the backend windows it itself), so it is its own query rather
   // than another leg of the ranks fetch — switching OVERALL/YEAR/MONTH should not refetch it.
-  const { data: fairness } = useQuery({
+  const { data: fairness, isPending: fairnessPending } = useQuery({
     queryKey: ['fairness', name],
     enabled: !!name,
     queryFn: () => api.get<Fairness>(`/fairness?memberName=${encodeURIComponent(name)}`),
@@ -114,7 +114,7 @@ export default function RanksPanel() {
 
   // Each member's own assigned color, so podium/list avatars match "Kollektivet ditt" and chat
   // instead of falling back to Avatar's plain name hash (which isn't guaranteed unique).
-  const { data: colorMembers = [] } = useQuery({
+  const { data: colorMembers = [], isPending: membersPending } = useQuery({
     queryKey: qk.members(name),
     enabled: !!name,
     queryFn: () => api.get<AppUser[]>(`/members/collective?memberName=${encodeURIComponent(name)}`),
@@ -131,7 +131,7 @@ export default function RanksPanel() {
   // (switching back to an already-viewed period, or a prefetched first visit) renders
   // instantly on the very first paint instead of flashing the skeleton for one frame.
   const data = ranksQuery.data?.lb ?? null;
-  const loading = ranksQuery.isPending;
+  const loading = ranksQuery.isPending || fairnessPending || membersPending;
   // Tracks whether this render followed a real loading state, so the content fade-in below only
   // plays right after a genuine cold load — a warm revisit (loading never true) renders instantly.
   const wasLoadingRef = useRef(loading);
@@ -300,9 +300,10 @@ export default function RanksPanel() {
         </div>
       )}
 
-      {/* Monthly prize (lemon card) */}
-      <div className="flex items-start gap-3 rounded-[1.35rem] bg-secondary/25 p-4">
-        <Gift className="h-6 w-6 shrink-0 text-secondary-foreground" />
+      {/* Monthly prize — tinted with the page's own accent (butter) rather than the generic
+          secondary purple, so it reads as part of Social rather than a foreign color. */}
+      <div className={`tone-${PAGE_ACCENTS['/social']} tone-wash tone-edge flex items-start gap-3 rounded-[1.35rem] border p-4`}>
+        <Gift className="h-6 w-6 shrink-0 text-muted-foreground" />
         <div className="min-w-0 flex-1">
           {showPrize ? (
             <div className="space-y-2">

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Image as ImageIcon, BarChart3, X, Smile, Reply, HeartHandshake, ChevronDown, WashingMachine, Film, Lock, Plus, ThumbsUp, ThumbsDown, Heart, Laugh, PartyPopper, Flame, Frown, MessageCircle, Wallpaper, Pin, PinOff, type LucideIcon } from 'lucide-react';
@@ -91,7 +92,6 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<ChatMessage[]>(
     () => sharedQueryClient.getQueryData<ChatMessage[]>(qk.chat(currentUser?.name ?? '')) ?? [],
   );
-  const [members, setMembers] = useState<AppUser[]>([]);
   const [input, setInput] = useState('');
   const [showActionBar, setShowActionBar] = useState(false);
   const [showPollForm, setShowPollForm] = useState(false);
@@ -106,7 +106,6 @@ export default function ChatPage() {
   const [kudosType, setKudosType] = useState<KudoType>('THANK_YOU');
   const [kudosContext, setKudosContext] = useState('');
   const [kudosTaskId, setKudosTaskId] = useState('');
-  const [householdTasks, setHouseholdTasks] = useState<Task[]>([]);
   const [pollQuestion, setPollQuestion] = useState('');
   const [pollOptions, setPollOptions] = useState(['', '']);
   const [expandedReactionId, setExpandedReactionId] = useState<number | null>(null);
@@ -120,7 +119,6 @@ export default function ChatPage() {
   // Tracks whether this render followed a real loading state, so the content fade-in below only
   // plays right after a genuine cold load — a warm revisit (loading never true) renders instantly.
   const wasLoadingRef = useRef(loading);
-  const [checkinSummary, setCheckinSummary] = useState<CheckinSummary | null>(null);
   const [checkinExpanded, setCheckinExpanded] = useState(false);
   // Collapses the thread switcher + house-meeting banner so more of the message list is visible;
   // the identity row above stays put since it's the only way back to Profile from this page.
@@ -160,6 +158,31 @@ export default function ChatPage() {
   const swipeStartRef = useRef<{ x: number; y: number } | null>(null);
 
   const name = currentUser?.name ?? '';
+  const queryClient = useQueryClient();
+  const { data: members = [] } = useQuery({
+    queryKey: qk.members(name),
+    enabled: !!name,
+    queryFn: () => api.get<AppUser[]>(`/members/collective?memberName=${encodeURIComponent(name)}`),
+  });
+  const { data: householdTasks = [] } = useQuery({
+    queryKey: qk.tasksList(name),
+    enabled: !!name,
+    queryFn: () => api.get<Task[]>(`/tasks?memberName=${encodeURIComponent(name)}`),
+  });
+  // Shares Dashboard's/Calendar's cache entry, so navigating between pages doesn't refire the POST.
+  const { data: checkin } = useQuery({
+    queryKey: qk.checkin(name),
+    enabled: !!currentUser,
+    queryFn: async () => {
+      const collective = await api.get<{ collectiveId: number }>(`/onboarding/collectives/code/${currentUser!.id}`);
+      return api.post<HouseCheckin>(`/collectives/${collective.collectiveId}/checkins/generate`, {});
+    },
+  });
+  const { data: checkinSummary } = useQuery({
+    queryKey: ['checkin', 'summary', name, checkin?.id],
+    enabled: !!checkin,
+    queryFn: () => api.get<CheckinSummary>(`/checkins/${checkin!.id}/summary`),
+  });
   const messageById = new Map(messages.map((message) => [message.id, message]));
   const memberNames = members.map((member) => member.name);
   const memberColorMap = new Map(members.map((member) => [member.name, member.color]));
@@ -208,8 +231,9 @@ export default function ChatPage() {
     const res = await api.get<ChatMessage[]>(url);
     setMessages(res);
     setLoading(false);
-    // Cache the household thread so the next visit to Chat renders instantly from cache.
+    // Cache both household and DM threads so revisiting either renders instantly from cache.
     if (!thread) sharedQueryClient.setQueryData(qk.chat(name), res);
+    else sharedQueryClient.setQueryData(qk.chatDirect(name, thread), res);
   };
 
   const selectThread = (thread: string | null) => {
@@ -217,8 +241,13 @@ export default function ChatPage() {
     activeThreadRef.current = thread;
     instantScrollRef.current = true;
     setActiveThread(thread);
-    setMessages([]);
-    setLoading(true);
+    // A thread already opened this session renders instantly from cache while refreshing
+    // silently in the background; only a never-opened thread shows the skeleton.
+    const cached = thread
+      ? sharedQueryClient.getQueryData<ChatMessage[]>(qk.chatDirect(name, thread))
+      : sharedQueryClient.getQueryData<ChatMessage[]>(qk.chat(name));
+    setMessages(cached ?? []);
+    setLoading(!cached);
     setReplyingToId(null);
     setActionMenuMessageId(null);
     setExpandedReactionId(null);
@@ -227,22 +256,8 @@ export default function ChatPage() {
     void fetchMessages(thread);
   };
 
-  const fetchCheckinSummary = async () => {
-    if (!currentUser) return;
-    const collective = await api.get<{ collectiveId: number }>(`/onboarding/collectives/code/${currentUser.id}`);
-    const checkin = await api.post<HouseCheckin>(`/collectives/${collective.collectiveId}/checkins/generate`, {});
-    setCheckinSummary(await api.get<CheckinSummary>(`/checkins/${checkin.id}/summary`));
-  };
-
   useEffect(() => {
     fetchMessages();
-    void fetchCheckinSummary();
-    if (name) {
-      api.get<AppUser[]>(`/members/collective?memberName=${encodeURIComponent(name)}`)
-        .then(setMembers)
-        .catch(() => {});
-      api.get<Task[]>(`/tasks?memberName=${encodeURIComponent(name)}`).then(setHouseholdTasks).catch(() => {});
-    }
   }, [name]);
 
   useRealtimeEvent(
@@ -257,20 +272,21 @@ export default function ChatPage() {
         const other = dm?.sender === name ? dm?.recipient : dm?.sender;
         if (other && other === activeThreadRef.current) void fetchMessages(other);
       }
-      if (event.type === 'CHECKIN_UPDATED') void fetchCheckinSummary();
+      if (event.type === 'CHECKIN_UPDATED') {
+        queryClient.invalidateQueries({ queryKey: qk.checkin(name) });
+        queryClient.invalidateQueries({ queryKey: ['checkin', 'summary', name] });
+      }
       if (event.type === 'MEMBER_ONLINE' || event.type === 'MEMBER_OFFLINE') {
         const count = (event.payload as { count?: number })?.count;
         if (count !== undefined) setOnlineCount(count);
       }
       if (event.type === 'MEMBER_UPDATED') {
-        api.get<AppUser[]>(`/members/collective?memberName=${encodeURIComponent(name)}`)
-          .then(setMembers)
-          .catch(() => {});
+        queryClient.invalidateQueries({ queryKey: qk.members(name) });
       }
     },
     () => {
       void fetchMessages(activeThreadRef.current);
-      void fetchCheckinSummary();
+      queryClient.invalidateQueries({ queryKey: qk.checkin(name) });
     },
   );
 

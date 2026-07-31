@@ -91,7 +91,9 @@ export default function CalendarPage() {
   const [editType, setEditType] = useState<EventType>("OTHER");
   const [feedUrl, setFeedUrl] = useState("");
   const [loading, setLoading] = useState(
-    () => !sharedQueryClient.getQueryData(qk.calendar(currentUser?.name ?? "")),
+    () =>
+      !sharedQueryClient.getQueryData(qk.calendar(currentUser?.name ?? "")) ||
+      !sharedQueryClient.getQueryData(qk.checkin(currentUser?.name ?? "")),
   );
   // Tracks whether this render followed a real loading state, so the content fade-in below only
   // plays right after a genuine cold load — a warm revisit (loading never true) renders instantly.
@@ -113,15 +115,8 @@ export default function CalendarPage() {
     },
   });
 
-  useEffect(() => {
-    if (!calendarBundle) return;
-    setEvents(calendarBundle.eventResponse);
-    setGuestNotices(calendarBundle.guestResponse);
-    setLoading(false);
-  }, [calendarBundle]);
-
   // Shares Dashboard's cache entry, so navigating between the two doesn't refire the POST.
-  const { data: checkin } = useQuery({
+  const { data: checkin, isPending: checkinPending } = useQuery({
     queryKey: qk.checkin(name),
     enabled: !!currentUser,
     queryFn: async () => {
@@ -129,6 +124,13 @@ export default function CalendarPage() {
       return api.post<HouseCheckin>(`/collectives/${collective.collectiveId}/checkins/generate`, {});
     },
   });
+
+  useEffect(() => {
+    if (!calendarBundle || checkinPending) return;
+    setEvents(calendarBundle.eventResponse);
+    setGuestNotices(calendarBundle.guestResponse);
+    setLoading(false);
+  }, [calendarBundle, checkinPending]);
 
   const fetchEvents = async () => {
     if (!name) return;
