@@ -32,7 +32,7 @@ export default function AppLayout() {
   // so it naturally never re-fires on a plain tab switch back into the app.
   const [minSplashElapsed, setMinSplashElapsed] = useState(false);
   useEffect(() => {
-    const timer = window.setTimeout(() => setMinSplashElapsed(true), 0);
+    const timer = window.setTimeout(() => setMinSplashElapsed(true), 1000);
     return () => window.clearTimeout(timer);
   }, []);
 
