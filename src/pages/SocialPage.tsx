@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Eyebrow } from '../components/ui-kit';
+import { PAGE_ACCENTS } from '../lib/pageAccent';
 import RanksPanel from './social/RanksPanel';
 import GamesPanel from './social/GamesPanel';
 
@@ -11,7 +12,7 @@ export default function SocialPage() {
   return (
     <div className="space-y-5 pt-3 pb-6">
       <div>
-        <Eyebrow>{t('social.eyebrow')}</Eyebrow>
+        <Eyebrow accent={PAGE_ACCENTS['/social']}>{t('social.eyebrow')}</Eyebrow>
         <h2 className="mt-2 display-lg">
           {t('social.title')}
         </h2>

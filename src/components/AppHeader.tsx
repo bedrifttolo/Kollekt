@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useUser } from "../context/UserContext";
 import { colorForMember } from "../lib/memberColors";
 import { BrandMark } from "./ui-kit";
-import type { Tone } from "../lib/tones";
+import { PAGE_ACCENTS } from "../lib/pageAccent";
 
 const pageTitleKeys: Record<string, string> = {
   "/": "app.name",
@@ -27,17 +27,10 @@ const pageIcons: Record<string, LucideIcon> = {
   "/profile": UserCircle,
 };
 
-// Each tab's identity colour, carried by its header (and matched by that page's FAB — see
-// Fab's `tone` prop). Home is deliberately absent: it mixes every category, so it keeps the
-// app's neutral header rather than borrowing one tab's colour.
-const pageTones: Record<string, Tone> = {
-  "/tasks": "mint",
-  "/calendar": "sage",
-  "/chat": "blush",
-  "/economy": "butter",
-  "/economy/pant": "butter",
-  "/social": "lilac",
-};
+// Each tab's identity colour, carried by its header. Home is deliberately absent: it mixes
+// every category, so it keeps the app's neutral header rather than borrowing one tab's colour.
+// The mapping itself lives in lib/pageAccent.ts since Eyebrow, Home's preview tones, and the
+// Tasks fraction all need to look up the same page → colour association.
 
 export default function AppHeader() {
   const navigate = useNavigate();
@@ -49,7 +42,7 @@ export default function AppHeader() {
   const title = t(titleKey);
   const isHomePage = location.pathname === "/";
   const PageIcon = pageIcons[location.pathname] ?? null;
-  const pageTone = pageTones[location.pathname];
+  const pageTone = PAGE_ACCENTS[location.pathname];
 
   return (
     <header

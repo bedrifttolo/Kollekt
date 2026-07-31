@@ -15,7 +15,8 @@ import { AvatarStack, CountUp, EmptyState, Eyebrow, ProgressRing, VibeRing } fro
 import { VibeSheetPortal } from '../components/VibeSheet';
 import { dailyIndex, listContainer, listItem, pressableSubtle } from '../lib/motion';
 import { celebrate } from '../lib/celebrate';
-import type { Tone } from '../lib/tones';
+import type { Accent } from '../lib/pageAccent';
+import { PAGE_ACCENTS } from '../lib/pageAccent';
 import { colorForMember } from '../lib/memberColors';
 import { showHomeBanner, hideHomeBanner } from '../lib/ads';
 
@@ -40,7 +41,7 @@ function PreviewSection({
   children,
 }: {
   title: string;
-  tone: Tone;
+  tone: Accent;
   onSeeAll: () => void;
   seeAllLabel: string;
   isEmpty: boolean;
@@ -70,7 +71,7 @@ function PreviewRow({
   onClick,
 }: {
   icon: ReactNode;
-  tone: Tone;
+  tone: Accent;
   title: string;
   subtitle: string;
   trailing?: ReactNode;
@@ -82,7 +83,7 @@ function PreviewRow({
       {...pressableSubtle}
       className={`elev-1 flex w-full items-center gap-3 rounded-2xl border p-3.5 text-left tone-${tone} tone-wash tone-edge`}
     >
-      <span className={`tone-tile tone-${tone} grid h-10 w-10 shrink-0 place-items-center rounded-[--r-sm]`}>{icon}</span>
+      <span className={`tone-tile tone-${tone} grid h-10 w-10 shrink-0 place-items-center rounded-full`}>{icon}</span>
       <span className="min-w-0 flex-1">
         <span className="block truncate text-sm font-semibold">{title}</span>
         <span className="mt-0.5 block text-[11px] text-muted-foreground">{subtitle}</span>
@@ -160,7 +161,7 @@ export default function DashboardPage() {
   useRealtimeEvent(
     (event) => {
       if (!name) return;
-      if (['TASK_UPDATED', 'TASK_COMPLETED_LATE', 'EXPENSE_CREATED', 'EVENT_CREATED', 'BALANCES_SETTLED'].includes(event.type)) {
+      if (['TASK_UPDATED', 'TASK_CREATED', 'TASK_DELETED', 'TASK_COMPLETED_LATE', 'EXPENSE_CREATED', 'EVENT_CREATED', 'EVENT_UPDATED', 'EVENT_DELETED', 'BALANCES_SETTLED'].includes(event.type)) {
         void queryClient.invalidateQueries({ queryKey: qk.dashboard(name) });
       }
       if (event.type === 'MEMBER_UPDATED') {
@@ -204,7 +205,7 @@ export default function DashboardPage() {
       </motion.div>
 
       <motion.div variants={listItem} className="househero hero-ink">
-        <p className="eyebrow !text-ink-foreground/65">{translate('dashboard.householdTitle')}</p>
+        <p className="eyebrow eyebrow-on-ink !text-ink-foreground/65">{translate('dashboard.householdTitle')}</p>
         <h3 className="mt-2 font-display text-2xl font-extrabold leading-tight text-ink-foreground">
           {data.collectiveName}
         </h3>
@@ -320,13 +321,13 @@ export default function DashboardPage() {
 
       <PreviewSection
         title={translate('dashboard.upcomingTasks')}
-        tone="mint"
+        tone={PAGE_ACCENTS['/tasks']}
         onSeeAll={() => navigate('/tasks')}
         seeAllLabel={translate('common.seeAll')}
         isEmpty={data.upcomingTasks.length === 0}
         empty={
           <EmptyState
-            tone="mint"
+            tone={PAGE_ACCENTS['/tasks']}
             icon={<PartyPopper className="h-6 w-6" />}
             title={translate('dashboard.noUpcomingTasks')}
             body={translate('dashboard.noUpcomingTasksBody')}
@@ -339,7 +340,7 @@ export default function DashboardPage() {
           return (
             <PreviewRow
               key={task.id}
-              tone="mint"
+              tone={PAGE_ACCENTS['/tasks']}
               icon={<CategoryIcon className="h-5 w-5" />}
               title={task.title}
               subtitle={`${task.assignee} · ${formatDate(task.dueDate)}`}
@@ -352,13 +353,13 @@ export default function DashboardPage() {
 
       <PreviewSection
         title={translate('dashboard.shoppingList')}
-        tone="butter"
+        tone={PAGE_ACCENTS['/tasks']}
         onSeeAll={() => navigate('/tasks?tab=shopping')}
         seeAllLabel={translate('common.seeAll')}
         isEmpty={data.pendingShoppingItems.length === 0}
         empty={
           <EmptyState
-            tone="butter"
+            tone={PAGE_ACCENTS['/tasks']}
             icon={<ShoppingCart className="h-6 w-6" />}
             title={translate('dashboard.noShoppingItems')}
             body={translate('dashboard.noShoppingItemsBody')}
@@ -369,7 +370,7 @@ export default function DashboardPage() {
         {data.pendingShoppingItems.slice(0, 3).map((s) => (
           <PreviewRow
             key={s.id}
-            tone="butter"
+            tone={PAGE_ACCENTS['/tasks']}
             icon={<ShoppingCart className="h-5 w-5" />}
             title={s.item}
             subtitle={translate('dashboard.addedBy', { name: s.addedBy })}
@@ -380,13 +381,13 @@ export default function DashboardPage() {
 
       <PreviewSection
         title={translate('dashboard.upcomingEvents')}
-        tone="peri"
+        tone={PAGE_ACCENTS['/calendar']}
         onSeeAll={() => navigate('/calendar')}
         seeAllLabel={translate('common.seeAll')}
         isEmpty={data.upcomingEvents.length === 0}
         empty={
           <EmptyState
-            tone="peri"
+            tone={PAGE_ACCENTS['/calendar']}
             icon={<CalendarPlus className="h-6 w-6" />}
             title={translate('dashboard.noUpcomingEvents')}
             body={translate('dashboard.noUpcomingEventsBody')}
@@ -397,7 +398,7 @@ export default function DashboardPage() {
         {data.upcomingEvents.slice(0, 3).map((e) => (
           <PreviewRow
             key={e.id}
-            tone="peri"
+            tone={PAGE_ACCENTS['/calendar']}
             icon={<Calendar className="h-5 w-5" />}
             title={e.title}
             subtitle={`${formatDate(e.date)}${e.time ? ` · ${formatTime(e.time)}` : ''}`}
@@ -409,13 +410,13 @@ export default function DashboardPage() {
 
       <PreviewSection
         title={translate('dashboard.recentExpenses')}
-        tone="blush"
+        tone={PAGE_ACCENTS['/economy']}
         onSeeAll={() => navigate('/economy')}
         seeAllLabel={translate('common.seeAll')}
         isEmpty={data.recentExpenses.length === 0}
         empty={
           <EmptyState
-            tone="blush"
+            tone={PAGE_ACCENTS['/economy']}
             icon={<Receipt className="h-6 w-6" />}
             title={translate('dashboard.noRecentExpenses')}
             body={translate('dashboard.noRecentExpensesBody')}
@@ -426,7 +427,7 @@ export default function DashboardPage() {
         {data.recentExpenses.slice(0, 3).map((e) => (
           <PreviewRow
             key={e.id}
-            tone="blush"
+            tone={PAGE_ACCENTS['/economy']}
             icon={<Wallet className="h-5 w-5" />}
             title={e.description}
             subtitle={`${translate('dashboard.paidBy', { name: e.paidBy })} · ${formatDate(e.date)}`}

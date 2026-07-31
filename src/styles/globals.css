@@ -335,12 +335,22 @@
   .tone-blush { --tone: var(--tone-blush); --tone-fg: var(--tone-blush-fg); }
   .tone-sage { --tone: var(--tone-sage); --tone-fg: var(--tone-sage-fg); }
   .tone-lilac { --tone: var(--tone-lilac); --tone-fg: var(--tone-lilac-fg); }
+  /* Tasks' one deliberate exception to the 6-tone ramp: its header/eyebrow/fraction read the
+     app's fixed teal brand accent instead of a ramp tone, since the ramp's own green (mint) is
+     now Economy's. Pairs with --primary-foreground the same way every ramp tone pairs with its
+     own -fg. */
+  .tone-primary { --tone: var(--primary); --tone-fg: var(--primary-foreground); }
   /* A quieter wash of the same tone, for large areas where a full-strength fill would shout. */
   .tone-soft { background: color-mix(in srgb, var(--tone, var(--muted)) 38%, var(--card)); color: var(--foreground); }
   /* Quieter still. The default for giving a whole card a colour identity: enough hue to tell two
      sections apart at a glance, not enough to fight the text on top of it. This is the workhorse
      that lets every screen carry colour without inventing new fills. */
   .tone-wash { background: color-mix(in srgb, var(--tone, var(--muted)) 12%, var(--card)); color: var(--foreground); }
+  /* The 12% mix above reads as a clear pastel wash against light mode's near-white --card, but
+     dark mode's --card (#1a1a1a) is itself so close to black that the same 12% is nearly
+     invisible — 88% of the mix is still near-black. Bumped only in dark mode so light mode's
+     already-correct look is untouched. */
+  .dark .tone-wash { background: color-mix(in srgb, var(--tone, var(--muted)) 26%, var(--card)); }
   .tone-edge { border-color: color-mix(in srgb, var(--tone, var(--border)) 34%, var(--border)); }
   /* The tone's own hue as ink, darkened enough to carry small text on .tone-wash. */
   .tone-ink { color: color-mix(in srgb, var(--tone-fg, var(--foreground)) 82%, var(--tone, transparent)); }
@@ -364,7 +374,13 @@
   .mark { position: relative; display: inline; z-index: 0; }
   .mark::after { content: ''; position: absolute; z-index: -1; left: -.04em; right: -.04em; bottom: .03em; height: .34em; background: var(--secondary); }
   .eyebrow { display: flex; align-items: center; gap: .55rem; color: var(--muted-foreground); font-size: .7rem; font-weight: 800; letter-spacing: .15em; text-transform: uppercase; }
-  .eyebrow::before { content: ''; width: .65rem; height: .42rem; border-left: 2px solid var(--secondary); border-top: 2px solid var(--secondary); transform: rotate(45deg); }
+  /* Falls back to --secondary (purple) wherever no tone-* class rides along (Profile, Home's own
+     top eyebrow) — pages that pair Eyebrow with their own tone-* class (via the `accent` prop)
+     get their own colour here instead of the one global purple every page used to share. */
+  .eyebrow::before { content: ''; width: .65rem; height: .42rem; border-left: 2px solid var(--tone, var(--secondary)); border-top: 2px solid var(--tone, var(--secondary)); transform: rotate(45deg); }
+  /* For the two hero-ink eyebrows (Dashboard's household name, GamesPanel's game-night title) that
+     sit on the always-matte-black hero card and have no page tone of their own. */
+  .eyebrow-on-ink::before { border-color: color-mix(in srgb, var(--ink-foreground) 65%, transparent); }
   .roof { width: .65rem; height: .42rem; border-left: 2px solid currentColor; border-top: 2px solid currentColor; transform: rotate(45deg); }
 }
 

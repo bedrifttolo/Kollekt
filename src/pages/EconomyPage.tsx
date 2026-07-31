@@ -11,6 +11,7 @@ import { useUser, useRealtimeEvent } from '../context/UserContext';
 import { formatCurrency, formatDate, translateKey } from '../i18n/helpers';
 import type { AppUser, Budget, EconomySummary, Expense, PaymentHandles, PayOption } from '../lib/types';
 import { Avatar, CountUp, EmptyState, Eyebrow, Fab, IconButton, OverflowMenu, ProgressRing } from '../components/ui-kit';
+import { PAGE_ACCENTS } from '../lib/pageAccent';
 import { listContainer, listItem, pressableSubtle } from '../lib/motion';
 import { celebrate } from '../lib/celebrate';
 import { colorForMember } from '../lib/memberColors';
@@ -337,7 +338,7 @@ export default function EconomyPage() {
   return (
     <motion.div initial={false} animate={{ opacity: 1 }} className="space-y-5 pt-4">
       <div>
-        <Eyebrow>{t('economy.eyebrow')}</Eyebrow>
+        <Eyebrow accent={PAGE_ACCENTS['/economy']}>{t('economy.eyebrow')}</Eyebrow>
         <h2 className="mt-2 display-md">{t('economy.titleLineOne')} <span className="mark">{t('economy.titleLineTwo')}</span></h2>
       </div>
 

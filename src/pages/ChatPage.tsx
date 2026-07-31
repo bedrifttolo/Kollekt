@@ -28,6 +28,7 @@ const KUDO_TYPES: KudoType[] = ['THANK_YOU', 'CLEANEST', 'MOST_HELPFUL', 'PEACEM
 import { AddSheet, AvatarStack, IconButton } from '../components/ui-kit';
 import { collapseVariants, popIn, pressable, springPop } from '../lib/motion';
 import { colorForMember } from '../lib/memberColors';
+import { PAGE_ACCENTS } from '../lib/pageAccent';
 
 // The backend validates reactions against a fixed emoji allowlist and stores them as emoji
 // strings, so the emoji stays the wire format — icons are presentation only.
@@ -123,7 +124,9 @@ export default function ChatPage() {
   const [checkinExpanded, setCheckinExpanded] = useState(false);
   // Collapses the thread switcher + house-meeting banner so more of the message list is visible;
   // the identity row above stays put since it's the only way back to Profile from this page.
-  const [headerExpanded, setHeaderExpanded] = useState(true);
+  // Starts collapsed so it doesn't push the message list down on every load — the header's
+  // chevron toggle opens it on demand instead.
+  const [headerExpanded, setHeaderExpanded] = useState(false);
   const [mention, setMention] = useState<{ query: string; start: number } | null>(null);
   // Snapshot of the seen-cursor taken when the thread opened. Held in state rather than read live
   // so the "NY" divider stays anchored while the user reads, instead of disappearing as soon as
@@ -612,10 +615,10 @@ export default function ChatPage() {
     <motion.div initial={justFinishedLoading ? { opacity: 0 } : false} animate={{ opacity: 1 }} className="app-screen-full relative flex flex-col">
       {/* Chat hides the shared AppHeader (see AppLayout's hideHeader), so this row carries its
           own page-identity wash instead — bled edge-to-edge like every other page's header,
-          matching AppHeader's tone-tile treatment for tone-blush. safe-top pads its own content
-          below the notch while letting the tone-blush background paint behind the status bar,
-          the same way AppHeader's sticky/safe-top header does. */}
-      <div className="safe-top -mx-4 -mt-2 border-b border-border tone-tile tone-blush sm:-mx-6">
+          matching AppHeader's tone-tile treatment for PAGE_ACCENTS['/chat'] (tone-lilac).
+          safe-top pads its own content below the notch while letting the tone background paint
+          behind the status bar, the same way AppHeader's sticky/safe-top header does. */}
+      <div className={`safe-top -mx-4 -mt-2 border-b border-border tone-tile tone-${PAGE_ACCENTS['/chat']} sm:-mx-6`}>
       <div className="flex items-center gap-2 px-4 py-2.5 sm:px-6">
         {isDirect ? (
           <span style={{ backgroundColor: colorForMember(activeThread!, memberColorMap.get(activeThread!)) }} className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-xs font-bold text-white">
@@ -651,7 +654,7 @@ export default function ChatPage() {
           data-tour="profile"
           onClick={() => navigate('/profile')}
           style={currentUser ? { backgroundColor: colorForMember(currentUser.name, currentUser.color) } : undefined}
-          className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-border text-base font-bold text-white"
+          className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-border text-base font-bold text-white"
           aria-label={t('header.profile')}
         >
           {currentUser?.name[0]?.toUpperCase()}
@@ -813,7 +816,6 @@ export default function ChatPage() {
                       <Reply className="h-2.5 w-2.5" />
                       <span>{t('chat.replyingTo', { name: replyTarget.sender })}</span>
                     </div>
-                    <p className="font-semibold text-foreground">{replyTarget.sender}</p>
                     <p className="truncate">{replyTarget.text || t('chat.imageAlt')}</p>
                   </div>
                 )}

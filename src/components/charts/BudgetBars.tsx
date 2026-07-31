@@ -69,7 +69,7 @@ export default function BudgetBars({
               className={`flex w-full items-center gap-3 rounded-xl p-1.5 text-left transition-colors ${isEditing ? 'bg-surface-3' : ''}`}
             >
               <span
-                className="grid h-9 w-9 shrink-0 place-items-center rounded-[--r-sm]"
+                className="grid h-9 w-9 shrink-0 place-items-center rounded-full"
                 style={{ background: categoryWash(category), color: categoryColor(category) }}
               >
                 <Icon className="h-4 w-4" />

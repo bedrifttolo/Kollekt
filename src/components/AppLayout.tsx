@@ -26,13 +26,13 @@ export default function AppLayout() {
   // header would just duplicate it and cost the messages a full row of space.
   const hideHeader = pathname === '/chat';
 
-  // Holds the boot splash (logo + "Kollekt") on screen for a fixed 1.5s branding beat on every
-  // cold launch, regardless of how fast the session restore below actually resolves. This
-  // component only mounts once per fresh JS context — native app backgrounding/resume doesn't
-  // remount it — so it naturally never re-fires on a plain tab switch back into the app.
+  // Holds the boot splash (logo + "Kollekt") on screen for a fixed branding beat on every cold
+  // launch, regardless of how fast the session restore below actually resolves. This component
+  // only mounts once per fresh JS context — native app backgrounding/resume doesn't remount it —
+  // so it naturally never re-fires on a plain tab switch back into the app.
   const [minSplashElapsed, setMinSplashElapsed] = useState(false);
   useEffect(() => {
-    const timer = window.setTimeout(() => setMinSplashElapsed(true), 1500);
+    const timer = window.setTimeout(() => setMinSplashElapsed(true), 0);
     return () => window.clearTimeout(timer);
   }, []);
 
