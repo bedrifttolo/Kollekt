@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -30,6 +30,7 @@ import {
   getUserMessage,
 } from "../lib/api";
 import { qk } from "../lib/queryKeys";
+import { queryClient as sharedQueryClient } from "../lib/queryClient";
 import { useUser, useRealtimeEvent } from "../context/UserContext";
 import { translateKey } from "../i18n/helpers";
 import type {
@@ -115,10 +116,35 @@ export default function ProfilePage() {
   const [paymentHandles, setPaymentHandles] = useState<PaymentHandles>({});
   const [paymentSaving, setPaymentSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [myStats, setMyStats] = useState<LeaderboardPlayer | null>(null);
-  const [achievementsUnlocked, setAchievementsUnlocked] = useState(0);
-  const [achievementsTotal, setAchievementsTotal] = useState(0);
-  const [householdMembers, setHouseholdMembers] = useState<AppUser[]>([]);
+  // Seeded from the React Query cache so a warm re-navigation shows the real numbers/cards from
+  // the first paint instead of the query's empty defaults for one frame before the sync effects
+  // below correct them.
+  const cachedStats = () =>
+    sharedQueryClient.getQueryData<{
+      leaderboard: PromiseSettledResult<{ players: LeaderboardPlayer[] }>;
+      achievements: PromiseSettledResult<Achievement[]>;
+    }>(qk.profileStats(currentUser?.name ?? ""));
+  const cachedRules = () =>
+    sharedQueryClient.getQueryData<{ collectiveId: number; rules: HouseRules; quiet: QuietHours }>(
+      qk.profileRules(currentUser?.name ?? ""),
+    );
+  const cachedKudos = () => sharedQueryClient.getQueryData<Kudo[]>(qk.profileKudos(currentUser?.name ?? ""));
+  const cachedMembers = () => sharedQueryClient.getQueryData<AppUser[]>(qk.members(currentUser?.name ?? ""));
+  const [myStats, setMyStats] = useState<LeaderboardPlayer | null>(() => {
+    const stats = cachedStats();
+    return stats?.leaderboard.status === "fulfilled"
+      ? stats.leaderboard.value.players.find((player) => player.name === currentUser?.name) ?? null
+      : null;
+  });
+  const [achievementsUnlocked, setAchievementsUnlocked] = useState(() => {
+    const stats = cachedStats();
+    return stats?.achievements.status === "fulfilled" ? stats.achievements.value.filter((a) => a.unlocked).length : 0;
+  });
+  const [achievementsTotal, setAchievementsTotal] = useState(() => {
+    const stats = cachedStats();
+    return stats?.achievements.status === "fulfilled" ? stats.achievements.value.length : 0;
+  });
+  const [householdMembers, setHouseholdMembers] = useState<AppUser[]>(() => cachedMembers() ?? []);
   const [profileLoadFailed, setProfileLoadFailed] = useState(false);
   const [feedback, setFeedback] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [statusSaving, setStatusSaving] = useState(false);
@@ -127,13 +153,15 @@ export default function ProfilePage() {
   const [colorSaving, setColorSaving] = useState(false);
   const [copyingCode, setCopyingCode] = useState(false);
   const [leaving, setLeaving] = useState(false);
-  const [collectiveId, setCollectiveId] = useState<number | null>(null);
-  const [houseRules, setHouseRules] = useState<HouseRules | null>(null);
+  const [collectiveId, setCollectiveId] = useState<number | null>(() => cachedRules()?.collectiveId ?? null);
+  const [houseRules, setHouseRules] = useState<HouseRules | null>(() => cachedRules()?.rules ?? null);
   const [showRulesEditor, setShowRulesEditor] = useState(false);
   const [rulesDraft, setRulesDraft] = useState("");
   const [rulesSaving, setRulesSaving] = useState(false);
-  const [receivedKudos, setReceivedKudos] = useState(0);
-  const [quietHours, setQuietHours] = useState<QuietHours | null>(null);
+  const [receivedKudos, setReceivedKudos] = useState(
+    () => cachedKudos()?.filter((kudo) => kudo.receiver === currentUser?.name).length ?? 0,
+  );
+  const [quietHours, setQuietHours] = useState<QuietHours | null>(() => cachedRules()?.quiet ?? null);
   const [editingQuietHours, setEditingQuietHours] = useState(false);
   const [quietHoursBackup, setQuietHoursBackup] = useState<QuietHours | null>(null);
   const [rulesExpanded, setRulesExpanded] = useState(false);
@@ -264,6 +292,12 @@ export default function ProfilePage() {
     if (householdMembersQuery.data) setHouseholdMembers(householdMembersQuery.data);
     if (householdMembersQuery.isError) setProfileLoadFailed(true);
   }, [householdMembersQuery.data, householdMembersQuery.isError]);
+
+  // Payment methods and notification prefs are both behind collapsed sections the user has to
+  // tap open, so they load in the background rather than gating the page.
+  const loading =
+    !!name && (statsQuery.isPending || rulesQuery.isPending || kudosQuery.isPending || householdMembersQuery.isPending);
+  const wasLoadingRef = useRef(loading);
 
   const paymentHandlesQuery = useQuery({
     queryKey: qk.profilePayments(name),
@@ -477,9 +511,22 @@ export default function ProfilePage() {
     navigate("/login");
   };
 
+  if (loading) {
+    wasLoadingRef.current = true;
+    return (
+      <div className="space-y-3 pt-4 animate-pulse">
+        {[...Array(4)].map((_, i) => <div key={i} className="glass rounded-2xl h-24" />)}
+      </div>
+    );
+  }
+  // Tracks whether this render followed a real loading state, so the entrance fade below only
+  // plays right after a genuine cold load — a warm revisit (loading never true) renders instantly.
+  const justFinishedLoading = wasLoadingRef.current;
+  wasLoadingRef.current = false;
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12 }}
+      initial={justFinishedLoading ? { opacity: 0, y: 12 } : false}
       animate={{ opacity: 1, y: 0 }}
       className="space-y-4 pt-4 pb-8"
     >

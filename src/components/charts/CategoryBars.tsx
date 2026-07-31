@@ -24,11 +24,15 @@ export default function CategoryBars({
   total,
   selected,
   onSelect,
+  animateIn = true,
 }: {
   categories: CategoryTotal[];
   total: number;
   selected?: ExpenseCategory | null;
   onSelect?: (category: ExpenseCategory | null) => void;
+  /** Set false on a warm re-navigation so the stagger-in doesn't replay every time the page
+   *  (which fully remounts on every tab switch) is revisited — only a genuine cold load animates. */
+  animateIn?: boolean;
 }) {
   const { t } = useTranslation();
 
@@ -40,7 +44,7 @@ export default function CategoryBars({
   const interactive = Boolean(onSelect);
 
   return (
-    <motion.ul variants={listContainer} initial="hidden" animate="show" className="space-y-1">
+    <motion.ul variants={listContainer} initial={animateIn ? "hidden" : false} animate="show" className="space-y-1">
       {categories.map((entry) => {
         const Icon = EXPENSE_CATEGORY_ICONS[entry.category];
         const isSelected = selected === entry.category;
@@ -61,7 +65,7 @@ export default function CategoryBars({
               } ${isDimmed ? 'opacity-55' : ''}`}
             >
               <span
-                className="grid h-9 w-9 shrink-0 place-items-center rounded-[--r-sm]"
+                className="grid h-9 w-9 shrink-0 place-items-center rounded-full"
                 style={{ background: categoryWash(entry.category), color: categoryColor(entry.category) }}
               >
                 <Icon className="h-4 w-4" />

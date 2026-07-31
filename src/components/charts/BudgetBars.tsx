@@ -21,10 +21,14 @@ export default function BudgetBars({
   budgets,
   spentByCategory,
   onSave,
+  animateIn = true,
 }: {
   budgets: Budget[];
   spentByCategory: Record<string, number>;
   onSave: (category: ExpenseCategory, monthlyLimit: number) => void | Promise<void>;
+  /** Set false on a warm re-navigation so the stagger-in doesn't replay every time the page
+   *  (which fully remounts on every tab switch) is revisited — only a genuine cold load animates. */
+  animateIn?: boolean;
 }) {
   const { t } = useTranslation();
   const [editing, setEditing] = useState<ExpenseCategory | null>(null);
