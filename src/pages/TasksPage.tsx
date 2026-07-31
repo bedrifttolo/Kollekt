@@ -1000,9 +1000,9 @@ function TasksMain() {
       {tab === 'tasks' && (
         <div className="househero hero-ink">
           <p className="text-xs font-bold uppercase tracking-[.15em] text-ink-foreground/65">{t('tasks.progressLabel')}</p>
-          <p className="bignum mt-3">{completedCount}<span className="text-primary">/{taskTotal}</span> <span className="text-2xl tracking-normal">{t('tasks.done')}</span></p>
+          <p className="bignum mt-3">{completedCount}<span className="text-[var(--tone-leaf)]">/{taskTotal}</span> <span className="text-2xl tracking-normal">{t('tasks.done')}</span></p>
           <p className="mt-2 text-sm text-ink-foreground/70">{t('tasks.remaining', { count: Math.max(0, taskTotal - completedCount) })}</p>
-          <ProgressBar value={completionPercent} className="mt-4 bg-ink-foreground/20" />
+          <ProgressBar value={completionPercent} className="mt-4 bg-ink-foreground/20" fillClassName="bg-[var(--tone-leaf)]" />
         </div>
       )}
 
@@ -1495,7 +1495,7 @@ function TasksMain() {
             <p className="text-xs font-bold uppercase tracking-[.15em] text-ink-foreground/65">{t('tasks.restockTitle')}</p>
             <p className="bignum mt-3">{shoppingToBuy} <span className="text-2xl tracking-normal">{t('tasks.shopping.toBuyUnit')}</span></p>
             <p className="mt-2 text-sm text-ink-foreground/70">{t('tasks.shopping.boughtCount', { count: shoppingBought })}</p>
-            <ProgressBar value={shoppingPercent} className="mt-4 bg-ink-foreground/20" />
+            <ProgressBar value={shoppingPercent} className="mt-4 bg-ink-foreground/20" fillClassName="bg-[var(--tone-leaf)]" />
           </div>
 
           <div className="flex flex-wrap gap-2">
@@ -1727,7 +1727,7 @@ function TasksMain() {
             <p className="text-xs font-bold uppercase tracking-[.15em] text-ink-foreground/65">{t('tasks.maintenance.boardTitle')}</p>
             <p className="bignum mt-3">{maintenanceOpen} <span className="text-2xl tracking-normal">{t('tasks.maintenance.openUnit')}</span></p>
             <p className="mt-2 text-sm text-ink-foreground/70">{t('tasks.maintenance.heroSubtitle', { overdue: maintenanceOverdue, done: maintenanceDone })}</p>
-            <ProgressBar value={maintenancePercent} className="mt-4 bg-ink-foreground/20" />
+            <ProgressBar value={maintenancePercent} className="mt-4 bg-ink-foreground/20" fillClassName="bg-[var(--tone-leaf)]" />
           </div>
 
           <div className="flex flex-wrap gap-2">

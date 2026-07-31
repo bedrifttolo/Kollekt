@@ -291,8 +291,8 @@ export function AvatarStack({ members, max = 4 }: { members: Array<{ name: strin
   );
 }
 
-export function ProgressBar({ value, className }: { value: number; className?: string }) {
-  return <div className={cn('h-2 overflow-hidden rounded-full bg-muted', className)}><div className="h-full rounded-full bg-secondary transition-[width]" style={{ width: `${Math.max(0, Math.min(100, value))}%` }} /></div>;
+export function ProgressBar({ value, className, fillClassName = 'bg-secondary' }: { value: number; className?: string; fillClassName?: string }) {
+  return <div className={cn('h-2 overflow-hidden rounded-full bg-muted', className)}><div className={cn('h-full rounded-full transition-[width]', fillClassName)} style={{ width: `${Math.max(0, Math.min(100, value))}%` }} /></div>;
 }
 
 export function OverflowMenu({

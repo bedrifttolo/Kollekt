@@ -77,6 +77,11 @@
   --tone-sage-fg: #4c5a0a;
   --tone-lilac: #a89ae8;
   --tone-lilac-fg: #241a52;
+  /* Tasks' own accent, outside the six-tone ramp: a grass green pulled toward yellow rather
+     than the ramp's blue-leaning mint (now Economy's) or sage's more olive/khaki yellow-green
+     (Calendar's) — distinct from both at a glance. */
+  --tone-leaf: #a8e08f;
+  --tone-leaf-fg: #173a10;
 
   /* Expense-category identity colours. A *data* palette, deliberately separate from the --tone-*
      ramp above: tones are decorative fills for large tiles, these carry meaning in charts and so
@@ -195,6 +200,8 @@
   --tone-sage-fg: #23290a;
   --tone-lilac: #7364dc;
   --tone-lilac-fg: #17103a;
+  --tone-leaf: #5bc24e;
+  --tone-leaf-fg: #0f2b0a;
   /* Re-stepped for the dark card surface, not flipped: validated separately against #0e1513. */
   --cat-groceries: #1ca875;
   --cat-bills: #4a9be0;
@@ -335,23 +342,20 @@
   .tone-blush { --tone: var(--tone-blush); --tone-fg: var(--tone-blush-fg); }
   .tone-sage { --tone: var(--tone-sage); --tone-fg: var(--tone-sage-fg); }
   .tone-lilac { --tone: var(--tone-lilac); --tone-fg: var(--tone-lilac-fg); }
-  /* Tasks' one deliberate exception to the 6-tone ramp: its header/eyebrow/fraction read the
-     app's fixed teal brand accent instead of a ramp tone, since the ramp's own green (mint) is
-     now Economy's. Pairs with --primary-foreground the same way every ramp tone pairs with its
-     own -fg. */
-  .tone-primary { --tone: var(--primary); --tone-fg: var(--primary-foreground); }
+  /* Tasks' one deliberate exception to the 6-tone ramp — see --tone-leaf's own comment above. */
+  .tone-leaf { --tone: var(--tone-leaf); --tone-fg: var(--tone-leaf-fg); }
   /* A quieter wash of the same tone, for large areas where a full-strength fill would shout. */
   .tone-soft { background: color-mix(in srgb, var(--tone, var(--muted)) 38%, var(--card)); color: var(--foreground); }
   /* Quieter still. The default for giving a whole card a colour identity: enough hue to tell two
      sections apart at a glance, not enough to fight the text on top of it. This is the workhorse
      that lets every screen carry colour without inventing new fills. */
   .tone-wash { background: color-mix(in srgb, var(--tone, var(--muted)) 12%, var(--card)); color: var(--foreground); }
-  /* The 12% mix above reads as a clear pastel wash against light mode's near-white --card, but
-     dark mode's --card (#1a1a1a) is itself so close to black that the same 12% is nearly
-     invisible — 88% of the mix is still near-black. Bumped only in dark mode so light mode's
-     already-correct look is untouched. */
-  .dark .tone-wash { background: color-mix(in srgb, var(--tone, var(--muted)) 26%, var(--card)); }
   .tone-edge { border-color: color-mix(in srgb, var(--tone, var(--border)) 34%, var(--border)); }
+  /* A neutral, hue-free card surface — matte black over dark mode's near-black page, white over
+     light mode's near-white page — for rows that carry colour only via their icon and should
+     otherwise stay flat instead of picking up a category tint (Home's task/shopping/event/expense
+     preview rows). Translucent rather than a solid --card fill, hence "veil". */
+  .card-veil { background: color-mix(in srgb, var(--card) 60%, transparent); color: var(--foreground); }
   /* The tone's own hue as ink, darkened enough to carry small text on .tone-wash. */
   .tone-ink { color: color-mix(in srgb, var(--tone-fg, var(--foreground)) 82%, var(--tone, transparent)); }
 
