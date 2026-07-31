@@ -81,7 +81,7 @@ function PreviewRow({
     <motion.button
       onClick={onClick}
       {...pressableSubtle}
-      className={`elev-1 flex w-full items-center gap-3 rounded-2xl border p-3.5 text-left tone-${tone} tone-wash tone-edge`}
+      className="elev-1 card-veil flex w-full items-center gap-3 rounded-2xl border p-3.5 text-left"
     >
       <span className={`tone-tile tone-${tone} grid h-10 w-10 shrink-0 place-items-center rounded-full`}>{icon}</span>
       <span className="min-w-0 flex-1">
