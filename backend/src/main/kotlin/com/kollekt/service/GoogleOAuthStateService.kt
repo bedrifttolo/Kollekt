@@ -9,7 +9,7 @@ import java.time.temporal.ChronoUnit
 import java.util.UUID
 
 data class GoogleOAuthState(
-    val memberName: String,
+    val memberId: Long,
     val returnUrl: String,
 )
 
@@ -19,16 +19,16 @@ class GoogleOAuthStateService(
 ) {
     @Transactional
     fun issueState(
-        memberName: String,
+        memberId: Long,
         returnUrl: String,
     ): String {
-        require(!memberName.contains('\n') && !returnUrl.contains('\n'))
+        require(!returnUrl.contains('\n'))
         val state = UUID.randomUUID().toString()
         tokenEntryRepository.deleteByExpiresAtBefore(Instant.now())
         tokenEntryRepository.save(
             TokenEntry(
                 jti = state,
-                subject = "$memberName\n$returnUrl",
+                subject = "$memberId\n$returnUrl",
                 tokenType = GOOGLE_OAUTH_STATE,
                 expiresAt = Instant.now().plus(10, ChronoUnit.MINUTES),
             ),
@@ -47,7 +47,8 @@ class GoogleOAuthStateService(
         tokenEntryRepository.delete(entry)
         val parts = entry.subject.split('\n', limit = 2)
         require(parts.size == 2) { "Invalid OAuth state" }
-        return GoogleOAuthState(parts[0], parts[1])
+        val memberId = parts[0].toLongOrNull() ?: throw IllegalArgumentException("Invalid OAuth state")
+        return GoogleOAuthState(memberId, parts[1])
     }
 
     private companion object {

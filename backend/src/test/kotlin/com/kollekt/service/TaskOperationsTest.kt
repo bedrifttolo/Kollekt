@@ -36,6 +36,7 @@ class TaskOperationsTest {
     private lateinit var realtimeUpdateService: RealtimeUpdateService
     private lateinit var notificationService: NotificationService
     private lateinit var collectiveAccessService: CollectiveAccessService
+    private lateinit var currentMemberContext: CurrentMemberContext
     private lateinit var taskFeedbackRepository: TaskFeedbackRepository
     private lateinit var taskHistoryRepository: TaskHistoryRepository
     private lateinit var operations: TaskOperations
@@ -49,7 +50,8 @@ class TaskOperationsTest {
         notificationService = mock()
         taskFeedbackRepository = mock()
         taskHistoryRepository = mock()
-        collectiveAccessService = CollectiveAccessService(memberRepository, collectiveRepository)
+        currentMemberContext = mock()
+        collectiveAccessService = CollectiveAccessService(currentMemberContext, collectiveRepository)
         operations =
             TaskOperations(
                 taskRepository = taskRepository,
@@ -60,7 +62,7 @@ class TaskOperationsTest {
                 collectiveAccessService = collectiveAccessService,
                 taskHistoryRepository = taskHistoryRepository,
             )
-        whenever(memberRepository.findByName("Kasper")).thenReturn(member("Kasper", "kasper@example.com"))
+        whenever(currentMemberContext.current("Kasper")).thenReturn(member("Kasper", "kasper@example.com"))
     }
 
     @Test

@@ -19,6 +19,7 @@ import {
   weightedRandom,
   genId,
 } from './weightedRng';
+import { alcoholTextFor } from './alcoholLookup';
 
 function sips(base: number, config: GameConfig): number {
   return Math.max(1, Math.round(base * config.drinkMultiplier));
@@ -73,6 +74,276 @@ function buildHotSeatText(
       if (members.length > 0) {
         const worst = members.reduce((a, b) => (a.stats.tasksCompleted <= b.stats.tasksCompleted ? a : b));
         return makeEventText(template.title, {
+          en: `Group vote: who looks most likely to dodge their share? Most votes loses 2 points. Data hint: ${worst.name} currently has the fewest completed tasks.`,
+          no: `Gruppestemme: hvem ser mest sannsynlig ut til å snike seg unna? Flest stemmer mister 2 poeng. Datatips: ${worst.name} har akkurat nå færrest fullførte oppgaver.`,
+        });
+      }
+
+      return makeEventText(template.title, {
+        en: `Pure vibe vote: who would disappear fastest when chores show up? Most votes loses 2 points.`,
+        no: `Ren magefølelse: hvem ville forsvunnet raskest når oppgavene dukker opp? Flest stemmer mister 2 poeng.`,
+      });
+    }
+    case 'who-overachiever': {
+      if (members.length > 0) {
+        const best = members.reduce((a, b) => (a.stats.tasksCompleted >= b.stats.tasksCompleted ? a : b));
+        return makeEventText(template.title, {
+          en: `Vote for tonight's overachiever. Winner hands out 3 points. Data hint: ${best.name} leads with ${best.stats.tasksCompleted} completed tasks.`,
+          no: `Stem på kveldens overpresterer. Vinneren deler ut 3 poeng. Datatips: ${best.name} leder med ${best.stats.tasksCompleted} fullførte oppgaver.`,
+        });
+      }
+
+      return makeEventText(template.title, {
+        en: `Vote for who looks most likely to reorganize the spice rack for fun. Winner hands out 3 points.`,
+        no: `Stem på hvem som ser mest sannsynlig ut til å omorganisere krydderhylla for moro skyld. Vinneren deler ut 3 poeng.`,
+      });
+    }
+    case 'guest-outsider-award': {
+      const guest = pickRandomPlayer(getGuests(players));
+      return makeEventText(template.title, {
+        en: `${guest.name}, point to the person giving the strongest "I definitely own matching storage boxes" energy. The room votes on whether you nailed it. Miss the vote and lose 2 points.`,
+        no: `${guest.name}, pek på personen som gir mest "jeg eier definitivt matchende oppbevaringsbokser"-energi. Rommet stemmer på om du traff. Taper du avstemningen, mister du 2 poeng.`,
+      });
+    }
+    case 'guest-house-keys': {
+      const guest = pickRandomPlayer(getGuests(players));
+      return makeEventText(template.title, {
+        en: `${guest.name}, who here would you trust most with your house keys after one night? Point now. That person gets one sentence to justify the trust or loses 2 points.`,
+        no: `${guest.name}, hvem her ville du stolt mest på med husnøklene dine etter én kveld? Pek nå. Den personen får én setning på å forsvare tilliten, eller må miste 2 poeng.`,
+      });
+    }
+    default:
+      return makeEventText(template.title, {
+        en: template.describe.en(players),
+        no: template.describe.no(players),
+      });
+  }
+}
+
+function buildTriviaTwistText(
+  template: TriviaTwistTemplate,
+  players: Player[],
+): Record<GameLang, GameEventText> {
+  switch (template.id) {
+    case 'streak-compare': {
+      const [a, b] = shuffle(players).slice(0, 2);
+      return makeEventText(template.title, {
+        en: `True or false: ${a.name}'s streak (${a.stats.streak}) is higher than ${b.name}'s (${b.stats.streak}). Guess together. Wrong answer costs 2 points.`,
+        no: `Sant eller usant: Streaken til ${a.name} (${a.stats.streak}) er høyere enn streaken til ${b.name} (${b.stats.streak}). Gjett samtidig. Feil svar koster 2 poeng.`,
+      });
+    }
+    case 'task-compare': {
+      const [a, b] = shuffle(players).slice(0, 2);
+      return makeEventText(template.title, {
+        en: `True or false: ${a.name} has completed more tasks than ${b.name}. (${a.name}: ${a.stats.tasksCompleted}, ${b.name}: ${b.stats.tasksCompleted}) Miss it and lose 2 points.`,
+        no: `Sant eller usant: ${a.name} har fullført flere oppgaver enn ${b.name}. (${a.name}: ${a.stats.tasksCompleted}, ${b.name}: ${b.stats.tasksCompleted}) Tar du feil, mister du 2 poeng.`,
+      });
+    }
+    case 'level-guess': {
+      const target = shuffle(players)[0];
+      return makeEventText(template.title, {
+        en: `Guess ${target.name}'s current level. First correct answer hands out 2 points. Everyone else who missed it loses 1. (Answer: Level ${target.stats.level})`,
+        no: `Gjett hvilket nivå ${target.name} er på akkurat nå. Første riktige svar deler ut 2 poeng. Alle andre som bommer mister 1. (Svar: Nivå ${target.stats.level})`,
+      });
+    }
+    case 'xp-guess': {
+      const target = shuffle(players)[0];
+      const low = Math.floor(target.stats.xp * 0.7);
+      const high = Math.ceil(target.stats.xp * 1.3);
+      return makeEventText(template.title, {
+        en: `Guess ${target.name}'s XP. It's somewhere between ${low} and ${high}. Closest guess hands out 2 points. (Answer: ${target.stats.xp} XP)`,
+        no: `Gjett hvor mye XP ${target.name} har. Det ligger et sted mellom ${low} og ${high}. Nærmeste gjetning deler ut 2 poeng. (Svar: ${target.stats.xp} XP)`,
+      });
+    }
+    case 'badge-bluff': {
+      const target = shuffle(players)[0];
+      const hasBadge = target.stats.badges.length > 0;
+      const badge = hasBadge ? target.stats.badges[0] : 'TOP';
+      return makeEventText(template.title, {
+        en: `True or false: ${target.name} currently has the "${badge}" badge. Wrong answer costs 2 points. (Answer: ${hasBadge ? 'True' : 'False'})`,
+        no: `Sant eller usant: ${target.name} har merket "${badge}" akkurat nå. Feil svar koster 2 poeng. (Svar: ${hasBadge ? 'Sant' : 'Usant'})`,
+      });
+    }
+    case 'rank-order': {
+      const sample = shuffle(players).slice(0, 3);
+      const sorted = [...sample].sort((a, b) => a.stats.rank - b.stats.rank);
+      return makeEventText(template.title, {
+        en: `Put these three in leaderboard order from best to worst: ${sample.map((p) => p.name).join(', ')}. First wrong answer loses 2 points. (Answer: ${sorted.map((p) => p.name).join(' > ')})`,
+        no: `Sett disse tre i topplistens rekkefølge fra best til svakest: ${sample.map((p) => p.name).join(', ')}. Første feil svar mister 2 poeng. (Svar: ${sorted.map((p) => p.name).join(' > ')})`,
+      });
+    }
+    case 'rank-battle': {
+      const [a, b] = shuffle(players).slice(0, 2);
+      const winner = a.stats.rank < b.stats.rank ? a : b;
+      return makeEventText(template.title, {
+        en: `Who has the better leaderboard rank: ${a.name} or ${b.name}? Say it together. Wrong answer costs 2 points. (Answer: ${winner.name})`,
+        no: `Hvem har best plassering på topplisten: ${a.name} eller ${b.name}? Si det samtidig. Feil svar koster 2 poeng. (Svar: ${winner.name})`,
+      });
+    }
+    case 'achievement-count': {
+      const candidates = players.filter((player) => player.stats.achievementsUnlocked > 0);
+      const target = shuffle(candidates)[0];
+      return makeEventText(template.title, {
+        en: `Does ${target.name} have more than 1 unlocked achievement? True or false. Wrong answer costs 2 points. (Answer: ${target.stats.achievementsUnlocked > 1 ? 'True' : 'False'})`,
+        no: `Har ${target.name} mer enn 1 opplåst prestasjon? Sant eller usant. Feil svar koster 2 poeng. (Svar: ${target.stats.achievementsUnlocked > 1 ? 'Sant' : 'Usant'})`,
+      });
+    }
+    case 'xp-lead': {
+      const [a, b] = shuffle(players).slice(0, 2);
+      const leader = a.stats.xp >= b.stats.xp ? a : b;
+      const trailer = leader === a ? b : a;
+      return makeEventText(template.title, {
+        en: `Who currently has more XP: ${a.name} or ${b.name}? Wrong answer costs 2 points. (Answer: ${leader.name}, with ${leader.stats.xp} vs ${trailer.stats.xp})`,
+        no: `Hvem har mest XP akkurat nå: ${a.name} eller ${b.name}? Feil svar koster 2 poeng. (Svar: ${leader.name}, med ${leader.stats.xp} mot ${trailer.stats.xp})`,
+      });
+    }
+    case 'top-spotlight': {
+      const sample = shuffle(players).slice(0, 3);
+      const best = [...sample].sort((a, b) => a.stats.rank - b.stats.rank)[0];
+      return makeEventText(template.title, {
+        en: `Among ${sample.map((p) => p.name).join(', ')}, who has the best leaderboard rank? Wrong guess costs 2 points. (Answer: ${best.name})`,
+        no: `Blant ${sample.map((p) => p.name).join(', ')}, hvem har best plassering på topplisten? Feil svar koster 2 poeng. (Svar: ${best.name})`,
+      });
+    }
+    case 'late-battle': {
+      const [a, b] = shuffle(players).slice(0, 2);
+      return makeEventText(template.title, {
+        en: `True or false: ${a.name} has more late completions than ${b.name}. (${a.name}: ${a.stats.lateCompletions}, ${b.name}: ${b.stats.lateCompletions}) Wrong answer costs 2 points.`,
+        no: `Sant eller usant: ${a.name} har flere forsinkede fullføringer enn ${b.name}. (${a.name}: ${a.stats.lateCompletions}, ${b.name}: ${b.stats.lateCompletions}) Feil svar koster 2 poeng.`,
+      });
+    }
+    case 'skip-battle': {
+      const [a, b] = shuffle(players).slice(0, 2);
+      return makeEventText(template.title, {
+        en: `True or false: ${a.name} has skipped more tasks than ${b.name}. (${a.name}: ${a.stats.skippedTasks}, ${b.name}: ${b.stats.skippedTasks}) Wrong answer costs 2 points.`,
+        no: `Sant eller usant: ${a.name} har hoppet over flere oppgaver enn ${b.name}. (${a.name}: ${a.stats.skippedTasks}, ${b.name}: ${b.stats.skippedTasks}) Feil svar koster 2 poeng.`,
+      });
+    }
+    case 'badge-count-battle': {
+      const [a, b] = shuffle(players).slice(0, 2);
+      return makeEventText(template.title, {
+        en: `True or false: ${a.name} has at least as many badges as ${b.name}. (${a.name}: ${a.stats.badges.length}, ${b.name}: ${b.stats.badges.length}) Wrong answer costs 2 points.`,
+        no: `Sant eller usant: ${a.name} har minst like mange merker som ${b.name}. (${a.name}: ${a.stats.badges.length}, ${b.name}: ${b.stats.badges.length}) Feil svar koster 2 poeng.`,
+      });
+    }
+    case 'achievement-battle': {
+      const [a, b] = shuffle(players).slice(0, 2);
+      return makeEventText(template.title, {
+        en: `True or false: ${a.name} has at least as many unlocked achievements as ${b.name}. (${a.name}: ${a.stats.achievementsUnlocked}, ${b.name}: ${b.stats.achievementsUnlocked}) Wrong answer costs 2 points.`,
+        no: `Sant eller usant: ${a.name} har minst like mange opplåste prestasjoner som ${b.name}. (${a.name}: ${a.stats.achievementsUnlocked}, ${b.name}: ${b.stats.achievementsUnlocked}) Feil svar koster 2 poeng.`,
+      });
+    }
+    case 'level-top-three': {
+      const sample = shuffle(players).slice(0, 3);
+      const topLevel = Math.max(...sample.map((player) => player.stats.level));
+      const leaders = sample.filter((player) => player.stats.level === topLevel);
+      const answerEn = leaders.map((player) => player.name).join(' and ');
+      const answerNo = leaders.map((player) => player.name).join(' og ');
+      return makeEventText(template.title, {
+        en: `Among ${sample.map((p) => p.name).join(', ')}, who is at the highest level right now? Wrong guess costs 2 points. (Answer: ${answerEn}, level ${topLevel})`,
+        no: `Blant ${sample.map((p) => p.name).join(', ')}, hvem er på høyest nivå akkurat nå? Feil gjetning koster 2 poeng. (Svar: ${answerNo}, nivå ${topLevel})`,
+      });
+    }
+    default:
+      return makeEventText(template.title, {
+        en: template.describe.en(players),
+        no: template.describe.no(players),
+      });
+  }
+}
+
+function buildRandomEventText(
+  template: RandomEventTemplate,
+  players: Player[],
+): Record<GameLang, GameEventText> {
+  switch (template.id) {
+    case 'rule-maker': {
+      const chosen = pickRandomPlayers(players, 1)[0];
+      return makeEventText(template.title, {
+        en: `${chosen.name} makes one rule that lasts until the next round. Break it and lose 2 points. Keep it simple, memorable, and slightly annoying.`,
+        no: `${chosen.name} lager én regel som varer til neste runde. Bryter du den, mister du 2 poeng. Hold den enkel, tydelig og litt irriterende.`,
+      });
+    }
+    case 'thumb-master': {
+      const chosen = pickRandomPlayers(players, 1)[0];
+      return makeEventText(template.title, {
+        en: `${chosen.name} is Thumb Master for this round. Drop your thumb on the table whenever you want. Last person to notice loses 1 point.`,
+        no: `${chosen.name} er tommelmester denne runden. Legg tommelen på bordet når du vil. Siste person som merker det mister 1 poeng.`,
+      });
+    }
+    case 'stare-down': {
+      const pair = pickRandomPlayers(players, 2);
+      const en =
+        pair.length < 2
+          ? `${pair[0].name} stares everyone down one by one. First person to crack or look away loses 2 points.`
+          : `${pair[0].name} and ${pair[1].name}, stare each other down. First to blink or look away loses 2 points.`;
+      const no =
+        pair.length < 2
+          ? `${pair[0].name} stirrer ned alle én etter én. Første person som sprekker eller ser bort mister 2 poeng.`
+          : `${pair[0].name} og ${pair[1].name}, stirr hverandre ned. Første som blunker eller ser bort mister 2 poeng.`;
+      return makeEventText(template.title, { en, no });
+    }
+    case 'categories': {
+      const categories = [
+        { en: 'cleaning products', no: 'rengjøringsprodukter' },
+        { en: 'IKEA items', no: 'IKEA-ting' },
+        { en: 'things under the sink', no: 'ting under vasken' },
+        { en: 'pizza toppings', no: 'pizza-toppinger' },
+        { en: 'excuses to avoid chores', no: 'unnskyldninger for å slippe oppgaver' },
+        { en: 'things people forget to buy', no: 'ting folk glemmer å kjøpe' },
+        { en: 'bad excuses for not vacuuming', no: 'dårlige unnskyldninger for å ikke støvsuge' },
+        { en: 'things that always go missing', no: 'ting som alltid blir borte' },
+        { en: 'late-night snacks', no: 'nattmat' },
+        { en: 'party songs everyone knows', no: 'festlåter alle kan' },
+        { en: 'things guests notice first', no: 'ting gjester legger merke til først' },
+        { en: 'reasons to do just one more round', no: 'grunner til å ta én runde til' },
+      ];
+      const category = categories[Math.floor(Math.random() * categories.length)];
+      return makeEventText(template.title, {
+        en: `Category: "${category.en}". Go around the table and name one each. First person to freeze or repeat loses 1 point.`,
+        no: `Kategori: "${category.no}". Gå rundt bordet og nevn én ting hver. Første person som stopper opp eller gjentar seg mister 1 poeng.`,
+      });
+    }
+    case 'most-likely': {
+      const prompts = [
+        { en: 'forget it was their turn to clean', no: 'glemme at det var deres tur til å vaske' },
+        { en: 'order takeaway instead of cooking', no: 'bestille takeaway i stedet for å lage mat' },
+        { en: 'leave dishes in the sink overnight', no: 'la oppvasken stå over natten' },
+        { en: 'stay up past 2am on a weeknight', no: 'være våken etter klokken 02 på en hverdag' },
+        { en: 'make an elaborate excuse for not doing laundry', no: 'lage en avansert unnskyldning for å slippe klesvask' },
+        { en: 'say "I was about to do it" and hope that counts', no: 'si "jeg skulle akkurat til å gjøre det" og håpe at det teller' },
+        { en: 'start cleaning only when guests are coming over', no: 'begynne å rydde først når gjester er på vei' },
+        { en: 'turn a quick errand into a full side quest', no: 'gjøre et raskt ærend om til et helt sideoppdrag' },
+        { en: 'claim they are resting their eyes and then nap for two hours', no: 'påstå at de bare hviler øynene og så sovne i to timer' },
+        { en: 'eat someone else\'s snacks and replace them a week later', no: 'spise noen andres snacks og erstatte dem en uke senere' },
+        { en: 'open the group chat, type a reply, and never send it', no: 'åpne gruppechatten, skrive et svar og aldri sende det' },
+        { en: 'become weirdly competitive about a simple party game', no: 'bli merkelig konkurranseinstilt i et enkelt selskapsspill' },
+      ];
+      const prompt = prompts[Math.floor(Math.random() * prompts.length)];
+      return makeEventText(template.title, {
+        en: `Most likely to "${prompt.en}"? Point on three. The person with the most fingers on them loses 1 point per finger.`,
+        no: `Mest sannsynlig til å "${prompt.no}"? Pek på tre. Personen med flest fingre på seg mister 1 poeng per finger.`,
+      });
+    }
+    default:
+      return makeEventText(template.title, {
+        en: template.describe.en(players),
+        no: template.describe.no(players),
+      });
+  }
+}
+
+function buildHotSeatTextAlcohol(
+  template: HotSeatTemplate,
+  players: Player[],
+): Record<GameLang, GameEventText> {
+  const members = getMembers(players);
+
+  switch (template.id) {
+    case 'who-slacks': {
+      if (members.length > 0) {
+        const worst = members.reduce((a, b) => (a.stats.tasksCompleted <= b.stats.tasksCompleted ? a : b));
+        return makeEventText(template.title, {
           en: `Group vote: who looks most likely to dodge their share? Most votes drinks 2 sips. Data hint: ${worst.name} currently has the fewest completed tasks.`,
           no: `Gruppestemme: hvem ser mest sannsynlig ut til å snike seg unna? Flest stemmer drikker 2 slurker. Datatips: ${worst.name} har akkurat nå færrest fullførte oppgaver.`,
         });
@@ -111,15 +382,19 @@ function buildHotSeatText(
         no: `${guest.name}, hvem her ville du stolt mest på med husnøklene dine etter én kveld? Pek nå. Den personen får én setning på å forsvare tilliten, eller må drikke 2 slurker.`,
       });
     }
-    default:
-      return makeEventText(template.title, {
-        en: template.describe.en(players),
-        no: template.describe.no(players),
+    default: {
+      const alt = alcoholTextFor(template.id);
+      const title = alt?.title ?? template.title;
+      const describe = (alt?.describe ?? template.describe) as Record<GameLang, (players: Player[]) => string>;
+      return makeEventText(title, {
+        en: describe.en(players),
+        no: describe.no(players),
       });
+    }
   }
 }
 
-function buildTriviaTwistText(
+function buildTriviaTwistTextAlcohol(
   template: TriviaTwistTemplate,
   players: Player[],
 ): Record<GameLang, GameEventText> {
@@ -243,15 +518,19 @@ function buildTriviaTwistText(
         no: `Blant ${sample.map((p) => p.name).join(', ')}, hvem er på høyest nivå akkurat nå? Feil gjetning betyr 2 slurker. (Svar: ${answerNo}, nivå ${topLevel})`,
       });
     }
-    default:
-      return makeEventText(template.title, {
-        en: template.describe.en(players),
-        no: template.describe.no(players),
+    default: {
+      const alt = alcoholTextFor(template.id);
+      const title = alt?.title ?? template.title;
+      const describe = (alt?.describe ?? template.describe) as Record<GameLang, (players: Player[]) => string>;
+      return makeEventText(title, {
+        en: describe.en(players),
+        no: describe.no(players),
       });
+    }
   }
 }
 
-function buildRandomEventText(
+function buildRandomEventTextAlcohol(
   template: RandomEventTemplate,
   players: Player[],
 ): Record<GameLang, GameEventText> {
@@ -324,11 +603,15 @@ function buildRandomEventText(
         no: `Mest sannsynlig til å "${prompt.no}"? Pek på tre. Personen med flest fingre på seg drikker 1 slurk per finger.`,
       });
     }
-    default:
-      return makeEventText(template.title, {
-        en: template.describe.en(players),
-        no: template.describe.no(players),
+    default: {
+      const alt = alcoholTextFor(template.id);
+      const title = alt?.title ?? template.title;
+      const describe = (alt?.describe ?? template.describe) as Record<GameLang, (players: Player[]) => string>;
+      return makeEventText(title, {
+        en: describe.en(players),
+        no: describe.no(players),
       });
+    }
   }
 }
 
@@ -361,9 +644,15 @@ export function generateEvent(
       );
       const value = target.stats[template.statKey] as number;
       const drinkCount = sips(template.baseDrinks, config);
-      const textByLanguage = makeEventText(template.title, {
-        en: template.describe.en(target, value, drinkCount),
-        no: template.describe.no(target, value, drinkCount),
+      const statAlt = config.alcoholMode ? alcoholTextFor(template.id) : undefined;
+      const statTitle = statAlt?.title ?? template.title;
+      const statDescribe = (statAlt?.describe ?? template.describe) as Record<
+        GameLang,
+        (target: Player, value: number, drinkCount: number) => string
+      >;
+      const textByLanguage = makeEventText(statTitle, {
+        en: statDescribe.en(target, value, drinkCount),
+        no: statDescribe.no(target, value, drinkCount),
       });
 
       usedTemplateIds.add(template.id);
@@ -406,10 +695,15 @@ export function generateEvent(
           en: 'Open Challenge',
           no: 'Åpen utfordring',
         };
-        const fallbackDescription: Record<GameLang, string> = {
-          en: `${fallback.name}, the group gives you a spontaneous challenge. You have 10 seconds to accept it or drink ${drinkCount} sips.`,
-          no: `${fallback.name}, gruppen gir deg en spontan utfordring. Du har 10 sekunder på å akseptere den eller drikke ${drinkCount} slurker.`,
-        };
+        const fallbackDescription: Record<GameLang, string> = config.alcoholMode
+          ? {
+              en: `${fallback.name}, the group gives you a spontaneous challenge. You have 10 seconds to accept it or drink ${drinkCount} sips.`,
+              no: `${fallback.name}, gruppen gir deg en spontan utfordring. Du har 10 sekunder på å akseptere den eller drikke ${drinkCount} slurker.`,
+            }
+          : {
+              en: `${fallback.name}, the group gives you a spontaneous challenge. You have 10 seconds to accept it or lose ${drinkCount} points.`,
+              no: `${fallback.name}, gruppen gir deg en spontan utfordring. Du har 10 sekunder på å akseptere den eller miste ${drinkCount} poeng.`,
+            };
 
         return buildEvent(roundType, lang, makeEventText(fallbackTitle, fallbackDescription), {
           targetPlayers: [fallback.name],
@@ -430,12 +724,19 @@ export function generateEvent(
       const { template, player } = weightedRandom(pool, weights);
       usedTemplateIds.add(`${template.id}::${player.name}`);
 
+      const challengeAlt = config.alcoholMode ? alcoholTextFor(template.id) : undefined;
+      const challengeTitle = challengeAlt?.title ?? template.title;
+      const challengeDescribe = (challengeAlt?.describe ?? template.describe) as Record<
+        GameLang,
+        (player: Player) => string
+      >;
+
       return buildEvent(
         roundType,
         lang,
-        makeEventText(template.title, {
-          en: template.describe.en(player),
-          no: template.describe.no(player),
+        makeEventText(challengeTitle, {
+          en: challengeDescribe.en(player),
+          no: challengeDescribe.no(player),
         }),
         {
           targetPlayers: [player.name],
@@ -451,7 +752,9 @@ export function generateEvent(
       const pool = allTemplates.filter((template) => !usedTemplateIds.has(template.id));
       const templates = pool.length > 0 ? pool : allTemplates;
       const template = templates[Math.floor(Math.random() * templates.length)];
-      const textByLanguage = buildHotSeatText(template, players);
+      const textByLanguage = config.alcoholMode
+        ? buildHotSeatTextAlcohol(template, players)
+        : buildHotSeatText(template, players);
 
       usedTemplateIds.add(template.id);
 
@@ -478,7 +781,9 @@ export function generateEvent(
       }
 
       const template = templates[Math.floor(Math.random() * templates.length)];
-      const textByLanguage = buildTriviaTwistText(template, members);
+      const textByLanguage = config.alcoholMode
+        ? buildTriviaTwistTextAlcohol(template, members)
+        : buildTriviaTwistText(template, members);
       usedTemplateIds.add(template.id);
 
       return buildEvent(roundType, lang, textByLanguage, {
@@ -491,7 +796,9 @@ export function generateEvent(
       const pool = RANDOM_EVENT_TEMPLATES.filter((template) => !usedTemplateIds.has(template.id));
       const templates = pool.length > 0 ? pool : RANDOM_EVENT_TEMPLATES;
       const template = templates[Math.floor(Math.random() * templates.length)];
-      const textByLanguage = buildRandomEventText(template, players);
+      const textByLanguage = config.alcoholMode
+        ? buildRandomEventTextAlcohol(template, players)
+        : buildRandomEventText(template, players);
 
       usedTemplateIds.add(template.id);
 

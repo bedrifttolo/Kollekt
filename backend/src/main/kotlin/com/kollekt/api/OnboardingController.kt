@@ -12,6 +12,7 @@ import com.kollekt.api.dto.UpdateDisplayNameRequest
 import com.kollekt.api.dto.UserDto
 import com.kollekt.service.AccountOperations
 import com.kollekt.service.CollectiveOperations
+import com.kollekt.service.CurrentMemberContext
 import com.kollekt.service.SocialAuthService
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.AccessDeniedException
@@ -32,6 +33,7 @@ class OnboardingController(
     private val accountOperations: AccountOperations,
     private val collectiveOperations: CollectiveOperations,
     private val socialAuthService: SocialAuthService,
+    private val currentMemberContext: CurrentMemberContext,
 ) {
     @PostMapping("/oauth/{provider}")
     fun socialLogin(
@@ -47,18 +49,17 @@ class OnboardingController(
     @GetMapping("/me")
     fun getCurrentUser(
         @AuthenticationPrincipal jwt: Jwt,
-    ): UserDto = accountOperations.getUserByName(jwt.subject)
+    ): UserDto = accountOperations.getCurrentUser(jwt)
 
     /**
      * Lets a freshly created social account pick its display name, before it joins a collective.
-     * Returns a new token pair — the access token's subject is the member name, so the caller's
-     * current token stops resolving the moment the rename lands.
+     * Returns a new token pair for response-shape symmetry with other auth flows.
      */
     @PatchMapping("/me/name")
     fun updateDisplayName(
         @AuthenticationPrincipal jwt: Jwt,
         @RequestBody request: UpdateDisplayNameRequest,
-    ): AuthResponse = accountOperations.updateDisplayName(jwt.subject, request.name)
+    ): AuthResponse = accountOperations.updateDisplayName(jwt, request.name)
 
     @PostMapping("/logout")
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -101,8 +102,7 @@ class OnboardingController(
         jwt: Jwt,
         expectedUserId: Long,
     ) {
-        val tokenUser = accountOperations.getUserByName(jwt.subject)
-        if (tokenUser.id != expectedUserId) {
+        if (currentMemberContext.current(jwt).id != expectedUserId) {
             throw AccessDeniedException("Token user does not match requested user")
         }
     }

@@ -16,11 +16,11 @@ class GoogleOAuthStateServiceTest {
 
     @Test
     fun `state is single use and preserves the bound return url`() {
-        val state = service.issueState("Kasper", "no.kollekt.app://google-calendar-connected")
+        val state = service.issueState(1L, "no.kollekt.app://google-calendar-connected")
 
         val result = service.consumeState(state)
 
-        assertEquals("Kasper", result.memberName)
+        assertEquals(1L, result.memberId)
         assertEquals("no.kollekt.app://google-calendar-connected", result.returnUrl)
         assertThrows(IllegalArgumentException::class.java) { service.consumeState(state) }
     }

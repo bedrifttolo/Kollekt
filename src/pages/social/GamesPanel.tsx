@@ -7,7 +7,7 @@ import { api } from '../../lib/api';
 import { qk } from '../../lib/queryKeys';
 import type { AppUser } from '../../lib/types';
 import { useUser } from '../../context/UserContext';
-import { useGamesSubscription, isGameLocked } from '../../lib/purchases';
+import { usePremiumEntitlement, isGameLocked } from '../../lib/purchases';
 import SubscriptionPaywall from '../../components/SubscriptionPaywall';
 import { GAME_CATALOG, GAME_CATEGORIES, tonightsPick, type GameCategoryFilter, type GameEntry } from '../../games/catalog';
 import { PAGE_ACCENTS } from '../../lib/pageAccent';
@@ -37,7 +37,7 @@ export default function GamesPanel() {
   const [sessionPlayers, setSessionPlayers] = useState<string[]>([]);
   const [notice, setNotice] = useState<string | null>(null);
   const [showPaywall, setShowPaywall] = useState(false);
-  const { isSubscriber } = useGamesSubscription();
+  const { isUnlocked } = usePremiumEntitlement();
 
   const name = currentUser?.name ?? '';
   const pick = useMemo(() => tonightsPick(), []);
@@ -50,7 +50,8 @@ export default function GamesPanel() {
     select: (users) => users.map((user) => user.name),
   });
 
-  const games = filter === 'all' ? GAME_CATALOG : GAME_CATALOG.filter((g) => g.category === filter);
+  const visibleCatalog = GAME_CATALOG.filter((g) => !g.hidden);
+  const games = filter === 'all' ? visibleCatalog : visibleCatalog.filter((g) => g.category === filter);
 
   const launch = (game: GameEntry) => {
     if (!game.playable) {
@@ -58,7 +59,7 @@ export default function GamesPanel() {
       setTimeout(() => setNotice(null), 1800);
       return;
     }
-    if (isGameLocked(game.requiresSubscription, isSubscriber)) {
+    if (isGameLocked(game.requiresSubscription, isUnlocked)) {
       setShowPaywall(true);
       return;
     }
@@ -124,7 +125,7 @@ export default function GamesPanel() {
           layoutId="games-category"
           value={filter}
           onChange={setFilter}
-          options={GAME_CATEGORIES.map((c) => ({
+          options={GAME_CATEGORIES.filter((c) => c.id === 'all' || visibleCatalog.some((g) => g.category === c.id)).map((c) => ({
             value: c.id,
             label: (
               <span className="inline-flex items-center gap-1.5">
@@ -141,7 +142,7 @@ export default function GamesPanel() {
       {/* Games grid */}
       <div className="grid grid-cols-2 gap-3">
         {games.map((game) => {
-          const locked = isGameLocked(game.requiresSubscription, isSubscriber);
+          const locked = isGameLocked(game.requiresSubscription, isUnlocked);
           return (
           <div
             key={game.id}

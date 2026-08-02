@@ -6,7 +6,6 @@ import com.kollekt.api.dto.PartyQuestionDto
 import com.kollekt.domain.PartyGameParticipant
 import com.kollekt.domain.PartyGameQuestion
 import com.kollekt.domain.PartyGameRoom
-import com.kollekt.repository.MemberRepository
 import com.kollekt.repository.PartyGameParticipantRepository
 import com.kollekt.repository.PartyGameQuestionRepository
 import com.kollekt.repository.PartyGameRoomRepository
@@ -19,7 +18,7 @@ class PartyGameService(
     private val roomRepository: PartyGameRoomRepository,
     private val participantRepository: PartyGameParticipantRepository,
     private val questionRepository: PartyGameQuestionRepository,
-    private val memberRepository: MemberRepository,
+    private val currentMemberContext: CurrentMemberContext,
 ) {
     private val random = SecureRandom()
     private val codeAlphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
@@ -166,7 +165,7 @@ class PartyGameService(
     }
 
     private fun requireMember(name: String) {
-        require(memberRepository.findByName(name) != null) { "User not found" }
+        currentMemberContext.current(name)
     }
 
     private fun requireRoom(rawCode: String): PartyGameRoom =

@@ -4,7 +4,6 @@ import com.kollekt.domain.Member
 import com.kollekt.domain.PartyGameParticipant
 import com.kollekt.domain.PartyGameQuestion
 import com.kollekt.domain.PartyGameRoom
-import com.kollekt.repository.MemberRepository
 import com.kollekt.repository.PartyGameParticipantRepository
 import com.kollekt.repository.PartyGameQuestionRepository
 import com.kollekt.repository.PartyGameRoomRepository
@@ -24,7 +23,7 @@ class PartyGameServiceTest {
     private lateinit var roomRepository: PartyGameRoomRepository
     private lateinit var participantRepository: PartyGameParticipantRepository
     private lateinit var questionRepository: PartyGameQuestionRepository
-    private lateinit var memberRepository: MemberRepository
+    private lateinit var currentMemberContext: CurrentMemberContext
     private lateinit var service: PartyGameService
 
     @BeforeEach
@@ -32,13 +31,13 @@ class PartyGameServiceTest {
         roomRepository = mock()
         participantRepository = mock()
         questionRepository = mock()
-        memberRepository = mock()
-        service = PartyGameService(roomRepository, participantRepository, questionRepository, memberRepository)
+        currentMemberContext = mock()
+        service = PartyGameService(roomRepository, participantRepository, questionRepository, currentMemberContext)
     }
 
     @Test
     fun `create room adds creator as participant`() {
-        whenever(memberRepository.findByName("Kasper")).thenReturn(member("Kasper"))
+        whenever(currentMemberContext.current("Kasper")).thenReturn(member("Kasper"))
         whenever(roomRepository.existsById(any())).thenReturn(false)
         whenever(roomRepository.save(any<PartyGameRoom>())).thenAnswer { it.arguments[0] as PartyGameRoom }
         whenever(roomRepository.findById(any())).thenAnswer {
@@ -134,7 +133,7 @@ class PartyGameServiceTest {
     fun `member joins lobby only once`() {
         val room = PartyGameRoom(code = "ABC234", hostName = "Kasper")
         val emma = PartyGameParticipant(roomCode = room.code, memberName = "Emma")
-        whenever(memberRepository.findByName("Emma")).thenReturn(member("Emma"))
+        whenever(currentMemberContext.current("Emma")).thenReturn(member("Emma"))
         whenever(roomRepository.findById("ABC234")).thenReturn(Optional.of(room))
         whenever(participantRepository.findByRoomCodeAndMemberName("ABC234", "Emma"))
             .thenReturn(null, emma)

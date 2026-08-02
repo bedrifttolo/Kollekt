@@ -9,6 +9,7 @@ import com.kollekt.api.dto.LeaderboardResponse
 import com.kollekt.api.dto.MemberStatsDto
 import com.kollekt.api.dto.MonthlyPrizeRequest
 import com.kollekt.api.dto.UpdateAchievementConfigRequest
+import com.kollekt.service.CurrentMemberContext
 import com.kollekt.service.StatsService
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -28,13 +29,14 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/api")
 class StatsController(
     private val statsService: StatsService,
+    private val currentMemberContext: CurrentMemberContext,
 ) {
     @GetMapping("/dashboard")
     fun getDashboard(
         @RequestParam memberName: String,
         @AuthenticationPrincipal jwt: Jwt,
     ): DashboardResponse {
-        requireTokenSubject(jwt, memberName)
+        currentMemberContext.requireTokenSubject(jwt, memberName)
         return statsService.getDashboard(memberName)
     }
 
@@ -44,7 +46,7 @@ class StatsController(
         @RequestParam(defaultValue = "OVERALL") period: LeaderboardPeriod,
         @AuthenticationPrincipal jwt: Jwt,
     ): LeaderboardResponse {
-        requireTokenSubject(jwt, memberName)
+        currentMemberContext.requireTokenSubject(jwt, memberName)
         return statsService.getLeaderboard(memberName, period)
     }
 
@@ -53,7 +55,7 @@ class StatsController(
         @RequestParam memberName: String,
         @AuthenticationPrincipal jwt: Jwt,
     ): com.kollekt.api.dto.FairnessDto {
-        requireTokenSubject(jwt, memberName)
+        currentMemberContext.requireTokenSubject(jwt, memberName)
         return statsService.getFairness(memberName)
     }
 
@@ -62,7 +64,7 @@ class StatsController(
         @RequestParam memberName: String,
         @AuthenticationPrincipal jwt: Jwt,
     ): String? {
-        requireTokenSubject(jwt, memberName)
+        currentMemberContext.requireTokenSubject(jwt, memberName)
         return statsService.getMonthlyPrize(memberName)
     }
 
@@ -72,7 +74,7 @@ class StatsController(
         @RequestBody request: MonthlyPrizeRequest,
         @AuthenticationPrincipal jwt: Jwt,
     ) {
-        requireTokenSubject(jwt, memberName)
+        currentMemberContext.requireTokenSubject(jwt, memberName)
         statsService.setMonthlyPrize(memberName, request.prize)
     }
 
@@ -81,7 +83,7 @@ class StatsController(
         @RequestParam memberName: String,
         @AuthenticationPrincipal jwt: Jwt,
     ): List<AchievementDto> {
-        requireTokenSubject(jwt, memberName)
+        currentMemberContext.requireTokenSubject(jwt, memberName)
         return statsService.getAchievements(memberName)
     }
 
@@ -90,7 +92,7 @@ class StatsController(
         @RequestParam memberName: String,
         @AuthenticationPrincipal jwt: Jwt,
     ): List<AchievementCatalogItemDto> {
-        requireTokenSubject(jwt, memberName)
+        currentMemberContext.requireTokenSubject(jwt, memberName)
         return statsService.getAchievementsCatalog(memberName)
     }
 
@@ -100,7 +102,7 @@ class StatsController(
         @RequestBody request: UpdateAchievementConfigRequest,
         @AuthenticationPrincipal jwt: Jwt,
     ) {
-        requireTokenSubject(jwt, memberName)
+        currentMemberContext.requireTokenSubject(jwt, memberName)
         statsService.updateAchievementConfig(memberName, request.enabledKeys)
     }
 
@@ -111,7 +113,7 @@ class StatsController(
         @RequestBody request: CreateCustomAchievementRequest,
         @AuthenticationPrincipal jwt: Jwt,
     ): AchievementDto {
-        requireTokenSubject(jwt, memberName)
+        currentMemberContext.requireTokenSubject(jwt, memberName)
         return statsService.createCustomAchievement(memberName, request)
     }
 
@@ -122,7 +124,7 @@ class StatsController(
         @RequestParam memberName: String,
         @AuthenticationPrincipal jwt: Jwt,
     ) {
-        requireTokenSubject(jwt, memberName)
+        currentMemberContext.requireTokenSubject(jwt, memberName)
         statsService.deleteCustomAchievement(memberName, achievementId)
     }
 
@@ -132,7 +134,7 @@ class StatsController(
         @RequestParam targetName: String,
         @AuthenticationPrincipal jwt: Jwt,
     ): MemberStatsDto {
-        requireTokenSubject(jwt, viewerName)
+        currentMemberContext.requireTokenSubject(jwt, viewerName)
         return statsService.getMemberStats(viewerName, targetName)
     }
 }

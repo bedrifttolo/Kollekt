@@ -5,7 +5,7 @@ import { ChevronUp, Plus, RefreshCw, X } from 'lucide-react';
 import { DEFAULT_ROOM_ICON, ROOM_TYPE_ICONS } from '../lib/categoryIcons';
 import { toneByIndex, toneByKey, toneClass } from '../lib/tones';
 import { useTranslation } from 'react-i18next';
-import { api, getUserMessage, setAccessToken, setRefreshToken } from '../lib/api';
+import { ApiError, api, getUserMessage, setAccessToken, setRefreshToken } from '../lib/api';
 import { useUser } from '../context/UserContext';
 import type { AppUser, AuthResponse } from '../lib/types';
 import { BrandMark, Field } from '../components/ui-kit';
@@ -136,6 +136,11 @@ export default function CreateHouseholdPage() {
       navigate('/', { replace: true });
     } catch (err: unknown) {
       setError(getUserMessage(err, t('createHousehold.errors.joinFailure')));
+      // Same-household name collision: the name step is where they'd fix it, so send them back.
+      // Matched on the untranslated backend text — err.message is already localized for display.
+      if (err instanceof ApiError && err.rawMessage.toLowerCase().includes('already exists in this household')) {
+        setStep('name');
+      }
     } finally {
       setLoading(false);
     }
@@ -157,8 +162,6 @@ export default function CreateHouseholdPage() {
     setLoading(true);
     try {
       const res = await api.patch<AuthResponse>('/onboarding/me/name', { name });
-      // The access token's subject is the member name, so the tokens we hold went stale the
-      // instant the rename landed. Store the new pair before anything else calls the API.
       await Promise.all([setAccessToken(res.accessToken), setRefreshToken(res.refreshToken)]);
       setCurrentUser(res.user);
       setStep('household');
@@ -181,9 +184,9 @@ export default function CreateHouseholdPage() {
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-sm mx-auto flex flex-1 flex-col pt-8"
       >
-        <div className="flex items-center gap-2.5">
-          <BrandMark className="h-7 w-7 text-primary dark:text-foreground" />
-          <span className="font-display text-2xl font-extrabold text-primary dark:text-secondary">Kollekt</span>
+        <div className="flex items-center gap-2">
+          <BrandMark className="h-8 w-8" />
+          <span className="font-display text-2xl font-extrabold text-foreground">Kollekt</span>
         </div>
 
         {step === 'name' ? (
@@ -218,8 +221,8 @@ export default function CreateHouseholdPage() {
         ) : (
         <>
         <h1 className="mt-7 display-xl">
-          {t('createHousehold.headingPre')} <span className="mark">{t('createHousehold.headingMark1')}</span>{' '}
-          <span className="mark">{t('createHousehold.headingMark2')}</span>
+          {t('createHousehold.headingPre')} <span className="mark mark-primary">{t('createHousehold.headingMark1')}</span>{' '}
+          <span className="mark mark-primary">{t('createHousehold.headingMark2')}</span>
         </h1>
 
         <div className="seg mt-6" data-tour="onb-mode">
@@ -296,7 +299,7 @@ export default function CreateHouseholdPage() {
                           <span>{t('createHousehold.minutesShort')}</span>
                         </label>
                       </div>
-                      <span className="shrink-0 font-display font-extrabold text-primary dark:text-secondary">
+                      <span className="shrink-0 font-display font-extrabold text-primary">
                         {xpFor(room.minutes)} XP
                       </span>
                       <button
@@ -351,7 +354,7 @@ export default function CreateHouseholdPage() {
             </div>
 
             <div className="flex items-start gap-3 rounded-[1.15rem] bg-primary/10 p-3.5 text-sm text-muted-foreground">
-              <RefreshCw className="mt-0.5 h-4 w-4 shrink-0 text-primary dark:text-secondary" />
+              <RefreshCw className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
               <p>
                 {t('createHousehold.rotationNotePrefix')}
                 <strong className="text-foreground">{t('createHousehold.rotationNoteBold')}</strong>
@@ -384,7 +387,7 @@ export default function CreateHouseholdPage() {
                   placeholder="·"
                   className={`h-14 w-12 rounded-2xl border-2 bg-card text-center font-display text-2xl font-extrabold focus:outline-none ${
                     char
-                      ? 'border-primary text-primary dark:border-secondary dark:text-secondary'
+                      ? 'border-primary text-primary'
                       : 'border-border text-muted-foreground placeholder:text-muted-foreground/50'
                   }`}
                 />

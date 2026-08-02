@@ -25,6 +25,7 @@ import com.kollekt.api.dto.UserDto
 import com.kollekt.domain.CustomAchievementMetric
 import com.kollekt.domain.EventType
 import com.kollekt.domain.Invitation
+import com.kollekt.domain.Member
 import com.kollekt.domain.MemberStatus
 import com.kollekt.domain.TaskCategory
 import com.kollekt.repository.InvitationRepository
@@ -32,6 +33,7 @@ import com.kollekt.service.AccountOperations
 import com.kollekt.service.CalendarFeedService
 import com.kollekt.service.ChatOperations
 import com.kollekt.service.CollectiveOperations
+import com.kollekt.service.CurrentMemberContext
 import com.kollekt.service.EconomyOperations
 import com.kollekt.service.EventOperations
 import com.kollekt.service.MemberOperations
@@ -41,6 +43,7 @@ import com.kollekt.service.StatsService
 import com.kollekt.service.TaskOperations
 import com.kollekt.service.TokenStoreService
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.anyOrNull
@@ -53,6 +56,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.http.MediaType
 import org.springframework.mock.web.MockMultipartFile
+import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt
@@ -113,10 +117,28 @@ class ControllerEndpointContractTest {
 
     @MockitoBean lateinit var invitationRepository: InvitationRepository
 
+    @MockitoBean lateinit var currentMemberContext: CurrentMemberContext
+
+    @BeforeEach
+    fun setUp() {
+        whenever(currentMemberContext.requireTokenSubject(any(), any())).thenAnswer { invocation ->
+            val jwt = invocation.getArgument<Jwt>(0)
+            val memberName = invocation.getArgument<String>(1)
+            if (jwt.subject != memberName) {
+                throw AccessDeniedException("Token subject does not match requested member")
+            }
+            null
+        }
+        whenever(currentMemberContext.current(any<Jwt>())).thenAnswer { invocation ->
+            val jwt = invocation.getArgument<Jwt>(0)
+            Member(id = 1, name = jwt.subject, email = "${jwt.subject.lowercase()}@example.com", collectiveCode = "ABC123")
+        }
+    }
+
     @Test
     fun `onboarding collective code uses api onboarding collectives code endpoint`() {
-        whenever(accountOperations.getUserByName("Kasper"))
-            .thenReturn(UserDto(id = 5, name = "Kasper", collectiveCode = "ABC123"))
+        whenever(currentMemberContext.current(any<Jwt>()))
+            .thenReturn(Member(id = 5, name = "Kasper", email = "kasper@example.com", collectiveCode = "ABC123"))
         whenever(collectiveOperations.getCollectiveCodeForUser(5))
             .thenReturn(CollectiveCodeDto(joinCode = "ABC123"))
 
@@ -127,13 +149,12 @@ class ControllerEndpointContractTest {
             ).andExpect(status().isOk)
             .andExpect(jsonPath("$.joinCode").value("ABC123"))
 
-        verify(accountOperations).getUserByName("Kasper")
         verify(collectiveOperations).getCollectiveCodeForUser(5)
     }
 
     @Test
     fun `onboarding me returns the authenticated user including status`() {
-        whenever(accountOperations.getUserByName("Kasper"))
+        whenever(accountOperations.getCurrentUser(any()))
             .thenReturn(
                 UserDto(
                     id = 5,
@@ -152,14 +173,11 @@ class ControllerEndpointContractTest {
             .andExpect(jsonPath("$.email").value("kasper@example.com"))
             .andExpect(jsonPath("$.status").value("AWAY"))
 
-        verify(accountOperations).getUserByName("Kasper")
+        verify(accountOperations).getCurrentUser(any())
     }
 
     @Test
     fun `onboarding create collective rejects mismatched token user`() {
-        whenever(accountOperations.getUserByName("Kasper"))
-            .thenReturn(UserDto(id = 1, name = "Kasper", collectiveCode = null))
-
         mockMvc
             .perform(
                 post("/api/onboarding/collectives")
@@ -180,7 +198,6 @@ class ControllerEndpointContractTest {
             ).andExpect(status().isForbidden)
             .andExpect(jsonPath("$.error").value("Token user does not match requested user"))
 
-        verify(accountOperations).getUserByName("Kasper")
         verify(collectiveOperations, never()).createCollective(any())
     }
 

@@ -5,8 +5,10 @@ import com.kollekt.api.TaskController
 import com.kollekt.api.dto.AuthResponse
 import com.kollekt.api.dto.SocialLoginRequest
 import com.kollekt.api.dto.UserDto
+import com.kollekt.repository.MemberRepository
 import com.kollekt.service.AccountOperations
 import com.kollekt.service.CollectiveOperations
+import com.kollekt.service.CurrentMemberContext
 import com.kollekt.service.ShoppingOperations
 import com.kollekt.service.SocialAuthService
 import com.kollekt.service.TaskOperations
@@ -67,6 +69,10 @@ class SecurityConfigTest {
     @MockitoBean lateinit var shoppingOperations: ShoppingOperations
 
     @MockitoBean lateinit var tokenStoreService: TokenStoreService
+
+    @MockitoBean lateinit var currentMemberContext: CurrentMemberContext
+
+    @MockitoBean lateinit var memberRepository: MemberRepository
 
     @Test
     fun `security config allows verified provider exchange without authentication`() {

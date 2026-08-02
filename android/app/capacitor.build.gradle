@@ -22,6 +22,7 @@ dependencies {
     implementation project(':capacitor-status-bar')
     implementation project(':capgo-capacitor-social-login')
     implementation project(':ebarooni-capacitor-calendar')
+    implementation project(':revenuecat-purchases-capacitor')
 
 }
 

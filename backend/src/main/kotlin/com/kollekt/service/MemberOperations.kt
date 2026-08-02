@@ -16,12 +16,13 @@ class MemberOperations(
     private val userProfileService: UserProfileService,
     private val collectiveAccessService: CollectiveAccessService,
     private val realtimeUpdateService: RealtimeUpdateService,
+    private val currentMemberContext: CurrentMemberContext,
 ) {
+    private fun requireSelf(memberName: String) = currentMemberContext.current(memberName)
+
     @Transactional
     fun deleteUser(memberName: String) {
-        val member =
-            memberRepository.findByName(memberName)
-                ?: throw IllegalArgumentException("User '$memberName' not found")
+        val member = requireSelf(memberName)
 
         val collectiveCode = member.collectiveCode
         memberRepository.delete(member)
@@ -34,9 +35,7 @@ class MemberOperations(
 
     @Transactional
     fun leaveCollective(memberName: String) {
-        val member =
-            memberRepository.findByName(memberName)
-                ?: throw IllegalArgumentException("User '$memberName' not found")
+        val member = requireSelf(memberName)
         val collectiveCode = member.collectiveCode ?: return
 
         memberRepository.save(member.copy(collectiveCode = null))
@@ -49,9 +48,7 @@ class MemberOperations(
         memberName: String,
         color: String,
     ) {
-        val member =
-            memberRepository.findByName(memberName)
-                ?: throw IllegalArgumentException("User '$memberName' not found")
+        val member = requireSelf(memberName)
         val normalized = color.trim()
         require(normalized.matches(Regex("^#[0-9a-fA-F]{6}$"))) { "Color must be a hex value like #1f563f" }
 
@@ -76,9 +73,7 @@ class MemberOperations(
     }
 
     fun getPaymentHandles(memberName: String): PaymentHandlesDto {
-        val member =
-            memberRepository.findByName(memberName)
-                ?: throw IllegalArgumentException("User '$memberName' not found")
+        val member = requireSelf(memberName)
         return PaymentHandlesDto(
             vipps = member.vippsHandle,
             mobilepay = member.mobilepayHandle,
@@ -89,9 +84,7 @@ class MemberOperations(
 
     @Transactional
     fun updatePaymentHandles(request: UpdatePaymentHandlesRequest): PaymentHandlesDto {
-        val member =
-            memberRepository.findByName(request.memberName)
-                ?: throw IllegalArgumentException("User '${request.memberName}' not found")
+        val member = requireSelf(request.memberName)
 
         val vipps = normalizePhoneHandle(request.vipps, "Vipps")
         val mobilepay = normalizePhoneHandle(request.mobilepay, "MobilePay")
@@ -140,9 +133,7 @@ class MemberOperations(
         newStatus: MemberStatus,
         awayUntil: java.time.LocalDate? = null,
     ) {
-        val member =
-            memberRepository.findByName(memberName)
-                ?: throw IllegalArgumentException("User '$memberName' not found")
+        val member = requireSelf(memberName)
 
         val resolvedAwayUntil = if (newStatus == MemberStatus.AWAY) awayUntil else null
         require(resolvedAwayUntil == null || !resolvedAwayUntil.isBefore(java.time.LocalDate.now())) {

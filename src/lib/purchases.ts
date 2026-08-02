@@ -1,68 +1,112 @@
 import { useCallback, useEffect, useState } from 'react';
+import { Capacitor } from '@capacitor/core';
+import { Purchases, LOG_LEVEL } from '@revenuecat/purchases-capacitor';
 
-// Games subscription entitlement layer.
+// Single premium entitlement gating the game hub + chat GIFs, sold as a one-time
+// lifetime unlock (29 kr, non-consumable) via RevenueCat / App Store In-App Purchase.
 //
-// This is intentionally INERT until two external things exist:
-//   1. An auto-renewable subscription product in App Store Connect (and Google Play),
-//      with id `GAMES_SUBSCRIPTION_PRODUCT_ID`.
-//   2. A StoreKit/Billing bridge — recommended: RevenueCat's `@revenuecat/purchases-capacitor`.
-//
-// To go live:
-//   - `npm i @revenuecat/purchases-capacitor`
-//   - configure it on app start (with your RevenueCat API key)
-//   - set `PURCHASES_CONFIGURED = true`
-//   - implement `fetchEntitlement`, `runPurchase`, `runRestore` below against the plugin
-//     (query `customerInfo.entitlements.active[GAMES_ENTITLEMENT_ID]`).
-//
-// Until then the gate still works: premium games are locked, the paywall renders, and
-// purchase/restore report "unavailable" instead of charging anyone.
+// Setup that lives outside this repo (App Store Connect + RevenueCat dashboard) is
+// documented in REVENUECAT_SETUP.md. Once that's done, set VITE_REVENUECAT_API_KEY_IOS
+// in .env.mobile and this module activates automatically — no code change needed.
 
-export const GAMES_ENTITLEMENT_ID = 'games_premium';
-export const GAMES_SUBSCRIPTION_PRODUCT_ID = 'kollekt_games_monthly';
+export const PREMIUM_ENTITLEMENT_ID = 'premium_lifetime';
+export const LIFETIME_PRODUCT_ID = 'kollekt_lifetime_unlock';
 
-/** Flip to `true` once the store product + RevenueCat (or StoreKit) bridge are wired. */
-export const PURCHASES_CONFIGURED = false;
+const API_KEY_IOS = import.meta.env.VITE_REVENUECAT_API_KEY_IOS as string | undefined;
 
-export interface GamesSubscription {
-  /** Whether the games subscription/IAP layer is live yet. */
+/** True once a platform-appropriate RevenueCat API key is present in the build. */
+export const PURCHASES_CONFIGURED = !!API_KEY_IOS;
+
+let configured = false;
+
+/** Configure the RevenueCat SDK once at app startup. No-ops on web or without a key. */
+export async function initPurchases(): Promise<void> {
+  if (configured || !Capacitor.isNativePlatform() || !PURCHASES_CONFIGURED) return;
+  const apiKey = Capacitor.getPlatform() === 'ios' ? API_KEY_IOS : undefined;
+  if (!apiKey) return;
+  configured = true;
+  try {
+    await Purchases.setLogLevel({ level: import.meta.env.DEV ? LOG_LEVEL.DEBUG : LOG_LEVEL.ERROR });
+    await Purchases.configure({ apiKey });
+  } catch {
+    configured = false;
+  }
+}
+
+/** Link the RevenueCat customer to the signed-in member so entitlements follow the account. */
+export async function identifyPurchaser(memberName: string): Promise<void> {
+  if (!configured) return;
+  try {
+    await Purchases.logIn({ appUserID: memberName });
+  } catch {
+    // Best-effort; the anonymous RevenueCat identity still works for this session.
+  }
+}
+
+/** Drop the RevenueCat identity back to anonymous on logout. */
+export async function resetPurchaser(): Promise<void> {
+  if (!configured) return;
+  try {
+    await Purchases.logOut();
+  } catch {
+    // Best-effort cleanup.
+  }
+}
+
+export interface LifetimeUnlock {
+  /** Whether the purchase layer is live yet (API key present, native platform). */
   available: boolean;
-  /** Whether the current user has the active premium-games entitlement. */
-  isSubscriber: boolean;
+  /** Whether the current user already owns the lifetime unlock. */
+  isUnlocked: boolean;
+  /** Localized store price for the paywall (e.g. "29,00 kr"), once fetched. */
+  priceString: string | null;
   loading: boolean;
-  /** Starts the purchase flow. Resolves to the new subscriber state. */
+  /** Starts the purchase flow. Resolves to the new unlock state. */
   purchase: () => Promise<boolean>;
-  /** Restores prior purchases (App Store requires a visible Restore action). */
+  /** Restores a prior purchase (required by App Store review for non-consumables). */
   restore: () => Promise<boolean>;
 }
 
-// --- Store bridge stubs (replace the bodies when PURCHASES_CONFIGURED becomes true) ---
+function hasEntitlement(customerInfo: { entitlements: { active: Record<string, unknown> } }): boolean {
+  return PREMIUM_ENTITLEMENT_ID in customerInfo.entitlements.active;
+}
 
 async function fetchEntitlement(): Promise<boolean> {
-  if (!PURCHASES_CONFIGURED) return false;
-  // e.g. const info = await Purchases.getCustomerInfo();
-  //      return GAMES_ENTITLEMENT_ID in info.customerInfo.entitlements.active;
-  return false;
+  if (!configured) return false;
+  const { customerInfo } = await Purchases.getCustomerInfo();
+  return hasEntitlement(customerInfo);
+}
+
+async function fetchPriceString(): Promise<string | null> {
+  if (!configured) return null;
+  try {
+    const offerings = await Purchases.getOfferings();
+    const pkg = offerings.current?.availablePackages[0];
+    return pkg?.product.priceString ?? null;
+  } catch {
+    return null;
+  }
 }
 
 async function runPurchase(): Promise<boolean> {
-  if (!PURCHASES_CONFIGURED) throw new Error('purchases-unavailable');
-  // e.g. const offerings = await Purchases.getOfferings();
-  //      const pkg = offerings.current?.availablePackages[0];
-  //      const { customerInfo } = await Purchases.purchasePackage({ aPackage: pkg });
-  //      return GAMES_ENTITLEMENT_ID in customerInfo.entitlements.active;
-  return false;
+  if (!configured) throw new Error('purchases-unavailable');
+  const offerings = await Purchases.getOfferings();
+  const pkg = offerings.current?.availablePackages[0];
+  if (!pkg) throw new Error('purchases-unavailable');
+  const { customerInfo } = await Purchases.purchasePackage({ aPackage: pkg });
+  return hasEntitlement(customerInfo);
 }
 
 async function runRestore(): Promise<boolean> {
-  if (!PURCHASES_CONFIGURED) throw new Error('purchases-unavailable');
-  // e.g. const { customerInfo } = await Purchases.restorePurchases();
-  //      return GAMES_ENTITLEMENT_ID in customerInfo.entitlements.active;
-  return false;
+  if (!configured) throw new Error('purchases-unavailable');
+  const { customerInfo } = await Purchases.restorePurchases();
+  return hasEntitlement(customerInfo);
 }
 
-/** React hook exposing the games entitlement + purchase/restore actions. */
-export function useGamesSubscription(): GamesSubscription {
-  const [isSubscriber, setIsSubscriber] = useState(false);
+/** React hook exposing the lifetime-unlock entitlement + purchase/restore actions. */
+export function usePremiumEntitlement(): LifetimeUnlock {
+  const [isUnlocked, setIsUnlocked] = useState(false);
+  const [priceString, setPriceString] = useState<string | null>(null);
   const [loading, setLoading] = useState(PURCHASES_CONFIGURED);
 
   useEffect(() => {
@@ -71,29 +115,33 @@ export function useGamesSubscription(): GamesSubscription {
       setLoading(false);
       return;
     }
-    fetchEntitlement()
-      .then((active) => { if (!cancelled) setIsSubscriber(active); })
-      .catch(() => { if (!cancelled) setIsSubscriber(false); })
+    Promise.all([fetchEntitlement(), fetchPriceString()])
+      .then(([active, price]) => {
+        if (cancelled) return;
+        setIsUnlocked(active);
+        setPriceString(price);
+      })
+      .catch(() => { if (!cancelled) setIsUnlocked(false); })
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
   }, []);
 
   const purchase = useCallback(async () => {
     const active = await runPurchase();
-    setIsSubscriber(active);
+    setIsUnlocked(active);
     return active;
   }, []);
 
   const restore = useCallback(async () => {
     const active = await runRestore();
-    setIsSubscriber(active);
+    setIsUnlocked(active);
     return active;
   }, []);
 
-  return { available: PURCHASES_CONFIGURED, isSubscriber, loading, purchase, restore };
+  return { available: PURCHASES_CONFIGURED, isUnlocked, priceString, loading, purchase, restore };
 }
 
 /** True when a game is gated and the user has no active entitlement. */
-export function isGameLocked(requiresSubscription: boolean | undefined, isSubscriber: boolean): boolean {
-  return !!requiresSubscription && !isSubscriber;
+export function isGameLocked(requiresSubscription: boolean | undefined, isUnlocked: boolean): boolean {
+  return !!requiresSubscription && !isUnlocked;
 }

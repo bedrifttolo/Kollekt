@@ -95,7 +95,7 @@ class TokenServiceTest {
         val jtiCaptor = argumentCaptor<String>()
         verify(tokenStoreService).storeRefreshToken(
             jtiCaptor.capture(),
-            eq(member.name),
+            eq(member.id.toString()),
             eq(Duration.ofSeconds(refreshTokenValiditySeconds)),
         )
         assertNotNull(jtiCaptor.firstValue)

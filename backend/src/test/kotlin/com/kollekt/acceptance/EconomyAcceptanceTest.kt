@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Test
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Import
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
@@ -24,7 +23,7 @@ class EconomyAcceptanceTest : AcceptanceTestSupport() {
             .perform(
                 post("/api/economy/expenses")
                     .contentType("application/json")
-                    .with(jwt().jwt { it.subject("Kasper") })
+                    .with(jwtFor("Kasper"))
                     .content(
                         """
                         {
@@ -43,7 +42,7 @@ class EconomyAcceptanceTest : AcceptanceTestSupport() {
             .perform(
                 post("/api/economy/settle-with")
                     .contentType("application/json")
-                    .with(jwt().jwt { it.subject("Emma") })
+                    .with(jwtFor("Emma"))
                     .content("""{"creditorName":"Kasper"}"""),
             ).andExpect(status().isNoContent)
 
@@ -51,7 +50,7 @@ class EconomyAcceptanceTest : AcceptanceTestSupport() {
             .perform(
                 get("/api/economy/balances")
                     .param("memberName", "Emma")
-                    .with(jwt().jwt { it.subject("Emma") }),
+                    .with(jwtFor("Emma")),
             ).andExpect(status().isOk)
             .andExpect(jsonPath("$.length()").value(2))
             .andExpect(jsonPath("$[0].amount").value(0))
@@ -64,7 +63,7 @@ class EconomyAcceptanceTest : AcceptanceTestSupport() {
             .perform(
                 post("/api/economy/expenses")
                     .contentType("application/json")
-                    .with(jwt().jwt { it.subject("Kasper") })
+                    .with(jwtFor("Kasper"))
                     .content(
                         """
                         {
@@ -85,7 +84,7 @@ class EconomyAcceptanceTest : AcceptanceTestSupport() {
             .perform(
                 post("/api/economy/pant")
                     .contentType("application/json")
-                    .with(jwt().jwt { it.subject("Emma") })
+                    .with(jwtFor("Emma"))
                     .content(
                         """
                         {
@@ -104,7 +103,7 @@ class EconomyAcceptanceTest : AcceptanceTestSupport() {
             .perform(
                 get("/api/economy/summary")
                     .param("memberName", "Kasper")
-                    .with(jwt().jwt { it.subject("Kasper") }),
+                    .with(jwtFor("Kasper")),
             ).andExpect(status().isOk)
             .andExpect(jsonPath("$.expenses[0].description").value("Pizza"))
             .andExpect(jsonPath("$.balances[0].name").value("Kasper"))
@@ -117,7 +116,7 @@ class EconomyAcceptanceTest : AcceptanceTestSupport() {
             .perform(
                 post("/api/economy/settle-up")
                     .contentType("application/json")
-                    .with(jwt().jwt { it.subject("Kasper") })
+                    .with(jwtFor("Kasper"))
                     .content("""{"memberName":"Kasper"}"""),
             ).andExpect(status().isOk)
             .andExpect(jsonPath("$.settledBy").value("Kasper"))
@@ -127,7 +126,7 @@ class EconomyAcceptanceTest : AcceptanceTestSupport() {
             .perform(
                 get("/api/economy/balances")
                     .param("memberName", "Kasper")
-                    .with(jwt().jwt { it.subject("Kasper") }),
+                    .with(jwtFor("Kasper")),
             ).andExpect(status().isOk)
             .andExpect(jsonPath("$.length()").value(2))
             .andExpect(jsonPath("$[0].name").value("Kasper"))

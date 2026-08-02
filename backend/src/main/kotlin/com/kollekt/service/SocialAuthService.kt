@@ -125,11 +125,10 @@ class SocialAuthService(
 
     private fun createMember(identity: VerifiedSocialIdentity): Member {
         val suggested = identity.displayName?.trim().orEmpty().ifBlank { identity.email.substringBefore('@') }
-        val base = suggested.replace(Regex("[^\\p{L}\\p{N}_ -]"), "").take(40).ifBlank { "Member" }
-        var candidate = base
-        var suffix = 2
-        while (memberRepository.findByName(candidate) != null) candidate = "$base ${suffix++}"
-        return memberRepository.save(Member(name = candidate, email = identity.email))
+        val name = suggested.replace(Regex("[^\\p{L}\\p{N}_ -]"), "").take(40).ifBlank { "Member" }
+        // No uniqueness check: identity is keyed by id, not name, and names are only required to
+        // be unique within a collective (enforced at join time), not before joining one.
+        return memberRepository.save(Member(name = name, email = identity.email))
     }
 
     private fun configuredValues(value: String) = value.split(',').map(String::trim).filter(String::isNotEmpty)

@@ -34,6 +34,7 @@ class CollectiveOperations(
     private val invitationRealtimeService: InvitationRealtimeService,
     private val googleCalendarService: GoogleCalendarService,
     private val invitationMailer: InvitationMailer,
+    private val currentMemberContext: CurrentMemberContext,
 ) {
     private val joinCodeChars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
 
@@ -80,9 +81,12 @@ class CollectiveOperations(
             request.residents
                 .map { it.trim() }
                 .filter { it.isNotBlank() && it != owner.name }
+                .distinct()
 
         residentNames.forEach { name ->
-            val existing = memberRepository.findByName(name)
+            // Several pre-join people can now share a name; a bare match is ambiguous, so treat
+            // it the same as no match rather than silently attaching the wrong pending account.
+            val existing = memberRepository.findAllByNameAndCollectiveCodeIsNull(name).singleOrNull()
             if (existing == null) {
                 val color = MemberColors.nextAvailable(usedColors)
                 usedColors += color
@@ -94,7 +98,7 @@ class CollectiveOperations(
                         color = color,
                     ),
                 )
-            } else if (existing.collectiveCode == null) {
+            } else {
                 val color = existing.color ?: MemberColors.nextAvailable(usedColors)
                 usedColors += color
                 memberRepository.save(existing.copy(collectiveCode = collective.joinCode, color = color))
@@ -123,6 +127,12 @@ class CollectiveOperations(
 
         if (user.collectiveCode != null) {
             throw IllegalArgumentException("User '${user.name}' is already in a collective")
+        }
+
+        if (memberRepository.findByNameAndCollectiveCodeForUpdate(user.name, joinCode) != null) {
+            throw IllegalArgumentException(
+                "A member named '${user.name}' already exists in this household",
+            )
         }
 
         val usedColors = memberRepository.findAllByCollectiveCode(joinCode).mapNotNull { it.color }
@@ -154,9 +164,7 @@ class CollectiveOperations(
         collectiveCode: String,
         inviterName: String,
     ): Invitation {
-        val inviter =
-            memberRepository.findByName(inviterName)
-                ?: throw IllegalArgumentException("Inviter not found")
+        val inviter = currentMemberContext.current(inviterName)
 
         if (inviter.collectiveCode != collectiveCode) {
             throw IllegalArgumentException("You are not a member of this collective")
@@ -192,12 +200,13 @@ class CollectiveOperations(
 
     @Transactional
     fun saveGoogleCalendarTokens(
-        memberName: String,
+        memberId: Long,
         code: String,
     ) {
         val member =
-            memberRepository.findByName(memberName)
-                ?: throw IllegalArgumentException("Member $memberName not found")
+            memberRepository.findById(memberId).orElseThrow {
+                IllegalArgumentException("Member $memberId not found")
+            }
 
         val (accessToken, refreshToken) = googleCalendarService.exchangeCode(code)
         memberRepository.save(
@@ -209,13 +218,13 @@ class CollectiveOperations(
     }
 
     fun isGoogleCalendarConnected(memberName: String): Boolean {
-        val member = memberRepository.findByName(memberName) ?: return false
+        val member = currentMemberContext.current(memberName)
         return googleCalendarService.isConnected(member)
     }
 
     @Transactional
     fun disconnectGoogleCalendar(memberName: String) {
-        val member = memberRepository.findByName(memberName) ?: return
+        val member = currentMemberContext.current(memberName)
         memberRepository.save(member.copy(googleAccessToken = null, googleRefreshToken = null))
     }
 

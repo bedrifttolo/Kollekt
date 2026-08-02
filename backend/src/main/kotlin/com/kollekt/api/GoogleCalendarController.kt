@@ -1,6 +1,7 @@
 package com.kollekt.api
 
 import com.kollekt.service.CollectiveOperations
+import com.kollekt.service.CurrentMemberContext
 import com.kollekt.service.GoogleCalendarService
 import com.kollekt.service.GoogleOAuthStateService
 import org.springframework.beans.factory.annotation.Value
@@ -22,6 +23,7 @@ class GoogleCalendarController(
     private val googleCalendarService: GoogleCalendarService,
     private val googleOAuthStateService: GoogleOAuthStateService,
     private val collectiveOperations: CollectiveOperations,
+    private val currentMemberContext: CurrentMemberContext,
     @Value("\${app.google.frontend-url:http://localhost:5173}") private val frontendUrl: String,
     @Value("\${app.google.mobile-return-url:no.kollekt.app://google-calendar-connected}")
     private val mobileReturnUrl: String,
@@ -32,12 +34,13 @@ class GoogleCalendarController(
         @RequestParam(required = false) returnUrl: String?,
         @AuthenticationPrincipal jwt: Jwt,
     ): Map<String, String> {
-        requireTokenSubject(jwt, memberName)
+        val member = currentMemberContext.current(jwt)
+        require(member.name == memberName) { "Token subject does not match requested member" }
         val resolvedReturnUrl = returnUrl?.takeIf { it.isNotBlank() } ?: frontendUrl
         require(resolvedReturnUrl == frontendUrl || resolvedReturnUrl == mobileReturnUrl) {
             "Invalid OAuth return URL"
         }
-        val state = googleOAuthStateService.issueState(memberName, resolvedReturnUrl)
+        val state = googleOAuthStateService.issueState(member.id, resolvedReturnUrl)
         return mapOf("url" to googleCalendarService.getAuthorizationUrl(state))
     }
 
@@ -48,7 +51,7 @@ class GoogleCalendarController(
         @RequestParam state: String,
     ): RedirectView {
         val oauthState = googleOAuthStateService.consumeState(state)
-        collectiveOperations.saveGoogleCalendarTokens(oauthState.memberName, code)
+        collectiveOperations.saveGoogleCalendarTokens(oauthState.memberId, code)
         val returnUrl =
             UriComponentsBuilder
                 .fromUriString(oauthState.returnUrl)
@@ -63,7 +66,7 @@ class GoogleCalendarController(
         @RequestParam memberName: String,
         @AuthenticationPrincipal jwt: Jwt,
     ): Map<String, Boolean> {
-        requireTokenSubject(jwt, memberName)
+        currentMemberContext.requireTokenSubject(jwt, memberName)
         return mapOf("connected" to collectiveOperations.isGoogleCalendarConnected(memberName))
     }
 
@@ -73,7 +76,7 @@ class GoogleCalendarController(
         @RequestParam memberName: String,
         @AuthenticationPrincipal jwt: Jwt,
     ) {
-        requireTokenSubject(jwt, memberName)
+        currentMemberContext.requireTokenSubject(jwt, memberName)
         collectiveOperations.disconnectGoogleCalendar(memberName)
     }
 }

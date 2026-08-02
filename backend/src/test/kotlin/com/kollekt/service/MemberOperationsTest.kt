@@ -30,6 +30,7 @@ class MemberOperationsTest {
     private lateinit var taskOperations: TaskOperations
     private lateinit var userProfileService: UserProfileService
     private lateinit var collectiveAccessService: CollectiveAccessService
+    private lateinit var currentMemberContext: CurrentMemberContext
     private lateinit var realtimeUpdateService: RealtimeUpdateService
     private lateinit var operations: MemberOperations
 
@@ -40,8 +41,9 @@ class MemberOperationsTest {
         taskRepository = mock()
         collectiveRepository = mock()
         taskOperations = mock()
-        userProfileService = UserProfileService(memberRepository, friendshipRepository)
-        collectiveAccessService = CollectiveAccessService(memberRepository, collectiveRepository)
+        currentMemberContext = mock()
+        userProfileService = UserProfileService(memberRepository, friendshipRepository, currentMemberContext)
+        collectiveAccessService = CollectiveAccessService(currentMemberContext, collectiveRepository)
         realtimeUpdateService = mock()
         operations =
             MemberOperations(
@@ -51,6 +53,7 @@ class MemberOperationsTest {
                 userProfileService,
                 collectiveAccessService,
                 realtimeUpdateService,
+                currentMemberContext,
             )
     }
 
@@ -59,7 +62,7 @@ class MemberOperationsTest {
         val kasper = member("Kasper", "kasper@example.com")
         val emma = member("Emma", "emma@example.com", id = 2)
         val ola = member("Ola", "ola@example.com", id = 3)
-        whenever(memberRepository.findByName("Kasper")).thenReturn(kasper)
+        whenever(currentMemberContext.current("Kasper")).thenReturn(kasper)
         whenever(memberRepository.findAllByCollectiveCode("ABC123")).thenReturn(listOf(kasper, emma, ola))
         whenever(taskRepository.findAllByCollectiveCode("ABC123")).thenReturn(
             listOf(
@@ -84,7 +87,7 @@ class MemberOperationsTest {
     fun `delete user removes member and redistributes open tasks`() {
         val kasper = member("Kasper", "kasper@example.com")
         val emma = member("Emma", "emma@example.com", id = 2)
-        whenever(memberRepository.findByName("Kasper")).thenReturn(kasper)
+        whenever(currentMemberContext.current("Kasper")).thenReturn(kasper)
         whenever(memberRepository.findAllByCollectiveCode("ABC123")).thenReturn(listOf(emma))
         whenever(taskRepository.findAllByCollectiveCode("ABC123")).thenReturn(
             listOf(task(id = 1, title = "Trash", assignee = "Kasper", xp = 20)),
@@ -104,7 +107,7 @@ class MemberOperationsTest {
     @Test
     fun `leave collective does nothing when member has no collective`() {
         val kasper = member("Kasper", "kasper@example.com", collectiveCode = null)
-        whenever(memberRepository.findByName("Kasper")).thenReturn(kasper)
+        whenever(currentMemberContext.current("Kasper")).thenReturn(kasper)
 
         operations.leaveCollective("Kasper")
 
@@ -115,7 +118,7 @@ class MemberOperationsTest {
     @Test
     fun `update member color trims and saves a valid hex color`() {
         val kasper = member("Kasper", "kasper@example.com")
-        whenever(memberRepository.findByName("Kasper")).thenReturn(kasper)
+        whenever(currentMemberContext.current("Kasper")).thenReturn(kasper)
 
         operations.updateMemberColor("Kasper", "  #1f563F  ")
 
@@ -125,7 +128,7 @@ class MemberOperationsTest {
     @Test
     fun `update member color publishes a realtime event to the collective`() {
         val kasper = member("Kasper", "kasper@example.com")
-        whenever(memberRepository.findByName("Kasper")).thenReturn(kasper)
+        whenever(currentMemberContext.current("Kasper")).thenReturn(kasper)
         whenever(memberRepository.findAllByCollectiveCode("ABC123")).thenReturn(listOf(kasper))
 
         operations.updateMemberColor("Kasper", "#1f563f")
@@ -141,7 +144,7 @@ class MemberOperationsTest {
     fun `update member color rejects a color already used by another household member`() {
         val kasper = member("Kasper", "kasper@example.com")
         val emma = member("Emma", "emma@example.com", id = 2).copy(color = "#1f563f")
-        whenever(memberRepository.findByName("Kasper")).thenReturn(kasper)
+        whenever(currentMemberContext.current("Kasper")).thenReturn(kasper)
         whenever(memberRepository.findAllByCollectiveCode("ABC123")).thenReturn(listOf(kasper, emma))
 
         assertThrows(IllegalArgumentException::class.java) {
@@ -154,8 +157,8 @@ class MemberOperationsTest {
     @Test
     fun `update member color rejects invalid values and missing members`() {
         val kasper = member("Kasper", "kasper@example.com")
-        whenever(memberRepository.findByName("Kasper")).thenReturn(kasper)
-        whenever(memberRepository.findByName("Missing")).thenReturn(null)
+        whenever(currentMemberContext.current("Kasper")).thenReturn(kasper)
+        whenever(currentMemberContext.current("Missing")).thenThrow(IllegalArgumentException("User 'Missing' not found"))
 
         assertThrows(IllegalArgumentException::class.java) {
             operations.updateMemberColor("Kasper", "pine")
@@ -170,7 +173,7 @@ class MemberOperationsTest {
     @Test
     fun `update member status triggers task regeneration only on actual change`() {
         val kasper = member("Kasper", "kasper@example.com").copy(status = MemberStatus.ACTIVE)
-        whenever(memberRepository.findByName("Kasper")).thenReturn(kasper)
+        whenever(currentMemberContext.current("Kasper")).thenReturn(kasper)
 
         operations.updateMemberStatus("Kasper", MemberStatus.AWAY)
 
@@ -181,7 +184,7 @@ class MemberOperationsTest {
     @Test
     fun `returning active triggers recurring task redistribution`() {
         val kasper = member("Kasper", "kasper@example.com").copy(status = MemberStatus.AWAY)
-        whenever(memberRepository.findByName("Kasper")).thenReturn(kasper)
+        whenever(currentMemberContext.current("Kasper")).thenReturn(kasper)
 
         operations.updateMemberStatus("Kasper", MemberStatus.ACTIVE)
 
@@ -191,7 +194,7 @@ class MemberOperationsTest {
 
     @Test
     fun `get collective members sorts by name before mapping`() {
-        whenever(memberRepository.findByName("Kasper")).thenReturn(member("Kasper", "kasper@example.com"))
+        whenever(currentMemberContext.current("Kasper")).thenReturn(member("Kasper", "kasper@example.com"))
         whenever(memberRepository.findAllByCollectiveCode("ABC123")).thenReturn(
             listOf(
                 member("Ola", "ola@example.com", id = 3),
@@ -206,7 +209,7 @@ class MemberOperationsTest {
 
     @Test
     fun `add and remove friend delegates to persistent profile state`() {
-        whenever(memberRepository.findByName("Kasper")).thenReturn(member("Kasper", "kasper@example.com"))
+        whenever(currentMemberContext.current("Kasper")).thenReturn(member("Kasper", "kasper@example.com"))
         whenever(memberRepository.findByName("Emma")).thenReturn(member("Emma", "emma@example.com", id = 2))
         whenever(friendshipRepository.deleteByMemberIdAndFriendId(1, 2)).thenReturn(1)
 
@@ -225,7 +228,7 @@ class MemberOperationsTest {
     @Test
     fun `away with a date stores awayUntil and regenerates rotation`() {
         val kasper = member("Kasper", "kasper@example.com").copy(status = MemberStatus.ACTIVE)
-        whenever(memberRepository.findByName("Kasper")).thenReturn(kasper)
+        whenever(currentMemberContext.current("Kasper")).thenReturn(kasper)
         val until = LocalDate.now().plusDays(7)
 
         operations.updateMemberStatus("Kasper", MemberStatus.AWAY, until)
@@ -237,7 +240,7 @@ class MemberOperationsTest {
     @Test
     fun `returning active clears any away date`() {
         val away = member("Kasper", "kasper@example.com").copy(status = MemberStatus.AWAY, awayUntil = LocalDate.now().plusDays(2))
-        whenever(memberRepository.findByName("Kasper")).thenReturn(away)
+        whenever(currentMemberContext.current("Kasper")).thenReturn(away)
 
         operations.updateMemberStatus("Kasper", MemberStatus.ACTIVE)
 
@@ -247,7 +250,7 @@ class MemberOperationsTest {
     @Test
     fun `away date in the past is rejected`() {
         val kasper = member("Kasper", "kasper@example.com")
-        whenever(memberRepository.findByName("Kasper")).thenReturn(kasper)
+        whenever(currentMemberContext.current("Kasper")).thenReturn(kasper)
 
         assertThrows(IllegalArgumentException::class.java) {
             operations.updateMemberStatus("Kasper", MemberStatus.AWAY, LocalDate.now().minusDays(1))
@@ -283,7 +286,7 @@ class MemberOperationsTest {
                     paypalHandle = "kasper",
                     bankAccount = "NO9386011117947",
                 )
-        whenever(memberRepository.findByName("Kasper")).thenReturn(kasper)
+        whenever(currentMemberContext.current("Kasper")).thenReturn(kasper)
 
         val result = operations.getPaymentHandles("Kasper")
 
@@ -295,7 +298,7 @@ class MemberOperationsTest {
 
     @Test
     fun `get payment handles rejects an unknown member`() {
-        whenever(memberRepository.findByName("Missing")).thenReturn(null)
+        whenever(currentMemberContext.current("Missing")).thenThrow(IllegalArgumentException("User 'Missing' not found"))
 
         assertThrows(IllegalArgumentException::class.java) {
             operations.getPaymentHandles("Missing")
@@ -305,7 +308,7 @@ class MemberOperationsTest {
     @Test
     fun `update payment handles strips formatting before saving`() {
         val kasper = member("Kasper", "kasper@example.com")
-        whenever(memberRepository.findByName("Kasper")).thenReturn(kasper)
+        whenever(currentMemberContext.current("Kasper")).thenReturn(kasper)
 
         val result =
             operations.updatePaymentHandles(
@@ -339,7 +342,7 @@ class MemberOperationsTest {
         val kasper =
             member("Kasper", "kasper@example.com")
                 .copy(vippsHandle = "+4791234567", paypalHandle = "kasper")
-        whenever(memberRepository.findByName("Kasper")).thenReturn(kasper)
+        whenever(currentMemberContext.current("Kasper")).thenReturn(kasper)
 
         val result =
             operations.updatePaymentHandles(
@@ -355,8 +358,8 @@ class MemberOperationsTest {
     @Test
     fun `malformed payment handles are rejected without saving`() {
         val kasper = member("Kasper", "kasper@example.com")
-        whenever(memberRepository.findByName("Kasper")).thenReturn(kasper)
-        whenever(memberRepository.findByName("Missing")).thenReturn(null)
+        whenever(currentMemberContext.current("Kasper")).thenReturn(kasper)
+        whenever(currentMemberContext.current("Missing")).thenThrow(IllegalArgumentException("User 'Missing' not found"))
 
         // Too short for a phone number.
         assertThrows(IllegalArgumentException::class.java) {

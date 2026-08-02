@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Import
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
@@ -30,7 +29,7 @@ class TaskAndShoppingAcceptanceTest : AcceptanceTestSupport() {
                 .perform(
                     post("/api/tasks")
                         .contentType("application/json")
-                        .with(jwt().jwt { it.subject("Kasper") })
+                        .with(jwtFor("Kasper"))
                         .content(
                             """
                             {
@@ -58,7 +57,7 @@ class TaskAndShoppingAcceptanceTest : AcceptanceTestSupport() {
             .perform(
                 get("/api/tasks")
                     .param("memberName", "Kasper")
-                    .with(jwt().jwt { it.subject("Kasper") }),
+                    .with(jwtFor("Kasper")),
             ).andExpect(status().isOk)
             .andExpect(jsonPath("\$[*].title").value(hasItem("Tomme soppla")))
 
@@ -67,7 +66,7 @@ class TaskAndShoppingAcceptanceTest : AcceptanceTestSupport() {
             .perform(
                 patch("/api/tasks/{id}/toggle", id)
                     .param("memberName", "Kasper")
-                    .with(jwt().jwt { it.subject("Kasper") }),
+                    .with(jwtFor("Kasper")),
             ).andExpect(status().isOk)
             .andExpect(jsonPath("$.id").value(id))
             .andExpect(jsonPath("$.completed").value(true))
@@ -80,7 +79,7 @@ class TaskAndShoppingAcceptanceTest : AcceptanceTestSupport() {
                 .perform(
                     post("/api/tasks/shopping")
                         .contentType("application/json")
-                        .with(jwt().jwt { it.subject("Emma") })
+                        .with(jwtFor("Emma"))
                         .content(
                             """
                             {
@@ -103,7 +102,7 @@ class TaskAndShoppingAcceptanceTest : AcceptanceTestSupport() {
             .perform(
                 get("/api/tasks/shopping")
                     .param("memberName", "Emma")
-                    .with(jwt().jwt { it.subject("Emma") }),
+                    .with(jwtFor("Emma")),
             ).andExpect(status().isOk)
             .andExpect(jsonPath("\$[*].item").value(hasItem("Dopapir")))
 
@@ -112,7 +111,7 @@ class TaskAndShoppingAcceptanceTest : AcceptanceTestSupport() {
             .perform(
                 patch("/api/tasks/shopping/{id}/toggle", itemId)
                     .param("memberName", "Emma")
-                    .with(jwt().jwt { it.subject("Emma") }),
+                    .with(jwtFor("Emma")),
             ).andExpect(status().isOk)
             .andExpect(jsonPath("$.id").value(itemId))
             .andExpect(jsonPath("$.completed").value(true))
@@ -122,7 +121,7 @@ class TaskAndShoppingAcceptanceTest : AcceptanceTestSupport() {
             .perform(
                 delete("/api/tasks/shopping/{id}", itemId)
                     .param("memberName", "Emma")
-                    .with(jwt().jwt { it.subject("Emma") }),
+                    .with(jwtFor("Emma")),
             ).andExpect(status().isNoContent)
     }
 }

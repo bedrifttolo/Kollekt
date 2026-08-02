@@ -38,13 +38,17 @@ class CollectiveWebSocketHandlerTest {
     private val jwtEncoder: JwtEncoder = NimbusJwtEncoder(ImmutableSecret(key))
     private val handler = TestableCollectiveWebSocketHandler(memberRepository, realtimeUpdateService, jwtDecoder)
 
-    private fun tokenFor(subject: String): String {
+    private fun tokenFor(
+        subject: String,
+        uid: Long? = null,
+    ): String {
         val claims =
             JwtClaimsSet
                 .builder()
                 .subject(subject)
                 .issuedAt(Instant.now())
                 .expiresAt(Instant.now().plusSeconds(3600))
+                .apply { if (uid != null) claim("uid", uid) }
                 .build()
         val header = JwsHeader.with(MacAlgorithm.HS256).build()
         return jwtEncoder.encode(JwtEncoderParameters.from(header, claims)).tokenValue
@@ -93,14 +97,17 @@ class CollectiveWebSocketHandlerTest {
         verify(session).close(
             argThat { code == CloseStatus.POLICY_VIOLATION.code && reason == "Unauthorized" },
         )
-        verify(memberRepository, never()).findByName(any())
+        verify(memberRepository, never()).findById(any())
         verify(realtimeUpdateService, never()).register(any(), any())
     }
 
     @Test
     fun `afterConnectionEstablished closes when token subject does not match member`() {
         whenever(session.uri).thenReturn(
-            URI("ws://localhost/ws/collective?memberName=Kasper&token=${tokenFor("Mallory")}"),
+            URI("ws://localhost/ws/collective?memberName=Kasper&token=${tokenFor("Mallory", uid = 99)}"),
+        )
+        whenever(memberRepository.findById(99)).thenReturn(
+            java.util.Optional.of(Member(id = 99, name = "Mallory", email = "mallory@example.com", collectiveCode = "XYZ789")),
         )
 
         handler.afterConnectionEstablished(session)
@@ -114,10 +121,10 @@ class CollectiveWebSocketHandlerTest {
     @Test
     fun `afterConnectionEstablished closes when member has no collective`() {
         whenever(session.uri).thenReturn(
-            URI("ws://localhost/ws/collective?memberName=Kasper&token=${tokenFor("Kasper")}"),
+            URI("ws://localhost/ws/collective?memberName=Kasper&token=${tokenFor("Kasper", uid = 1)}"),
         )
-        whenever(memberRepository.findByName("Kasper")).thenReturn(
-            Member(id = 1, name = "Kasper", email = "kasper@example.com", collectiveCode = null),
+        whenever(memberRepository.findById(1)).thenReturn(
+            java.util.Optional.of(Member(id = 1, name = "Kasper", email = "kasper@example.com", collectiveCode = null)),
         )
 
         handler.afterConnectionEstablished(session)
@@ -130,11 +137,11 @@ class CollectiveWebSocketHandlerTest {
     @Test
     fun `afterConnectionEstablished stores collective and registers session`() {
         whenever(session.uri).thenReturn(
-            URI("ws://localhost/ws/collective?memberName=Kasper&token=${tokenFor("Kasper")}"),
+            URI("ws://localhost/ws/collective?memberName=Kasper&token=${tokenFor("Kasper", uid = 1)}"),
         )
         whenever(session.attributes).thenReturn(attributes)
-        whenever(memberRepository.findByName("Kasper")).thenReturn(
-            Member(id = 1, name = "Kasper", email = "kasper@example.com", collectiveCode = "ABC123"),
+        whenever(memberRepository.findById(1)).thenReturn(
+            java.util.Optional.of(Member(id = 1, name = "Kasper", email = "kasper@example.com", collectiveCode = "ABC123")),
         )
 
         handler.afterConnectionEstablished(session)

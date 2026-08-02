@@ -48,6 +48,7 @@ class EconomyOperationsTest {
     private lateinit var realtimeUpdateService: RealtimeUpdateService
     private lateinit var notificationService: NotificationService
     private lateinit var collectiveAccessService: CollectiveAccessService
+    private lateinit var currentMemberContext: CurrentMemberContext
     private lateinit var operations: EconomyOperations
 
     @BeforeEach
@@ -61,7 +62,8 @@ class EconomyOperationsTest {
         budgetRepository = mock()
         realtimeUpdateService = mock()
         notificationService = mock()
-        collectiveAccessService = CollectiveAccessService(memberRepository, collectiveRepository)
+        currentMemberContext = mock()
+        collectiveAccessService = CollectiveAccessService(currentMemberContext, collectiveRepository)
         operations =
             EconomyOperations(
                 memberRepository = memberRepository,
@@ -75,7 +77,8 @@ class EconomyOperationsTest {
                 notificationService = notificationService,
                 collectiveAccessService = collectiveAccessService,
             )
-        whenever(memberRepository.findByName("Kasper")).thenReturn(member("Kasper", "kasper@example.com"))
+        whenever(currentMemberContext.current("Kasper")).thenReturn(member("Kasper", "kasper@example.com"))
+        whenever(currentMemberContext.current("Emma")).thenReturn(member("Emma", "emma@example.com", id = 2))
     }
 
     @Test
@@ -104,7 +107,7 @@ class EconomyOperationsTest {
 
     @Test
     fun `get pay options returns empty list when no expenses`() {
-        whenever(memberRepository.findByName("Kasper")).thenReturn(member("Kasper", "kasper@example.com"))
+        whenever(currentMemberContext.current("Kasper")).thenReturn(member("Kasper", "kasper@example.com"))
         whenever(expenseRepository.findAllByCollectiveCode("ABC123")).thenReturn(emptyList())
 
         val result = operations.getPayOptions("Kasper")
@@ -223,7 +226,7 @@ class EconomyOperationsTest {
 
     @Test
     fun `settleWith records personal settlement for bilateral debt`() {
-        whenever(memberRepository.findByName("Emma")).thenReturn(member("Emma", "emma@example.com", id = 2))
+        whenever(currentMemberContext.current("Emma")).thenReturn(member("Emma", "emma@example.com", id = 2))
         whenever(memberRepository.findAllByCollectiveCode("ABC123")).thenReturn(
             listOf(member("Kasper", "kasper@example.com"), member("Emma", "emma@example.com", id = 2)),
         )
@@ -263,7 +266,7 @@ class EconomyOperationsTest {
 
     @Test
     fun `settleWith accounts for cross-direction expenses when computing bilateral debt`() {
-        whenever(memberRepository.findByName("Emma")).thenReturn(member("Emma", "emma@example.com", id = 2))
+        whenever(currentMemberContext.current("Emma")).thenReturn(member("Emma", "emma@example.com", id = 2))
         whenever(memberRepository.findAllByCollectiveCode("ABC123")).thenReturn(
             listOf(member("Kasper", "kasper@example.com"), member("Emma", "emma@example.com", id = 2)),
         )
@@ -309,7 +312,7 @@ class EconomyOperationsTest {
 
     @Test
     fun `settleWith does nothing when debtor owes nothing to creditor`() {
-        whenever(memberRepository.findByName("Emma")).thenReturn(member("Emma", "emma@example.com", id = 2))
+        whenever(currentMemberContext.current("Emma")).thenReturn(member("Emma", "emma@example.com", id = 2))
         whenever(memberRepository.findAllByCollectiveCode("ABC123")).thenReturn(
             listOf(member("Kasper", "kasper@example.com"), member("Emma", "emma@example.com", id = 2)),
         )
@@ -604,7 +607,7 @@ class EconomyOperationsTest {
 
     @Test
     fun `get pay options with actual bilateral debt calculation`() {
-        whenever(memberRepository.findByName("Emma")).thenReturn(member("Emma", "emma@example.com", id = 2))
+        whenever(currentMemberContext.current("Emma")).thenReturn(member("Emma", "emma@example.com", id = 2))
         whenever(memberRepository.findAllByCollectiveCode("ABC123")).thenReturn(
             listOf(member("Kasper", "kasper@example.com"), member("Emma", "emma@example.com", id = 2)),
         )

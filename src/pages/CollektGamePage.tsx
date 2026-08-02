@@ -3,12 +3,12 @@ import { AnimatePresence, motion } from 'framer-motion';
 import {
   ArrowLeft,
   ArrowRight,
-  Beer,
   Brain,
   CheckCircle2,
   ChevronRight,
   Crown,
   Flame,
+  PartyPopper,
   Plus,
   RotateCcw,
   Settings2,
@@ -26,6 +26,7 @@ import { api } from '../lib/api';
 import { tapFeedback } from '../lib/haptics';
 import { useUser } from '../context/UserContext';
 import {
+  ALCOHOL_MODE_AVAILABLE,
   addPlayer,
   buildSessionSummaries,
   canStartGame,
@@ -52,7 +53,7 @@ import { Eyebrow } from '../components/ui-kit';
 
 // ─── Round type display meta ──────────────────────────────────────────────────
 
-const ROUND_TYPE_ICONS: Record<RoundType, typeof Beer> = {
+const ROUND_TYPE_ICONS: Record<RoundType, typeof Zap> = {
   STAT_COMPARISON: Zap,
   CHALLENGE: Flame,
   HOT_SEAT: Crown,
@@ -110,6 +111,10 @@ export default function CollektGamePage() {
   const [sessionPreset, setSessionPreset] = useState<GamePreset>('default');
   const [guestName, setGuestName] = useState('');
   const [guestNameErrorKey, setGuestNameErrorKey] = useState<string | null>(null);
+  // Only ever true in a build with ALCOHOL_MODE_AVAILABLE — see src/lib/kollektGame.ts.
+  const [alcoholMode, setAlcoholMode] = useState(false);
+  // Resolves a kollektGame.* i18n key to its alcohol-mode sibling when active.
+  const kg = useCallback((path: string) => (alcoholMode ? `kollektGame.alcohol.${path}` : `kollektGame.${path}`), [alcoholMode]);
 
   // ── Active game state ──────────────────────────────────────────────────────
   // Rounds are generated ON DEMAND (one at a time) so that the current gameLang
@@ -232,6 +237,7 @@ export default function CollektGamePage() {
       preset: selectedPreset,
       usedIds: usedIdsRef.current,
       lang: gameLang,
+      alcoholMode,
     });
     if (!firstRound) return;
     usedIdsRef.current = usedIds;
@@ -245,7 +251,7 @@ export default function CollektGamePage() {
     setSkippedCount(0);
     setSummaries(await buildSessionSummaries(active));
     setPhase('playing');
-  }, [players, selectedPreset, gameLang, presets]);
+  }, [players, selectedPreset, gameLang, presets, alcoholMode]);
 
   const advanceGame = useCallback(
     async (skipped: boolean) => {
@@ -270,12 +276,13 @@ export default function CollektGamePage() {
         preset: sessionPreset,
         usedIds: usedIdsRef.current,
         lang: gameLang,
+        alcoholMode,
       });
       usedIdsRef.current = usedIds;
       setCurrentRound(next);
       setRoundIndex(nextIndex);
     },
-    [currentRound, sessionConfig, sessionPlayers, roundIndex, maxRounds, gameLang, sessionPreset],
+    [currentRound, sessionConfig, sessionPlayers, roundIndex, maxRounds, gameLang, sessionPreset, alcoholMode],
   );
 
   const handleResolve = useCallback(() => {
@@ -451,12 +458,12 @@ export default function CollektGamePage() {
               >
                 <p className="font-display font-bold text-sm">{t(`kollektGame.presets.${key}.label`)}</p>
                 <p className="text-[11px] text-muted-foreground mt-1 leading-tight">
-                  {t(`kollektGame.presets.${key}.description`)}
+                  {t(kg(`presets.${key}.description`))}
                 </p>
                 <p className="text-[10px] font-semibold mt-2 opacity-70">
                   {config.maxRounds}{t('kollektGame.config.rounds_suffix')}
                   {config.drinkMultiplier !== 1
-                    ? t('kollektGame.config.drinks_multiplier', { m: config.drinkMultiplier })
+                    ? t(kg('config.drinks_multiplier'), { m: config.drinkMultiplier })
                     : ''}
                 </p>
               </button>
@@ -464,6 +471,27 @@ export default function CollektGamePage() {
           })}
         </div>
       </div>
+
+      {ALCOHOL_MODE_AVAILABLE && (
+        <div className="glass rounded-2xl p-5 space-y-3">
+          <p className="text-sm font-semibold">{t('kollektGame.config.contentMode.label')}</p>
+          <div className="grid grid-cols-2 gap-2">
+            {([false, true] as const).map((value) => (
+              <button
+                key={String(value)}
+                onClick={() => setAlcoholMode(value)}
+                className={`rounded-xl p-3 text-sm font-semibold border transition-colors ${
+                  alcoholMode === value
+                    ? 'bg-primary/15 border-primary/40 text-primary'
+                    : 'bg-background/35 border-border text-foreground'
+                }`}
+              >
+                {t(value ? 'kollektGame.config.contentMode.alcohol' : 'kollektGame.config.contentMode.points')}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="glass rounded-2xl p-5 space-y-3">
         <p className="text-sm font-semibold">{t('kollektGame.config.playersInSession')}</p>
@@ -511,7 +539,7 @@ export default function CollektGamePage() {
           onClick={handleStartGame}
           className="gradient-primary rounded-2xl py-4 font-display font-bold text-ink-foreground flex items-center justify-center gap-2"
         >
-          <Beer className="h-5 w-5" />
+          <PartyPopper className="h-5 w-5" />
           {t('kollektGame.config.startGame')}
         </button>
       </div>
@@ -579,13 +607,13 @@ export default function CollektGamePage() {
             <p className="text-sm leading-relaxed flex-1">{eventText.description}</p>
             {(ev.drinks > 0 || ev.distributeCount) && (
               <div className="flex items-center gap-2">
-                <Beer className="h-4 w-4 text-muted-foreground" />
+                <Zap className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm text-muted-foreground">
                   {ev.distributeTarget
-                    ? t('kollektGame.drinking.distributes', { name: ev.distributeTarget, count: ev.distributeCount })
+                    ? t(kg('drinking.distributes'), { name: ev.distributeTarget, count: ev.distributeCount })
                     : ev.targetPlayers.length > 0
-                      ? t('kollektGame.drinking.drinksTarget', { names: ev.targetPlayers.join(', '), count: ev.drinks })
-                      : t('kollektGame.drinking.sips', { count: ev.drinks })}
+                      ? t(kg('drinking.drinksTarget'), { names: ev.targetPlayers.join(', '), count: ev.drinks })
+                      : t(kg('drinking.sips'), { count: ev.drinks })}
                 </span>
               </div>
             )}
@@ -605,8 +633,8 @@ export default function CollektGamePage() {
             <button
               onClick={handleSkip}
               className="h-full aspect-square glass rounded-2xl flex items-center justify-center text-muted-foreground"
-              aria-label={t('kollektGame.playing.skipAria', { penalty: sessionConfig.skipDrinkPenalty })}
-              title={t('kollektGame.playing.skipTitle', { penalty: sessionConfig.skipDrinkPenalty })}
+              aria-label={t(kg('playing.skipAria'), { penalty: sessionConfig.skipDrinkPenalty })}
+              title={t(kg('playing.skipTitle'), { penalty: sessionConfig.skipDrinkPenalty })}
             >
               <SkipForward className="h-5 w-5" />
             </button>
@@ -614,7 +642,7 @@ export default function CollektGamePage() {
         </div>
         {sessionConfig.allowSkip && (
           <p className="text-[11px] text-center text-muted-foreground">
-            {t('kollektGame.playing.skipCost', { count: sessionConfig.skipDrinkPenalty })}
+            {t(kg('playing.skipCost'), { count: sessionConfig.skipDrinkPenalty })}
           </p>
         )}
       </motion.div>

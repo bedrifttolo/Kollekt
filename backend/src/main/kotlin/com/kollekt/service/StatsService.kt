@@ -248,12 +248,22 @@ class StatsService(
     fun getAchievements(memberName: String): List<AchievementDto> {
         val member = collectiveAccessService.requireMember(memberName)
         val collectiveCode = collectiveAccessService.requireCollectiveCode(member)
+        return computeAchievements(member, collectiveCode)
+    }
+
+    /** Shared by [getAchievements] (the caller's own achievements) and [getMemberStats] (another
+     *  household member's) — the latter already has its target [Member] resolved and scoped to
+     *  the viewer's collective, so it never goes through the ambient-identity [getAchievements]. */
+    private fun computeAchievements(
+        member: Member,
+        collectiveCode: String,
+    ): List<AchievementDto> {
         val collective =
             collectiveRepository.findByJoinCode(collectiveCode)
                 ?: throw IllegalArgumentException("Collective not found")
         val enabledKeys = collective.enabledAchievementKeys.ifEmpty { DEFAULT_ENABLED_KEYS }
 
-        val memberTasks = tasksWithHistory(collectiveCode).filter { it.assignee == memberName }
+        val memberTasks = tasksWithHistory(collectiveCode).filter { it.assignee == member.name }
         val streak = computeStreak(memberTasks)
 
         val builtInAchievements =
@@ -365,7 +375,7 @@ class StatsService(
     ): MemberStatsDto {
         val collectiveCode = collectiveAccessService.requireCollectiveCodeByMemberName(viewerName)
         val target =
-            memberRepository.findByName(targetName)
+            memberRepository.findByNameAndCollectiveCode(targetName, collectiveCode)
                 ?: throw IllegalArgumentException("Member not found")
 
         val allTasks = tasksWithHistory(collectiveCode)
@@ -378,7 +388,7 @@ class StatsService(
         val leaderboard = getLeaderboard(viewerName)
         val rank = leaderboard.players.firstOrNull { it.name == targetName }?.rank ?: leaderboard.players.size
 
-        val achievements = getAchievements(targetName)
+        val achievements = computeAchievements(target, collectiveCode)
 
         return MemberStatsDto(
             name = target.name,

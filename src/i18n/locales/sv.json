@@ -164,6 +164,7 @@
     "notFound": "Det du letar efter hittades inte.",
     "invalidCredentials": "Namnet eller lösenordet stämmer inte.",
     "alreadyExists": "Detta finns redan.",
+    "nameTakenInHousehold": "Någon i det här kollektivet heter redan det. Gå tillbaka och ändra ditt namn.",
     "alreadyInCollective": "Du är redan med i ett kollektiv.",
     "invalidJoinCode": "Koden ser inte rätt ut. Kontrollera den och försök igen.",
     "generic": "Något gick fel. Försök igen."
@@ -747,11 +748,12 @@
       "unlock": "Lås upp",
       "paywall": {
         "title": "Lås upp premium",
-        "body": "Prenumerera för att låsa upp hela spelsamlingen och riktiga GIF-ar i chatten.",
-        "subscribe": "Prenumerera",
+        "body": "Engångsköp – lås upp hela spelsamlingen och riktiga GIF-ar i chatten för gott.",
+        "unlock": "Lås upp för alltid",
+        "unlockFor": "Lås upp för {{price}}",
         "restore": "Återställ köp",
-        "disclosure": "Förnyas automatiskt och debiteras via ditt App Store-konto. Avbryt när som helst i Inställningar. Villkor och integritetspolicy gäller.",
-        "unavailable": "Prenumeration är inte tillgänglig ännu – kom tillbaka snart.",
+        "disclosure": "Engångsbetalning som debiteras via ditt App Store-konto. Ingen prenumeration – ingen förnyelse, ingen uppsägning behövs. Villkor och integritetspolicy gäller.",
+        "unavailable": "Köp är inte tillgängligt ännu – kom tillbaka snart.",
         "nothingToRestore": "Inget tidigare köp hittades."
       },
       "categories": {
@@ -792,7 +794,7 @@
         "promptRelay": "Bygg en berättelse tillsammans, ett inlägg i taget.",
         "hundredQuestions": "Peka på personen som passar bäst till varje fråga.",
         "truthOrChug": "Välj ett nummer, svara ärligt eller gör utmaningen.",
-        "neverHaveIEver": "Drick om du har gjort det som står på kortet.",
+        "neverHaveIEver": "Förlora en poäng om du har gjort det som står på kortet.",
         "mexican": "Kasta i tur och slå föregående spelares dolda resultat.",
         "kingsCup": "Dra kort och följ regeln som hör till kortets valör.",
         "categories": "Nämn något i kategorin innan tiden tar slut.",
@@ -864,35 +866,35 @@
         "cards": {
           "A": {
             "title": "Vattenfall",
-            "rule": "Alla börjar dricka. Ingen slutar förrän personen till höger har slutat."
+            "rule": "Alla förlorar en poäng samtidigt — ingen slipper undan."
           },
           "2": {
             "title": "Du",
-            "rule": "{{player}} väljer någon som tar två klunkar."
+            "rule": "{{player}} väljer någon som förlorar två poäng."
           },
           "3": {
             "title": "Jag",
-            "rule": "{{player}} tar tre klunkar."
+            "rule": "{{player}} förlorar tre poäng."
           },
           "4": {
             "title": "Golvet",
-            "rule": "Sista personen som rör golvet tar en klunk."
+            "rule": "Sista personen som rör golvet förlorar en poäng."
           },
           "5": {
             "title": "Killarna",
-            "rule": "Alla som identifierar sig som kille tar en klunk."
+            "rule": "Alla som identifierar sig som kille förlorar en poäng."
           },
           "6": {
             "title": "Tjejerna",
-            "rule": "Alla som identifierar sig som tjej tar en klunk."
+            "rule": "Alla som identifierar sig som tjej förlorar en poäng."
           },
           "7": {
             "title": "Himlen",
-            "rule": "Sista personen som pekar uppåt tar en klunk."
+            "rule": "Sista personen som pekar uppåt förlorar en poäng."
           },
           "8": {
             "title": "Kompis",
-            "rule": "{{player}} väljer en kompis. När en dricker, dricker båda."
+            "rule": "{{player}} väljer en kompis. När en förlorar poäng, förlorar båda poäng."
           },
           "9": {
             "title": "Rim",
@@ -904,15 +906,15 @@
           },
           "J": {
             "title": "Jag har aldrig",
-            "rule": "{{player}} säger «Jag har aldrig …». De som har gjort det tar en klunk."
+            "rule": "{{player}} säger «Jag har aldrig …». De som har gjort det förlorar en poäng."
           },
           "Q": {
             "title": "Frågemästare",
-            "rule": "Svarar du på en fråga från {{player}} måste du dricka. Gäller till nästa dam."
+            "rule": "Svara på en fråga från {{player}}, annars förlorar du en poäng. Gäller till nästa dam."
           },
           "K": {
             "title": "Kungens kopp",
-            "rule": "Häll lite i koppen. Den som drar den fjärde kungen måste ta koppen."
+            "rule": "Lägg en poäng i potten. Den som drar den fjärde kungen förlorar alla poäng i potten."
           }
         }
       },
@@ -1703,6 +1705,32 @@
     }
   },
   "kollektGame": {
+    "alcohol": {
+      "config": {
+        "drinks_multiplier": " · ×{{m}} drinkar"
+      },
+      "presets": {
+        "quick": {
+          "description": "8 rundor — kom in, bli glad, kom ut."
+        },
+        "hardcore": {
+          "description": "20 rundor, dubbla drinkar, ingen nåd."
+        },
+        "casual": {
+          "description": "12 rundor, lätta klunkar, statistik betyder lite."
+        }
+      },
+      "playing": {
+        "skipAria": "Hoppa över ({{penalty}} klunk straff)",
+        "skipTitle": "Hoppa över (+{{penalty}} klunk straff)",
+        "skipCost": "Att hoppa över kostar {{count}} klunk(ar)"
+      },
+      "drinking": {
+        "distributes": "{{name}} delar ut {{count}} klunk(ar)",
+        "drinksTarget": "{{names}} dricker {{count}} klunk(ar)",
+        "sips": "{{count}} klunk(ar)"
+      }
+    },
     "title": "Kollekt-läge",
     "loading": "Laddar kollektivdata…",
     "entryCard": {
@@ -1738,6 +1766,11 @@
       "guest": "gäst"
     },
     "config": {
+      "contentMode": {
+        "label": "Feststil",
+        "points": "Poäng",
+        "alcohol": "Alkohol"
+      },
       "gameMode": "Spelläge",
       "playersInSession": "Spelare i sessionen",
       "rounds": "Rundor",
@@ -1746,7 +1779,7 @@
       "startGame": "Starta spel",
       "backAria": "Tillbaka till spelarval",
       "rounds_suffix": " rundor",
-      "drinks_multiplier": " · ×{{m}} drinkar"
+      "drinks_multiplier": " · ×{{m}} poäng"
     },
     "presets": {
       "default": {
@@ -1755,23 +1788,23 @@
       },
       "quick": {
         "label": "Snabb",
-        "description": "8 rundor — kom in, bli glad, kom ut."
+        "description": "8 rundor — kom in, bli kaotisk, kom ut."
       },
       "hardcore": {
         "label": "Hardcore",
-        "description": "20 rundor, dubbla drinkar, ingen nåd."
+        "description": "20 rundor, dubbla poäng, ingen nåd."
       },
       "casual": {
         "label": "Avslappnad",
-        "description": "12 rundor, lätta klunkar, statistik betyder lite."
+        "description": "12 rundor, låg insats, statistik betyder lite."
       }
     },
     "playing": {
       "roundOf": "Runda {{current}} av {{total}}",
       "done": "Klar — Nästa runda",
-      "skipAria": "Hoppa över ({{penalty}} klunk straff)",
-      "skipTitle": "Hoppa över (+{{penalty}} klunk straff)",
-      "skipCost": "Att hoppa över kostar {{count}} klunk(ar)"
+      "skipAria": "Hoppa över ({{penalty}} poäng straff)",
+      "skipTitle": "Hoppa över (+{{penalty}} poäng straff)",
+      "skipCost": "Att hoppa över kostar {{count}} poäng"
     },
     "roundTypes": {
       "STAT_COMPARISON": "Statduell",
@@ -1781,9 +1814,9 @@
       "RANDOM_EVENT": "Jokerkort"
     },
     "drinking": {
-      "distributes": "{{name}} delar ut {{count}} klunk(ar)",
-      "drinksTarget": "{{names}} dricker {{count}} klunk(ar)",
-      "sips": "{{count}} klunk(ar)"
+      "distributes": "{{name}} delar ut {{count}} poäng",
+      "drinksTarget": "{{names}} förlorar {{count}} poäng",
+      "sips": "{{count}} poäng"
     },
     "summary": {
       "title": "Spelet är slut",

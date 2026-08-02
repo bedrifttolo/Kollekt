@@ -21,7 +21,7 @@ import { decorateMessages, newestMessageId } from '../lib/chatThread';
 import { useUser, useRealtimeEvent } from '../context/UserContext';
 import { formatDate, formatDateTime, formatTime } from '../i18n/helpers';
 import { tapFeedback } from '../lib/haptics';
-import { useGamesSubscription } from '../lib/purchases';
+import { usePremiumEntitlement } from '../lib/purchases';
 import SubscriptionPaywall from '../components/SubscriptionPaywall';
 import type { AppUser, ChatMessage, CheckinSummary, HouseCheckin, Kudo, KudoType, Task } from '../lib/types';
 
@@ -98,7 +98,7 @@ export default function ChatPage() {
   const [showLaundryForm, setShowLaundryForm] = useState(false);
   const [showGifPicker, setShowGifPicker] = useState(false);
   const [showPaywall, setShowPaywall] = useState(false);
-  const { isSubscriber } = useGamesSubscription();
+  const { isUnlocked } = usePremiumEntitlement();
   const [laundryType, setLaundryType] = useState<LaundryType>('COLORS');
   const [laundryTemp, setLaundryTemp] = useState(40);
   const [showKudosForm, setShowKudosForm] = useState(false);
@@ -329,6 +329,11 @@ export default function ChatPage() {
     };
   }, []);
 
+  // Keeps a sent message's on-screen identity stable across the optimistic-id → real-id swap
+  // below, so the bubble doesn't unmount/remount (and replay its pop-in animation a second time)
+  // the instant the server responds. Session-scoped and tiny — no cleanup needed.
+  const clientIdByServerIdRef = useRef(new Map<number, number>());
+
   const sendMessage = async () => {
     if (!input.trim()) return;
     if (messageInputRef.current) messageInputRef.current.style.height = 'auto';
@@ -358,6 +363,7 @@ export default function ChatPage() {
       const saved = thread
         ? await api.post<ChatMessage>('/chat/direct', { recipient: thread, text })
         : await api.post<ChatMessage>('/chat/messages', { sender: name, text, replyToMessageId });
+      clientIdByServerIdRef.current.set(saved.id, tempId);
       setMessages((prev) => prev.map((m) => (m.id === tempId ? saved : m)));
     } catch {
       // Roll back the placeholder and restore the draft so the user can retry.
@@ -801,7 +807,7 @@ export default function ChatPage() {
           // Only the tail of the thread animates on arrival — see the bubble's `initial` below.
           const isRecent = hasMountedRef.current && i >= all.length - 3;
           return (
-            <div key={message.id}>
+            <div key={clientIdByServerIdRef.current.get(message.id) ?? message.id}>
               {startsNewDay && (
                 <div className="flex justify-center py-3">
                   <span className="rounded-full bg-foreground/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[.1em] text-muted-foreground backdrop-blur-sm">
@@ -1103,13 +1109,13 @@ export default function ChatPage() {
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => {
                 setShowActionBar(false);
-                if (!isSubscriber) { setShowPaywall(true); return; }
+                if (!isUnlocked) { setShowPaywall(true); return; }
                 setShowGifPicker((v) => !v);
               }}
               className="flex min-h-11 shrink-0 flex-col items-center gap-1 rounded-xl px-3 py-2 hover:bg-muted/60"
               aria-label={t('chat.sendGif')}
             >
-              {isSubscriber ? <Film className="h-5 w-5 text-muted-foreground" /> : <Lock className="h-5 w-5 text-muted-foreground" />}
+              {isUnlocked ? <Film className="h-5 w-5 text-muted-foreground" /> : <Lock className="h-5 w-5 text-muted-foreground" />}
               <span className="text-[9px] font-medium text-muted-foreground">GIF</span>
             </button>
             <button onMouseDown={(e) => e.preventDefault()} onClick={() => { setShowPollForm((v) => !v); setShowActionBar(false); }} className="flex min-h-11 shrink-0 flex-col items-center gap-1 rounded-xl px-3 py-2 hover:bg-muted/60" aria-label={t('chat.togglePollForm')}>
@@ -1126,11 +1132,15 @@ export default function ChatPage() {
             </button>
             <button
               onMouseDown={(e) => e.preventDefault()}
-              onClick={() => { setShowActionBar(false); void handleChangeBackground(); }}
+              onClick={() => {
+                setShowActionBar(false);
+                if (!isUnlocked) { setShowPaywall(true); return; }
+                void handleChangeBackground();
+              }}
               className="flex min-h-11 shrink-0 flex-col items-center gap-1 rounded-xl px-3 py-2 hover:bg-muted/60"
               aria-label={t('chat.background.change')}
             >
-              <Wallpaper className="h-5 w-5 text-muted-foreground" />
+              {isUnlocked ? <Wallpaper className="h-5 w-5 text-muted-foreground" /> : <Lock className="h-5 w-5 text-muted-foreground" />}
               <span className="text-[9px] font-medium text-muted-foreground">{t('chat.background.label')}</span>
             </button>
             {background && (

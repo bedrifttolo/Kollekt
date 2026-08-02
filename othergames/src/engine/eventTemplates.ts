@@ -52,12 +52,12 @@ function noCount(value: number, singular: string, plural: string): string {
   return `${value} ${value === 1 ? singular : plural}`;
 }
 
-function enSips(value: number): string {
-  return enCount(value, 'sip');
+function enPoints(value: number): string {
+  return enCount(value, 'point');
 }
 
-function noSips(value: number): string {
-  return noCount(value, 'slurk', 'slurker');
+function noPoints(value: number): string {
+  return `${value} poeng`;
 }
 
 export const STAT_COMP_TEMPLATES: StatCompTemplate[] = [
@@ -71,9 +71,9 @@ export const STAT_COMP_TEMPLATES: StatCompTemplate[] = [
     distribute: false,
     describe: {
       en: (t, v, d) =>
-        `${t.name} has the shortest streak in the house at ${enCount(v, 'day')}. Take ${enSips(d)} and promise the table a comeback.`,
+        `${t.name} has the shortest streak in the house at ${enCount(v, 'day')}. Lose ${enPoints(d)} and promise the table a comeback.`,
       no: (t, v, d) =>
-        `${t.name} har den korteste streaken i kollektivet med ${noCount(v, 'dag', 'dager')}. Ta ${noSips(d)} og lov bordet et lite comeback.`,
+        `${t.name} har den korteste streaken i kollektivet med ${noCount(v, 'dag', 'dager')}. Mist ${noPoints(d)} og lov bordet et lite comeback.`,
     },
   },
   {
@@ -85,9 +85,9 @@ export const STAT_COMP_TEMPLATES: StatCompTemplate[] = [
     distribute: true,
     describe: {
       en: (t, v, d) =>
-        `${t.name} is on a ${enCount(v, 'day')} streak. Very impressive. Slightly annoying. Hand out ${enSips(d)} like the household legend you are.`,
+        `${t.name} is on a ${enCount(v, 'day')} streak. Very impressive. Slightly annoying. Hand out ${enPoints(d)} like the household legend you are.`,
       no: (t, v, d) =>
-        `${t.name} er på en streak på ${noCount(v, 'dag', 'dager')}. Imponerende, og litt provoserende. Del ut ${noSips(d)} som den husholdningshelten du er.`,
+        `${t.name} er på en streak på ${noCount(v, 'dag', 'dager')}. Imponerende, og litt provoserende. Del ut ${noPoints(d)} som den husholdningshelten du er.`,
     },
   },
   {
@@ -99,9 +99,9 @@ export const STAT_COMP_TEMPLATES: StatCompTemplate[] = [
     distribute: false,
     describe: {
       en: (t, v, d) =>
-        `${t.name} has completed the fewest tasks so far: ${v}. Take ${enSips(d)} as a symbolic contribution to the household.`,
+        `${t.name} has completed the fewest tasks so far: ${v}. Lose ${enPoints(d)} as a symbolic contribution to the household.`,
       no: (t, v, d) =>
-        `${t.name} har fullført færrest oppgaver så langt: ${v}. Ta ${noSips(d)} som et symbolsk bidrag til fellesskapet.`,
+        `${t.name} har fullført færrest oppgaver så langt: ${v}. Mist ${noPoints(d)} som et symbolsk bidrag til fellesskapet.`,
     },
   },
   {
@@ -113,9 +113,9 @@ export const STAT_COMP_TEMPLATES: StatCompTemplate[] = [
     distribute: true,
     describe: {
       en: (t, v, d) =>
-        `${t.name} is leading the room with ${v} completed tasks. Hand out ${enSips(d)} however you like. That authority looks earned.`,
+        `${t.name} is leading the room with ${v} completed tasks. Hand out ${enPoints(d)} however you like. That authority looks earned.`,
       no: (t, v, d) =>
-        `${t.name} leder gjengen med ${v} fullførte oppgaver. Del ut ${noSips(d)} akkurat som du vil. Den autoriteten ser fortjent ut.`,
+        `${t.name} leder gjengen med ${v} fullførte oppgaver. Del ut ${noPoints(d)} akkurat som du vil. Den autoriteten ser fortjent ut.`,
     },
   },
   {
@@ -127,9 +127,9 @@ export const STAT_COMP_TEMPLATES: StatCompTemplate[] = [
     distribute: false,
     describe: {
       en: (t, v, d) =>
-        `${t.name} has been late ${v} times. Take ${enSips(d)} for every time "I'll do it later" became "tomorrow, probably."`,
+        `${t.name} has been late ${v} times. Lose ${enPoints(d)} for every time "I'll do it later" became "tomorrow, probably."`,
       no: (t, v, d) =>
-        `${t.name} har vært forsinket ${v} ganger. Ta ${noSips(d)} for hver gang "jeg gjør det senere" ble til "i morgen da".`,
+        `${t.name} har vært forsinket ${v} ganger. Mist ${noPoints(d)} for hver gang "jeg gjør det senere" ble til "i morgen da".`,
     },
   },
   {
@@ -141,9 +141,9 @@ export const STAT_COMP_TEMPLATES: StatCompTemplate[] = [
     distribute: false,
     describe: {
       en: (t, v, d) =>
-        `${t.name} has skipped ${v} tasks outright. The chores disappeared. These ${enSips(d)} will not.`,
+        `${t.name} has skipped ${v} tasks outright. The chores disappeared. These ${enPoints(d)} will not.`,
       no: (t, v, d) =>
-        `${t.name} har hoppet over ${v} oppgaver helt. Jobben forsvant visst, men det gjør ikke disse ${noSips(d)}.`,
+        `${t.name} har hoppet over ${v} oppgaver helt. Jobben forsvant visst, men det gjør ikke disse ${noPoints(d)}.`,
     },
   },
   {
@@ -155,9 +155,9 @@ export const STAT_COMP_TEMPLATES: StatCompTemplate[] = [
     distribute: false,
     describe: {
       en: (t, v, d) =>
-        `${t.name} is bringing just ${v} XP to the table, the lowest in the room. Take ${enSips(d)} and start planning the comeback arc.`,
+        `${t.name} is bringing just ${v} XP to the table, the lowest in the room. Lose ${enPoints(d)} and start planning the comeback arc.`,
       no: (t, v, d) =>
-        `${t.name} stiller med bare ${v} XP, lavest i gjengen. Ta ${noSips(d)} og begynn å planlegge comebacket.`,
+        `${t.name} stiller med bare ${v} XP, lavest i gjengen. Mist ${noPoints(d)} og begynn å planlegge comebacket.`,
     },
   },
   {
@@ -169,9 +169,9 @@ export const STAT_COMP_TEMPLATES: StatCompTemplate[] = [
     distribute: true,
     describe: {
       en: (t, v, d) =>
-        `${t.name} has the highest XP total at ${v}. Use that main-character energy and hand out ${enSips(d)}.`,
+        `${t.name} has the highest XP total at ${v}. Use that main-character energy and hand out ${enPoints(d)}.`,
       no: (t, v, d) =>
-        `${t.name} har høyest XP med ${v}. Bruk hovedkarakter-energien med måte og del ut ${noSips(d)}.`,
+        `${t.name} har høyest XP med ${v}. Bruk hovedkarakter-energien med måte og del ut ${noPoints(d)}.`,
     },
   },
   {
@@ -183,9 +183,9 @@ export const STAT_COMP_TEMPLATES: StatCompTemplate[] = [
     distribute: false,
     describe: {
       en: (t, v, d) =>
-        `${t.name} is level ${v}, officially the rookie of the room. Take ${enSips(d)} and own the humble beginning.`,
+        `${t.name} is level ${v}, officially the rookie of the room. Lose ${enPoints(d)} and own the humble beginning.`,
       no: (t, v, d) =>
-        `${t.name} er nivå ${v}, og dermed ferskest i gjengen. Ta ${noSips(d)} og omfavn den ydmyke starten.`,
+        `${t.name} er nivå ${v}, og dermed ferskest i gjengen. Mist ${noPoints(d)} og omfavn den ydmyke starten.`,
     },
   },
   {
@@ -197,9 +197,9 @@ export const STAT_COMP_TEMPLATES: StatCompTemplate[] = [
     distribute: true,
     describe: {
       en: (t, v, d) =>
-        `${t.name} has the fewest late completions with ${v}. Punctuality is hot tonight, so hand out ${enSips(d)}.`,
+        `${t.name} has the fewest late completions with ${v}. Punctuality is hot tonight, so hand out ${enPoints(d)}.`,
       no: (t, v, d) =>
-        `${t.name} har færrest forsinkede fullføringer med ${v}. Punktlighet er plutselig veldig attraktivt, så del ut ${noSips(d)}.`,
+        `${t.name} har færrest forsinkede fullføringer med ${v}. Punktlighet er plutselig veldig attraktivt, så del ut ${noPoints(d)}.`,
     },
   },
   {
@@ -211,9 +211,9 @@ export const STAT_COMP_TEMPLATES: StatCompTemplate[] = [
     distribute: true,
     describe: {
       en: (t, v, d) =>
-        `${t.name} has skipped the fewest tasks: ${v}. Reliability looks good on you. Hand out ${enSips(d)}.`,
+        `${t.name} has skipped the fewest tasks: ${v}. Reliability looks good on you. Hand out ${enPoints(d)}.`,
       no: (t, v, d) =>
-        `${t.name} har hoppet over færrest oppgaver: ${v}. Pålitelighet kler deg. Del ut ${noSips(d)}.`,
+        `${t.name} har hoppet over færrest oppgaver: ${v}. Pålitelighet kler deg. Del ut ${noPoints(d)}.`,
     },
   },
   {
@@ -225,9 +225,9 @@ export const STAT_COMP_TEMPLATES: StatCompTemplate[] = [
     distribute: true,
     describe: {
       en: (t, v, d) =>
-        `${t.name} has the best leaderboard rank at #${v}. Bow respectfully and let them hand out ${enSips(d)}.`,
+        `${t.name} has the best leaderboard rank at #${v}. Bow respectfully and let them hand out ${enPoints(d)}.`,
       no: (t, v, d) =>
-        `${t.name} har beste plassering på topplisten med #${v}. Bøy dere høflig og la dem dele ut ${noSips(d)}.`,
+        `${t.name} har beste plassering på topplisten med #${v}. Bøy dere høflig og la dem dele ut ${noPoints(d)}.`,
     },
   },
   {
@@ -239,9 +239,9 @@ export const STAT_COMP_TEMPLATES: StatCompTemplate[] = [
     distribute: true,
     describe: {
       en: (t, v, d) =>
-        `${t.name} is the highest level here at ${v}. Veteran privileges unlocked: hand out ${enSips(d)}.`,
+        `${t.name} is the highest level here at ${v}. Veteran privileges unlocked: hand out ${enPoints(d)}.`,
       no: (t, v, d) =>
-        `${t.name} har høyest nivå her med ${v}. Veteranfordel låst opp: del ut ${noSips(d)}.`,
+        `${t.name} har høyest nivå her med ${v}. Veteranfordel låst opp: del ut ${noPoints(d)}.`,
     },
   },
   // New prompts
@@ -254,9 +254,9 @@ export const STAT_COMP_TEMPLATES: StatCompTemplate[] = [
     distribute: false,
     describe: {
       en: (t, v, d) =>
-        `${t.name} is currently last out of this group on the leaderboard at #${v}. Take ${enSips(d)} and call it a warm-up round.`,
+        `${t.name} is currently last out of this group on the leaderboard at #${v}. Lose ${enPoints(d)} and call it a warm-up round.`,
       no: (t, v, d) =>
-        `${t.name} ligger sist i denne gjengen på topplisten med #${v}. Ta ${noSips(d)} og kall det en oppvarmingsrunde.`,
+        `${t.name} ligger sist i denne gjengen på topplisten med #${v}. Mist ${noPoints(d)} og kall det en oppvarmingsrunde.`,
     },
   },
   {
@@ -268,9 +268,9 @@ export const STAT_COMP_TEMPLATES: StatCompTemplate[] = [
     distribute: true,
     describe: {
       en: (t, v, d) =>
-        `${t.name} has powered through ${v} completed tasks. Hand out ${enSips(d)} to the people who need the motivation most.`,
+        `${t.name} has powered through ${v} completed tasks. Hand out ${enPoints(d)} to the people who need the motivation most.`,
       no: (t, v, d) =>
-        `${t.name} har pløyd gjennom ${v} fullførte oppgaver. Del ut ${noSips(d)} til dem som trenger motivasjonen mest.`,
+        `${t.name} har pløyd gjennom ${v} fullførte oppgaver. Del ut ${noPoints(d)} til dem som trenger motivasjonen mest.`,
     },
   },
   {
@@ -282,9 +282,9 @@ export const STAT_COMP_TEMPLATES: StatCompTemplate[] = [
     distribute: false,
     describe: {
       en: (t, v, d) =>
-        `${t.name} is the underdog tonight with ${v} XP. Take ${enSips(d)} now, then start your redemption tour.`,
+        `${t.name} is the underdog tonight with ${v} XP. Lose ${enPoints(d)} now, then start your redemption tour.`,
       no: (t, v, d) =>
-        `${t.name} er kveldens underdog med ${v} XP. Ta ${noSips(d)} nå, og start innløsningsturneen etterpå.`,
+        `${t.name} er kveldens underdog med ${v} XP. Mist ${noPoints(d)} nå, og start innløsningsturneen etterpå.`,
     },
   },
   {
@@ -296,9 +296,9 @@ export const STAT_COMP_TEMPLATES: StatCompTemplate[] = [
     distribute: true,
     describe: {
       en: (t, v, d) =>
-        `${t.name} has kept delays down to ${v}. Clean work. Hand out ${enSips(d)} like the timing icon you are.`,
+        `${t.name} has kept delays down to ${v}. Clean work. Hand out ${enPoints(d)} like the timing icon you are.`,
       no: (t, v, d) =>
-        `${t.name} har holdt forsinkelsene nede på ${v}. Ryddig levert. Del ut ${noSips(d)} som det punktlighetsikonet du er.`,
+        `${t.name} har holdt forsinkelsene nede på ${v}. Ryddig levert. Del ut ${noPoints(d)} som det punktlighetsikonet du er.`,
     },
   },
   {
@@ -310,9 +310,9 @@ export const STAT_COMP_TEMPLATES: StatCompTemplate[] = [
     distribute: true,
     describe: {
       en: (t, v, d) =>
-        `${t.name} has the cleanest skip record with ${v} missed tasks. Hand out ${enSips(d)} and enjoy the good reputation.`,
+        `${t.name} has the cleanest skip record with ${v} missed tasks. Hand out ${enPoints(d)} and enjoy the good reputation.`,
       no: (t, v, d) =>
-        `${t.name} har den reneste skip-statistikken med ${v} uteblitte oppgaver. Del ut ${noSips(d)} og nyt det gode ryktet.`,
+        `${t.name} har den reneste skip-statistikken med ${v} uteblitte oppgaver. Del ut ${noPoints(d)} og nyt det gode ryktet.`,
     },
   },
 ];
@@ -326,9 +326,9 @@ export const CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     applicable: (p) => !p.isGuest && p.stats.streak > 0,
     describe: {
       en: (p) =>
-        `${p.name}, you're on a ${enCount(p.stats.streak, 'day')} streak. Name the last chore you finished without checking your phone. Hesitate or bluff, and take 2 sips.`,
+        `${p.name}, you're on a ${enCount(p.stats.streak, 'day')} streak. Name the last chore you finished without checking your phone. Hesitate or bluff, and lose 2 points.`,
       no: (p) =>
-        `${p.name}, du er på en streak på ${noCount(p.stats.streak, 'dag', 'dager')}. Nevn den siste oppgaven du fullførte uten å sjekke telefonen. Nøler du eller bløffer, blir det 2 slurker.`,
+        `${p.name}, du er på en streak på ${noCount(p.stats.streak, 'dag', 'dager')}. Nevn den siste oppgaven du fullførte uten å sjekke telefonen. Nøler du eller bløffer, koster det 2 poeng.`,
     },
   },
   {
@@ -338,9 +338,9 @@ export const CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     applicable: (p) => !p.isGuest && p.stats.lateCompletions > 0,
     describe: {
       en: (p) =>
-        `${p.name}, you've been late ${p.stats.lateCompletions} times. Give the table your smoothest excuse. If nobody buys it, take 3 sips.`,
+        `${p.name}, you've been late ${p.stats.lateCompletions} times. Give the table your smoothest excuse. If nobody buys it, lose 3 points.`,
       no: (p) =>
-        `${p.name}, du har vært for sen ${p.stats.lateCompletions} ganger. Gi bordet din glatteste unnskyldning. Hvis ingen kjøper den, tar du 3 slurker.`,
+        `${p.name}, du har vært for sen ${p.stats.lateCompletions} ganger. Gi bordet din glatteste unnskyldning. Hvis ingen kjøper den, mister du 3 poeng.`,
     },
   },
   {
@@ -350,9 +350,9 @@ export const CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     applicable: (p) => !p.isGuest && p.stats.tasksCompleted >= 3,
     describe: {
       en: (p) =>
-        `${p.name}, you've logged ${p.stats.tasksCompleted} tasks. Name two different chores you've actually done lately. If the room calls bluff, drink 2 sips.`,
+        `${p.name}, you've logged ${p.stats.tasksCompleted} tasks. Name two different chores you've actually done lately. If the room calls bluff, lose 2 points.`,
       no: (p) =>
-        `${p.name}, du har logget ${p.stats.tasksCompleted} oppgaver. Nevn to ulike oppgaver du faktisk har gjort i det siste. Hvis rommet ikke tror deg, drikker du 2 slurker.`,
+        `${p.name}, du har logget ${p.stats.tasksCompleted} oppgaver. Nevn to ulike oppgaver du faktisk har gjort i det siste. Hvis rommet ikke tror deg, mister du 2 poeng.`,
     },
   },
   {
@@ -362,9 +362,9 @@ export const CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     applicable: (p) => !p.isGuest && p.stats.skippedTasks > 0,
     describe: {
       en: (p) =>
-        `${p.name}, you've skipped ${p.stats.skippedTasks} tasks. You have 15 seconds to defend yourself. Guilty verdict means 4 sips.`,
+        `${p.name}, you've skipped ${p.stats.skippedTasks} tasks. You have 15 seconds to defend yourself. Guilty verdict costs 4 points.`,
       no: (p) =>
-        `${p.name}, du har hoppet over ${p.stats.skippedTasks} oppgaver. Du får 15 sekunder til å forsvare deg. Skyldig dom betyr 4 slurker.`,
+        `${p.name}, du har hoppet over ${p.stats.skippedTasks} oppgaver. Du får 15 sekunder til å forsvare deg. Skyldig dom koster 4 poeng.`,
     },
   },
   {
@@ -374,9 +374,9 @@ export const CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     applicable: (p) => !p.isGuest && p.stats.achievementsUnlocked >= 1,
     describe: {
       en: (p) =>
-        `${p.name}, you've unlocked ${p.stats.achievementsUnlocked} achievements. Name one from memory. Blank stare? Drink 2 sips.`,
+        `${p.name}, you've unlocked ${p.stats.achievementsUnlocked} achievements. Name one from memory. Blank stare? Lose 2 points.`,
       no: (p) =>
-        `${p.name}, du har låst opp ${p.stats.achievementsUnlocked} prestasjoner. Nevn én fra hukommelsen. Står det stille? Drikk 2 slurker.`,
+        `${p.name}, du har låst opp ${p.stats.achievementsUnlocked} prestasjoner. Nevn én fra hukommelsen. Står det stille? Mist 2 poeng.`,
     },
   },
   {
@@ -386,9 +386,9 @@ export const CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     applicable: (p) => !p.isGuest && p.stats.level >= 2,
     describe: {
       en: (p) =>
-        `${p.name}, you're level ${p.stats.level}. Tell the room one thing you're genuinely proud of doing at home. No applause means 2 sips.`,
+        `${p.name}, you're level ${p.stats.level}. Tell the room one thing you're genuinely proud of doing at home. No applause costs 2 points.`,
       no: (p) =>
-        `${p.name}, du er nivå ${p.stats.level}. Fortell gruppa om én ting du faktisk er stolt av å ha gjort hjemme. Får du ikke applaus, blir det 2 slurker.`,
+        `${p.name}, du er nivå ${p.stats.level}. Fortell gruppa om én ting du faktisk er stolt av å ha gjort hjemme. Får du ikke applaus, koster det 2 poeng.`,
     },
   },
   {
@@ -398,9 +398,9 @@ export const CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     applicable: (p) => !p.isGuest && p.stats.level === 1 && p.stats.tasksCompleted <= 2,
     describe: {
       en: (p) =>
-        `${p.name}, you're level 1 with just ${p.stats.tasksCompleted} completed tasks. Everyone gives you one future chore suggestion. Reject one, and drink 1 sip per rejection.`,
+        `${p.name}, you're level 1 with just ${p.stats.tasksCompleted} completed tasks. Everyone gives you one future chore suggestion. Reject one, and lose 1 point per rejection.`,
       no: (p) =>
-        `${p.name}, du er nivå 1 med bare ${p.stats.tasksCompleted} fullførte oppgaver. Alle gir deg ett forslag til en framtidig oppgave. Avviser du noe, blir det 1 slurk per avvisning.`,
+        `${p.name}, du er nivå 1 med bare ${p.stats.tasksCompleted} fullførte oppgaver. Alle gir deg ett forslag til en framtidig oppgave. Avviser du noe, koster det 1 poeng per avvisning.`,
     },
   },
   {
@@ -410,9 +410,9 @@ export const CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     applicable: (p) => !p.isGuest && p.stats.badges.includes('TOP'),
     describe: {
       en: (p) =>
-        `${p.name}, you're carrying the TOP badge. Pick someone and give them 3 sips. If the room hates your choice, you drink them instead.`,
+        `${p.name}, you're carrying the TOP badge. Pick someone and give them 3 points. If the room hates your choice, you lose them instead.`,
       no: (p) =>
-        `${p.name}, du bærer TOP-merket. Velg noen og gi dem 3 slurker. Hvis bordet misliker valget ditt, drikker du dem selv.`,
+        `${p.name}, du bærer TOP-merket. Velg noen og gi dem 3 poeng. Hvis bordet misliker valget ditt, drikker du dem selv.`,
     },
   },
   {
@@ -422,9 +422,9 @@ export const CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     applicable: (p) => !p.isGuest && p.stats.streak === 0,
     describe: {
       en: (p) =>
-        `${p.name}, your streak is currently zero. Stand up, promise the room you'll do better, and sit back down. Refuse the speech, and take 2 sips.`,
+        `${p.name}, your streak is currently zero. Stand up, promise the room you'll do better, and sit back down. Refuse the speech, and lose 2 points.`,
       no: (p) =>
-        `${p.name}, streaken din står på null. Reis deg, lov at du skal skjerpe deg, og sett deg ned igjen. Nekter du talen, blir det 2 slurker.`,
+        `${p.name}, streaken din står på null. Reis deg, lov at du skal skjerpe deg, og sett deg ned igjen. Nekter du talen, koster det 2 poeng.`,
     },
   },
   {
@@ -434,9 +434,9 @@ export const CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     applicable: (p) => !p.isGuest && p.stats.rank <= 3,
     describe: {
       en: (p) =>
-        `${p.name}, you're sitting at rank #${p.stats.rank}. Give the room a 10-second winner speech. If it's flat, take 2 sips.`,
+        `${p.name}, you're sitting at rank #${p.stats.rank}. Give the room a 10-second winner speech. If it's flat, lose 2 points.`,
       no: (p) =>
-        `${p.name}, du ligger på plass #${p.stats.rank}. Hold en vinnertale på 10 sekunder. Er den kjedelig, blir det 2 slurker.`,
+        `${p.name}, du ligger på plass #${p.stats.rank}. Hold en vinnertale på 10 sekunder. Er den kjedelig, koster det 2 poeng.`,
     },
   },
   {
@@ -446,9 +446,9 @@ export const CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     applicable: (p) => !p.isGuest && p.stats.tasksCompleted >= 5,
     describe: {
       en: (p) =>
-        `${p.name}, you've logged ${p.stats.tasksCompleted} tasks. Name the last three you remember doing. Miss one, and take 2 sips.`,
+        `${p.name}, you've logged ${p.stats.tasksCompleted} tasks. Name the last three you remember doing. Miss one, and lose 2 points.`,
       no: (p) =>
-        `${p.name}, du har logget ${p.stats.tasksCompleted} oppgaver. Nevn de tre siste du husker å ha gjort. Bommer du på én, tar du 2 slurker.`,
+        `${p.name}, du har logget ${p.stats.tasksCompleted} oppgaver. Nevn de tre siste du husker å ha gjort. Bommer du på én, mister du 2 poeng.`,
     },
   },
   {
@@ -458,9 +458,9 @@ export const CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     applicable: (p) => !p.isGuest && p.stats.lateCompletions === 0 && p.stats.tasksCompleted >= 3,
     describe: {
       en: (p) =>
-        `${p.name}, you have zero late completions. The room gets one shot each at tempting you into procrastination. Crack, and drink 2 sips.`,
+        `${p.name}, you have zero late completions. The room gets one shot each at tempting you into procrastination. Crack, and lose 2 points.`,
       no: (p) =>
-        `${p.name}, du har null sene fullføringer. Rommet får ett forsøk hver på å friste deg til å utsette ting. Ryker du, blir det 2 slurker.`,
+        `${p.name}, du har null sene fullføringer. Rommet får ett forsøk hver på å friste deg til å utsette ting. Ryker du, koster det 2 poeng.`,
     },
   },
   {
@@ -470,9 +470,9 @@ export const CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     applicable: (p) => !p.isGuest && p.stats.badges.length > 0,
     describe: {
       en: (p) =>
-        `${p.name}, pick one of your badges and explain why you deserve it. If the room isn't convinced, take 2 sips.`,
+        `${p.name}, pick one of your badges and explain why you deserve it. If the room isn't convinced, lose 2 points.`,
       no: (p) =>
-        `${p.name}, velg ett av merkene dine og forklar hvorfor du fortjener det. Hvis ingen kjøper forklaringen, tar du 2 slurker.`,
+        `${p.name}, velg ett av merkene dine og forklar hvorfor du fortjener det. Hvis ingen kjøper forklaringen, mister du 2 poeng.`,
     },
   },
   {
@@ -482,9 +482,9 @@ export const CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     applicable: (p) => !p.isGuest && p.stats.xp >= 50,
     describe: {
       en: (p) =>
-        `${p.name}, you have ${p.stats.xp} XP. Give the room your most confident "how I got here" story. If it sounds fake, drink 2 sips.`,
+        `${p.name}, you have ${p.stats.xp} XP. Give the room your most confident "how I got here" story. If it sounds fake, lose 2 points.`,
       no: (p) =>
-        `${p.name}, du har ${p.stats.xp} XP. Fortell din mest selvsikre "slik havnet jeg her"-historie. Høres den oppdiktet ut, drikker du 2 slurker.`,
+        `${p.name}, du har ${p.stats.xp} XP. Fortell din mest selvsikre "slik havnet jeg her"-historie. Høres den oppdiktet ut, mister du 2 poeng.`,
     },
   },
   {
@@ -494,9 +494,9 @@ export const CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     applicable: (p) => !p.isGuest && p.stats.streak >= 5,
     describe: {
       en: (p) =>
-        `${p.name}, your streak is ${p.stats.streak}. Promise the room which chore standard you'll never drop below again. Weak promise means 2 sips.`,
+        `${p.name}, your streak is ${p.stats.streak}. Promise the room which chore standard you'll never drop below again. Weak promise costs 2 points.`,
       no: (p) =>
-        `${p.name}, streaken din er ${p.stats.streak}. Lov gruppa hvilken standard du aldri skal falle under igjen. Svakt løfte gir 2 slurker.`,
+        `${p.name}, streaken din er ${p.stats.streak}. Lov gruppa hvilken standard du aldri skal falle under igjen. Svakt løfte gir 2 poeng.`,
     },
   },
   // New prompts
@@ -507,9 +507,9 @@ export const CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     applicable: (p) => !p.isGuest && p.stats.tasksCompleted >= 2,
     describe: {
       en: (p) =>
-        `${p.name}, name three chores you've done faster than the table can count to three. Miss one, and drink 2 sips.`,
+        `${p.name}, name three chores you've done faster than the table can count to three. Miss one, and lose 2 points.`,
       no: (p) =>
-        `${p.name}, nevn tre oppgaver du har gjort før bordet rekker å telle til tre. Bommer du på én, drikker du 2 slurker.`,
+        `${p.name}, nevn tre oppgaver du har gjort før bordet rekker å telle til tre. Bommer du på én, mister du 2 poeng.`,
     },
   },
   {
@@ -519,9 +519,9 @@ export const CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     applicable: (p) => !p.isGuest && p.stats.lateCompletions > 0,
     describe: {
       en: (p) =>
-        `${p.name}, give the room one realistic plan for being less late next week. If it sounds made up on the spot, drink 2 sips.`,
+        `${p.name}, give the room one realistic plan for being less late next week. If it sounds made up on the spot, lose 2 points.`,
       no: (p) =>
-        `${p.name}, gi rommet én realistisk plan for å bli mindre sen neste uke. Høres den improvisert ut, drikker du 2 slurker.`,
+        `${p.name}, gi rommet én realistisk plan for å bli mindre sen neste uke. Høres den improvisert ut, mister du 2 poeng.`,
     },
   },
   {
@@ -531,9 +531,9 @@ export const CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     applicable: (p) => !p.isGuest && p.stats.skippedTasks > 0,
     describe: {
       en: (p) =>
-        `${p.name}, give your skipped tasks a dramatic public apology. If the table gives you nothing back, drink 2 sips.`,
+        `${p.name}, give your skipped tasks a dramatic public apology. If the table gives you nothing back, lose 2 points.`,
       no: (p) =>
-        `${p.name}, gi de hoppede oppgavene dine en dramatisk offentlig unnskyldning. Får du null respons fra bordet, drikker du 2 slurker.`,
+        `${p.name}, gi de hoppede oppgavene dine en dramatisk offentlig unnskyldning. Får du null respons fra bordet, mister du 2 poeng.`,
     },
   },
   {
@@ -543,9 +543,9 @@ export const CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     applicable: (p) => !p.isGuest && p.stats.rank <= 5,
     describe: {
       en: (p) =>
-        `${p.name}, you're near the top at rank #${p.stats.rank}. Give the room one smug but useful household tip. If it flops, drink 2 sips.`,
+        `${p.name}, you're near the top at rank #${p.stats.rank}. Give the room one smug but useful household tip. If it flops, lose 2 points.`,
       no: (p) =>
-        `${p.name}, du ligger høyt med plass #${p.stats.rank}. Gi rommet ett småfrekt, men nyttig husholdningstips. Hvis det flopper, drikker du 2 slurker.`,
+        `${p.name}, du ligger høyt med plass #${p.stats.rank}. Gi rommet ett småfrekt, men nyttig husholdningstips. Hvis det flopper, mister du 2 poeng.`,
     },
   },
   {
@@ -555,9 +555,9 @@ export const CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     applicable: (p) => !p.isGuest && p.stats.badges.length > 0,
     describe: {
       en: (p) =>
-        `${p.name}, sell one of your badges like it's a terrible TV ad. If the room isn't sold, drink 2 sips.`,
+        `${p.name}, sell one of your badges like it's a terrible TV ad. If the room isn't sold, lose 2 points.`,
       no: (p) =>
-        `${p.name}, selg ett av merkene dine som om det var en dårlig TV-reklame. Hvis rommet ikke er overbevist, drikker du 2 slurker.`,
+        `${p.name}, selg ett av merkene dine som om det var en dårlig TV-reklame. Hvis rommet ikke er overbevist, mister du 2 poeng.`,
     },
   },
 ];
@@ -571,9 +571,9 @@ export const GUEST_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     applicable: (p) => p.isGuest,
     describe: {
       en: (p) =>
-        `${p.name}, based on first impression only: point to the person who looks most likely to keep a shared place tidy. If the room strongly disagrees, take 2 sips.`,
+        `${p.name}, based on first impression only: point to the person who looks most likely to keep a shared place tidy. If the room strongly disagrees, lose 2 points.`,
       no: (p) =>
-        `${p.name}, kun basert på førsteinntrykk: pek på den som virker mest ryddig i et kollektiv. Hvis resten er tydelig uenig, tar du 2 slurker.`,
+        `${p.name}, kun basert på førsteinntrykk: pek på den som virker mest ryddig i et kollektiv. Hvis resten er tydelig uenig, mister du 2 poeng.`,
     },
   },
   {
@@ -583,9 +583,9 @@ export const GUEST_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     applicable: (p) => p.isGuest,
     describe: {
       en: (p) =>
-        `${p.name}, pick the person most likely to leave one suspicious container in the fridge for three weeks. They get 10 seconds to defend themselves or drink 2 sips.`,
+        `${p.name}, pick the person most likely to leave one suspicious container in the fridge for three weeks. They get 10 seconds to defend themselves or lose 2 points.`,
       no: (p) =>
-        `${p.name}, velg den som virker mest sannsynlig til å la en mistenkelig boks stå i kjøleskapet i tre uker. Personen får 10 sekunder til å forsvare seg eller drikke 2 slurker.`,
+        `${p.name}, velg den som virker mest sannsynlig til å la en mistenkelig boks stå i kjøleskapet i tre uker. Personen får 10 sekunder til å forsvare seg eller miste 2 poeng.`,
     },
   },
   {
@@ -595,9 +595,9 @@ export const GUEST_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     applicable: (p) => p.isGuest,
     describe: {
       en: (p) =>
-        `${p.name}, confess your worst habit when you live with or visit other people. If the table thinks you're hiding the real answer, drink 2 sips.`,
+        `${p.name}, confess your worst habit when you live with or visit other people. If the table thinks you're hiding the real answer, lose 2 points.`,
       no: (p) =>
-        `${p.name}, innrøm den verste vanen din når du bor med eller besøker andre. Hvis bordet tror du holder tilbake sannheten, drikk 2 slurker.`,
+        `${p.name}, innrøm den verste vanen din når du bor med eller besøker andre. Hvis bordet tror du holder tilbake sannheten, mist 2 poeng.`,
     },
   },
   {
@@ -607,9 +607,9 @@ export const GUEST_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     applicable: (p) => p.isGuest,
     describe: {
       en: (p) =>
-        `${p.name}, pick the person most likely to become a tiny household dictator if given too much responsibility. If the room agrees, they drink 3 sips. If not, you do.`,
+        `${p.name}, pick the person most likely to become a tiny household dictator if given too much responsibility. If the room agrees, they lose 3 points. If not, you do.`,
       no: (p) =>
-        `${p.name}, velg den som virker mest sannsynlig til å bli en liten husholdningsdiktator med litt for mye ansvar. Hvis resten er enig, drikker den personen 3 slurker. Hvis ikke, gjør du det.`,
+        `${p.name}, velg den som virker mest sannsynlig til å bli en liten husholdningsdiktator med litt for mye ansvar. Hvis resten er enig, mister den personen 3 poeng. Hvis ikke, gjør du det.`,
     },
   },
   {
@@ -619,9 +619,9 @@ export const GUEST_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     applicable: (p) => p.isGuest,
     describe: {
       en: (p) =>
-        `${p.name}, choose who here you would trust most to host a chaotic pregame without losing control. They either accept the honor or take 2 sips.`,
+        `${p.name}, choose who here you would trust most to host a chaotic pregame without losing control. They either accept the honor or lose 2 points.`,
       no: (p) =>
-        `${p.name}, velg hvem her du ville stolt mest på til å holde et kaotisk vors i gang uten å miste kontrollen. Personen tar enten imot æren eller drikker 2 slurker.`,
+        `${p.name}, velg hvem her du ville stolt mest på til å holde et kaotisk vors i gang uten å miste kontrollen. Personen tar enten imot æren eller mister 2 poeng.`,
     },
   },
   {
@@ -631,9 +631,9 @@ export const GUEST_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     applicable: (p) => p.isGuest,
     describe: {
       en: (p) =>
-        `${p.name}, give one person at the table a brutal but fair one-line Airbnb review. If the room thinks it's too soft, drink 2 sips.`,
+        `${p.name}, give one person at the table a brutal but fair one-line Airbnb review. If the room thinks it's too soft, lose 2 points.`,
       no: (p) =>
-        `${p.name}, gi én ved bordet en brutal, men rettferdig Airbnb-anmeldelse på én linje. Hvis resten synes du er for snill, drikk 2 slurker.`,
+        `${p.name}, gi én ved bordet en brutal, men rettferdig Airbnb-anmeldelse på én linje. Hvis resten synes du er for snill, mist 2 poeng.`,
     },
   },
   {
@@ -643,9 +643,9 @@ export const GUEST_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     applicable: (p) => p.isGuest,
     describe: {
       en: (p) =>
-        `${p.name}, pick who here you would trust enough to borrow 500 kroner from. That person must explain why they deserve the trust or drink 2 sips.`,
+        `${p.name}, pick who here you would trust enough to borrow 500 kroner from. That person must explain why they deserve the trust or lose 2 points.`,
       no: (p) =>
-        `${p.name}, velg hvem her du ville stolt nok på til å låne 500 kroner av. Den personen må forklare hvorfor de fortjener tilliten eller drikke 2 slurker.`,
+        `${p.name}, velg hvem her du ville stolt nok på til å låne 500 kroner av. Den personen må forklare hvorfor de fortjener tilliten eller miste 2 poeng.`,
     },
   },
   {
@@ -655,9 +655,9 @@ export const GUEST_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     applicable: (p) => p.isGuest,
     describe: {
       en: (p) =>
-        `${p.name}, point to the person most likely to say "relax, I have a system" while clearly having no system. They defend themselves or drink 2 sips.`,
+        `${p.name}, point to the person most likely to say "relax, I have a system" while clearly having no system. They defend themselves or lose 2 points.`,
       no: (p) =>
-        `${p.name}, pek på den som mest sannsynlig ville sagt "slapp av, jeg har et system" uten å ha noe system. Personen forsvarer seg eller drikker 2 slurker.`,
+        `${p.name}, pek på den som mest sannsynlig ville sagt "slapp av, jeg har et system" uten å ha noe system. Personen forsvarer seg eller mister 2 poeng.`,
     },
   },
   {
@@ -667,9 +667,9 @@ export const GUEST_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     applicable: (p) => p.isGuest,
     describe: {
       en: (p) =>
-        `${p.name}, if you had to move in with one person at this table tomorrow, who would you draft first? Everyone else who gets offended drinks 1 sip.`,
+        `${p.name}, if you had to move in with one person at this table tomorrow, who would you draft first? Everyone else who gets offended loses 1 point.`,
       no: (p) =>
-        `${p.name}, hvis du måtte flyttet inn med én ved dette bordet i morgen, hvem hadde du valgt først? Alle andre som blir fornærmet drikker 1 slurk.`,
+        `${p.name}, hvis du måtte flyttet inn med én ved dette bordet i morgen, hvem hadde du valgt først? Alle andre som blir fornærmet mister 1 poeng.`,
     },
   },
   // New prompts
@@ -680,9 +680,9 @@ export const GUEST_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     applicable: (p) => p.isGuest,
     describe: {
       en: (p) =>
-        `${p.name}, point to the person most likely to label leftovers like they run a tiny restaurant. If the room disagrees, drink 2 sips.`,
+        `${p.name}, point to the person most likely to label leftovers like they run a tiny restaurant. If the room disagrees, lose 2 points.`,
       no: (p) =>
-        `${p.name}, pek på den som mest sannsynlig ville merket rester som om de drev en liten restaurant. Hvis rommet er uenig, drikker du 2 slurker.`,
+        `${p.name}, pek på den som mest sannsynlig ville merket rester som om de drev en liten restaurant. Hvis rommet er uenig, mister du 2 poeng.`,
     },
   },
   {
@@ -692,9 +692,9 @@ export const GUEST_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     applicable: (p) => p.isGuest,
     describe: {
       en: (p) =>
-        `${p.name}, who here looks most likely to stay five extra minutes just to help clean up? That person accepts the compliment or drinks 2 sips.`,
+        `${p.name}, who here looks most likely to stay five extra minutes just to help clean up? That person accepts the compliment or loses 2 points.`,
       no: (p) =>
-        `${p.name}, hvem her ser mest sannsynlig ut til å bli fem minutter ekstra bare for å hjelpe til med ryddingen? Den personen tar imot komplimentet eller drikker 2 slurker.`,
+        `${p.name}, hvem her ser mest sannsynlig ut til å bli fem minutter ekstra bare for å hjelpe til med ryddingen? Den personen tar imot komplimentet eller mister 2 poeng.`,
     },
   },
   {
@@ -704,9 +704,9 @@ export const GUEST_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     applicable: (p) => p.isGuest,
     describe: {
       en: (p) =>
-        `${p.name}, if you were locked out at 2 a.m., who at this table would you text first? They explain why they're the right pick or drink 2 sips.`,
+        `${p.name}, if you were locked out at 2 a.m., who at this table would you text first? They explain why they're the right pick or lose 2 points.`,
       no: (p) =>
-        `${p.name}, hvis du låste deg ute klokken to om natta, hvem ved dette bordet ville du sendt melding til først? Personen forklarer hvorfor de er riktig valg, eller drikker 2 slurker.`,
+        `${p.name}, hvis du låste deg ute klokken to om natta, hvem ved dette bordet ville du sendt melding til først? Personen forklarer hvorfor de er riktig valg, eller mister 2 poeng.`,
     },
   },
   {
@@ -716,9 +716,9 @@ export const GUEST_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     applicable: (p) => p.isGuest,
     describe: {
       en: (p) =>
-        `${p.name}, pick the person most likely to take the last slice and still say "is anyone having this?" They defend themselves or drink 2 sips.`,
+        `${p.name}, pick the person most likely to take the last slice and still say "is anyone having this?" They defend themselves or lose 2 points.`,
       no: (p) =>
-        `${p.name}, velg den som mest sannsynlig ville tatt det siste stykket og likevel sagt "skal noen ha dette?" Personen forsvarer seg eller drikker 2 slurker.`,
+        `${p.name}, velg den som mest sannsynlig ville tatt det siste stykket og likevel sagt "skal noen ha dette?" Personen forsvarer seg eller mister 2 poeng.`,
     },
   },
   {
@@ -728,9 +728,9 @@ export const GUEST_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
     applicable: (p) => p.isGuest,
     describe: {
       en: (p) =>
-        `${p.name}, give the table a one-line review of tonight's roommate energy so far. Too vague means 2 sips.`,
+        `${p.name}, give the table a one-line review of tonight's roommate energy so far. Too vague costs 2 points.`,
       no: (p) =>
-        `${p.name}, gi bordet en énlinjers anmeldelse av kollektivenergien i kveld så langt. Blir den for vag, blir det 2 slurker.`,
+        `${p.name}, gi bordet en énlinjers anmeldelse av kollektivenergien i kveld så langt. Blir den for vag, koster det 2 poeng.`,
     },
   },
 ];
@@ -760,8 +760,8 @@ export const HOT_SEAT_TEMPLATES: HotSeatTemplate[] = [
     title: { en: 'Excuse Champion', no: 'Unnskyldningsmesteren' },
     baseDrinks: 3,
     describe: {
-      en: () => `Who always has an excuse ready for being late, tired, busy, or mysteriously unavailable? Vote now. Most votes takes 3 sips.`,
-      no: () => `Hvem har alltid en unnskyldning klar for å være sen, sliten, opptatt eller mystisk utilgjengelig? Stem nå. Flest stemmer tar 3 slurker.`,
+      en: () => `Who always has an excuse ready for being late, tired, busy, or mysteriously unavailable? Vote now. Most votes loses 3 points.`,
+      no: () => `Hvem har alltid en unnskyldning klar for å være sen, sliten, opptatt eller mystisk utilgjengelig? Stem nå. Flest stemmer mister 3 poeng.`,
     },
   },
   {
@@ -769,8 +769,8 @@ export const HOT_SEAT_TEMPLATES: HotSeatTemplate[] = [
     title: { en: 'Secret Chore Hater', no: 'Den skjulte oppgavehateren' },
     baseDrinks: 2,
     describe: {
-      en: () => `Who clearly hates one specific chore but pretends to be totally chill about it? Most votes drinks 2 sips, then names the chore.`,
-      no: () => `Hvem hater helt tydelig én bestemt oppgave, men later som alt er helt greit? Flest stemmer drikker 2 slurker og må så nevne oppgaven.`,
+      en: () => `Who clearly hates one specific chore but pretends to be totally chill about it? Most votes loses 2 points, then names the chore.`,
+      no: () => `Hvem hater helt tydelig én bestemt oppgave, men later som alt er helt greit? Flest stemmer mister 2 poeng og må så nevne oppgaven.`,
     },
   },
   {
@@ -778,8 +778,8 @@ export const HOT_SEAT_TEMPLATES: HotSeatTemplate[] = [
     title: { en: 'Reminder Royalty', no: 'Påminnelsesmesteren' },
     baseDrinks: 2,
     describe: {
-      en: () => `Who is most likely to remind everyone else before doing the thing themselves? Most votes hands out 2 sips.`,
-      no: () => `Hvem er mest sannsynlig til å minne alle andre på noe før de gjør det selv? Flest stemmer deler ut 2 slurker.`,
+      en: () => `Who is most likely to remind everyone else before doing the thing themselves? Most votes hands out 2 points.`,
+      no: () => `Hvem er mest sannsynlig til å minne alle andre på noe før de gjør det selv? Flest stemmer deler ut 2 poeng.`,
     },
   },
   {
@@ -787,8 +787,8 @@ export const HOT_SEAT_TEMPLATES: HotSeatTemplate[] = [
     title: { en: 'Glow-Up Award', no: 'Glow-up-prisen' },
     baseDrinks: 3,
     describe: {
-      en: () => `Who has had the biggest roommate glow-up lately? Vote now. Most votes hands out 3 sips.`,
-      no: () => `Hvem har hatt størst glow-up som kollektivboer i det siste? Stem nå. Flest stemmer deler ut 3 slurker.`,
+      en: () => `Who has had the biggest roommate glow-up lately? Vote now. Most votes hands out 3 points.`,
+      no: () => `Hvem har hatt størst glow-up som kollektivboer i det siste? Stem nå. Flest stemmer deler ut 3 poeng.`,
     },
   },
   {
@@ -796,8 +796,8 @@ export const HOT_SEAT_TEMPLATES: HotSeatTemplate[] = [
     title: { en: 'Bathroom Audit', no: 'Badromskontroll' },
     baseDrinks: 2,
     describe: {
-      en: () => `Who is least likely to clean the bathroom until the situation feels mildly urgent? Most votes takes 2 sips.`,
-      no: () => `Hvem er minst sannsynlig til å vaske badet før situasjonen føles litt for akutt? Flest stemmer tar 2 slurker.`,
+      en: () => `Who is least likely to clean the bathroom until the situation feels mildly urgent? Most votes loses 2 points.`,
+      no: () => `Hvem er minst sannsynlig til å vaske badet før situasjonen føles litt for akutt? Flest stemmer mister 2 poeng.`,
     },
   },
   {
@@ -805,8 +805,8 @@ export const HOT_SEAT_TEMPLATES: HotSeatTemplate[] = [
     title: { en: 'Would You Rather', no: 'Hva ville du heller valgt?' },
     baseDrinks: 1,
     describe: {
-      en: () => `Would you rather do dishes every day for a week, or deep-clean the bathroom once? Vote together. The minority drinks 1 sip.`,
-      no: () => `Ville du heller tatt oppvasken hver dag i en uke, eller dyprenset badet én gang? Stem samtidig. Minoriteten drikker 1 slurk.`,
+      en: () => `Would you rather do dishes every day for a week, or deep-clean the bathroom once? Vote together. The minority loses 1 point.`,
+      no: () => `Ville du heller tatt oppvasken hver dag i en uke, eller dyprenset badet én gang? Stem samtidig. Minoriteten mister 1 poeng.`,
     },
   },
   {
@@ -814,8 +814,8 @@ export const HOT_SEAT_TEMPLATES: HotSeatTemplate[] = [
     title: { en: 'Kitchen Dictator', no: 'Kjøkkendiktatoren' },
     baseDrinks: 2,
     describe: {
-      en: () => `Who would become completely unbearable with full control of the kitchen? Most votes takes 2 sips.`,
-      no: () => `Hvem ville blitt helt uutholdelig med full kontroll over kjøkkenet? Flest stemmer tar 2 slurker.`,
+      en: () => `Who would become completely unbearable with full control of the kitchen? Most votes loses 2 points.`,
+      no: () => `Hvem ville blitt helt uutholdelig med full kontroll over kjøkkenet? Flest stemmer mister 2 poeng.`,
     },
   },
   {
@@ -823,17 +823,17 @@ export const HOT_SEAT_TEMPLATES: HotSeatTemplate[] = [
     title: { en: 'Borrowed Forever', no: 'Lånt for lenge siden' },
     baseDrinks: 2,
     describe: {
-      en: () => `Who is most likely to borrow something small and somehow keep it for six months? Most votes drinks 2 sips.`,
-      no: () => `Hvem er mest sannsynlig til å låne noe lite og på mystisk vis beholde det i seks måneder? Flest stemmer drikker 2 slurker.`,
+      en: () => `Who is most likely to borrow something small and somehow keep it for six months? Most votes loses 2 points.`,
+      no: () => `Hvem er mest sannsynlig til å låne noe lite og på mystisk vis beholde det i seks måneder? Flest stemmer mister 2 poeng.`,
     },
   },
   {
     id: 'last-beer-crime',
-    title: { en: 'Last Beer Crime', no: 'Siste-øl-saken' },
+    title: { en: 'Last Snack Crime', no: 'Siste-snacks-saken' },
     baseDrinks: 2,
     describe: {
-      en: () => `Who would take the last beer from the fridge and still act shocked when confronted? Most votes drinks 2 sips.`,
-      no: () => `Hvem ville tatt det siste ølet fra kjøleskapet og likevel spilt overrasket når de ble tatt? Flest stemmer drikker 2 slurker.`,
+      en: () => `Who would take the last snack from the fridge and still act shocked when confronted? Most votes loses 2 points.`,
+      no: () => `Hvem ville tatt den siste snacksen fra kjøleskapet og likevel spilt overrasket når de ble tatt? Flest stemmer mister 2 poeng.`,
     },
   },
   {
@@ -841,8 +841,8 @@ export const HOT_SEAT_TEMPLATES: HotSeatTemplate[] = [
     title: { en: 'Crisis Manager', no: 'Krisesjefen' },
     baseDrinks: 3,
     describe: {
-      en: () => `If the landlord showed up in 10 minutes, who would save the apartment? Most votes hands out 3 sips.`,
-      no: () => `Hvis utleier sto i døra om 10 minutter, hvem hadde reddet leiligheten? Flest stemmer deler ut 3 slurker.`,
+      en: () => `If the landlord showed up in 10 minutes, who would save the apartment? Most votes hands out 3 points.`,
+      no: () => `Hvis utleier sto i døra om 10 minutter, hvem hadde reddet leiligheten? Flest stemmer deler ut 3 poeng.`,
     },
   },
   {
@@ -850,8 +850,8 @@ export const HOT_SEAT_TEMPLATES: HotSeatTemplate[] = [
     title: { en: 'Disappear Act', no: 'Forsvinningsnummeret' },
     baseDrinks: 2,
     describe: {
-      en: () => `Who is most likely to vanish into their room the second shared responsibilities appear? Most votes drinks 2 sips.`,
-      no: () => `Hvem er mest sannsynlig til å forsvinne inn på rommet sitt idet felles ansvar dukker opp? Flest stemmer drikker 2 slurker.`,
+      en: () => `Who is most likely to vanish into their room the second shared responsibilities appear? Most votes loses 2 points.`,
+      no: () => `Hvem er mest sannsynlig til å forsvinne inn på rommet sitt idet felles ansvar dukker opp? Flest stemmer mister 2 poeng.`,
     },
   },
   // New prompts
@@ -860,8 +860,8 @@ export const HOT_SEAT_TEMPLATES: HotSeatTemplate[] = [
     title: { en: 'Group Chat Ghost', no: 'Gruppechat-spøkelset' },
     baseDrinks: 2,
     describe: {
-      en: () => `Who is most likely to read the group chat, react in their head, and never reply? Most votes drinks 2 sips.`,
-      no: () => `Hvem er mest sannsynlig til å lese gruppechatten, svare i hodet og aldri faktisk sende noe? Flest stemmer drikker 2 slurker.`,
+      en: () => `Who is most likely to read the group chat, react in their head, and never reply? Most votes loses 2 points.`,
+      no: () => `Hvem er mest sannsynlig til å lese gruppechatten, svare i hodet og aldri faktisk sende noe? Flest stemmer mister 2 poeng.`,
     },
   },
   {
@@ -869,8 +869,8 @@ export const HOT_SEAT_TEMPLATES: HotSeatTemplate[] = [
     title: { en: 'Fridge Detective', no: 'Kjøleskapsdetektiven' },
     baseDrinks: 2,
     describe: {
-      en: () => `Who notices missing food first and starts the investigation immediately? Most votes hands out 2 sips.`,
-      no: () => `Hvem merker først at mat mangler og starter etterforskningen umiddelbart? Flest stemmer deler ut 2 slurker.`,
+      en: () => `Who notices missing food first and starts the investigation immediately? Most votes hands out 2 points.`,
+      no: () => `Hvem merker først at mat mangler og starter etterforskningen umiddelbart? Flest stemmer deler ut 2 poeng.`,
     },
   },
   {
@@ -878,8 +878,8 @@ export const HOT_SEAT_TEMPLATES: HotSeatTemplate[] = [
     title: { en: 'Midnight Snacker', no: 'Nattmat-eksperten' },
     baseDrinks: 2,
     describe: {
-      en: () => `Who is most likely to make a midnight snack and leave just enough evidence behind? Most votes drinks 2 sips.`,
-      no: () => `Hvem er mest sannsynlig til å lage nattmat og la igjen akkurat nok spor til å bli tatt? Flest stemmer drikker 2 slurker.`,
+      en: () => `Who is most likely to make a midnight snack and leave just enough evidence behind? Most votes loses 2 points.`,
+      no: () => `Hvem er mest sannsynlig til å lage nattmat og la igjen akkurat nok spor til å bli tatt? Flest stemmer mister 2 poeng.`,
     },
   },
   {
@@ -887,8 +887,8 @@ export const HOT_SEAT_TEMPLATES: HotSeatTemplate[] = [
     title: { en: 'Calendar Captain', no: 'Kalenderkapteinen' },
     baseDrinks: 2,
     describe: {
-      en: () => `Who would turn even a fun plan into a shared calendar event? Most votes hands out 2 sips.`,
-      no: () => `Hvem ville gjort selv en morsom plan om til en delt kalenderhendelse? Flest stemmer deler ut 2 slurker.`,
+      en: () => `Who would turn even a fun plan into a shared calendar event? Most votes hands out 2 points.`,
+      no: () => `Hvem ville gjort selv en morsom plan om til en delt kalenderhendelse? Flest stemmer deler ut 2 poeng.`,
     },
   },
   {
@@ -896,8 +896,8 @@ export const HOT_SEAT_TEMPLATES: HotSeatTemplate[] = [
     title: { en: 'Five Minute Fix', no: 'Fem-minutters-redningen' },
     baseDrinks: 3,
     describe: {
-      en: () => `If surprise guests arrived in five minutes, who would get the place under control first? Most votes hands out 3 sips.`,
-      no: () => `Hvis overraskelsesgjester kom om fem minutter, hvem ville fått kontroll på stedet først? Flest stemmer deler ut 3 slurker.`,
+      en: () => `If surprise guests arrived in five minutes, who would get the place under control first? Most votes hands out 3 points.`,
+      no: () => `Hvis overraskelsesgjester kom om fem minutter, hvem ville fått kontroll på stedet først? Flest stemmer deler ut 3 poeng.`,
     },
   },
 ];
@@ -909,8 +909,8 @@ export const GUEST_HOT_SEAT_TEMPLATES: HotSeatTemplate[] = [
     title: { en: 'Best Host Energy', no: 'Beste vertsenergi' },
     baseDrinks: 2,
     describe: {
-      en: () => `If a random guest had to stay over tonight, who would handle it best? Winner hands out 2 sips.`,
-      no: () => `Hvis en tilfeldig gjest måtte sove over i natt, hvem hadde håndtert det best? Vinneren deler ut 2 slurker.`,
+      en: () => `If a random guest had to stay over tonight, who would handle it best? Winner hands out 2 points.`,
+      no: () => `Hvis en tilfeldig gjest måtte sove over i natt, hvem hadde håndtert det best? Vinneren deler ut 2 poeng.`,
     },
   },
   {
@@ -918,8 +918,8 @@ export const GUEST_HOT_SEAT_TEMPLATES: HotSeatTemplate[] = [
     title: { en: 'Weekend Trip Liability', no: 'Helgetur-risiko' },
     baseDrinks: 2,
     describe: {
-      en: () => `Who here would be the biggest liability on a weekend trip? Most votes drinks 2 sips and pleads their case.`,
-      no: () => `Hvem her ville vært størst risiko på en helgetur? Flest stemmer drikker 2 slurker og må forsvare seg.`,
+      en: () => `Who here would be the biggest liability on a weekend trip? Most votes loses 2 points and pleads their case.`,
+      no: () => `Hvem her ville vært størst risiko på en helgetur? Flest stemmer mister 2 poeng og må forsvare seg.`,
     },
   },
   {
@@ -945,8 +945,8 @@ export const GUEST_HOT_SEAT_TEMPLATES: HotSeatTemplate[] = [
     title: { en: 'Vibe Check Jury', no: 'Vibe-check-juryen' },
     baseDrinks: 2,
     describe: {
-      en: () => `Guests included: who gives the strongest "I know where everything is" energy? Most votes hands out 2 sips.`,
-      no: () => `Med gjester i rommet: hvem gir mest "jeg vet hvor alt er"-energi? Flest stemmer deler ut 2 slurker.`,
+      en: () => `Guests included: who gives the strongest "I know where everything is" energy? Most votes hands out 2 points.`,
+      no: () => `Med gjester i rommet: hvem gir mest "jeg vet hvor alt er"-energi? Flest stemmer deler ut 2 poeng.`,
     },
   },
   {
@@ -954,8 +954,8 @@ export const GUEST_HOT_SEAT_TEMPLATES: HotSeatTemplate[] = [
     title: { en: 'Safe Choice', no: 'Det trygge valget' },
     baseDrinks: 2,
     describe: {
-      en: () => `Who would a guest trust most to clean up after the party without turning it into a committee meeting? Most votes hands out 2 sips.`,
-      no: () => `Hvem ville en gjest stolt mest på til å rydde opp etter festen uten å gjøre det til et komitémøte? Flest stemmer deler ut 2 slurker.`,
+      en: () => `Who would a guest trust most to clean up after the party without turning it into a committee meeting? Most votes hands out 2 points.`,
+      no: () => `Hvem ville en gjest stolt mest på til å rydde opp etter festen uten å gjøre det til et komitémøte? Flest stemmer deler ut 2 poeng.`,
     },
   },
   {
@@ -963,8 +963,8 @@ export const GUEST_HOT_SEAT_TEMPLATES: HotSeatTemplate[] = [
     title: { en: 'Bad Influence', no: 'Dårlig innflytelse' },
     baseDrinks: 2,
     describe: {
-      en: () => `Who here would be the first to convince a guest that "one more round" is a great idea? Most votes drinks 2 sips.`,
-      no: () => `Hvem her ville vært den første til å overbevise en gjest om at "én runde til" er en glimrende idé? Flest stemmer drikker 2 slurker.`,
+      en: () => `Who here would be the first to convince a guest that "one more round" is a great idea? Most votes loses 2 points.`,
+      no: () => `Hvem her ville vært den første til å overbevise en gjest om at "én runde til" er en glimrende idé? Flest stemmer mister 2 poeng.`,
     },
   },
   {
@@ -972,8 +972,8 @@ export const GUEST_HOT_SEAT_TEMPLATES: HotSeatTemplate[] = [
     title: { en: 'Most Trustworthy Face', no: 'Mest tillitsvekkende ansikt' },
     baseDrinks: 1,
     describe: {
-      en: () => `Guests decide by pure instinct: who has the most trustworthy face at the table? Winner gives out 1 sip each to up to 3 people.`,
-      no: () => `Gjester avgjør på ren intuisjon: hvem har det mest tillitsvekkende ansiktet ved bordet? Vinneren deler ut 1 slurk hver til opptil 3 personer.`,
+      en: () => `Guests decide by pure instinct: who has the most trustworthy face at the table? Winner gives out 1 point each to up to 3 people.`,
+      no: () => `Gjester avgjør på ren intuisjon: hvem har det mest tillitsvekkende ansiktet ved bordet? Vinneren deler ut 1 poeng hver til opptil 3 personer.`,
     },
   },
   // New prompts
@@ -982,8 +982,8 @@ export const GUEST_HOT_SEAT_TEMPLATES: HotSeatTemplate[] = [
     title: { en: 'Crash Couch Choice', no: 'Sovesofa-valget' },
     baseDrinks: 2,
     describe: {
-      en: () => `If you had to crash on someone's couch tonight, who would you pick first? Winner hands out 2 sips.`,
-      no: () => `Hvis du måtte sove på noens sofa i natt, hvem ville du valgt først? Vinneren deler ut 2 slurker.`,
+      en: () => `If you had to crash on someone's couch tonight, who would you pick first? Winner hands out 2 points.`,
+      no: () => `Hvis du måtte sove på noens sofa i natt, hvem ville du valgt først? Vinneren deler ut 2 poeng.`,
     },
   },
   {
@@ -991,8 +991,8 @@ export const GUEST_HOT_SEAT_TEMPLATES: HotSeatTemplate[] = [
     title: { en: 'Party Anchor', no: 'Festens anker' },
     baseDrinks: 2,
     describe: {
-      en: () => `Who would keep the party fun without letting it get messy? Most votes hands out 2 sips.`,
-      no: () => `Hvem ville holdt festen morsom uten at den sklir helt ut? Flest stemmer deler ut 2 slurker.`,
+      en: () => `Who would keep the party fun without letting it get messy? Most votes hands out 2 points.`,
+      no: () => `Hvem ville holdt festen morsom uten at den sklir helt ut? Flest stemmer deler ut 2 poeng.`,
     },
   },
   {
@@ -1000,8 +1000,8 @@ export const GUEST_HOT_SEAT_TEMPLATES: HotSeatTemplate[] = [
     title: { en: 'Safe Debrief', no: 'Trygg debrief' },
     baseDrinks: 2,
     describe: {
-      en: () => `Who feels like the safest person to debrief with after a chaotic night? Most votes hands out 2 sips.`,
-      no: () => `Hvem føles som den tryggeste personen å debriefe med etter en kaotisk kveld? Flest stemmer deler ut 2 slurker.`,
+      en: () => `Who feels like the safest person to debrief with after a chaotic night? Most votes hands out 2 points.`,
+      no: () => `Hvem føles som den tryggeste personen å debriefe med etter en kaotisk kveld? Flest stemmer deler ut 2 poeng.`,
     },
   },
   {
@@ -1009,8 +1009,8 @@ export const GUEST_HOT_SEAT_TEMPLATES: HotSeatTemplate[] = [
     title: { en: 'Missed The Last Bus', no: 'Misset siste buss' },
     baseDrinks: 2,
     describe: {
-      en: () => `If you missed the last bus home, who here would you call first? Winner hands out 2 sips.`,
-      no: () => `Hvis du misset siste buss hjem, hvem her ville du ringt først? Vinneren deler ut 2 slurker.`,
+      en: () => `If you missed the last bus home, who here would you call first? Winner hands out 2 points.`,
+      no: () => `Hvis du misset siste buss hjem, hvem her ville du ringt først? Vinneren deler ut 2 poeng.`,
     },
   },
   {
@@ -1018,8 +1018,8 @@ export const GUEST_HOT_SEAT_TEMPLATES: HotSeatTemplate[] = [
     title: { en: 'Host Of The Night', no: 'Kveldens vert' },
     baseDrinks: 2,
     describe: {
-      en: () => `Who gives the strongest host-of-the-night energy right now? Most votes hands out 2 sips.`,
-      no: () => `Hvem gir mest kveldens-vert-energi akkurat nå? Flest stemmer deler ut 2 slurker.`,
+      en: () => `Who gives the strongest host-of-the-night energy right now? Most votes hands out 2 points.`,
+      no: () => `Hvem gir mest kveldens-vert-energi akkurat nå? Flest stemmer deler ut 2 poeng.`,
     },
   },
 ];
@@ -1142,8 +1142,8 @@ export const RANDOM_EVENT_TEMPLATES: RandomEventTemplate[] = [
     baseDrinks: 1,
     distribute: false,
     describe: {
-      en: () => `Waterfall. Start with the youngest player and drink in sequence. You can stop only when the person before you stops.`,
-      no: () => `Foss. Start med den yngste spilleren og drikk i rekkefølge. Du kan bare stoppe når personen før deg stopper.`,
+      en: () => `Waterfall. Starting with the youngest player, points drain around the table in order. Each person can only stop losing once the person before them has stopped.`,
+      no: () => `Foss. Start med den yngste spilleren, og la poengtapet gå rundt bordet i rekkefølge. Du kan bare stoppe å miste poeng når personen før deg har stoppet.`,
     },
   },
   {
@@ -1162,12 +1162,12 @@ export const RANDOM_EVENT_TEMPLATES: RandomEventTemplate[] = [
   },
   {
     id: 'group-chug',
-    title: { en: 'Cheers Together', no: 'Felles skål' },
+    title: { en: 'Point Drop', no: 'Poengfall' },
     baseDrinks: 2,
     distribute: false,
     describe: {
-      en: () => `Everyone drinks 2 sips at the same time. No negotiations. Glasses up.`,
-      no: () => `Alle drikker 2 slurker samtidig. Ingen forhandlinger. Glassene opp.`,
+      en: () => `Everyone loses 2 points at the same time. No negotiations. Points up!`,
+      no: () => `Alle mister 2 poeng samtidig. Ingen forhandlinger. Poeng opp!`,
     },
   },
   {
@@ -1183,8 +1183,8 @@ export const RANDOM_EVENT_TEMPLATES: RandomEventTemplate[] = [
     baseDrinks: 2,
     distribute: false,
     describe: {
-      en: () => `Phone check. If you touched your phone in the last five minutes for anything other than this game, drink 2 sips. Honour system.`,
-      no: () => `Telefonsjekk. Hvis du har rørt telefonen de siste fem minuttene for noe annet enn dette spillet, drikk 2 slurker. Æresordning.`,
+      en: () => `Phone check. If you touched your phone in the last five minutes for anything other than this game, lose 2 points. Honour system.`,
+      no: () => `Telefonsjekk. Hvis du har rørt telefonen de siste fem minuttene for noe annet enn dette spillet, mist 2 poeng. Æresordning.`,
     },
   },
   {
@@ -1207,8 +1207,8 @@ export const RANDOM_EVENT_TEMPLATES: RandomEventTemplate[] = [
     baseDrinks: 1,
     distribute: false,
     describe: {
-      en: () => `Go around the table. Each person gives the next person one specific compliment. Freeze, repeat yourself, or get mean and drink 1 sip.`,
-      no: () => `Gå rundt bordet. Hver person gir den neste ett konkret kompliment. Fryser du, gjentar deg eller blir småslem, drikker du 1 slurk.`,
+      en: () => `Go around the table. Each person gives the next person one specific compliment. Freeze, repeat yourself, or get mean and lose 1 point.`,
+      no: () => `Gå rundt bordet. Hver person gir den neste ett konkret kompliment. Fryser du, gjentar deg eller blir småslem, mister du 1 poeng.`,
     },
   },
   {
@@ -1217,8 +1217,8 @@ export const RANDOM_EVENT_TEMPLATES: RandomEventTemplate[] = [
     baseDrinks: 2,
     distribute: false,
     describe: {
-      en: () => `Everyone shares one tiny but slightly embarrassing household truth. Refuse and drink 2 sips.`,
-      no: () => `Alle deler én liten, men litt pinlig husholdningssannhet. Nekter du, drikker du 2 slurker.`,
+      en: () => `Everyone shares one tiny but slightly embarrassing household truth. Refuse and lose 2 points.`,
+      no: () => `Alle deler én liten, men litt pinlig husholdningssannhet. Nekter du, mister du 2 poeng.`,
     },
   },
   {
@@ -1227,8 +1227,8 @@ export const RANDOM_EVENT_TEMPLATES: RandomEventTemplate[] = [
     baseDrinks: 1,
     distribute: false,
     describe: {
-      en: () => `Until the next round, nobody is allowed to use first names. Slip up and drink 1 sip.`,
-      no: () => `Fram til neste runde er det ikke lov å bruke fornavn. Glipper du, drikker du 1 slurk.`,
+      en: () => `Until the next round, nobody is allowed to use first names. Slip up and lose 1 point.`,
+      no: () => `Fram til neste runde er det ikke lov å bruke fornavn. Glipper du, mister du 1 poeng.`,
     },
   },
   {
@@ -1237,8 +1237,8 @@ export const RANDOM_EVENT_TEMPLATES: RandomEventTemplate[] = [
     baseDrinks: 2,
     distribute: false,
     describe: {
-      en: () => `Everyone points to who they think will be the loudest in 20 minutes. The person with the most votes drinks 2 sips now.`,
-      no: () => `Alle peker på den de tror kommer til å være høyest om 20 minutter. Personen med flest stemmer drikker 2 slurker nå.`,
+      en: () => `Everyone points to who they think will be the loudest in 20 minutes. The person with the most votes loses 2 points now.`,
+      no: () => `Alle peker på den de tror kommer til å være høyest om 20 minutter. Personen med flest stemmer mister 2 poeng nå.`,
     },
   },
   {
@@ -1247,8 +1247,8 @@ export const RANDOM_EVENT_TEMPLATES: RandomEventTemplate[] = [
     baseDrinks: 1,
     distribute: false,
     describe: {
-      en: () => `Everybody stand up, clink with two people you haven't talked to enough tonight, then sit back down. Last one done drinks 1 sip.`,
-      no: () => `Alle reiser seg, skåler med to personer de ikke har snakket nok med i kveld, og setter seg igjen. Sistemann ferdig drikker 1 slurk.`,
+      en: () => `Everybody stand up, high-five two people you haven't talked to enough tonight, then sit back down. Last one done loses 1 point.`,
+      no: () => `Alle reiser seg, gir high-five til to personer de ikke har snakket nok med i kveld, og setter seg igjen. Sistemann ferdig mister 1 poeng.`,
     },
   },
   {
@@ -1257,8 +1257,8 @@ export const RANDOM_EVENT_TEMPLATES: RandomEventTemplate[] = [
     baseDrinks: 2,
     distribute: false,
     describe: {
-      en: () => `Pick one person for a loving one-line roast. If the room thinks you were too gentle, drink 2 sips.`,
-      no: () => `Velg én person som skal få en kjærlig roast på én linje. Hvis resten synes du var for snill, drikker du 2 slurker.`,
+      en: () => `Pick one person for a loving one-line roast. If the room thinks you were too gentle, lose 2 points.`,
+      no: () => `Velg én person som skal få en kjærlig roast på én linje. Hvis resten synes du var for snill, mister du 2 poeng.`,
     },
   },
   // New prompts
@@ -1268,18 +1268,18 @@ export const RANDOM_EVENT_TEMPLATES: RandomEventTemplate[] = [
     baseDrinks: 1,
     distribute: false,
     describe: {
-      en: () => `Go around the table and build a one-word-at-a-time story about tonight. Break the flow and drink 1 sip.`,
-      no: () => `Gå rundt bordet og bygg en ettordsfortelling om kvelden så langt. Ødelegger du flyten, drikker du 1 slurk.`,
+      en: () => `Go around the table and build a one-word-at-a-time story about tonight. Break the flow and lose 1 point.`,
+      no: () => `Gå rundt bordet og bygg en ettordsfortelling om kvelden så langt. Ødelegger du flyten, mister du 1 poeng.`,
     },
   },
   {
     id: 'two-word-toast',
-    title: { en: 'Two Word Toast', no: 'To-ords-skål' },
+    title: { en: 'Two Word Cheer', no: 'To-ords-hyllest' },
     baseDrinks: 1,
     distribute: false,
     describe: {
-      en: () => `Pick someone across the table and toast them with exactly two words. Miss the format and drink 1 sip.`,
-      no: () => `Velg noen på andre siden av bordet og skål for dem med nøyaktig to ord. Bommer du på formatet, drikker du 1 slurk.`,
+      en: () => `Pick someone across the table and hype them up with exactly two words. Miss the format and lose 1 point.`,
+      no: () => `Velg noen på andre siden av bordet og hyll dem med nøyaktig to ord. Bommer du på formatet, mister du 1 poeng.`,
     },
   },
   {
@@ -1288,8 +1288,8 @@ export const RANDOM_EVENT_TEMPLATES: RandomEventTemplate[] = [
     baseDrinks: 1,
     distribute: false,
     describe: {
-      en: () => `Swap seats with someone you haven't spoken enough with tonight. Last pair to sit down drinks 1 sip each.`,
-      no: () => `Bytt plass med noen du ikke har snakket nok med i kveld. Siste par som setter seg drikker 1 slurk hver.`,
+      en: () => `Swap seats with someone you haven't spoken enough with tonight. Last pair to sit down loses 1 point each.`,
+      no: () => `Bytt plass med noen du ikke har snakket nok med i kveld. Siste par som setter seg mister 1 poeng hver.`,
     },
   },
   {
@@ -1298,8 +1298,8 @@ export const RANDOM_EVENT_TEMPLATES: RandomEventTemplate[] = [
     baseDrinks: 1,
     distribute: false,
     describe: {
-      en: () => `Everyone name one small win from this week. Blank mind means 1 sip.`,
-      no: () => `Alle nevner én liten seier fra denne uka. Står det stille, blir det 1 slurk.`,
+      en: () => `Everyone name one small win from this week. Blank mind costs 1 point.`,
+      no: () => `Alle nevner én liten seier fra denne uka. Står det stille, koster det 1 poeng.`,
     },
   },
   {
@@ -1308,8 +1308,8 @@ export const RANDOM_EVENT_TEMPLATES: RandomEventTemplate[] = [
     baseDrinks: 2,
     distribute: false,
     describe: {
-      en: () => `Point to tonight's best mood booster. Most votes drinks 2 sips.`,
-      no: () => `Pek på kveldens beste stemningsløfter. Flest stemmer drikker 2 slurker.`,
+      en: () => `Point to tonight's best mood booster. Most votes loses 2 points.`,
+      no: () => `Pek på kveldens beste stemningsløfter. Flest stemmer mister 2 poeng.`,
     },
   },
 ];

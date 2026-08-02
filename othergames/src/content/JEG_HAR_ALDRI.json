@@ -2,7 +2,7 @@
   "id": "never-have-i-ever",
   "title": "Jeg har aldri",
   "shortTitle": "Aldri",
-  "description": "Trekk en påstand. Har du gjort det, drikker du.",
+  "description": "Trekk en påstand. Har du gjort det, mister du et poeng.",
   "mode": "ordered-deck",
   "promptsPerSession": 25,
   "allowRandomOrder": true,
@@ -10,7 +10,7 @@
   "rules": [
     "Trekk ett spørsmål om gangen.",
     "Les påstanden høyt for alle.",
-    "Alle som har gjort det som står på kortet må drikke."
+    "Alle som har gjort det som står på kortet mister et poeng."
   ],
   "prompts": [
     {
@@ -30,7 +30,7 @@
     },
     {
       "id": 4,
-      "text": "Jeg har aldri sendt fyllemeldinger til noen jeg ikke burde",
+      "text": "Jeg har aldri angret på en melding rett etter jeg sendte den",
       "kind": "never"
     },
     {
@@ -205,7 +205,7 @@
     },
     {
       "id": 39,
-      "text": "Jeg har aldri kastet mat eller drikke på noen",
+      "text": "Jeg har aldri kastet mat på noen",
       "kind": "never"
     },
     {
@@ -255,7 +255,7 @@
     },
     {
       "id": 49,
-      "text": "Jeg har aldri tatt alkohol fra foreldrene mine",
+      "text": "Jeg har aldri tatt noe fra foreldrene mine uten å spørre",
       "kind": "never"
     },
     {
@@ -635,7 +635,7 @@
     },
     {
       "id": 125,
-      "text": "Jeg har aldri drukket noe over 60 %",
+      "text": "Jeg har aldri spist en hel iskrembøtte alene",
       "kind": "never"
     },
     {
@@ -725,7 +725,7 @@
     },
     {
       "id": 143,
-      "text": "Jeg har aldri møtt på forelesning fortsatt full fra kvelden før",
+      "text": "Jeg har aldri sovnet under en forelesning",
       "kind": "never"
     },
     {
@@ -735,7 +735,7 @@
     },
     {
       "id": 145,
-      "text": "Jeg har aldri latet som jeg var fullere enn jeg var for å slippe unna en samtale",
+      "text": "Jeg har aldri latet som jeg var opptatt på telefonen for å slippe unna en samtale",
       "kind": "never"
     },
     {
@@ -825,7 +825,7 @@
     },
     {
       "id": 163,
-      "text": "Jeg har aldri gjort noe helt edru som folk trodde jeg var full for å gjøre",
+      "text": "Jeg har aldri danset som om ingen så på, midt i det offentlige rom",
       "kind": "never"
     },
     {
@@ -900,7 +900,7 @@
     },
     {
       "id": 178,
-      "text": "Jeg har aldri drukket alene hjemme og faktisk kost meg",
+      "text": "Jeg har aldri spist en hel middag ment for to, helt alene",
       "kind": "never"
     },
     {
@@ -968,11 +968,11 @@
     "en": {
       "title": "Never Have I Ever",
       "shortTitle": "Never Have I Ever",
-      "description": "Read it out. Everyone who's done it drinks. Simple as that.",
+      "description": "Read it out. Everyone who's done it loses a point. Simple as that.",
       "rules": [
         "Draw one card at a time.",
         "Read the statement out loud.",
-        "Everyone who has done it drinks."
+        "Everyone who has done it loses a point."
       ],
       "prompts": [
         {
@@ -989,7 +989,7 @@
         },
         {
           "id": 4,
-          "text": "Never have I ever sent drunk texts to someone I shouldn't have"
+          "text": "Never have I ever regretted a text the second I hit send"
         },
         {
           "id": 5,
@@ -1129,7 +1129,7 @@
         },
         {
           "id": 39,
-          "text": "Never have I ever thrown food or a drink at someone"
+          "text": "Never have I ever thrown food at someone"
         },
         {
           "id": 40,
@@ -1169,7 +1169,7 @@
         },
         {
           "id": 49,
-          "text": "Never have I ever taken alcohol from my parents"
+          "text": "Never have I ever taken something from my parents without asking"
         },
         {
           "id": 50,
@@ -1473,7 +1473,7 @@
         },
         {
           "id": 125,
-          "text": "Never have I ever drunk something over 60%"
+          "text": "Never have I ever eaten an entire tub of ice cream by myself"
         },
         {
           "id": 126,
@@ -1545,7 +1545,7 @@
         },
         {
           "id": 143,
-          "text": "Never have I ever shown up to a lecture still drunk from the night before"
+          "text": "Never have I ever fallen asleep during a lecture"
         },
         {
           "id": 144,
@@ -1553,7 +1553,7 @@
         },
         {
           "id": 145,
-          "text": "Never have I ever pretended to be drunker than I was to escape a conversation"
+          "text": "Never have I ever pretended to be busy on my phone to escape a conversation"
         },
         {
           "id": 146,
@@ -1625,7 +1625,7 @@
         },
         {
           "id": 163,
-          "text": "Never have I ever done something totally sober that people assumed I was drunk to do"
+          "text": "Never have I ever danced like nobody was watching in public"
         },
         {
           "id": 164,
@@ -1685,7 +1685,7 @@
         },
         {
           "id": 178,
-          "text": "Never have I ever drunk alone at home and actually enjoyed it"
+          "text": "Never have I ever eaten an entire meal meant for two, all by myself"
         },
         {
           "id": 179,
@@ -1740,11 +1740,11 @@
     "sv": {
       "title": "Jag har aldrig",
       "shortTitle": "Jag har aldrig",
-      "description": "Läs upp kortet. Alla som gjort det dricker. Så enkelt är det.",
+      "description": "Läs upp kortet. Alla som gjort det förlorar en poäng. Så enkelt är det.",
       "rules": [
         "Dra ett kort i taget.",
         "Läs påståendet högt.",
-        "Alla som har gjort det dricker."
+        "Alla som har gjort det förlorar en poäng."
       ],
       "prompts": [
         {
@@ -1761,7 +1761,7 @@
         },
         {
           "id": 4,
-          "text": "Jag har aldrig skickat fyllemeddelanden till någon jag inte borde"
+          "text": "Jag har aldrig ångrat ett meddelande direkt efter att jag skickat det"
         },
         {
           "id": 5,
@@ -1901,7 +1901,7 @@
         },
         {
           "id": 39,
-          "text": "Jag har aldrig kastat mat eller dryck på någon"
+          "text": "Jag har aldrig kastat mat på någon"
         },
         {
           "id": 40,
@@ -1941,7 +1941,7 @@
         },
         {
           "id": 49,
-          "text": "Jag har aldrig tagit alkohol från mina föräldrar"
+          "text": "Jag har aldrig tagit något från mina föräldrar utan att fråga"
         },
         {
           "id": 50,
@@ -2245,7 +2245,7 @@
         },
         {
           "id": 125,
-          "text": "Jag har aldrig druckit något över 60 %"
+          "text": "Jag har aldrig ätit en hel låda glass helt själv"
         },
         {
           "id": 126,
@@ -2317,7 +2317,7 @@
         },
         {
           "id": 143,
-          "text": "Jag har aldrig dykt upp på föreläsning fortfarande full från kvällen innan"
+          "text": "Jag har aldrig somnat under en föreläsning"
         },
         {
           "id": 144,
@@ -2325,7 +2325,7 @@
         },
         {
           "id": 145,
-          "text": "Jag har aldrig låtsats vara fullare än jag var för att slippa ett samtal"
+          "text": "Jag har aldrig låtsats vara upptagen i telefonen för att slippa ett samtal"
         },
         {
           "id": 146,
@@ -2397,7 +2397,7 @@
         },
         {
           "id": 163,
-          "text": "Jag har aldrig gjort något helnyktert som folk trodde jag var full för att göra"
+          "text": "Jag har aldrig dansat som om ingen såg på, mitt i folkmassan"
         },
         {
           "id": 164,
@@ -2457,7 +2457,7 @@
         },
         {
           "id": 178,
-          "text": "Jag har aldrig druckit ensam hemma och faktiskt njutit"
+          "text": "Jag har aldrig ätit en hel middag menad för två, helt själv"
         },
         {
           "id": 179,
@@ -2512,11 +2512,11 @@
     "da": {
       "title": "Jeg har aldrig",
       "shortTitle": "Jeg har aldrig",
-      "description": "Læs kortet op. Alle, der har gjort det, drikker. Så enkelt er det.",
+      "description": "Læs kortet op. Alle, der har gjort det, mister et point. Så enkelt er det.",
       "rules": [
         "Træk ét kort ad gangen.",
         "Læs udsagnet højt.",
-        "Alle, der har gjort det, drikker."
+        "Alle, der har gjort det, mister et point."
       ],
       "prompts": [
         {
@@ -2533,7 +2533,7 @@
         },
         {
           "id": 4,
-          "text": "Jeg har aldrig sendt fulde beskeder til nogen, jeg ikke burde"
+          "text": "Jeg har aldrig fortrudt en besked lige efter jeg sendte den"
         },
         {
           "id": 5,
@@ -2673,7 +2673,7 @@
         },
         {
           "id": 39,
-          "text": "Jeg har aldrig kastet mad eller drikke på nogen"
+          "text": "Jeg har aldrig kastet mad på nogen"
         },
         {
           "id": 40,
@@ -2713,7 +2713,7 @@
         },
         {
           "id": 49,
-          "text": "Jeg har aldrig taget alkohol fra mine forældre"
+          "text": "Jeg har aldrig taget noget fra mine forældre uden at spørge"
         },
         {
           "id": 50,
@@ -3017,7 +3017,7 @@
         },
         {
           "id": 125,
-          "text": "Jeg har aldrig drukket noget over 60 %"
+          "text": "Jeg har aldrig spist en hel bøtte is helt alene"
         },
         {
           "id": 126,
@@ -3089,7 +3089,7 @@
         },
         {
           "id": 143,
-          "text": "Jeg har aldrig mødt op til forelæsning stadig fuld fra aftenen før"
+          "text": "Jeg har aldrig sovet under en forelæsning"
         },
         {
           "id": 144,
@@ -3097,7 +3097,7 @@
         },
         {
           "id": 145,
-          "text": "Jeg har aldrig ladet som om jeg var mere fuld, end jeg var, for at slippe væk fra en samtale"
+          "text": "Jeg har aldrig ladet som om jeg var optaget af min telefon for at slippe væk fra en samtale"
         },
         {
           "id": 146,
@@ -3169,7 +3169,7 @@
         },
         {
           "id": 163,
-          "text": "Jeg har aldrig gjort noget helt ædru, som folk troede, jeg var fuld for at gøre"
+          "text": "Jeg har aldrig danset som om ingen så på, midt i det offentlige rum"
         },
         {
           "id": 164,
@@ -3229,7 +3229,7 @@
         },
         {
           "id": 178,
-          "text": "Jeg har aldrig drukket alene hjemme og faktisk nydt det"
+          "text": "Jeg har aldrig spist en hel middag beregnet til to, helt alene"
         },
         {
           "id": 179,

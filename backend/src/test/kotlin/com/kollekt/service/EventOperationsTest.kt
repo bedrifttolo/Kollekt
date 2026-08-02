@@ -29,6 +29,7 @@ class EventOperationsTest {
     private lateinit var notificationService: NotificationService
     private lateinit var googleCalendarService: GoogleCalendarService
     private lateinit var collectiveAccessService: CollectiveAccessService
+    private lateinit var currentMemberContext: CurrentMemberContext
     private lateinit var realtimeUpdateService: RealtimeUpdateService
     private lateinit var operations: EventOperations
 
@@ -41,7 +42,8 @@ class EventOperationsTest {
         notificationService = mock()
         googleCalendarService = mock()
         realtimeUpdateService = mock()
-        collectiveAccessService = CollectiveAccessService(memberRepository, collectiveRepository)
+        currentMemberContext = mock()
+        collectiveAccessService = CollectiveAccessService(currentMemberContext, collectiveRepository)
         operations =
             EventOperations(
                 memberRepository,
@@ -52,13 +54,13 @@ class EventOperationsTest {
                 googleCalendarService,
                 realtimeUpdateService,
             )
-        whenever(memberRepository.findByName("Kasper")).thenReturn(member("Kasper", "kasper@example.com"))
+        whenever(currentMemberContext.current("Kasper")).thenReturn(member("Kasper", "kasper@example.com"))
     }
 
     @Test
     fun `create event clears dashboard and syncs to google when enabled`() {
         val actor = member("Kasper", "kasper@example.com")
-        whenever(memberRepository.findByName("Kasper")).thenReturn(actor)
+        whenever(memberRepository.findByNameAndCollectiveCode("Kasper", "ABC123")).thenReturn(actor)
         whenever(eventRepository.save(any<CalendarEvent>())).thenAnswer {
             val event = it.arguments[0] as CalendarEvent
             if (event.id == 0L) event.copy(id = 7) else event
@@ -100,7 +102,7 @@ class EventOperationsTest {
                 attendees = 3,
                 googleEventId = "google-123",
             )
-        whenever(memberRepository.findByName("Kasper")).thenReturn(actor)
+        whenever(memberRepository.findByNameAndCollectiveCode("Kasper", "ABC123")).thenReturn(actor)
         whenever(eventRepository.findById(3)).thenReturn(Optional.of(event))
 
         operations.deleteEvent(eventId = 3, actorName = "Kasper")
@@ -145,7 +147,7 @@ class EventOperationsTest {
     fun `create event sends group notification to other active members`() {
         val kasper = member("Kasper", "kasper@example.com")
         val emma = member("Emma", "emma@example.com", id = 2)
-        whenever(memberRepository.findByName("Kasper")).thenReturn(kasper)
+        whenever(currentMemberContext.current("Kasper")).thenReturn(kasper)
         whenever(memberRepository.findAllByCollectiveCode("ABC123")).thenReturn(listOf(kasper, emma))
         whenever(eventRepository.save(any<CalendarEvent>())).thenAnswer {
             val e = it.arguments[0] as CalendarEvent

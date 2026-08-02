@@ -30,6 +30,7 @@ class ShoppingOperationsTest {
     private lateinit var collectiveRepository: CollectiveRepository
     private lateinit var notificationService: NotificationService
     private lateinit var collectiveAccessService: CollectiveAccessService
+    private lateinit var currentMemberContext: CurrentMemberContext
     private lateinit var economyOperations: EconomyOperations
     private lateinit var operations: ShoppingOperations
 
@@ -39,7 +40,8 @@ class ShoppingOperationsTest {
         memberRepository = mock()
         collectiveRepository = mock()
         notificationService = mock()
-        collectiveAccessService = CollectiveAccessService(memberRepository, collectiveRepository)
+        currentMemberContext = mock()
+        collectiveAccessService = CollectiveAccessService(currentMemberContext, collectiveRepository)
         economyOperations = mock()
         operations =
             ShoppingOperations(
@@ -49,7 +51,7 @@ class ShoppingOperationsTest {
                 collectiveAccessService,
                 economyOperations,
             )
-        whenever(memberRepository.findByName("Kasper")).thenReturn(member("Kasper", "kasper@example.com"))
+        whenever(currentMemberContext.current("Kasper")).thenReturn(member("Kasper", "kasper@example.com"))
     }
 
     @Test
