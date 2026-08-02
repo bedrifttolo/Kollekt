@@ -19,9 +19,19 @@ import type { GamePreset } from '../../othergames/src/engine';
 
 export type { GameConfig, GameLang, GamePreset, Player, PlayerStats, Round, RoundType };
 
+/**
+ * Build-time switch for the Kollekt game's alcohol-themed content variant. Must stay unset
+ * (false) for any App Store build — Apple's review sees only what's reachable in the shipped
+ * binary, and with this flag off at build time the alcohol strings are dead code, eliminated
+ * from the bundle, not just hidden behind a runtime check. Only flip on for builds explicitly
+ * NOT going through Apple review (e.g. a separate Android/web build).
+ */
+export const ALCOHOL_MODE_AVAILABLE = import.meta.env.VITE_ENABLE_ALCOHOL_MODE === 'true';
+
 export interface GamePresetEntry {
   label: string;
   description: string;
+  descriptionAlcohol?: string;
   config: GameConfig;
 }
 
@@ -53,9 +63,15 @@ export async function generateRound(params: {
   preset: GamePreset;
   usedIds: string[];
   lang: GameLang;
+  /** Only ever true when `ALCOHOL_MODE_AVAILABLE` — ignored otherwise. */
+  alcoholMode?: boolean;
 }): Promise<{ round: Round | null; usedIds: string[] }> {
   const usedIds = new Set(params.usedIds);
-  const round = generateLocalRound(params.roundNumber, params.players, GAME_PRESETS[params.preset].config, usedIds, params.lang);
+  const config: GameConfig = {
+    ...GAME_PRESETS[params.preset].config,
+    alcoholMode: ALCOHOL_MODE_AVAILABLE && !!params.alcoholMode,
+  };
+  const round = generateLocalRound(params.roundNumber, params.players, config, usedIds, params.lang);
   return { round, usedIds: [...usedIds] };
 }
 

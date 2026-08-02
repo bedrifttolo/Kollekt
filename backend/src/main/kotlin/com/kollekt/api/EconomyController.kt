@@ -3,6 +3,7 @@
 package com.kollekt.api
 
 import com.kollekt.api.dto.*
+import com.kollekt.service.CurrentMemberContext
 import com.kollekt.service.EconomyOperations
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -13,13 +14,14 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/api/economy")
 class EconomyController(
     private val economyOperations: EconomyOperations,
+    private val currentMemberContext: CurrentMemberContext,
 ) {
     @GetMapping("/expenses")
     fun getExpenses(
         @RequestParam memberName: String,
         @AuthenticationPrincipal jwt: Jwt,
     ): List<ExpenseDto> {
-        requireTokenSubject(jwt, memberName)
+        currentMemberContext.requireTokenSubject(jwt, memberName)
         return economyOperations.getExpenses(memberName)
     }
 
@@ -49,7 +51,7 @@ class EconomyController(
         @RequestParam memberName: String,
         @AuthenticationPrincipal jwt: Jwt,
     ): List<BalanceDto> {
-        requireTokenSubject(jwt, memberName)
+        currentMemberContext.requireTokenSubject(jwt, memberName)
         return economyOperations.getBalances(memberName)
     }
 
@@ -58,7 +60,7 @@ class EconomyController(
         @RequestParam memberName: String,
         @AuthenticationPrincipal jwt: Jwt,
     ): PantSummaryDto {
-        requireTokenSubject(jwt, memberName)
+        currentMemberContext.requireTokenSubject(jwt, memberName)
         return economyOperations.getPantSummary(memberName)
     }
 
@@ -88,7 +90,7 @@ class EconomyController(
         @RequestParam memberName: String,
         @AuthenticationPrincipal jwt: Jwt,
     ): List<PayOptionDto> {
-        requireTokenSubject(jwt, memberName)
+        currentMemberContext.requireTokenSubject(jwt, memberName)
         return economyOperations.getPayOptions(memberName)
     }
 
@@ -97,7 +99,7 @@ class EconomyController(
         @RequestBody request: UpdatePantGoalRequest,
         @AuthenticationPrincipal jwt: Jwt,
     ) {
-        requireTokenSubject(jwt, request.memberName)
+        currentMemberContext.requireTokenSubject(jwt, request.memberName)
         economyOperations.updatePantGoal(request.memberName, request.goal)
     }
 
@@ -106,7 +108,7 @@ class EconomyController(
         @RequestParam memberName: String,
         @AuthenticationPrincipal jwt: Jwt,
     ): EconomySummaryDto {
-        requireTokenSubject(jwt, memberName)
+        currentMemberContext.requireTokenSubject(jwt, memberName)
         return economyOperations.getEconomySummary(memberName)
     }
 
@@ -115,7 +117,7 @@ class EconomyController(
         @RequestBody request: SettleUpRequest,
         @AuthenticationPrincipal jwt: Jwt,
     ): SettleUpResponse {
-        requireTokenSubject(jwt, request.memberName)
+        currentMemberContext.requireTokenSubject(jwt, request.memberName)
         return economyOperations.settleUp(jwt.subject)
     }
 
@@ -131,7 +133,7 @@ class EconomyController(
         @RequestParam memberName: String,
         @AuthenticationPrincipal jwt: Jwt,
     ): List<BudgetDto> {
-        requireTokenSubject(jwt, memberName)
+        currentMemberContext.requireTokenSubject(jwt, memberName)
         return economyOperations.getBudgets(memberName)
     }
 
@@ -140,7 +142,7 @@ class EconomyController(
         @RequestBody request: UpsertBudgetRequest,
         @AuthenticationPrincipal jwt: Jwt,
     ): BudgetDto {
-        requireTokenSubject(jwt, request.memberName)
+        currentMemberContext.requireTokenSubject(jwt, request.memberName)
         return economyOperations.upsertBudget(request)
     }
 }

@@ -15,6 +15,7 @@ export const DEFAULT_GAME_CONFIG: GameConfig = {
   },
   allowSkip: true,
   skipDrinkPenalty: 2,
+  alcoholMode: false,
 };
 
 export const QUICK_GAME_CONFIG: GameConfig = {
@@ -53,7 +54,10 @@ export const CASUAL_GAME_CONFIG: GameConfig = {
 
 export type GamePreset = 'default' | 'quick' | 'hardcore' | 'casual';
 
-export const GAME_PRESETS: Record<GamePreset, { label: string; description: string; config: GameConfig }> = {
+export const GAME_PRESETS: Record<
+  GamePreset,
+  { label: string; description: string; descriptionAlcohol?: string; config: GameConfig }
+> = {
   default: {
     label: 'Standard',
     description: '15 rounds, balanced mix of chaos and stats.',
@@ -61,17 +65,20 @@ export const GAME_PRESETS: Record<GamePreset, { label: string; description: stri
   },
   quick: {
     label: 'Quick',
-    description: '8 rounds — get in, get merry, get out.',
+    description: '8 rounds — get in, get chaotic, get out.',
+    descriptionAlcohol: '8 rounds — get in, get merry, get out.',
     config: QUICK_GAME_CONFIG,
   },
   hardcore: {
     label: 'Hardcore',
-    description: '20 rounds, double drinks, no mercy.',
+    description: '20 rounds, double points, no mercy.',
+    descriptionAlcohol: '20 rounds, double drinks, no mercy.',
     config: HARDCORE_GAME_CONFIG,
   },
   casual: {
     label: 'Casual',
-    description: '12 rounds, light sips, stats barely matter.',
+    description: '12 rounds, low stakes, stats barely matter.',
+    descriptionAlcohol: '12 rounds, light sips, stats barely matter.',
     config: CASUAL_GAME_CONFIG,
   },
 };

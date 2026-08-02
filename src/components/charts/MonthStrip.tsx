@@ -23,10 +23,14 @@ export default function MonthStrip({
   months,
   selectedKey,
   onSelect,
+  animateIn = true,
 }: {
   months: MonthTotal[];
   selectedKey: string;
   onSelect: (key: string) => void;
+  /** Set false on a warm re-navigation so the grow-in doesn't replay every time the page (which
+   *  fully remounts on every tab switch) is revisited — only a genuine cold load animates. */
+  animateIn?: boolean;
 }) {
   const { t } = useTranslation();
   const max = Math.max(...months.map((month) => month.total), 1);
@@ -60,9 +64,9 @@ export default function MonthStrip({
             <span className="flex w-full items-end" style={{ height: MAX_BAR }}>
               <motion.span
                 className={`w-full rounded-t-md ${isSelected ? 'bg-primary' : 'bg-muted group-hover:bg-primary/30'}`}
-                initial={{ height: 0 }}
+                initial={animateIn ? { height: 0 } : false}
                 animate={{ height, scaleX: isSelected ? 1 : 0.72 }}
-                transition={{ ...springSoft, delay: index * 0.04 }}
+                transition={{ ...springSoft, delay: animateIn ? index * 0.04 : 0 }}
                 style={{ originY: 1 }}
               />
             </span>

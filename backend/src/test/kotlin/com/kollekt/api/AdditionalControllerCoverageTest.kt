@@ -22,6 +22,7 @@ import com.kollekt.api.dto.UserDto
 import com.kollekt.api.dto.VibeBreakdownDto
 import com.kollekt.api.dto.VotePollRequest
 import com.kollekt.domain.EventType
+import com.kollekt.domain.Member
 import com.kollekt.domain.Notification
 import com.kollekt.domain.PushDeviceToken
 import com.kollekt.domain.TaskCategory
@@ -30,6 +31,7 @@ import com.kollekt.service.AccountOperations
 import com.kollekt.service.CalendarFeedService
 import com.kollekt.service.ChatOperations
 import com.kollekt.service.CollectiveOperations
+import com.kollekt.service.CurrentMemberContext
 import com.kollekt.service.EventOperations
 import com.kollekt.service.GoogleCalendarService
 import com.kollekt.service.GoogleOAuthState
@@ -41,6 +43,7 @@ import com.kollekt.service.StatsService
 import com.kollekt.service.TaskOperations
 import com.kollekt.service.TokenStoreService
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.argumentCaptor
@@ -51,6 +54,8 @@ import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.http.MediaType
+import org.springframework.security.access.AccessDeniedException
+import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt
 import org.springframework.test.context.bean.override.mockito.MockitoBean
@@ -117,6 +122,24 @@ class AdditionalControllerCoverageTest {
     @MockitoBean lateinit var taskOperations: TaskOperations
 
     @MockitoBean lateinit var tokenStoreService: TokenStoreService
+
+    @MockitoBean lateinit var currentMemberContext: CurrentMemberContext
+
+    @BeforeEach
+    fun setUp() {
+        whenever(currentMemberContext.requireTokenSubject(any(), any())).thenAnswer { invocation ->
+            val jwt = invocation.getArgument<Jwt>(0)
+            val memberName = invocation.getArgument<String>(1)
+            if (jwt.subject != memberName) {
+                throw AccessDeniedException("Token subject does not match requested member")
+            }
+            null
+        }
+        whenever(currentMemberContext.current(any<Jwt>())).thenAnswer { invocation ->
+            val jwt = invocation.getArgument<Jwt>(0)
+            Member(id = 1, name = jwt.subject, email = "${jwt.subject.lowercase()}@example.com", collectiveCode = "ABC123")
+        }
+    }
 
     @Test
     fun `task regret uses api tasks regret endpoint`() {
@@ -392,7 +415,7 @@ class AdditionalControllerCoverageTest {
 
     @Test
     fun `google calendar auth url uses api google calendar auth url endpoint`() {
-        whenever(googleOAuthStateService.issueState("Kasper", "https://kollekt.test/settings"))
+        whenever(googleOAuthStateService.issueState(1, "https://kollekt.test/settings"))
             .thenReturn("oauth-state")
         whenever(googleCalendarService.getAuthorizationUrl("oauth-state"))
             .thenReturn("https://accounts.google.com/o/oauth2/auth")
@@ -405,14 +428,14 @@ class AdditionalControllerCoverageTest {
             ).andExpect(status().isOk)
             .andExpect(jsonPath("$.url").value("https://accounts.google.com/o/oauth2/auth"))
 
-        verify(googleOAuthStateService).issueState("Kasper", "https://kollekt.test/settings")
+        verify(googleOAuthStateService).issueState(1, "https://kollekt.test/settings")
         verify(googleCalendarService).getAuthorizationUrl("oauth-state")
     }
 
     @Test
     fun `google calendar callback stores tokens and redirects to frontend`() {
         whenever(googleOAuthStateService.consumeState("oauth-state"))
-            .thenReturn(GoogleOAuthState("Kasper", "https://kollekt.test/settings"))
+            .thenReturn(GoogleOAuthState(1, "https://kollekt.test/settings"))
 
         mockMvc
             .perform(
@@ -423,7 +446,7 @@ class AdditionalControllerCoverageTest {
             ).andExpect(status().is3xxRedirection)
             .andExpect(redirectedUrl("https://kollekt.test/settings?googleCalendarConnected=true"))
 
-        verify(collectiveOperations).saveGoogleCalendarTokens("Kasper", "auth-code")
+        verify(collectiveOperations).saveGoogleCalendarTokens(1, "auth-code")
     }
 
     @Test
@@ -753,8 +776,6 @@ class AdditionalControllerCoverageTest {
               "rooms":[{"name":"Kitchen","minutes":25}]
             }
             """.trimIndent()
-        whenever(accountOperations.getUserByName("Kasper"))
-            .thenReturn(UserDto(id = 1, name = "Kasper", collectiveCode = null))
         whenever(collectiveOperations.createCollective(any()))
             .thenReturn(CollectiveDto(id = 4, name = "Kollekt", joinCode = "ABC123"))
 
@@ -774,8 +795,6 @@ class AdditionalControllerCoverageTest {
     @Test
     fun `onboarding join collective uses collective operations when token user matches`() {
         val request = JoinCollectiveRequest(userId = 1, joinCode = "ABC123")
-        whenever(accountOperations.getUserByName("Kasper"))
-            .thenReturn(UserDto(id = 1, name = "Kasper", collectiveCode = null))
         whenever(collectiveOperations.joinCollective(request))
             .thenReturn(UserDto(id = 1, name = "Kasper", collectiveCode = "ABC123"))
 

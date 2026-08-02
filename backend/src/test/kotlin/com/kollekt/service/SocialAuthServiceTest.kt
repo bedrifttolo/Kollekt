@@ -16,6 +16,9 @@ import org.mockito.kotlin.whenever
 import java.util.Optional
 
 class SocialAuthServiceTest {
+    private fun userProfileService(members: MemberRepository) =
+        UserProfileService(members, mock<FriendshipRepository>(), mock<CurrentMemberContext>())
+
     @Test
     fun `verified social identity creates and permanently links a member`() {
         val members = mock<MemberRepository>()
@@ -23,10 +26,9 @@ class SocialAuthServiceTest {
         val tokens = mock<TokenService>()
         whenever(identities.findByProviderAndProviderSubject("google", "provider-user-1")).thenReturn(null)
         whenever(members.findByEmail("kasper@example.com")).thenReturn(null)
-        whenever(members.findByName("Kasper")).thenReturn(null)
         whenever(members.save(any<Member>())).thenAnswer { (it.arguments[0] as Member).copy(id = 7) }
         whenever(tokens.issueTokenPair(any())).thenReturn(TokenResult("access", "refresh", "Bearer", 3600))
-        val service = SocialAuthService(members, identities, tokens, UserProfileService(members, mock<FriendshipRepository>()), "", "")
+        val service = SocialAuthService(members, identities, tokens, userProfileService(members), "", "")
 
         val response =
             service.completeLogin(
@@ -51,7 +53,7 @@ class SocialAuthServiceTest {
         )
         whenever(members.findById(4)).thenReturn(Optional.of(member))
         whenever(tokens.issueTokenPair(member)).thenReturn(TokenResult("access", "refresh", "Bearer", 3600))
-        val service = SocialAuthService(members, identities, tokens, UserProfileService(members, mock<FriendshipRepository>()), "", "")
+        val service = SocialAuthService(members, identities, tokens, userProfileService(members), "", "")
 
         val response = service.completeLogin(VerifiedSocialIdentity("apple", "apple-user", "kasper@example.com", null))
 
@@ -67,7 +69,7 @@ class SocialAuthServiceTest {
         whenever(identities.findByProviderAndProviderSubject("google", "google-user")).thenReturn(null)
         whenever(members.findByEmail("kasper@example.com")).thenReturn(member)
         whenever(tokens.issueTokenPair(member)).thenReturn(TokenResult("access", "refresh", "Bearer", 3600))
-        val service = SocialAuthService(members, identities, tokens, UserProfileService(members, mock<FriendshipRepository>()), "", "")
+        val service = SocialAuthService(members, identities, tokens, userProfileService(members), "", "")
 
         service.completeLogin(VerifiedSocialIdentity("google", "google-user", "kasper@example.com", "Kasper"))
 
@@ -82,7 +84,7 @@ class SocialAuthServiceTest {
                 members,
                 mock<SocialIdentityRepository>(),
                 mock<TokenService>(),
-                UserProfileService(members, mock<FriendshipRepository>()),
+                userProfileService(members),
                 "",
                 "",
             )
@@ -99,24 +101,24 @@ class SocialAuthServiceTest {
     }
 
     @Test
-    fun `new social member receives a unique sanitized name`() {
+    fun `new social member keeps its suggested name even if it collides with another pre-join member`() {
+        // Names are only required to be unique within a collective (enforced at join time), so a
+        // freshly created social account no longer needs a disambiguating suffix.
         val members = mock<MemberRepository>()
         val identities = mock<SocialIdentityRepository>()
         val tokens = mock<TokenService>()
         whenever(identities.findByProviderAndProviderSubject("google", "new-user")).thenReturn(null)
         whenever(members.findByEmail("new@example.com")).thenReturn(null)
-        whenever(members.findByName("Kasper")).thenReturn(Member(id = 1, name = "Kasper", email = "other@example.com"))
-        whenever(members.findByName("Kasper 2")).thenReturn(null)
         whenever(members.save(any<Member>())).thenAnswer { (it.arguments[0] as Member).copy(id = 9) }
         whenever(tokens.issueTokenPair(any())).thenReturn(TokenResult("access", "refresh", "Bearer", 3600))
-        val service = SocialAuthService(members, identities, tokens, UserProfileService(members, mock<FriendshipRepository>()), "", "")
+        val service = SocialAuthService(members, identities, tokens, userProfileService(members), "", "")
 
         val response =
             service.completeLogin(
                 VerifiedSocialIdentity("google", "new-user", "new@example.com", "Kasper"),
             )
 
-        assertEquals("Kasper 2", response.user.name)
+        assertEquals("Kasper", response.user.name)
     }
 
     @Test
@@ -132,7 +134,7 @@ class SocialAuthServiceTest {
                 members,
                 identities,
                 mock<TokenService>(),
-                UserProfileService(members, mock<FriendshipRepository>()),
+                userProfileService(members),
                 "",
                 "",
             )
@@ -150,7 +152,7 @@ class SocialAuthServiceTest {
                 members,
                 mock<SocialIdentityRepository>(),
                 mock<TokenService>(),
-                UserProfileService(members, mock<FriendshipRepository>()),
+                userProfileService(members),
                 "google-client-id",
                 "apple-client-id",
             )
@@ -170,10 +172,9 @@ class SocialAuthServiceTest {
         val tokens = mock<TokenService>()
         whenever(identities.findByProviderAndProviderSubject("apple", "private-user")).thenReturn(null)
         whenever(members.findByEmail("!!!@example.com")).thenReturn(null)
-        whenever(members.findByName("Member")).thenReturn(null)
         whenever(members.save(any<Member>())).thenAnswer { (it.arguments[0] as Member).copy(id = 10) }
         whenever(tokens.issueTokenPair(any())).thenReturn(TokenResult("access", "refresh", "Bearer", 3600))
-        val service = SocialAuthService(members, identities, tokens, UserProfileService(members, mock<FriendshipRepository>()), "", "")
+        val service = SocialAuthService(members, identities, tokens, userProfileService(members), "", "")
 
         val response =
             service.completeLogin(

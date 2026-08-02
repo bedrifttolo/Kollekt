@@ -2,6 +2,7 @@ package com.kollekt.service
 
 import com.kollekt.api.dto.AuthResponse
 import com.kollekt.api.dto.RefreshTokenRequest
+import com.kollekt.api.dto.UserDto
 import com.kollekt.domain.Member
 import com.kollekt.repository.MemberRepository
 import org.springframework.security.oauth2.jwt.Jwt
@@ -18,8 +19,9 @@ class AccountOperations(
     private val memberRepository: MemberRepository,
     private val tokenService: TokenService,
     private val userProfileService: UserProfileService,
+    private val currentMemberContext: CurrentMemberContext,
 ) {
-    fun getUserByName(name: String) = userProfileService.getUserByName(name)
+    fun getCurrentUser(jwt: Jwt): UserDto = userProfileService.toUserDto(currentMemberContext.current(jwt))
 
     /**
      * Sets the member's display name, but only before they belong to a collective.
@@ -33,28 +35,23 @@ class AccountOperations(
      * string), so renaming an established member would orphan their history. Before joining a
      * collective, none of those rows can exist.
      *
-     * Returns a whole new token pair because the access token's `sub` claim is the name: renaming
-     * invalidates the caller's own credentials, and they would be locked out without a fresh pair.
+     * Names are only unique *within* a collective (enforced at join time, see
+     * [CollectiveOperations.joinCollective]), so there's nothing to check here — pre-join members
+     * are free to share a display name with anyone, anywhere, until they actually join a household.
      */
     @Transactional
     fun updateDisplayName(
-        currentName: String,
+        jwt: Jwt,
         requestedName: String,
     ): AuthResponse {
         val name = requestedName.trim()
         if (name.isBlank()) throw IllegalArgumentException("Name is required")
         if (name.length > MAX_NAME_LENGTH) throw IllegalArgumentException("Name must be at most $MAX_NAME_LENGTH characters")
 
-        val member =
-            memberRepository.findByName(currentName)
-                ?: throw IllegalArgumentException("User '$currentName' not found")
+        val member = currentMemberContext.current(jwt)
 
         if (member.collectiveCode != null) {
             throw IllegalArgumentException("Name can only be changed before joining a collective")
-        }
-
-        if (name != member.name && memberRepository.findByName(name) != null) {
-            throw IllegalArgumentException("User with name '$name' already exists")
         }
 
         return toAuthResponse(memberRepository.save(member.copy(name = name)))
@@ -62,9 +59,13 @@ class AccountOperations(
 
     fun refreshToken(request: RefreshTokenRequest): AuthResponse {
         val refreshResult = tokenService.rotateRefreshToken(request.refreshToken)
+        val id =
+            refreshResult.subject.toLongOrNull()
+                ?: throw IllegalArgumentException("Invalid refresh token")
         val user =
-            memberRepository.findByName(refreshResult.subject)
-                ?: throw IllegalArgumentException("User '${refreshResult.subject}' not found")
+            memberRepository.findById(id).orElseThrow {
+                IllegalArgumentException("User '${refreshResult.subject}' not found")
+            }
         return toAuthResponse(user)
     }
 

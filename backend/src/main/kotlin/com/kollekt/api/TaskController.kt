@@ -9,6 +9,7 @@ import com.kollekt.api.dto.MarkSupplyBoughtRequest
 import com.kollekt.api.dto.ShoppingItemDto
 import com.kollekt.api.dto.TaskDto
 import com.kollekt.api.dto.UpdateShoppingItemRequest
+import com.kollekt.service.CurrentMemberContext
 import com.kollekt.service.ShoppingOperations
 import com.kollekt.service.TaskOperations
 import org.springframework.http.HttpStatus
@@ -30,13 +31,14 @@ import org.springframework.web.bind.annotation.RestController
 class TaskController(
     private val taskOperations: TaskOperations,
     private val shoppingOperations: ShoppingOperations,
+    private val currentMemberContext: CurrentMemberContext,
 ) {
     @GetMapping
     fun getTasks(
         @RequestParam memberName: String,
         @AuthenticationPrincipal jwt: Jwt,
     ): List<TaskDto> {
-        requireTokenSubject(jwt, memberName)
+        currentMemberContext.requireTokenSubject(jwt, memberName)
         return taskOperations.getTasks(memberName)
     }
 
@@ -53,7 +55,7 @@ class TaskController(
         @RequestParam memberName: String,
         @AuthenticationPrincipal jwt: Jwt,
     ): TaskDto {
-        requireTokenSubject(jwt, memberName)
+        currentMemberContext.requireTokenSubject(jwt, memberName)
         return taskOperations.regretTask(taskId, memberName)
     }
 
@@ -63,7 +65,7 @@ class TaskController(
         @RequestParam memberName: String,
         @AuthenticationPrincipal jwt: Jwt,
     ): TaskDto {
-        requireTokenSubject(jwt, memberName)
+        currentMemberContext.requireTokenSubject(jwt, memberName)
         return taskOperations.regretMissedTask(taskId, memberName)
     }
 
@@ -74,7 +76,7 @@ class TaskController(
         @RequestBody request: GiveTaskFeedbackRequest,
         @AuthenticationPrincipal jwt: Jwt,
     ): TaskDto {
-        requireTokenSubject(jwt, memberName)
+        currentMemberContext.requireTokenSubject(jwt, memberName)
         return taskOperations.giveTaskFeedback(
             taskId,
             memberName,
@@ -92,7 +94,7 @@ class TaskController(
         @RequestParam memberName: String,
         @AuthenticationPrincipal jwt: Jwt,
     ): TaskDto {
-        requireTokenSubject(jwt, memberName)
+        currentMemberContext.requireTokenSubject(jwt, memberName)
         return taskOperations.updateTask(taskId, request, memberName)
     }
 
@@ -103,7 +105,7 @@ class TaskController(
         @RequestBody(required = false) request: com.kollekt.api.dto.CompleteTaskRequest?,
         @AuthenticationPrincipal jwt: Jwt,
     ): TaskDto {
-        requireTokenSubject(jwt, memberName)
+        currentMemberContext.requireTokenSubject(jwt, memberName)
         return taskOperations.toggleTask(taskId, memberName, request?.imageData, request?.imageMimeType)
     }
 
@@ -113,7 +115,7 @@ class TaskController(
         @RequestParam memberName: String,
         @AuthenticationPrincipal jwt: Jwt,
     ): TaskDto {
-        requireTokenSubject(jwt, memberName)
+        currentMemberContext.requireTokenSubject(jwt, memberName)
         return taskOperations.nudgeTask(taskId, memberName)
     }
 
@@ -124,7 +126,7 @@ class TaskController(
         @RequestParam memberName: String,
         @AuthenticationPrincipal jwt: Jwt,
     ) {
-        requireTokenSubject(jwt, memberName)
+        currentMemberContext.requireTokenSubject(jwt, memberName)
         taskOperations.deleteTask(taskId, memberName)
     }
 
@@ -133,7 +135,7 @@ class TaskController(
         @RequestParam memberName: String,
         @AuthenticationPrincipal jwt: Jwt,
     ): List<ShoppingItemDto> {
-        requireTokenSubject(jwt, memberName)
+        currentMemberContext.requireTokenSubject(jwt, memberName)
         return shoppingOperations.getShoppingItems(memberName)
     }
 
@@ -151,7 +153,7 @@ class TaskController(
         @RequestBody request: UpdateShoppingItemRequest,
         @AuthenticationPrincipal jwt: Jwt,
     ): ShoppingItemDto {
-        requireTokenSubject(jwt, memberName)
+        currentMemberContext.requireTokenSubject(jwt, memberName)
         return shoppingOperations.updateShoppingItem(itemId, request, memberName)
     }
 
@@ -162,7 +164,7 @@ class TaskController(
         @RequestBody request: MarkSupplyBoughtRequest,
         @AuthenticationPrincipal jwt: Jwt,
     ): ShoppingItemDto {
-        requireTokenSubject(jwt, memberName)
+        currentMemberContext.requireTokenSubject(jwt, memberName)
         return shoppingOperations.markSupplyBought(itemId, request, memberName)
     }
 
@@ -172,7 +174,7 @@ class TaskController(
         @RequestParam memberName: String,
         @AuthenticationPrincipal jwt: Jwt,
     ): ShoppingItemDto {
-        requireTokenSubject(jwt, memberName)
+        currentMemberContext.requireTokenSubject(jwt, memberName)
         return shoppingOperations.toggleShoppingItem(itemId, memberName)
     }
 
@@ -183,7 +185,7 @@ class TaskController(
         @RequestParam memberName: String,
         @AuthenticationPrincipal jwt: Jwt,
     ) {
-        requireTokenSubject(jwt, memberName)
+        currentMemberContext.requireTokenSubject(jwt, memberName)
         shoppingOperations.deleteShoppingItem(itemId, memberName)
     }
 }

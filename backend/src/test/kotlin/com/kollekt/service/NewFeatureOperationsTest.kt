@@ -100,7 +100,7 @@ class NewFeatureOperationsTest {
         val rule = HouseRule(10, "HOME", 1, "Be kind", "Alex")
         whenever(collectives.findById(1)).thenReturn(Optional.of(collective))
         whenever(collectives.findByJoinCodeForUpdate("HOME")).thenReturn(collective)
-        whenever(members.findByName("Alex")).thenReturn(owner)
+        whenever(members.findByNameAndCollectiveCode("Alex", "HOME")).thenReturn(owner)
         whenever(members.findAllByCollectiveCode("HOME")).thenReturn(listOf(owner, member(2, "Bea")))
         whenever(rules.findFirstByCollectiveCodeOrderByVersionDesc("HOME")).thenReturn(null)
         assertEquals(0, service.getLatest(1, "Alex").version)
@@ -129,7 +129,7 @@ class NewFeatureOperationsTest {
         whenever(collectives.findById(1)).thenReturn(Optional.of(collective))
         whenever(collectives.findByJoinCodeForUpdate("HOME")).thenReturn(collective)
         // Bea (id 2) is not the collective's owner (id 1).
-        whenever(members.findByName("Bea")).thenReturn(member(2, "Bea"))
+        whenever(members.findByNameAndCollectiveCode("Bea", "HOME")).thenReturn(member(2, "Bea"))
         whenever(members.findAllByCollectiveCode("HOME")).thenReturn(listOf(member(1, "Alex"), member(2, "Bea")))
         whenever(rules.findFirstByCollectiveCodeOrderByVersionDesc("HOME")).thenReturn(null)
         assertTrue(service.getLatest(1, "Bea").canEdit)
@@ -148,7 +148,7 @@ class NewFeatureOperationsTest {
         val chat = mock<ChatOperations>()
         val service = HouseRuleOperations(rules, acknowledgements, collectives, members, notifications, realtime, chat)
         whenever(collectives.findById(1)).thenReturn(Optional.of(collective()))
-        whenever(members.findByName("Alex")).thenReturn(member(1, "Alex"))
+        whenever(members.findByNameAndCollectiveCode("Alex", "HOME")).thenReturn(member(1, "Alex"))
         whenever(members.findAllByCollectiveCode("HOME")).thenReturn(listOf(member(1, "Alex"), member(2, "Bea")))
         whenever(chat.postHouseholdNotice(eq("HOME"), eq("Alex"), any())).thenReturn(
             MessageDto(id = 55, sender = "Alex", text = "Quiet please", timestamp = LocalDateTime.now()),
@@ -193,7 +193,7 @@ class NewFeatureOperationsTest {
         whenever(members.findAllByCollectiveCode("HOME")).thenReturn(listOf(member(1, "Alex"), member(2, "Bea")))
         whenever(notices.findAllByCollectiveCodeOrderByDateAscStartTimeAsc("HOME")).thenReturn(listOf(notice))
         whenever(collectives.findById(1)).thenReturn(Optional.of(collective))
-        whenever(members.findByName("Alex")).thenReturn(member(1, "Alex"))
+        whenever(members.findByNameAndCollectiveCode("Alex", "HOME")).thenReturn(member(1, "Alex"))
         whenever(quiet.save(any<CollectiveQuietHours>())).thenAnswer { it.arguments[0] }
 
         val created = service.create(CreateGuestNoticeRequest(" Sam ", notice.date, notice.startTime, notice.endTime, true), "Alex")
@@ -216,7 +216,7 @@ class NewFeatureOperationsTest {
         val collective = collective()
         whenever(collectives.findById(1)).thenReturn(Optional.of(collective))
         // Bea (id 2) is not the collective's owner (id 1).
-        whenever(members.findByName("Bea")).thenReturn(member(2, "Bea"))
+        whenever(members.findByNameAndCollectiveCode("Bea", "HOME")).thenReturn(member(2, "Bea"))
         whenever(quiet.findByCollectiveCode("HOME")).thenReturn(null)
         whenever(quiet.save(any<CollectiveQuietHours>())).thenAnswer { it.arguments[0] }
 

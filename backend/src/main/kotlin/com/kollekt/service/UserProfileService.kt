@@ -13,9 +13,8 @@ import org.springframework.transaction.annotation.Transactional
 class UserProfileService(
     private val memberRepository: MemberRepository,
     private val friendshipRepository: FriendshipRepository,
+    private val currentMemberContext: CurrentMemberContext,
 ) {
-    fun getUserByName(name: String): UserDto = toUserDto(requireMember(name))
-
     @Transactional
     fun addFriend(
         memberName: String,
@@ -25,7 +24,7 @@ class UserProfileService(
             throw IllegalArgumentException("Cannot add yourself as a friend")
         }
 
-        val member = requireMember(memberName)
+        val member = requireSelf(memberName)
         val friend = requireMember(friendName)
 
         if (friendshipRepository.existsByMemberIdAndFriendId(member.id, friend.id)) {
@@ -39,7 +38,7 @@ class UserProfileService(
         memberName: String,
         friendName: String,
     ) {
-        val member = requireMember(memberName)
+        val member = requireSelf(memberName)
         val friend = requireMember(friendName)
         if (friendshipRepository.deleteByMemberIdAndFriendId(member.id, friend.id) == 0L) {
             throw IllegalArgumentException("'$friendName' is not a friend")
@@ -94,6 +93,11 @@ class UserProfileService(
         }
     }
 
+    private fun requireSelf(memberName: String) = currentMemberContext.current(memberName)
+
+    /** Resolves *another* member by bare name — intentionally global/collective-unaware.
+     *  Friends can come from any household, so there's no collectiveCode to scope this by.
+     *  Never use this to resolve the caller's own identity; use [requireSelf] for that. */
     private fun requireMember(memberName: String): Member =
         memberRepository.findByName(memberName)
             ?: throw IllegalArgumentException("User '$memberName' not found")

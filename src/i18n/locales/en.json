@@ -164,6 +164,7 @@
     "notFound": "What you're looking for wasn't found.",
     "invalidCredentials": "Your username or password is incorrect.",
     "alreadyExists": "This already exists.",
+    "nameTakenInHousehold": "Someone in this household already has that name. Go back and change yours.",
     "alreadyInCollective": "You're already part of a household.",
     "invalidJoinCode": "That code doesn't look right. Check it and try again.",
     "generic": "Something went wrong. Please try again."
@@ -747,11 +748,12 @@
       "unlock": "Unlock",
       "paywall": {
         "title": "Unlock premium",
-        "body": "Subscribe to unlock the full game hub and real GIFs in chat.",
-        "subscribe": "Subscribe",
+        "body": "One-time purchase — unlock the full game hub and real GIFs in chat for good.",
+        "unlock": "Unlock lifetime access",
+        "unlockFor": "Unlock for {{price}}",
         "restore": "Restore purchases",
-        "disclosure": "Auto-renewing subscription billed through your App Store account. Cancel anytime in Settings. Terms and Privacy Policy apply.",
-        "unavailable": "Subscriptions aren't available yet — check back soon.",
+        "disclosure": "One-time payment charged through your App Store account. Not a subscription — no renewal, no cancellation needed. Terms and Privacy Policy apply.",
+        "unavailable": "Purchases aren't available yet — check back soon.",
         "nothingToRestore": "No previous purchase found."
       },
       "categories": {
@@ -792,7 +794,7 @@
         "promptRelay": "Build a story together, one prompt at a time.",
         "hundredQuestions": "Point to the person who best matches each question.",
         "truthOrChug": "Pick a number, answer the truth or take the challenge.",
-        "neverHaveIEver": "Drink when you have done what the card says.",
+        "neverHaveIEver": "Lose a point when you have done what the card says.",
         "mexican": "Roll in turn and beat the previous player's hidden result.",
         "kingsCup": "Draw cards and follow the rule tied to each rank.",
         "categories": "Name something in the category before time runs out.",
@@ -864,35 +866,35 @@
         "cards": {
           "A": {
             "title": "Waterfall",
-            "rule": "Everyone starts drinking. Nobody stops until the person to their right has stopped."
+            "rule": "Everyone loses a point, all at once — no exceptions."
           },
           "2": {
             "title": "You",
-            "rule": "{{player}} chooses someone to take two sips."
+            "rule": "{{player}} chooses someone to lose two points."
           },
           "3": {
             "title": "Me",
-            "rule": "{{player}} takes three sips."
+            "rule": "{{player}} loses three points."
           },
           "4": {
             "title": "Floor",
-            "rule": "Last person to touch the floor takes a sip."
+            "rule": "Last person to touch the floor loses a point."
           },
           "5": {
             "title": "Guys",
-            "rule": "Everyone who identifies as a guy takes a sip."
+            "rule": "Everyone who identifies as a guy loses a point."
           },
           "6": {
             "title": "Girls",
-            "rule": "Everyone who identifies as a girl takes a sip."
+            "rule": "Everyone who identifies as a girl loses a point."
           },
           "7": {
             "title": "Heaven",
-            "rule": "Last person to point upward takes a sip."
+            "rule": "Last person to point upward loses a point."
           },
           "8": {
             "title": "Mate",
-            "rule": "{{player}} picks a mate. Whenever one drinks, both drink."
+            "rule": "{{player}} picks a mate. Whenever one loses a point, both lose a point."
           },
           "9": {
             "title": "Rhyme",
@@ -904,15 +906,15 @@
           },
           "J": {
             "title": "Never have I ever",
-            "rule": "{{player}} says «Never have I ever …». Anyone who has done it takes a sip."
+            "rule": "{{player}} says «Never have I ever …». Anyone who has done it loses a point."
           },
           "Q": {
             "title": "Question master",
-            "rule": "Answer a question from {{player}} and you drink. This lasts until the next queen."
+            "rule": "Answer a question from {{player}} or lose a point. This lasts until the next queen."
           },
           "K": {
             "title": "King's cup",
-            "rule": "Pour a little into the cup. Whoever draws the fourth king drinks it."
+            "rule": "Add a point to the pot. Whoever draws the fourth king loses all the pooled points."
           }
         }
       },
@@ -1703,6 +1705,32 @@
     }
   },
   "kollektGame": {
+    "alcohol": {
+      "config": {
+        "drinks_multiplier": " · ×{{m}} drinks"
+      },
+      "presets": {
+        "quick": {
+          "description": "8 rounds — get in, get merry, get out."
+        },
+        "hardcore": {
+          "description": "20 rounds, double drinks, no mercy."
+        },
+        "casual": {
+          "description": "12 rounds, light sips, stats barely matter."
+        }
+      },
+      "playing": {
+        "skipAria": "Skip ({{penalty}} sip penalty)",
+        "skipTitle": "Skip (+{{penalty}} sip penalty)",
+        "skipCost": "Skipping costs {{count}} sip(s)"
+      },
+      "drinking": {
+        "distributes": "{{name}} distributes {{count}} sip(s)",
+        "drinksTarget": "{{names}} drink(s) {{count}} sip(s)",
+        "sips": "{{count}} sip(s)"
+      }
+    },
     "title": "Kollekt Mode",
     "loading": "Loading collective data…",
     "entryCard": {
@@ -1738,6 +1766,11 @@
       "guest": "guest"
     },
     "config": {
+      "contentMode": {
+        "label": "Party style",
+        "points": "Points",
+        "alcohol": "Drinks"
+      },
       "gameMode": "Game Mode",
       "playersInSession": "Players in Session",
       "rounds": "Rounds",
@@ -1746,7 +1779,7 @@
       "startGame": "Start Game",
       "backAria": "Back to player setup",
       "rounds_suffix": " rounds",
-      "drinks_multiplier": " · ×{{m}} drinks"
+      "drinks_multiplier": " · ×{{m}} points"
     },
     "presets": {
       "default": {
@@ -1755,23 +1788,23 @@
       },
       "quick": {
         "label": "Quick",
-        "description": "8 rounds — get in, get merry, get out."
+        "description": "8 rounds — get in, get chaotic, get out."
       },
       "hardcore": {
         "label": "Hardcore",
-        "description": "20 rounds, double drinks, no mercy."
+        "description": "20 rounds, double points, no mercy."
       },
       "casual": {
         "label": "Casual",
-        "description": "12 rounds, light sips, stats barely matter."
+        "description": "12 rounds, low stakes, stats barely matter."
       }
     },
     "playing": {
       "roundOf": "Round {{current}} of {{total}}",
       "done": "Done — Next Round",
-      "skipAria": "Skip ({{penalty}} sip penalty)",
-      "skipTitle": "Skip (+{{penalty}} sip penalty)",
-      "skipCost": "Skipping costs {{count}} sip(s)"
+      "skipAria": "Skip ({{penalty}} point penalty)",
+      "skipTitle": "Skip (+{{penalty}} point penalty)",
+      "skipCost": "Skipping costs {{count}} point(s)"
     },
     "roundTypes": {
       "STAT_COMPARISON": "Stat Battle",
@@ -1781,9 +1814,9 @@
       "RANDOM_EVENT": "Wild Card"
     },
     "drinking": {
-      "distributes": "{{name}} distributes {{count}} sip(s)",
-      "drinksTarget": "{{names}} drink(s) {{count}} sip(s)",
-      "sips": "{{count}} sip(s)"
+      "distributes": "{{name}} distributes {{count}} point(s)",
+      "drinksTarget": "{{names}} lose(s) {{count}} point(s)",
+      "sips": "{{count}} point(s)"
     },
     "summary": {
       "title": "Game Over",

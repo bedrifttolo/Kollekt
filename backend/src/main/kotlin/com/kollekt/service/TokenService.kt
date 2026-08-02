@@ -29,7 +29,7 @@ class TokenService(
         val refresh = issueRefreshToken(member)
         tokenStoreService.storeRefreshToken(
             refresh.jti,
-            member.name,
+            member.id.toString(),
             Duration.ofSeconds(refreshTokenValiditySeconds),
         )
 
@@ -91,7 +91,7 @@ class TokenService(
         val claims =
             JwtClaimsSet
                 .builder()
-                .subject(member.name)
+                .subject(member.id.toString())
                 .id(jti)
                 .issuedAt(issuedAt)
                 .expiresAt(expiresAt)
@@ -114,7 +114,7 @@ class TokenService(
         val claims =
             JwtClaimsSet
                 .builder()
-                .subject(member.name)
+                .subject(member.id.toString())
                 .id(jti)
                 .issuedAt(issuedAt)
                 .expiresAt(expiresAt)

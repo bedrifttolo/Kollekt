@@ -192,6 +192,9 @@ export default function RanksPanel() {
     await api.patch(`/achievements/config?memberName=${encodeURIComponent(name)}`, { enabledKeys });
   };
 
+  // Session-scoped, tiny (one entry per custom achievement created) — no cleanup needed.
+  const clientKeyByServerKeyRef = useRef(new Map<string, string>());
+
   const handleCreateAchievement = async () => {
     const target = Number.parseInt(customTarget, 10);
     if (!customTitle.trim() || !customDescription.trim() || !Number.isInteger(target) || target < 1) return;
@@ -218,6 +221,9 @@ export default function RanksPanel() {
     setSavingAchievement(true);
     try {
       const created = await api.post<Achievement>(`/achievements/custom?memberName=${encodeURIComponent(name)}`, body);
+      // Keeps the card's on-screen identity stable across the optimistic-key → real-key swap, so
+      // it doesn't unmount/remount (and replay its pop-in animation) the instant the server responds.
+      clientKeyByServerKeyRef.current.set(created.key, optimistic.key);
       setAchievements((current) => current.map((a) => (a.id === tempId ? created : a)));
     } catch {
       setAchievements((current) => current.filter((a) => a.id !== tempId));
@@ -269,9 +275,9 @@ export default function RanksPanel() {
           {podiumOrder.map((user, i) => (
             <motion.button
               key={user.name}
-              initial={{ opacity: 0, y: 20 }}
+              initial={justFinishedLoading ? { opacity: 0, y: 20 } : false}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.08 }}
+              transition={{ delay: justFinishedLoading ? i * 0.08 : 0 }}
               onClick={() => handleOpenMemberStats(user.name)}
               className="relative flex flex-1 flex-col items-center"
             >
@@ -284,9 +290,9 @@ export default function RanksPanel() {
               {/* The bar grows from the floor on mount. A podium that is simply *there* on load
                   states a result; one that rises reads as the result of the month's work. */}
               <motion.div
-                initial={{ scaleY: 0 }}
+                initial={justFinishedLoading ? { scaleY: 0 } : false}
                 animate={{ scaleY: 1 }}
-                transition={{ ...springSoft, delay: 0.1 + i * 0.08 }}
+                transition={{ ...springSoft, delay: justFinishedLoading ? 0.1 + i * 0.08 : 0 }}
                 style={{ originY: 1 }}
                 className={`${barHeight[user.rank] ?? 'h-28'} w-full rounded-t-3xl ${barTone[user.rank] ?? 'bg-muted'} flex flex-col items-center justify-end pb-4 pt-8`}
               >
@@ -356,9 +362,9 @@ export default function RanksPanel() {
         {data.players.map((user, i) => (
           <motion.button
             key={user.name}
-            initial={{ opacity: 0, x: -10 }}
+            initial={justFinishedLoading ? { opacity: 0, x: -10 } : false}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: i * 0.05 }}
+            transition={{ delay: justFinishedLoading ? i * 0.05 : 0 }}
             onClick={() => handleOpenMemberStats(user.name)}
             className={`card !p-4 flex w-full items-center gap-3 text-left ${user.name === name ? 'ring-1 ring-primary/30' : ''}`}
           >
@@ -485,7 +491,7 @@ export default function RanksPanel() {
               <SlidersHorizontal className="h-3.5 w-3.5 text-muted-foreground" />
             </button>
           </div>
-          <motion.div variants={listContainer} initial="hidden" animate="show" className="space-y-2">
+          <motion.div variants={listContainer} initial={justFinishedLoading ? "hidden" : false} animate="show" className="space-y-2">
             {achievements.map((a) => {
               const Icon = iconFor(a.icon);
               // Every AchievementDto already carries progress/total; it was rendered as a 1.5px
@@ -495,7 +501,7 @@ export default function RanksPanel() {
               const pct = hasProgress ? (a.progress! / a.total!) * 100 : 0;
               return (
               <motion.div
-                key={a.key}
+                key={clientKeyByServerKeyRef.current.get(a.key) ?? a.key}
                 variants={listItem}
                 className={`card !p-3 ${a.unlocked ? `tone-${toneByKey(a.key)} tone-wash tone-edge` : 'opacity-60'}`}
               >

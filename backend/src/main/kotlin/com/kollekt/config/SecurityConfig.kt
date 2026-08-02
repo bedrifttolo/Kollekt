@@ -1,5 +1,6 @@
 package com.kollekt.config
 
+import com.kollekt.repository.MemberRepository
 import com.kollekt.service.TokenStoreService
 import com.nimbusds.jose.jwk.source.ImmutableSecret
 import org.springframework.beans.factory.annotation.Value
@@ -34,6 +35,7 @@ class SecurityConfig(
     @Value("\${app.cors.allowed-origins}") private val allowedOrigins: String,
     @Value("\${app.security.auth-rate-limit-per-minute}") private val authRateLimitPerMinute: Int,
     private val tokenStoreService: TokenStoreService,
+    private val memberRepository: MemberRepository,
 ) {
     init {
         // Fail fast rather than sign tokens with a guessable secret. The insecure default in
@@ -67,7 +69,9 @@ class SecurityConfig(
                 it.requestMatchers(HttpMethod.GET, "/api/health").permitAll()
                 it.requestMatchers("/ws/**").permitAll()
                 it.anyRequest().authenticated()
-            }.oauth2ResourceServer { it.jwt(Customizer.withDefaults()) }
+            }.oauth2ResourceServer {
+                it.jwt { jwt -> jwt.jwtAuthenticationConverter(MemberJwtAuthenticationConverter(memberRepository)) }
+            }
             .build()
 
     @Bean

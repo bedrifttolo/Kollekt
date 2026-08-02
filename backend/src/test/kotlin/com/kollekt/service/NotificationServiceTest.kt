@@ -86,21 +86,21 @@ class NotificationServiceTest {
 
     @Test
     fun `is notification enabled returns false when type disabled in prefs`() {
-        whenever(memberRepository.findByName("Kasper")).thenReturn(member("Kasper", """{"TASK_ASSIGNED": false}"""))
+        whenever(memberRepository.findAllByName("Kasper")).thenReturn(listOf(member("Kasper", """{"TASK_ASSIGNED": false}""")))
 
         assertFalse(service.isNotificationEnabled("Kasper", "TASK_ASSIGNED"))
     }
 
     @Test
     fun `is notification enabled returns true when type not in prefs`() {
-        whenever(memberRepository.findByName("Kasper")).thenReturn(member("Kasper", """{"TASK_ASSIGNED": false}"""))
+        whenever(memberRepository.findAllByName("Kasper")).thenReturn(listOf(member("Kasper", """{"TASK_ASSIGNED": false}""")))
 
         assertTrue(service.isNotificationEnabled("Kasper", "NEW_MESSAGE"))
     }
 
     @Test
     fun `get preferences returns all true when member not found`() {
-        whenever(memberRepository.findByName("Unknown")).thenReturn(null)
+        whenever(memberRepository.findAllByName("Unknown")).thenReturn(emptyList())
 
         val result = service.getPreferences("Unknown")
 
@@ -110,7 +110,7 @@ class NotificationServiceTest {
 
     @Test
     fun `get preferences returns merged prefs for member with saved preferences`() {
-        whenever(memberRepository.findByName("Kasper")).thenReturn(member("Kasper", """{"TASK_ASSIGNED": false}"""))
+        whenever(memberRepository.findAllByName("Kasper")).thenReturn(listOf(member("Kasper", """{"TASK_ASSIGNED": false}""")))
 
         val result = service.getPreferences("Kasper")
 
@@ -120,7 +120,7 @@ class NotificationServiceTest {
 
     @Test
     fun `update preferences persists sanitised json to member`() {
-        whenever(memberRepository.findByName("Kasper")).thenReturn(member("Kasper", null))
+        whenever(memberRepository.findAllByName("Kasper")).thenReturn(listOf(member("Kasper", null)))
         whenever(memberRepository.save(any<Member>())).thenAnswer { it.arguments[0] }
 
         service.updatePreferences("Kasper", mapOf("TASK_ASSIGNED" to false))
@@ -132,7 +132,7 @@ class NotificationServiceTest {
 
     @Test
     fun `create task assigned notification skips when type is disabled`() {
-        whenever(memberRepository.findByName("Kasper")).thenReturn(member("Kasper", """{"TASK_ASSIGNED": false}"""))
+        whenever(memberRepository.findAllByName("Kasper")).thenReturn(listOf(member("Kasper", """{"TASK_ASSIGNED": false}""")))
 
         service.createTaskAssignedNotification("Kasper", "Clean up")
 
@@ -141,7 +141,7 @@ class NotificationServiceTest {
 
     @Test
     fun `create custom notification skips when type is disabled`() {
-        whenever(memberRepository.findByName("Kasper")).thenReturn(member("Kasper", """{"EXPENSE_OWED": false}"""))
+        whenever(memberRepository.findAllByName("Kasper")).thenReturn(listOf(member("Kasper", """{"EXPENSE_OWED": false}""")))
 
         service.createCustomNotification("Kasper", "You owe 100 kr", "EXPENSE_OWED")
 
@@ -164,8 +164,8 @@ class NotificationServiceTest {
 
     @Test
     fun `create parameterized group notification stores one notification per user`() {
-        whenever(memberRepository.findByName("Emma")).thenReturn(member("Emma", null).copy(collectiveCode = "ABC123"))
-        whenever(memberRepository.findByName("Kasper")).thenReturn(member("Kasper", null).copy(collectiveCode = "ABC123"))
+        whenever(memberRepository.findAllByName("Emma")).thenReturn(listOf(member("Emma", null).copy(collectiveCode = "ABC123")))
+        whenever(memberRepository.findAllByName("Kasper")).thenReturn(listOf(member("Kasper", null).copy(collectiveCode = "ABC123")))
         val captor = argumentCaptor<List<Notification>>()
 
         service.createParameterizedGroupNotification(listOf("Emma", "Kasper"), "GROUP_TYPE", mapOf("key" to "value"))

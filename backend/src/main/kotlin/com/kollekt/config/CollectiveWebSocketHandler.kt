@@ -31,26 +31,27 @@ class CollectiveWebSocketHandler(
         }
 
         // The stream carries the collective's chat and activity, so the caller must prove who
-        // they are. /ws is not covered by the HTTP JWT filter, so validate the token here and
-        // trust its verified subject over the (spoofable) memberName query param.
+        // they are. /ws is not covered by the HTTP JWT filter (and its converter that rewrites
+        // `sub` to a name), so validate the token here directly and resolve identity via the
+        // numeric `uid` claim — never a bare name, which is only unique within a collective.
         val token = queryParams.getFirst("token")?.trim()
-        val tokenSubject =
+        val tokenMemberId =
             if (token.isNullOrBlank()) {
                 null
             } else {
                 try {
-                    jwtDecoder.decode(token).subject
+                    (jwtDecoder.decode(token).claims["uid"] as? Number)?.toLong()
                 } catch (_: JwtException) {
                     null
                 }
             }
-        if (tokenSubject == null || tokenSubject != memberName) {
+        val member = tokenMemberId?.let { memberRepository.findById(it).orElse(null) }
+        if (member == null || member.name != memberName) {
             session.close(CloseStatus.POLICY_VIOLATION.withReason("Unauthorized"))
             return
         }
 
-        val member = memberRepository.findByName(memberName)
-        val collectiveCode = member?.collectiveCode
+        val collectiveCode = member.collectiveCode
         if (collectiveCode.isNullOrBlank()) {
             session.close(CloseStatus.NOT_ACCEPTABLE.withReason("Member has no collective"))
             return

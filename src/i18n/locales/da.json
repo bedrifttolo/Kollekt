@@ -164,6 +164,7 @@
     "notFound": "Det, du leder efter, blev ikke fundet.",
     "invalidCredentials": "Navnet eller adgangskoden passer ikke.",
     "alreadyExists": "Dette findes allerede.",
+    "nameTakenInHousehold": "Nogen i dette kollektiv hedder allerede det samme. Gå tilbage og skift dit navn.",
     "alreadyInCollective": "Du er allerede med i et kollektiv.",
     "invalidJoinCode": "Koden ser ikke rigtig ud. Tjek den og prøv igen.",
     "generic": "Noget gik galt. Prøv igen."
@@ -747,11 +748,12 @@
       "unlock": "Lås op",
       "paywall": {
         "title": "Lås op for premium",
-        "body": "Abonnér for at låse op for hele spilsamlingen og rigtige GIF'er i chatten.",
-        "subscribe": "Abonnér",
+        "body": "Engangskøb – lås op for hele spilsamlingen og rigtige GIF'er i chatten for altid.",
+        "unlock": "Lås op for altid",
+        "unlockFor": "Lås op for {{price}}",
         "restore": "Gendan køb",
-        "disclosure": "Fornyes automatisk og trækkes via din App Store-konto. Annullér når som helst i Indstillinger. Vilkår og privatlivspolitik gælder.",
-        "unavailable": "Abonnement er ikke tilgængeligt endnu – kom tilbage snart.",
+        "disclosure": "Engangsbetaling trukket via din App Store-konto. Ikke et abonnement – ingen fornyelse, ingen opsigelse nødvendig. Vilkår og privatlivspolitik gælder.",
+        "unavailable": "Køb er ikke tilgængeligt endnu – kom tilbage snart.",
         "nothingToRestore": "Der blev ikke fundet noget tidligere køb."
       },
       "categories": {
@@ -792,7 +794,7 @@
         "promptRelay": "Byg en historie sammen, ét indspark ad gangen.",
         "hundredQuestions": "Peg på den person, der passer bedst til hvert spørgsmål.",
         "truthOrChug": "Vælg et nummer, svar ærligt, eller tag udfordringen.",
-        "neverHaveIEver": "Drik, hvis du har gjort det, der står på kortet.",
+        "neverHaveIEver": "Mist et point, hvis du har gjort det, der står på kortet.",
         "mexican": "Kast på skift, og slå den forrige spillers skjulte resultat.",
         "kingsCup": "Træk kort, og følg reglen for kortets værdi.",
         "categories": "Nævn noget i kategorien, før tiden løber ud.",
@@ -864,35 +866,35 @@
         "cards": {
           "A": {
             "title": "Vandfald",
-            "rule": "Alle begynder at drikke. Ingen stopper, før personen til højre er stoppet."
+            "rule": "Alle mister et point samtidig — ingen slipper."
           },
           "2": {
             "title": "Dig",
-            "rule": "{{player}} vælger nogen, der tager to slurke."
+            "rule": "{{player}} vælger nogen, der mister to point."
           },
           "3": {
             "title": "Mig",
-            "rule": "{{player}} tager tre slurke."
+            "rule": "{{player}} mister tre point."
           },
           "4": {
             "title": "Gulvet",
-            "rule": "Sidste person, der rører gulvet, tager en slurk."
+            "rule": "Sidste person, der rører gulvet, mister et point."
           },
           "5": {
             "title": "Drengene",
-            "rule": "Alle, der identificerer sig som dreng, tager en slurk."
+            "rule": "Alle, der identificerer sig som dreng, mister et point."
           },
           "6": {
             "title": "Pigerne",
-            "rule": "Alle, der identificerer sig som pige, tager en slurk."
+            "rule": "Alle, der identificerer sig som pige, mister et point."
           },
           "7": {
             "title": "Himlen",
-            "rule": "Sidste person, der peger opad, tager en slurk."
+            "rule": "Sidste person, der peger opad, mister et point."
           },
           "8": {
             "title": "Makker",
-            "rule": "{{player}} vælger en makker. Når én drikker, drikker begge."
+            "rule": "{{player}} vælger en makker. Når én mister point, mister begge point."
           },
           "9": {
             "title": "Rim",
@@ -904,15 +906,15 @@
           },
           "J": {
             "title": "Jeg har aldrig",
-            "rule": "{{player}} siger «Jeg har aldrig …». De, der har gjort det, tager en slurk."
+            "rule": "{{player}} siger «Jeg har aldrig …». De, der har gjort det, mister et point."
           },
           "Q": {
             "title": "Spørgsmålsmester",
-            "rule": "Svarer du på et spørgsmål fra {{player}}, skal du drikke. Gælder til næste dame."
+            "rule": "Svarer du på et spørgsmål fra {{player}}, mister du et point. Gælder til næste dame."
           },
           "K": {
             "title": "Kongens bæger",
-            "rule": "Hæld lidt i bægeret. Den, der trækker den fjerde konge, skal tage bægeret."
+            "rule": "Læg et point i puljen. Den, der trækker den fjerde konge, mister alle point i puljen."
           }
         }
       },
@@ -1703,6 +1705,32 @@
     }
   },
   "kollektGame": {
+    "alcohol": {
+      "config": {
+        "drinks_multiplier": " · ×{{m}} drinks"
+      },
+      "presets": {
+        "quick": {
+          "description": "8 runder — kom ind, bliv glad, kom ud."
+        },
+        "hardcore": {
+          "description": "20 runder, dobbelte drinks, ingen nåde."
+        },
+        "casual": {
+          "description": "12 runder, lette slurke, statistik betyder lidt."
+        }
+      },
+      "playing": {
+        "skipAria": "Spring over ({{penalty}} slurk straf)",
+        "skipTitle": "Spring over (+{{penalty}} slurk straf)",
+        "skipCost": "At springe over koster {{count}} slurk(e)"
+      },
+      "drinking": {
+        "distributes": "{{name}} deler {{count}} slurk(e) ud",
+        "drinksTarget": "{{names}} drikker {{count}} slurk(e)",
+        "sips": "{{count}} slurk(e)"
+      }
+    },
     "title": "Kollekt-tilstand",
     "loading": "Indlæser kollektivdata…",
     "entryCard": {
@@ -1738,6 +1766,11 @@
       "guest": "gæst"
     },
     "config": {
+      "contentMode": {
+        "label": "Feststil",
+        "points": "Point",
+        "alcohol": "Alkohol"
+      },
       "gameMode": "Spiltilstand",
       "playersInSession": "Spillere i sessionen",
       "rounds": "Runder",
@@ -1746,7 +1779,7 @@
       "startGame": "Start spil",
       "backAria": "Tilbage til spillervalg",
       "rounds_suffix": " runder",
-      "drinks_multiplier": " · ×{{m}} drinks"
+      "drinks_multiplier": " · ×{{m}} point"
     },
     "presets": {
       "default": {
@@ -1755,23 +1788,23 @@
       },
       "quick": {
         "label": "Hurtig",
-        "description": "8 runder — kom ind, bliv glad, kom ud."
+        "description": "8 runder — kom ind, bliv kaotisk, kom ud."
       },
       "hardcore": {
         "label": "Hardcore",
-        "description": "20 runder, dobbelte drinks, ingen nåde."
+        "description": "20 runder, dobbelte point, ingen nåde."
       },
       "casual": {
         "label": "Afslappet",
-        "description": "12 runder, lette slurke, statistik betyder lidt."
+        "description": "12 runder, lav indsats, statistik betyder lidt."
       }
     },
     "playing": {
       "roundOf": "Runde {{current}} af {{total}}",
       "done": "Færdig — Næste runde",
-      "skipAria": "Spring over ({{penalty}} slurk straf)",
-      "skipTitle": "Spring over (+{{penalty}} slurk straf)",
-      "skipCost": "At springe over koster {{count}} slurk(e)"
+      "skipAria": "Spring over ({{penalty}} point straf)",
+      "skipTitle": "Spring over (+{{penalty}} point straf)",
+      "skipCost": "At springe over koster {{count}} point"
     },
     "roundTypes": {
       "STAT_COMPARISON": "Statduel",
@@ -1781,9 +1814,9 @@
       "RANDOM_EVENT": "Jokerkort"
     },
     "drinking": {
-      "distributes": "{{name}} deler {{count}} slurk(e) ud",
-      "drinksTarget": "{{names}} drikker {{count}} slurk(e)",
-      "sips": "{{count}} slurk(e)"
+      "distributes": "{{name}} deler {{count}} point ud",
+      "drinksTarget": "{{names}} mister {{count}} point",
+      "sips": "{{count}} point"
     },
     "summary": {
       "title": "Spillet er slut",

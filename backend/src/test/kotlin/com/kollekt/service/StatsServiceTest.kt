@@ -47,6 +47,7 @@ class StatsServiceTest {
     private lateinit var eventRepository: EventRepository
     private lateinit var expenseRepository: ExpenseRepository
     private lateinit var collectiveAccessService: CollectiveAccessService
+    private lateinit var currentMemberContext: CurrentMemberContext
     private lateinit var realtimeUpdateService: RealtimeUpdateService
     private lateinit var economyOperations: EconomyOperations
     private lateinit var shoppingItemRepository: ShoppingItemRepository
@@ -63,7 +64,8 @@ class StatsServiceTest {
         taskRepository = mock()
         eventRepository = mock()
         expenseRepository = mock()
-        collectiveAccessService = CollectiveAccessService(memberRepository, collectiveRepository)
+        currentMemberContext = mock()
+        collectiveAccessService = CollectiveAccessService(currentMemberContext, collectiveRepository)
         realtimeUpdateService = mock()
         economyOperations = mock()
         shoppingItemRepository = mock()
@@ -86,7 +88,7 @@ class StatsServiceTest {
                 checkinRepository = checkinRepository,
                 checkinResponseRepository = checkinResponseRepository,
             )
-        whenever(memberRepository.findByName("Kasper")).thenReturn(member("Kasper", "kasper@example.com", xp = 250, level = 2))
+        whenever(currentMemberContext.current("Kasper")).thenReturn(member("Kasper", "kasper@example.com", xp = 250, level = 2))
         whenever(collectiveRepository.findByJoinCode("ABC123")).thenReturn(
             Collective(id = 1, name = "Villa", joinCode = "ABC123", ownerMemberId = 1, monthlyPrize = "Pizza"),
         )
@@ -357,7 +359,9 @@ class StatsServiceTest {
 
     @Test
     fun `getMemberStats returns stats for target member`() {
-        whenever(memberRepository.findByName("Emma")).thenReturn(member("Emma", "emma@example.com", id = 2, xp = 150, level = 1))
+        whenever(
+            memberRepository.findByNameAndCollectiveCode("Emma", "ABC123"),
+        ).thenReturn(member("Emma", "emma@example.com", id = 2, xp = 150, level = 1))
         whenever(taskRepository.findAllByCollectiveCode("ABC123")).thenReturn(
             listOf(
                 task(id = 1, title = "Trash", assignee = "Emma", completed = true, completedAt = LocalDateTime.now().minusDays(1), xp = 20),
@@ -389,7 +393,9 @@ class StatsServiceTest {
 
     @Test
     fun `stats include archived task history alongside live tasks`() {
-        whenever(memberRepository.findByName("Emma")).thenReturn(member("Emma", "emma@example.com", id = 2, xp = 150, level = 1))
+        whenever(
+            memberRepository.findByNameAndCollectiveCode("Emma", "ABC123"),
+        ).thenReturn(member("Emma", "emma@example.com", id = 2, xp = 150, level = 1))
         whenever(taskRepository.findAllByCollectiveCode("ABC123")).thenReturn(
             listOf(
                 task(id = 1, title = "Trash", assignee = "Emma", completed = true, completedAt = LocalDateTime.now().minusDays(1), xp = 20),

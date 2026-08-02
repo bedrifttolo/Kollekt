@@ -122,6 +122,13 @@ function sanitizeMessage(message: string, fallback: string): string {
     return t('errors.notFound', fallback);
   }
 
+  // Checked before the generic "already exists" branch below: a same-household name collision
+  // at join time needs its own copy pointing the user back to the name step, not the generic
+  // "this already exists" message (CollectiveOperations.joinCollective).
+  if (lower.includes('already exists in this household')) {
+    return t('errors.nameTakenInHousehold', fallback);
+  }
+
   if (lower.includes('already exists') || lower.includes('duplicate')) {
     return t('errors.alreadyExists', fallback);
   }
@@ -146,6 +153,21 @@ function sanitizeMessage(message: string, fallback: string): string {
   }
 
   return normalized;
+}
+
+/**
+ * Thrown for any non-OK backend response. `message` is already translated for display, so
+ * `rawMessage` keeps the backend's untranslated text — the only thing callers can reliably
+ * branch on when they need to react to a *specific* failure rather than just show it.
+ */
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    readonly rawMessage: string,
+  ) {
+    super(message);
+    this.name = 'ApiError';
+  }
 }
 
 export function getUserMessage(error: unknown, fallback = t('errors.generic', 'Something went wrong. Please try again.')): string {
@@ -320,7 +342,7 @@ async function request<T>(path: string, init?: RequestInit, retryOnAuthFailure =
         // Keep raw body when it is not JSON.
       }
     }
-    throw new Error(getUserMessage(message, t('errors.generic', 'Something went wrong. Please try again.')));
+    throw new ApiError(getUserMessage(message, t('errors.generic', 'Something went wrong. Please try again.')), message);
   }
 
   if (response.status === 204) {

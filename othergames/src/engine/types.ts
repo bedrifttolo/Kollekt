@@ -112,6 +112,12 @@ export interface GameConfig {
   allowSkip: boolean;
   /** Extra drinks for using a skip */
   skipDrinkPenalty: number;
+  /**
+   * When true, event text uses the original alcohol/drink wording instead of the default
+   * point-based wording. Only ever true in a build that opted in via `VITE_ENABLE_ALCOHOL_MODE`
+   * (see `src/lib/kollektGame.ts`) — must stay false for the App Store build.
+   */
+  alcoholMode: boolean;
 }
 
 // ─── Summary (for UI scoreboard) ─────────────────────────────────────────────

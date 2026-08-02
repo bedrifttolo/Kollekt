@@ -2,6 +2,7 @@ package com.kollekt.service
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import com.kollekt.domain.Member
 import com.kollekt.domain.Notification
 import com.kollekt.repository.MemberRepository
 import com.kollekt.repository.NotificationRepository
@@ -45,11 +46,18 @@ class NotificationService(
 ) {
     private val objectMapper = jacksonObjectMapper()
 
+    /** Callers here only have a bare recipient name, not a collectiveCode — resolving via
+     *  [MemberRepository.findByName] would throw if two members happen to share that name in
+     *  different households. Falling back to the first match trades a rare wrong-preference/
+     *  wrong-channel notification glitch for never hard-failing a notification send; a full fix
+     *  would thread collectiveCode through every notification call site. */
+    private fun findMemberByName(name: String): Member? = memberRepository.findAllByName(name).firstOrNull()
+
     fun isNotificationEnabled(
         userName: String,
         type: String,
     ): Boolean {
-        val member = memberRepository.findByName(userName) ?: return true
+        val member = findMemberByName(userName) ?: return true
         val prefsJson = member.notificationPreferences ?: return true
         return try {
             val prefs = objectMapper.readValue<Map<String, Boolean>>(prefsJson)
@@ -61,7 +69,7 @@ class NotificationService(
 
     fun getPreferences(userName: String): Map<String, Boolean> {
         val member =
-            memberRepository.findByName(userName)
+            findMemberByName(userName)
                 ?: return ALL_NOTIFICATION_TYPES.associateWith { true }
         val prefsJson =
             member.notificationPreferences
@@ -79,14 +87,14 @@ class NotificationService(
         userName: String,
         prefs: Map<String, Boolean>,
     ) {
-        val member = memberRepository.findByName(userName) ?: return
+        val member = findMemberByName(userName) ?: return
         val sanitized = ALL_NOTIFICATION_TYPES.associateWith { type -> prefs[type] ?: true }
         memberRepository.save(member.copy(notificationPreferences = objectMapper.writeValueAsString(sanitized)))
     }
 
     private fun saveAndPublish(notification: Notification) {
         notificationRepository.save(notification)
-        val collectiveCode = memberRepository.findByName(notification.userName)?.collectiveCode ?: return
+        val collectiveCode = findMemberByName(notification.userName)?.collectiveCode ?: return
         realtimeUpdateService.publish(
             collectiveCode,
             "NOTIFICATION_CREATED",
@@ -158,7 +166,7 @@ class NotificationService(
                 Notification(userName = userName, message = message, type = type, timestamp = now, read = false)
             }
         notificationRepository.saveAll(notifications)
-        val collectiveCodes = enabled.mapNotNull { memberRepository.findByName(it)?.collectiveCode }.distinct()
+        val collectiveCodes = enabled.mapNotNull { findMemberByName(it)?.collectiveCode }.distinct()
         for (code in collectiveCodes) {
             realtimeUpdateService.publish(code, "NOTIFICATION_CREATED", mapOf("type" to type))
         }
@@ -178,7 +186,7 @@ class NotificationService(
                 Notification(userName = userName, message = messageJson, type = type, timestamp = now, read = false)
             }
         notificationRepository.saveAll(notifications)
-        val collectiveCodes = enabled.mapNotNull { memberRepository.findByName(it)?.collectiveCode }.distinct()
+        val collectiveCodes = enabled.mapNotNull { findMemberByName(it)?.collectiveCode }.distinct()
         for (code in collectiveCodes) {
             realtimeUpdateService.publish(code, "NOTIFICATION_CREATED", mapOf("type" to type))
         }

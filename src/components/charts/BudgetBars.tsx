@@ -53,7 +53,7 @@ export default function BudgetBars({
   };
 
   return (
-    <motion.ul variants={listContainer} initial="hidden" animate="show" className="space-y-1">
+    <motion.ul variants={listContainer} initial={animateIn ? "hidden" : false} animate="show" className="space-y-1">
       {budgets.map((budget) => {
         const category = budget.category as ExpenseCategory;
         const Icon = EXPENSE_CATEGORY_ICONS[category];

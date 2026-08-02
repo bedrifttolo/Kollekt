@@ -7,6 +7,7 @@ import com.kollekt.api.dto.EventAttendanceRequest
 import com.kollekt.api.dto.EventDto
 import com.kollekt.api.dto.UpdateEventRequest
 import com.kollekt.service.CalendarFeedService
+import com.kollekt.service.CurrentMemberContext
 import com.kollekt.service.EventOperations
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -18,13 +19,14 @@ import org.springframework.web.bind.annotation.*
 class CalendarController(
     private val eventOperations: EventOperations,
     private val calendarFeedService: CalendarFeedService,
+    private val currentMemberContext: CurrentMemberContext,
 ) {
     @GetMapping
     fun getEvents(
         @RequestParam memberName: String,
         @AuthenticationPrincipal jwt: Jwt,
     ): List<EventDto> {
-        requireTokenSubject(jwt, memberName)
+        currentMemberContext.requireTokenSubject(jwt, memberName)
         return eventOperations.getEvents(memberName)
     }
 
@@ -33,7 +35,7 @@ class CalendarController(
         @RequestParam memberName: String,
         @AuthenticationPrincipal jwt: Jwt,
     ): Map<String, String> {
-        requireTokenSubject(jwt, memberName)
+        currentMemberContext.requireTokenSubject(jwt, memberName)
         return mapOf("path" to calendarFeedService.feedPathForMember(memberName))
     }
 

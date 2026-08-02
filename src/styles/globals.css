@@ -377,6 +377,9 @@
 
   .mark { position: relative; display: inline; z-index: 0; }
   .mark::after { content: ''; position: absolute; z-index: -1; left: -.04em; right: -.04em; bottom: .03em; height: .34em; background: var(--secondary); }
+  /* Onboarding's heading highlight is teal, not the shared purple default — the page is a user's
+     first touchpoint and shouldn't introduce the --secondary accent used elsewhere (Social tab). */
+  .mark-primary::after { background: var(--primary); }
   .eyebrow { display: flex; align-items: center; gap: .55rem; color: var(--muted-foreground); font-size: .7rem; font-weight: 800; letter-spacing: .15em; text-transform: uppercase; }
   /* Falls back to --secondary (purple) wherever no tone-* class rides along (Profile, Home's own
      top eyebrow) — pages that pair Eyebrow with their own tone-* class (via the `accent` prop)

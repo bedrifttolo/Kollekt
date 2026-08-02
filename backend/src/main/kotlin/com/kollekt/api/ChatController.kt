@@ -10,6 +10,7 @@ import com.kollekt.api.dto.MessageDto
 import com.kollekt.api.dto.RemoveReactionRequest
 import com.kollekt.api.dto.VotePollRequest
 import com.kollekt.service.ChatOperations
+import com.kollekt.service.CurrentMemberContext
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.oauth2.jwt.Jwt
@@ -20,13 +21,14 @@ import org.springframework.web.multipart.MultipartFile
 @RequestMapping("/api/chat")
 class ChatController(
     private val chatOperations: ChatOperations,
+    private val currentMemberContext: CurrentMemberContext,
 ) {
     @GetMapping("/messages")
     fun getMessages(
         @RequestParam memberName: String,
         @AuthenticationPrincipal jwt: Jwt,
     ): List<MessageDto> {
-        requireTokenSubject(jwt, memberName)
+        currentMemberContext.requireTokenSubject(jwt, memberName)
         return chatOperations.getMessages(memberName)
     }
 
@@ -43,7 +45,7 @@ class ChatController(
         @RequestParam otherName: String,
         @AuthenticationPrincipal jwt: Jwt,
     ): List<MessageDto> {
-        requireTokenSubject(jwt, memberName)
+        currentMemberContext.requireTokenSubject(jwt, memberName)
         return chatOperations.getDirectMessages(memberName, otherName)
     }
 

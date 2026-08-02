@@ -9,6 +9,7 @@ import { initNativeShell } from './lib/nativeBootstrap';
 import { ThemeProvider } from './context/ThemeContext';
 import { queryClient } from './lib/queryClient';
 import { warmUpBackend } from './lib/api';
+import { initPurchases } from './lib/purchases';
 
 // Open the connection before anything renders, so the first request is not the one that pays for it.
 warmUpBackend();
@@ -40,4 +41,5 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 
 window.setTimeout(() => {
   void initNativeShell();
+  void initPurchases();
 }, 0);

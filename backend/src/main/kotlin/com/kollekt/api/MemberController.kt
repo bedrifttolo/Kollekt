@@ -3,6 +3,7 @@ package com.kollekt.api
 
 import com.kollekt.api.dto.UserDto
 import com.kollekt.service.CollectiveOperations
+import com.kollekt.service.CurrentMemberContext
 import com.kollekt.service.MemberOperations
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.oauth2.jwt.Jwt
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController
 class MemberController(
     private val memberOperations: MemberOperations,
     private val collectiveOperations: CollectiveOperations,
+    private val currentMemberContext: CurrentMemberContext,
 ) {
     data class InviteRequest(
         val email: String,
@@ -42,7 +44,7 @@ class MemberController(
         @RequestParam memberName: String,
         @AuthenticationPrincipal jwt: Jwt,
     ) {
-        requireTokenSubject(jwt, memberName)
+        currentMemberContext.requireTokenSubject(jwt, memberName)
         memberOperations.leaveCollective(memberName)
     }
 
@@ -60,7 +62,7 @@ class MemberController(
         @RequestBody req: StatusUpdateRequest,
         @AuthenticationPrincipal jwt: Jwt,
     ) {
-        requireTokenSubject(jwt, req.memberName)
+        currentMemberContext.requireTokenSubject(jwt, req.memberName)
         val newStatus =
             try {
                 com.kollekt.domain.MemberStatus
@@ -84,7 +86,7 @@ class MemberController(
         @RequestBody req: ColorUpdateRequest,
         @AuthenticationPrincipal jwt: Jwt,
     ) {
-        requireTokenSubject(jwt, req.memberName)
+        currentMemberContext.requireTokenSubject(jwt, req.memberName)
         memberOperations.updateMemberColor(req.memberName, req.color)
     }
 
@@ -93,7 +95,7 @@ class MemberController(
         @RequestParam memberName: String,
         @AuthenticationPrincipal jwt: Jwt,
     ): com.kollekt.api.dto.PaymentHandlesDto {
-        requireTokenSubject(jwt, memberName)
+        currentMemberContext.requireTokenSubject(jwt, memberName)
         return memberOperations.getPaymentHandles(memberName)
     }
 
@@ -102,7 +104,7 @@ class MemberController(
         @RequestBody req: com.kollekt.api.dto.UpdatePaymentHandlesRequest,
         @AuthenticationPrincipal jwt: Jwt,
     ): com.kollekt.api.dto.PaymentHandlesDto {
-        requireTokenSubject(jwt, req.memberName)
+        currentMemberContext.requireTokenSubject(jwt, req.memberName)
         return memberOperations.updatePaymentHandles(req)
     }
 
@@ -111,7 +113,7 @@ class MemberController(
         @RequestParam memberName: String,
         @AuthenticationPrincipal jwt: Jwt,
     ): List<UserDto> {
-        requireTokenSubject(jwt, memberName)
+        currentMemberContext.requireTokenSubject(jwt, memberName)
         return memberOperations.getCollectiveMembers(memberName)
     }
 
@@ -120,7 +122,7 @@ class MemberController(
         @RequestParam memberName: String,
         @AuthenticationPrincipal jwt: Jwt,
     ) {
-        requireTokenSubject(jwt, memberName)
+        currentMemberContext.requireTokenSubject(jwt, memberName)
         memberOperations.deleteUser(memberName)
     }
 
@@ -130,7 +132,7 @@ class MemberController(
         @RequestBody body: Map<String, String>,
         @AuthenticationPrincipal jwt: Jwt,
     ) {
-        requireTokenSubject(jwt, memberName)
+        currentMemberContext.requireTokenSubject(jwt, memberName)
         val friendName = body["friendName"] ?: throw IllegalArgumentException("Missing friendName")
         memberOperations.addFriend(memberName, friendName)
     }
@@ -141,7 +143,7 @@ class MemberController(
         @RequestParam friendName: String,
         @AuthenticationPrincipal jwt: Jwt,
     ) {
-        requireTokenSubject(jwt, memberName)
+        currentMemberContext.requireTokenSubject(jwt, memberName)
         memberOperations.removeFriend(memberName, friendName)
     }
 }

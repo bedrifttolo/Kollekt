@@ -18,16 +18,17 @@ import org.mockito.kotlin.whenever
 class UserProfileServiceTest {
     private val memberRepository = mock<MemberRepository>()
     private val friendshipRepository = mock<FriendshipRepository>()
+    private val currentMemberContext = mock<CurrentMemberContext>()
     private lateinit var service: UserProfileService
 
     @BeforeEach
     fun setUp() {
-        service = UserProfileService(memberRepository, friendshipRepository)
+        service = UserProfileService(memberRepository, friendshipRepository, currentMemberContext)
     }
 
     @Test
     fun `add friend persists a directional relationship`() {
-        whenever(memberRepository.findByName("Kasper")).thenReturn(member(1, "Kasper"))
+        whenever(currentMemberContext.current("Kasper")).thenReturn(member(1, "Kasper"))
         whenever(memberRepository.findByName("Emma")).thenReturn(member(2, "Emma"))
         whenever(friendshipRepository.existsByMemberIdAndFriendId(1, 2)).thenReturn(false)
 
@@ -42,7 +43,7 @@ class UserProfileServiceTest {
 
     @Test
     fun `add friend rejects duplicates`() {
-        whenever(memberRepository.findByName("Kasper")).thenReturn(member(1, "Kasper"))
+        whenever(currentMemberContext.current("Kasper")).thenReturn(member(1, "Kasper"))
         whenever(memberRepository.findByName("Emma")).thenReturn(member(2, "Emma"))
         whenever(friendshipRepository.existsByMemberIdAndFriendId(1, 2)).thenReturn(true)
 

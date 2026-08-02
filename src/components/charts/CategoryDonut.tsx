@@ -28,6 +28,7 @@ export default function CategoryDonut({
   onSelect,
   size = 188,
   thickness = 26,
+  animateIn = true,
 }: {
   categories: CategoryTotal[];
   total: number;
@@ -35,6 +36,9 @@ export default function CategoryDonut({
   onSelect: (category: ExpenseCategory | null) => void;
   size?: number;
   thickness?: number;
+  /** Set false on a warm re-navigation so the draw-in doesn't replay every time the page (which
+   *  fully remounts on every tab switch) is revisited — only a genuine cold load animates. */
+  animateIn?: boolean;
 }) {
   const { t } = useTranslation();
   const radius = (size - thickness) / 2;
@@ -82,12 +86,12 @@ export default function CategoryDonut({
               strokeWidth={isSelected ? thickness + 6 : thickness}
               strokeLinecap="butt"
               strokeDasharray={`${length} ${circumference - length}`}
-              initial={{ strokeDashoffset: 0, opacity: 0 }}
+              initial={animateIn ? { strokeDashoffset: 0, opacity: 0 } : false}
               animate={{
                 strokeDashoffset: -offset,
                 opacity: isDimmed ? 0.35 : 1,
               }}
-              transition={{ ...springSoft, delay: 0.05 + index * 0.04 }}
+              transition={{ ...springSoft, delay: animateIn ? 0.05 + index * 0.04 : 0 }}
               className="cursor-pointer"
               onClick={() => {
                 void tapFeedback();

@@ -1,16 +1,22 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { useGamesSubscription } from '../lib/purchases';
+import { usePremiumEntitlement } from '../lib/purchases';
 
 interface SubscriptionPaywallProps {
   onClose: () => void;
 }
 
+/** True when the RevenueCat plugin reports the user dismissed the native purchase sheet. */
+function isUserCancelled(error: unknown): boolean {
+  return typeof error === 'object' && error !== null && 'userCancelled' in error
+    && (error as { userCancelled?: boolean }).userCancelled === true;
+}
+
 /** Shared paywall for the single premium entitlement gating both the game hub and chat GIFs. */
 export default function SubscriptionPaywall({ onClose }: SubscriptionPaywallProps) {
   const { t } = useTranslation();
-  const { available, purchase, restore } = useGamesSubscription();
+  const { available, priceString, purchase, restore } = usePremiumEntitlement();
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
 
@@ -19,14 +25,14 @@ export default function SubscriptionPaywall({ onClose }: SubscriptionPaywallProp
     setTimeout(() => setNotice(null), 1800);
   };
 
-  const handleSubscribe = async () => {
+  const handlePurchase = async () => {
     if (!available) { flash(t('social.games.paywall.unavailable')); return; }
     setBusy(true);
     try {
       const ok = await purchase();
       if (ok) onClose();
-    } catch {
-      flash(t('social.games.paywall.unavailable'));
+    } catch (error) {
+      if (!isUserCancelled(error)) flash(t('social.games.paywall.unavailable'));
     } finally {
       setBusy(false);
     }
@@ -61,11 +67,11 @@ export default function SubscriptionPaywall({ onClose }: SubscriptionPaywallProp
         <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{t('social.games.paywall.body')}</p>
         {notice && <p className="mt-2 text-xs font-semibold text-primary">{notice}</p>}
         <button
-          onClick={() => void handleSubscribe()}
+          onClick={() => void handlePurchase()}
           disabled={busy}
           className="mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-ink px-4 py-3 text-sm font-bold text-ink-foreground disabled:opacity-50"
         >
-          {t('social.games.paywall.subscribe')}
+          {priceString ? t('social.games.paywall.unlockFor', { price: priceString }) : t('social.games.paywall.unlock')}
         </button>
         <button
           onClick={() => void handleRestore()}

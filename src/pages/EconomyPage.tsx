@@ -571,7 +571,7 @@ export default function EconomyPage() {
           />
         </div>
 
-        <MonthStrip months={stats.months} selectedKey={activeMonth} onSelect={setStatsMonth} />
+        <MonthStrip months={stats.months} selectedKey={activeMonth} onSelect={setStatsMonth} animateIn={justFinishedLoading} />
 
         {stats.breakdown.categories.length > 0 ? (
           <>
@@ -580,6 +580,7 @@ export default function EconomyPage() {
               total={stats.breakdown.total}
               selected={selectedCategory}
               onSelect={setSelectedCategory}
+              animateIn={justFinishedLoading}
             />
             <CategoryBars
               categories={stats.breakdown.categories}

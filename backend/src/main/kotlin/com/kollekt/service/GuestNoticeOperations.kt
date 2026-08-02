@@ -120,8 +120,8 @@ class GuestNoticeOperations(
             collectiveRepository.findById(
                 collectiveId,
             ).orElseThrow { IllegalArgumentException("Collective $collectiveId not found") }
-        val member = memberRepository.findByName(actorName) ?: throw IllegalArgumentException("User not found")
-        if (member.collectiveCode != collective.joinCode) throw AccessDeniedException("Collective access denied")
+        memberRepository.findByNameAndCollectiveCode(actorName, collective.joinCode)
+            ?: throw AccessDeniedException("Collective access denied")
         return collective
     }
 

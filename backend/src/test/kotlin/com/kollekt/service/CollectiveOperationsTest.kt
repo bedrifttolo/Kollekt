@@ -15,7 +15,7 @@ import com.kollekt.repository.MemberRepository
 import com.kollekt.repository.RoomRepository
 import com.kollekt.repository.TaskRepository
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -43,6 +43,7 @@ class CollectiveOperationsTest {
     private lateinit var googleCalendarService: GoogleCalendarService
     private lateinit var userProfileService: UserProfileService
     private lateinit var invitationMailer: InvitationMailer
+    private lateinit var currentMemberContext: CurrentMemberContext
     private lateinit var operations: CollectiveOperations
 
     @BeforeEach
@@ -55,7 +56,8 @@ class CollectiveOperationsTest {
         taskOperations = mock()
         invitationRealtimeService = mock()
         googleCalendarService = mock()
-        userProfileService = UserProfileService(memberRepository, mock<FriendshipRepository>())
+        currentMemberContext = mock()
+        userProfileService = UserProfileService(memberRepository, mock<FriendshipRepository>(), currentMemberContext)
         invitationMailer = mock()
         operations =
             CollectiveOperations(
@@ -69,6 +71,7 @@ class CollectiveOperationsTest {
                 invitationRealtimeService = invitationRealtimeService,
                 googleCalendarService = googleCalendarService,
                 invitationMailer = invitationMailer,
+                currentMemberContext = currentMemberContext,
             )
     }
 
@@ -80,7 +83,7 @@ class CollectiveOperationsTest {
         whenever(collectiveRepository.save(any<Collective>())).thenAnswer {
             (it.arguments[0] as Collective).copy(id = 10)
         }
-        whenever(memberRepository.findByName("Emma")).thenReturn(null)
+        whenever(memberRepository.findAllByNameAndCollectiveCodeIsNull("Emma")).thenReturn(emptyList())
         whenever(memberRepository.save(any<Member>())).thenAnswer { it.arguments[0] as Member }
         whenever(taskRepository.save(any<TaskItem>())).thenAnswer { it.arguments[0] as TaskItem }
 
@@ -143,9 +146,47 @@ class CollectiveOperationsTest {
     }
 
     @Test
+    fun `join collective is blocked when the household already has that name`() {
+        // Names only need to be unique within a household, so this is the one place the rule is
+        // enforced — the joiner is sent back to the rename step rather than joining as a duplicate.
+        val pendingUser = member("Kasper", "kasper@example.com", id = 7, collectiveCode = null)
+        whenever(collectiveRepository.findByJoinCode("ABC123")).thenReturn(
+            Collective(id = 1, name = "Villa", joinCode = "ABC123", ownerMemberId = 2),
+        )
+        whenever(memberRepository.findById(7)).thenReturn(Optional.of(pendingUser))
+        whenever(memberRepository.findByNameAndCollectiveCodeForUpdate("Kasper", "ABC123")).thenReturn(
+            member("Kasper", "other-kasper@example.com", id = 9),
+        )
+
+        val error =
+            assertThrows(IllegalArgumentException::class.java) {
+                operations.joinCollective(JoinCollectiveRequest(userId = 7, joinCode = "ABC123"))
+            }
+
+        assertTrue(error.message!!.contains("already exists in this household"))
+        verify(memberRepository, never()).save(any<Member>())
+    }
+
+    @Test
+    fun `join collective allows a name already used in a different household`() {
+        val pendingUser = member("Kasper", "kasper@example.com", id = 7, collectiveCode = null)
+        whenever(collectiveRepository.findByJoinCode("ABC123")).thenReturn(
+            Collective(id = 1, name = "Villa", joinCode = "ABC123", ownerMemberId = 2),
+        )
+        whenever(memberRepository.findById(7)).thenReturn(Optional.of(pendingUser))
+        // Someone named Kasper exists elsewhere, but not in ABC123.
+        whenever(memberRepository.findByNameAndCollectiveCodeForUpdate("Kasper", "ABC123")).thenReturn(null)
+        whenever(memberRepository.save(any<Member>())).thenAnswer { it.arguments[0] as Member }
+
+        val result = operations.joinCollective(JoinCollectiveRequest(userId = 7, joinCode = "ABC123"))
+
+        assertEquals("ABC123", result.collectiveCode)
+    }
+
+    @Test
     fun `invite user publishes realtime event for created invitation`() {
         val inviter = member("Emma", "emma@example.com", collectiveCode = "ABC123")
-        whenever(memberRepository.findByName("Emma")).thenReturn(inviter)
+        whenever(currentMemberContext.current("Emma")).thenReturn(inviter)
         whenever(invitationRepository.findByEmailAndCollectiveCode("kasper@example.com", "ABC123")).thenReturn(null)
         whenever(invitationRepository.save(any<Invitation>())).thenAnswer {
             (it.arguments[0] as Invitation).copy(id = 1)
@@ -164,10 +205,10 @@ class CollectiveOperationsTest {
     @Test
     fun `save google calendar tokens stores exchanged tokens`() {
         val member = member("Kasper", "kasper@example.com")
-        whenever(memberRepository.findByName("Kasper")).thenReturn(member)
+        whenever(memberRepository.findById(1)).thenReturn(Optional.of(member))
         whenever(googleCalendarService.exchangeCode("auth-code")).thenReturn("access-token" to "refresh-token")
 
-        operations.saveGoogleCalendarTokens("Kasper", "auth-code")
+        operations.saveGoogleCalendarTokens(1, "auth-code")
 
         verify(memberRepository).save(
             check {
@@ -184,7 +225,7 @@ class CollectiveOperationsTest {
                 googleAccessToken = "access-token",
                 googleRefreshToken = "refresh-token",
             )
-        whenever(memberRepository.findByName("Kasper")).thenReturn(member)
+        whenever(currentMemberContext.current("Kasper")).thenReturn(member)
 
         operations.disconnectGoogleCalendar("Kasper")
 
@@ -205,7 +246,7 @@ class CollectiveOperationsTest {
         whenever(collectiveRepository.save(any<Collective>())).thenReturn(
             Collective(id = 10, name = "Villa", joinCode = "ABC123", ownerMemberId = 1),
         )
-        whenever(memberRepository.findByName("Emma")).thenReturn(existingResident)
+        whenever(memberRepository.findAllByNameAndCollectiveCodeIsNull("Emma")).thenReturn(listOf(existingResident))
         whenever(memberRepository.save(any<Member>())).thenAnswer { it.arguments[0] as Member }
         whenever(taskRepository.save(any<TaskItem>())).thenAnswer { it.arguments[0] as TaskItem }
 
@@ -251,7 +292,7 @@ class CollectiveOperationsTest {
     @Test
     fun `invite user ignores realtime publish failures`() {
         val inviter = member("Emma", "emma@example.com", collectiveCode = "ABC123")
-        whenever(memberRepository.findByName("Emma")).thenReturn(inviter)
+        whenever(currentMemberContext.current("Emma")).thenReturn(inviter)
         whenever(invitationRepository.findByEmailAndCollectiveCode("kasper@example.com", "ABC123")).thenReturn(null)
         whenever(invitationRepository.save(any<Invitation>())).thenAnswer {
             (it.arguments[0] as Invitation).copy(id = 1)
@@ -280,7 +321,7 @@ class CollectiveOperationsTest {
     @Test
     fun `is google calendar connected delegates to service`() {
         val member = member("Kasper", "kasper@example.com")
-        whenever(memberRepository.findByName("Kasper")).thenReturn(member)
+        whenever(currentMemberContext.current("Kasper")).thenReturn(member)
         whenever(googleCalendarService.isConnected(member)).thenReturn(true)
 
         val connected = operations.isGoogleCalendarConnected("Kasper")
@@ -290,12 +331,15 @@ class CollectiveOperationsTest {
     }
 
     @Test
-    fun `is google calendar connected returns false when member is missing`() {
-        whenever(memberRepository.findByName("Kasper")).thenReturn(null)
+    fun `is google calendar connected rejects an unresolvable caller`() {
+        // Unreachable in practice — the JWT that got the caller this far already resolved to a
+        // real member — but the ambient identity lookup should still fail closed, not silently.
+        whenever(currentMemberContext.current("Kasper"))
+            .thenThrow(org.springframework.security.access.AccessDeniedException("Token does not match a known member"))
 
-        val connected = operations.isGoogleCalendarConnected("Kasper")
-
-        assertFalse(connected)
+        assertThrows(org.springframework.security.access.AccessDeniedException::class.java) {
+            operations.isGoogleCalendarConnected("Kasper")
+        }
         verify(googleCalendarService, never()).isConnected(any())
     }
 

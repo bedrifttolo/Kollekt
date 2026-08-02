@@ -13,34 +13,44 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import org.springframework.security.oauth2.jwt.Jwt
+import java.util.Optional
 
 class AccountOperationsDisplayNameTest {
     private lateinit var memberRepository: MemberRepository
     private lateinit var tokenService: TokenService
+    private lateinit var currentMemberContext: CurrentMemberContext
     private lateinit var operations: AccountOperations
 
     @BeforeEach
     fun setUp() {
         memberRepository = mock()
         tokenService = mock()
-        operations = AccountOperations(memberRepository, tokenService, UserProfileService(memberRepository, mock<FriendshipRepository>()))
+        currentMemberContext = CurrentMemberContext(memberRepository)
+        operations =
+            AccountOperations(
+                memberRepository,
+                tokenService,
+                UserProfileService(memberRepository, mock<FriendshipRepository>(), currentMemberContext),
+                currentMemberContext,
+            )
     }
+
+    private fun jwtFor(id: Long) = Jwt.withTokenValue("token").header("alg", "none").subject(id.toString()).claim("uid", id).build()
 
     @Test
     fun `renames a member who has not joined a collective and reissues tokens`() {
         val member = member(name = "a1b2c3d4e5", collectiveCode = null)
-        whenever(memberRepository.findByName("a1b2c3d4e5")).thenReturn(member)
-        whenever(memberRepository.findByName("Kasper")).thenReturn(null)
+        whenever(memberRepository.findById(1L)).thenReturn(Optional.of(member))
         whenever(memberRepository.save(any<Member>())).thenAnswer { it.arguments[0] as Member }
         whenever(tokenService.issueTokenPair(any<Member>()))
             .thenReturn(TokenResult("new-access", "new-refresh", "Bearer", 3600))
 
-        val result = operations.updateDisplayName("a1b2c3d4e5", "  Kasper  ")
+        val result = operations.updateDisplayName(jwtFor(1), "  Kasper  ")
 
         val saved = argumentCaptor<Member>()
         verify(memberRepository).save(saved.capture())
         assertEquals("Kasper", saved.firstValue.name)
-        // The old access token's subject no longer resolves, so a fresh pair is mandatory.
         assertEquals("new-access", result.accessToken)
         assertEquals("Kasper", result.user.name)
     }
@@ -49,41 +59,44 @@ class AccountOperationsDisplayNameTest {
     fun `refuses to rename a member who already belongs to a collective`() {
         // Tasks, expenses and chat messages all reference the member by name, so a rename here
         // would orphan their history.
-        whenever(memberRepository.findByName("Kasper")).thenReturn(member(name = "Kasper", collectiveCode = "ABC123"))
+        whenever(memberRepository.findById(1L)).thenReturn(Optional.of(member(name = "Kasper", collectiveCode = "ABC123")))
 
-        assertThrows<IllegalArgumentException> { operations.updateDisplayName("Kasper", "Kasper II") }
-
-        verify(memberRepository, never()).save(any<Member>())
-    }
-
-    @Test
-    fun `refuses a name that is already taken`() {
-        whenever(memberRepository.findByName("a1b2c3d4e5")).thenReturn(member(name = "a1b2c3d4e5", collectiveCode = null))
-        whenever(memberRepository.findByName("Kasper")).thenReturn(member(name = "Kasper", id = 2, collectiveCode = "ABC123"))
-
-        assertThrows<IllegalArgumentException> { operations.updateDisplayName("a1b2c3d4e5", "Kasper") }
+        assertThrows<IllegalArgumentException> { operations.updateDisplayName(jwtFor(1), "Kasper II") }
 
         verify(memberRepository, never()).save(any<Member>())
     }
 
     @Test
     fun `refuses a blank name`() {
-        whenever(memberRepository.findByName("a1b2c3d4e5")).thenReturn(member(name = "a1b2c3d4e5", collectiveCode = null))
-
-        assertThrows<IllegalArgumentException> { operations.updateDisplayName("a1b2c3d4e5", "   ") }
+        assertThrows<IllegalArgumentException> { operations.updateDisplayName(jwtFor(1), "   ") }
 
         verify(memberRepository, never()).save(any<Member>())
     }
 
     @Test
-    fun `keeping the same name is allowed and does not trip the uniqueness check`() {
-        val member = member(name = "Kasper", collectiveCode = null)
-        whenever(memberRepository.findByName("Kasper")).thenReturn(member)
+    fun `allows a name that collides with another pre-join member`() {
+        // Uniqueness before joining a collective is no longer enforced — two people can share a
+        // display name until one of them actually joins a household (see
+        // CollectiveOperations.joinCollective).
+        whenever(memberRepository.findById(1L)).thenReturn(Optional.of(member(name = "a1b2c3d4e5", collectiveCode = null)))
         whenever(memberRepository.save(any<Member>())).thenAnswer { it.arguments[0] as Member }
         whenever(tokenService.issueTokenPair(any<Member>()))
             .thenReturn(TokenResult("new-access", "new-refresh", "Bearer", 3600))
 
-        val result = operations.updateDisplayName("Kasper", "Kasper")
+        val result = operations.updateDisplayName(jwtFor(1), "Kasper")
+
+        assertEquals("Kasper", result.user.name)
+    }
+
+    @Test
+    fun `keeping the same name is allowed`() {
+        val member = member(name = "Kasper", collectiveCode = null)
+        whenever(memberRepository.findById(1L)).thenReturn(Optional.of(member))
+        whenever(memberRepository.save(any<Member>())).thenAnswer { it.arguments[0] as Member }
+        whenever(tokenService.issueTokenPair(any<Member>()))
+            .thenReturn(TokenResult("new-access", "new-refresh", "Bearer", 3600))
+
+        val result = operations.updateDisplayName(jwtFor(1), "Kasper")
 
         assertEquals("Kasper", result.user.name)
     }

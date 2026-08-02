@@ -1,6 +1,7 @@
 package com.kollekt.api
 
 import com.kollekt.service.CollectiveOperations
+import com.kollekt.service.CurrentMemberContext
 import com.kollekt.service.MemberOperations
 import com.kollekt.service.TokenStoreService
 import org.junit.jupiter.api.Test
@@ -31,6 +32,8 @@ class MemberControllerContractTest {
     @MockitoBean lateinit var collectiveOperations: CollectiveOperations
 
     @MockitoBean lateinit var tokenStoreService: TokenStoreService
+
+    @MockitoBean lateinit var currentMemberContext: CurrentMemberContext
 
     @Test
     fun `member invite delegates to the service with token subject`() {

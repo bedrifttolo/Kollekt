@@ -5,6 +5,7 @@ import { onAppResume } from '../lib/appLifecycle';
 import { prefetchMainData } from '../lib/prefetch';
 import { connectCollectiveRealtime, type RealtimeEvent } from '../lib/realtime';
 import { registerPushNotifications, unregisterPushNotifications } from '../lib/pushNotifications';
+import { identifyPurchaser, resetPurchaser } from '../lib/purchases';
 import type { AppUser, Notification } from '../lib/types';
 
 type RealtimeEventListener = (event: RealtimeEvent) => void;
@@ -127,6 +128,11 @@ export function UserProvider({ children }: { children: ReactNode }) {
     return () => window.cancelAnimationFrame(frame);
   }, [currentUser?.name]);
 
+  useEffect(() => {
+    if (!currentUser?.name) return;
+    void identifyPurchaser(currentUser.name);
+  }, [currentUser?.name]);
+
   // Coming back from the background refreshes the token (inside onAppResume) and then re-syncs
   // the state that has no other way to catch up: the user record, and anything the WebSocket
   // pushed while the socket was down. Query data has its own staleness rules.
@@ -173,6 +179,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
   const handleLogout = async () => {
     await unregisterPushNotifications();
+    await resetPurchaser();
     await logoutSession();
     setCurrentUserState(null);
     setNotifications([]);

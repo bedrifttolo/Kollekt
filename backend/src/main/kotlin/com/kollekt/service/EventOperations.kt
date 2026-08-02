@@ -84,7 +84,7 @@ class EventOperations(
             )
 
         if (request.syncToGoogle) {
-            val member = memberRepository.findByName(actorName)
+            val member = memberRepository.findByNameAndCollectiveCode(actorName, collectiveCode)
             if (member != null) {
                 val googleEventId = googleCalendarService.createGoogleEvent(member, saved)
                 if (googleEventId != null) {
@@ -124,7 +124,7 @@ class EventOperations(
         require(event.collectiveCode == collectiveCode) { "Event not in your collective" }
 
         if (event.googleEventId != null) {
-            val member = memberRepository.findByName(actorName)
+            val member = memberRepository.findByNameAndCollectiveCode(actorName, collectiveCode)
             if (member != null) {
                 googleCalendarService.deleteGoogleEvent(member, event.googleEventId)
             }
