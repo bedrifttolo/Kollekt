@@ -39,6 +39,11 @@ class MemberController(
         val color: String,
     )
 
+    data class LanguageUpdateRequest(
+        val memberName: String,
+        val language: String,
+    )
+
     @PatchMapping("/leave-collective")
     fun leaveCollective(
         @RequestParam memberName: String,
@@ -88,6 +93,15 @@ class MemberController(
     ) {
         currentMemberContext.requireTokenSubject(jwt, req.memberName)
         memberOperations.updateMemberColor(req.memberName, req.color)
+    }
+
+    @PatchMapping("/language")
+    fun updateLanguage(
+        @RequestBody req: LanguageUpdateRequest,
+        @AuthenticationPrincipal jwt: Jwt,
+    ) {
+        currentMemberContext.requireTokenSubject(jwt, req.memberName)
+        memberOperations.updateMemberLanguage(req.memberName, req.language)
     }
 
     @GetMapping("/payment-handles")

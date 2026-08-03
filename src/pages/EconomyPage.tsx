@@ -264,13 +264,13 @@ export default function EconomyPage() {
   };
 
   /**
-   * Hands off to the payment app, putting the recipient and amount on the clipboard first —
-   * Vipps and MobilePay open cold with nothing pre-filled, so those two fields have to be typed
-   * and the clipboard is the only way to carry them across.
+   * Hands off to the payment app, putting the recipient on the clipboard first — Vipps and
+   * MobilePay open cold with nothing pre-filled, so the recipient has to be typed/pasted into
+   * their Send flow's recipient search; the amount is already visible on screen instead.
    */
-  const handoffTo = async (method: PaymentMethod, amount: number) => {
+  const handoffTo = async (method: PaymentMethod) => {
     setPayOpenFailed(null);
-    if (needsManualEntry(method)) await copyValue(clipboardPayload(method, amount));
+    if (needsManualEntry(method)) await copyValue(clipboardPayload(method));
     if (!method.url) return true;
     const opened = await openPaymentLink(method.url).catch(() => false);
     if (!opened) {
@@ -294,15 +294,15 @@ export default function EconomyPage() {
       setShowPaySheet(true);
       return;
     }
-    const opened = await handoffTo(methods[0], selectedPayOption.amount);
+    const opened = await handoffTo(methods[0]);
     // Only arm the confirmation once we actually left the app; otherwise the user never went
     // anywhere and would be asked whether they paid out of nowhere.
     if (opened) setAwaitingReturn(true);
     else setShowPaySheet(true);
   };
 
-  const handleOpenPayment = async (method: PaymentMethod, amount: number) => {
-    const opened = await handoffTo(method, amount);
+  const handleOpenPayment = async (method: PaymentMethod) => {
+    const opened = await handoffTo(method);
     if (opened) setAwaitingReturn(true);
   };
 
@@ -451,7 +451,7 @@ export default function EconomyPage() {
                         </button>
                         {m.url && (
                           <button
-                            onClick={() => void handleOpenPayment(m, selectedPayOption.amount)}
+                            onClick={() => void handleOpenPayment(m)}
                             className="rounded-lg gradient-primary px-3 py-2 text-xs font-semibold text-ink-foreground flex items-center gap-1.5 shrink-0"
                           >
                             <ExternalLink className="h-3.5 w-3.5" /> {t('economy.pay.open')}

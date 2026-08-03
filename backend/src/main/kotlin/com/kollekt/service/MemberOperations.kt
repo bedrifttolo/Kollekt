@@ -72,6 +72,16 @@ class MemberOperations(
         }
     }
 
+    @Transactional
+    fun updateMemberLanguage(
+        memberName: String,
+        language: String,
+    ) {
+        val member = requireSelf(memberName)
+        require(language in setOf("en", "no", "sv", "da")) { "Language must be one of en, no, sv, da" }
+        memberRepository.save(member.copy(language = language))
+    }
+
     fun getPaymentHandles(memberName: String): PaymentHandlesDto {
         val member = requireSelf(memberName)
         return PaymentHandlesDto(
