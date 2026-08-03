@@ -900,10 +900,14 @@ class TaskOperationsTest {
         whenever(memberRepository.findAllByCollectiveCode("ABC123")).thenReturn(
             listOf(member("Emma", "emma@example.com")),
         )
+        // Anchor on a January 31 in the past, so the series always runs through February's
+        // short month before catching up to today.
+        val today = LocalDate.now()
+        val anchor = today.minusYears(1).withMonth(1).withDayOfMonth(31)
         val storedTasks =
             mutableListOf(
-                recurringTask(1, "Monthly", "Emma", LocalDate.of(2026, 1, 31), 20, "monthly", "MONTHLY"),
-                recurringTask(2, "Monthly", "Emma", LocalDate.of(2026, 2, 28), 20, "monthly", "MONTHLY"),
+                recurringTask(1, "Monthly", "Emma", anchor, 20, "monthly", "MONTHLY"),
+                recurringTask(2, "Monthly", "Emma", anchor.plusMonths(1), 20, "monthly", "MONTHLY"),
             )
         whenever(taskRepository.findAllByCollectiveCode("ABC123")).thenAnswer { storedTasks.toList() }
         whenever(taskRepository.save(any<TaskItem>())).thenAnswer {
@@ -916,7 +920,13 @@ class TaskOperationsTest {
 
         operations.regenerateRecurringTasksForCollective("ABC123")
 
-        assertTrue(storedTasks.any { it.id == 3L && it.dueDate == LocalDate.of(2026, 6, 30) })
+        val generated = storedTasks.single { it.id == 3L }
+        // Still on the 31st (clamped only where the month is shorter) — February must not
+        // drag the whole series onto the 28th.
+        assertEquals(minOf(31, generated.dueDate.lengthOfMonth()), generated.dueDate.dayOfMonth)
+        // And it is the occurrence the series has caught up to: the latest one on or before today.
+        assertTrue(!generated.dueDate.isAfter(today))
+        assertTrue(!generated.dueDate.isBefore(today.minusMonths(1)))
     }
 
     private fun recurringTask(
