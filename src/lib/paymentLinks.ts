@@ -51,14 +51,15 @@ export function hasAnyMethod(handles: PaymentHandles | undefined): boolean {
  * What to put on the clipboard before handing off to a payment app.
  *
  * Vipps and MobilePay open on their own home screen with nothing pre-filled — their public
- * schemes carry no recipient or amount — so the user has to type both. Copying the handle alone
- * (what we did before, and only on failure) still left them re-reading the amount from memory.
- * The recipient is the one field the app can't guess, so it leads.
+ * schemes carry no recipient or amount. Their Send flow has a separate recipient-search field
+ * and a separate amount field, so a combined "handle — amount" string (what this used to copy)
+ * never actually pastes into either one. Copying only the bare handle lets it paste straight
+ * into the recipient search; the amount is already visible on screen (the balance-card CTA and
+ * the pay-sheet subtitle) before and after hand-off, so there's nothing else worth carrying
+ * across.
  */
-export function clipboardPayload(method: PaymentMethod, amount: number): string {
-  const rounded = Number.isFinite(amount) && amount > 0 ? Math.round(amount) : null;
-  if (method.provider === 'paypal' || rounded === null) return method.value;
-  return `${method.value} — ${rounded}`;
+export function clipboardPayload(method: PaymentMethod): string {
+  return method.value;
 }
 
 /** True when the app being opened cannot pre-fill, so the user must paste the details in. */

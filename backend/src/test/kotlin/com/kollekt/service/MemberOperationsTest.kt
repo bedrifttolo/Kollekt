@@ -171,6 +171,27 @@ class MemberOperationsTest {
     }
 
     @Test
+    fun `update member language saves a supported language code`() {
+        val kasper = member("Kasper", "kasper@example.com")
+        whenever(currentMemberContext.current("Kasper")).thenReturn(kasper)
+
+        operations.updateMemberLanguage("Kasper", "sv")
+
+        verify(memberRepository).save(kasper.copy(language = "sv"))
+    }
+
+    @Test
+    fun `update member language rejects an unsupported code`() {
+        val kasper = member("Kasper", "kasper@example.com")
+        whenever(currentMemberContext.current("Kasper")).thenReturn(kasper)
+
+        assertThrows(IllegalArgumentException::class.java) {
+            operations.updateMemberLanguage("Kasper", "fr")
+        }
+        verify(memberRepository, never()).save(any())
+    }
+
+    @Test
     fun `update member status triggers task regeneration only on actual change`() {
         val kasper = member("Kasper", "kasper@example.com").copy(status = MemberStatus.ACTIVE)
         whenever(currentMemberContext.current("Kasper")).thenReturn(kasper)

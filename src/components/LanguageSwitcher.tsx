@@ -1,6 +1,8 @@
 import { Languages } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useUser } from '../context/UserContext';
 import { loadLanguage, SUPPORTED_LANGUAGES, type SupportedLanguage } from '../i18n';
+import { api } from '../lib/api';
 import { cn } from './ui/utils';
 
 const languageLabels: Record<SupportedLanguage, string> = {
@@ -12,6 +14,7 @@ const languageLabels: Record<SupportedLanguage, string> = {
 
 export default function LanguageSwitcher({ className }: { className?: string }) {
   const { i18n, t } = useTranslation();
+  const { currentUser } = useUser();
   const currentLanguage = (SUPPORTED_LANGUAGES.includes(i18n.resolvedLanguage as SupportedLanguage)
     ? i18n.resolvedLanguage
     : 'no') as SupportedLanguage;
@@ -34,6 +37,12 @@ export default function LanguageSwitcher({ className }: { className?: string }) 
               void loadLanguage(language)
                 .catch(() => undefined)
                 .then(() => i18n.changeLanguage(language));
+              // Best-effort: this only feeds which language push notifications are composed
+              // in server-side. The UI's own language always comes from localStorage above,
+              // so a failed save here has no visible effect for the user.
+              if (currentUser?.name) {
+                void api.patch('/members/language', { memberName: currentUser.name, language }).catch(() => undefined);
+              }
             }}
             aria-pressed={isActive}
             aria-label={t(`languages.${language}`)}

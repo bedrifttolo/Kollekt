@@ -37,6 +37,8 @@ dependencies {
     implementation("com.google.api-client:google-api-client:2.2.0")
     implementation("com.google.apis:google-api-services-calendar:v3-rev20231123-2.0.0")
 
+    implementation("com.eatthepath:pushy:0.15.6")
+
     runtimeOnly("org.postgresql:postgresql")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")

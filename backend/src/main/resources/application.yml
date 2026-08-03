@@ -79,3 +79,11 @@ app:
   social:
     google-client-ids: ${SOCIAL_GOOGLE_CLIENT_IDS:${GOOGLE_CLIENT_ID:}}
     apple-client-ids: ${SOCIAL_APPLE_CLIENT_IDS:}
+  apns:
+    team-id: ${APNS_TEAM_ID:}
+    key-id: ${APNS_KEY_ID:}
+    # Base64-encoded contents of the APNs .p8 auth key. Base64 avoids the PEM newlines/whitespace
+    # getting mangled by whatever env-var pipeline sits between the host and the container.
+    auth-key-base64: ${APNS_AUTH_KEY_BASE64:}
+    bundle-id: ${APNS_BUNDLE_ID:no.kollekt.app}
+    production: ${APNS_PRODUCTION:false}

@@ -85,8 +85,10 @@
 	<false/>
 	<key>GADApplicationIdentifier</key>
 	<string>$(ADMOB_IOS_APP_ID)</string>
-	<key>NSUserTrackingUsageDescription</key>
-	<string>Kollekt uses this to show ads that are more relevant to you. You can decline and still use the app.</string>
+	<!-- NSUserTrackingUsageDescription removed: ads/ATT are gated behind VITE_ENABLE_ADS (false for
+	     this release, see src/lib/ads.ts) and its presence alone made App Store Connect require an
+	     App Privacy "tracking" declaration. Add it back, and answer that declaration, before ever
+	     flipping VITE_ENABLE_ADS to true. -->
 	<key>SKAdNetworkItems</key>
 	<array>
 		<dict>
