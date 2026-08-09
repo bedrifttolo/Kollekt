@@ -276,8 +276,11 @@ export async function ensureFreshAccessToken(): Promise<string | null> {
 
 async function request<T>(path: string, init?: RequestInit, retryOnAuthFailure = true): Promise<T> {
   // Refresh before spending the request when the token is about to lapse. The refresh endpoint
-  // itself must not recurse through this.
-  const token = path === '/onboarding/refresh' ? await getAccessToken() : await ensureFreshAccessToken();
+  // itself must not recurse through this. Reading the token can reject (e.g. a native Keychain
+  // hiccup) — that must not throw out of request() before the try block below exists to turn it
+  // into a readable error; fall back to an unauthenticated request and let the normal 401 path
+  // (or the caller's own error handling) deal with it instead of blowing up every caller.
+  const token = await (path === '/onboarding/refresh' ? getAccessToken() : ensureFreshAccessToken()).catch(() => null);
   const authHeader = token ? { Authorization: `Bearer ${token}` } : {};
   let response: Response;
 

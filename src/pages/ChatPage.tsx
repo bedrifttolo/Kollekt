@@ -88,7 +88,7 @@ function starterGifDataUrl({ paths, bg, fg }: (typeof STARTER_GIFS)[number]) {
 
 export default function ChatPage() {
   const { t } = useTranslation();
-  const { currentUser } = useUser();
+  const { currentUser, onlineCount } = useUser();
   const navigate = useNavigate();
   // Seed the household thread from the warm cache so re-opening Chat shows messages
   // instantly instead of the loading state; a background fetch then refreshes them.
@@ -115,7 +115,6 @@ export default function ChatPage() {
   const [actionMenuMessageId, setActionMenuMessageId] = useState<number | null>(null);
   const [replyingToId, setReplyingToId] = useState<number | null>(null);
   const [expandedImage, setExpandedImage] = useState<{ src: string; alt: string } | null>(null);
-  const [onlineCount, setOnlineCount] = useState<number | null>(null);
   const [loading, setLoading] = useState(
     () => !sharedQueryClient.getQueryData(qk.chat(currentUser?.name ?? '')),
   );
@@ -316,7 +315,7 @@ export default function ChatPage() {
   useRealtimeEvent(
     (event) => {
       if (!name) return;
-      if (['MESSAGE_CREATED', 'MESSAGE_REACTION_UPDATED', 'MESSAGE_POLL_UPDATED'].includes(event.type)) {
+      if (['MESSAGE_CREATED', 'MESSAGE_REACTION_UPDATED', 'MESSAGE_POLL_UPDATED', 'MESSAGE_PINNED'].includes(event.type)) {
         // Household events only matter while the household thread is open. The payload already
         // carries the full message, so patch it in directly instead of refetching everything.
         if (activeThreadRef.current == null) applyIncomingMessage(event.payload as ChatMessage, null);
@@ -329,10 +328,6 @@ export default function ChatPage() {
       if (event.type === 'CHECKIN_UPDATED') {
         queryClient.invalidateQueries({ queryKey: qk.checkin(name) });
         queryClient.invalidateQueries({ queryKey: ['checkin', 'summary', name] });
-      }
-      if (event.type === 'MEMBER_ONLINE' || event.type === 'MEMBER_OFFLINE') {
-        const count = (event.payload as { count?: number })?.count;
-        if (count !== undefined) setOnlineCount(count);
       }
       if (event.type === 'MEMBER_UPDATED') {
         queryClient.invalidateQueries({ queryKey: qk.members(name) });
@@ -423,6 +418,10 @@ export default function ChatPage() {
       // A no-op if the realtime echo already reconciled this message (see applyIncomingMessage) —
       // no message with id === tempId remains, so nothing matches and nothing duplicates.
       setMessages((prev) => prev.map((m) => (m.id === tempId ? saved : m)));
+      // Also write the query cache directly (not just local state), matching every other mutation
+      // in this file — otherwise a fast remount before the realtime echo arrives re-seeds from a
+      // cache that never learned about the message just sent.
+      void fetchMessages(thread);
     } catch {
       // Keep the bubble visible so the user can retry instead of losing the message and having
       // to retype it.
@@ -576,7 +575,7 @@ export default function ChatPage() {
    *
    * The endpoint and MessageDto.pinned have existed on the backend all along — a household could
    * never reach them because nothing in the UI read or called either. Pinning is a toggle server
-   * side, so the same call covers both directions; the MESSAGE_PINNED websocket event refetches the
+   * side, so the same call covers both directions; the MESSAGE_PINNED websocket event updates the
    * thread for everyone else.
    */
   const togglePin = async (messageId: number) => {

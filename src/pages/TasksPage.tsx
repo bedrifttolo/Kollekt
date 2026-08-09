@@ -438,7 +438,13 @@ function TasksMain() {
         if (payload?.updatedBy === name) return;
       }
 
-      if (event.type === 'TASK_UPDATED' || event.type === 'TASK_CREATED') {
+      if (
+        event.type === 'TASK_UPDATED' ||
+        event.type === 'TASK_CREATED' ||
+        event.type === 'TASK_COMPLETED_LATE' ||
+        event.type === 'TASK_REGRET' ||
+        event.type === 'TASK_FEEDBACK_UPDATED'
+      ) {
         const nextTask = extractTaskFromRealtimeEvent(event);
         if (nextTask) upsertTask(nextTask);
         return;
@@ -454,6 +460,7 @@ function TasksMain() {
 
       if (
         [
+          'TASK_PENALTY_APPLIED',
           'SHOPPING_UPDATED',
           'SHOPPING_ITEM_CREATED',
           'SHOPPING_ITEM_TOGGLED',
@@ -639,6 +646,7 @@ function TasksMain() {
       const updatedTask = await request();
       setTaskOverride(updatedTask);
       updateTaskInPlace(task.id, updatedTask);
+      void fetchAll();
     } catch {
       // Roll the optimistic update back; the task snapping to its previous state is the
       // user-visible signal that the change did not stick.
@@ -714,6 +722,7 @@ function TasksMain() {
   const deleteTask = async (taskId: number) => {
     await api.delete(`/tasks/${taskId}?memberName=${encodeURIComponent(name)}`);
     setTasksState((prev) => prev.filter((task) => task.id !== taskId));
+    void fetchAll();
   };
 
   const startEdit = (task: Task) => {
@@ -755,6 +764,7 @@ function TasksMain() {
         prev.map((task) => (task.id === editingId ? { ...task, ...body } : task)),
       );
       resetForm();
+      void fetchAll();
       return;
     }
 
@@ -780,6 +790,7 @@ function TasksMain() {
       const created = await api.post<Task>('/tasks', body);
       // Drop the temp row and any copy a realtime TASK_CREATED already added.
       setTasksState((prev) => sortTasks([...prev.filter((t) => t.id !== tempId && t.id !== created.id), created]));
+      void fetchAll();
     } catch {
       setTasksState((prev) => prev.filter((t) => t.id !== tempId));
       setNewTitle(draft.newTitle);

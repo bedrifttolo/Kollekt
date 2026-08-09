@@ -253,6 +253,7 @@ export default function ProfilePage() {
       }));
       setEditingQuietHours(false);
       setFeedback({ type: "success", text: t("profile.feedback.quietHoursSaved") });
+      void loadHouseRules();
     } catch (error: unknown) {
       setFeedback({ type: "error", text: getUserMessage(error, t("profile.errors.quietHoursFailed")) });
     }
@@ -347,7 +348,7 @@ export default function ProfilePage() {
   // is seeded as CLEANING (see CollectiveOperations.createOnboardingTasks), so it won't appear
   // here until someone (re)creates it via this section or recategorizes it on the Tasks page.
   const washingQuery = useQuery({
-    queryKey: qk.tasks(name),
+    queryKey: qk.tasksList(name),
     enabled: !!name,
     queryFn: () => api.get<Task[]>(`/tasks?memberName=${encodeURIComponent(name)}`),
   });
@@ -356,16 +357,16 @@ export default function ProfilePage() {
   useRealtimeEvent(
     (event) => {
       if (PROFILE_REFRESH_EVENTS.has(event.type)) void loadStatsAndAchievements();
-      if (event.type === "HOUSE_RULES_UPDATED") void loadHouseRules();
+      if (event.type === "HOUSE_RULES_UPDATED" || event.type === "QUIET_HOURS_UPDATED") void loadHouseRules();
       if (event.type === "KUDOS_CREATED") void loadKudos();
       if (event.type === "MEMBER_UPDATED") void queryClient.invalidateQueries({ queryKey: qk.members(name) });
       if (event.type === "MEMBER_RENAMED") {
         void queryClient.invalidateQueries({ queryKey: qk.members(name) });
-        void queryClient.invalidateQueries({ queryKey: qk.tasks(name) });
+        void queryClient.invalidateQueries({ queryKey: qk.tasksList(name) });
         void loadKudos();
       }
       if (["TASK_CREATED", "TASK_UPDATED", "TASK_DELETED"].includes(event.type)) {
-        void queryClient.invalidateQueries({ queryKey: qk.tasks(name) });
+        void queryClient.invalidateQueries({ queryKey: qk.tasksList(name) });
       }
     },
     () => {
@@ -411,7 +412,7 @@ export default function ProfilePage() {
       } else {
         await api.post("/tasks", body);
       }
-      await queryClient.invalidateQueries({ queryKey: qk.tasks(name) });
+      await queryClient.invalidateQueries({ queryKey: qk.tasksList(name) });
       resetWashingForm();
     } catch (error: unknown) {
       setFeedback({ type: "error", text: getUserMessage(error, t("profile.washingPlan.saveFailed")) });
@@ -424,7 +425,7 @@ export default function ProfilePage() {
     setFeedback(null);
     try {
       await api.delete(`/tasks/${taskId}?memberName=${encodeURIComponent(name)}`);
-      await queryClient.invalidateQueries({ queryKey: qk.tasks(name) });
+      await queryClient.invalidateQueries({ queryKey: qk.tasksList(name) });
     } catch (error: unknown) {
       setFeedback({ type: "error", text: getUserMessage(error, t("profile.washingPlan.saveFailed")) });
     }
@@ -437,6 +438,7 @@ export default function ProfilePage() {
       const saved = await api.put<HouseRules>(`/collectives/${collectiveId}/rules`, { content: rulesDraft });
       setHouseRules(saved);
       setShowRulesEditor(false);
+      void loadHouseRules();
     } finally {
       setRulesSaving(false);
     }
@@ -463,6 +465,7 @@ export default function ProfilePage() {
   const acknowledgeHouseRules = async () => {
     if (!collectiveId || !houseRules || houseRules.version === 0) return;
     setHouseRules(await api.post<HouseRules>(`/collectives/${collectiveId}/rules/${houseRules.version}/ack`, {}));
+    void loadHouseRules();
   };
 
   const handleToggleNotifPref = async (type: string, enabled: boolean) => {
@@ -509,6 +512,7 @@ export default function ProfilePage() {
     try {
       await api.patch("/members/color", { memberName: name, color });
       setFeedback({ type: "success", text: t("profile.feedback.colorSaved") });
+      void queryClient.invalidateQueries({ queryKey: qk.members(name) });
     } catch (error: unknown) {
       setCurrentUser({ ...currentUser, color: previous });
       setFeedback({ type: "error", text: getUserMessage(error, t("profile.errors.colorUpdateFailed")) });
@@ -529,6 +533,7 @@ export default function ProfilePage() {
       setCurrentUser(updated);
       setEditingName(false);
       setFeedback({ type: "success", text: t("profile.feedback.nameSaved") });
+      void queryClient.invalidateQueries({ queryKey: qk.members(name) });
     } catch (error: unknown) {
       setFeedback({ type: "error", text: getUserMessage(error, t("profile.errors.renameFailed")) });
     } finally {

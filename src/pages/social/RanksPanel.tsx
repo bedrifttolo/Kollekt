@@ -194,6 +194,7 @@ export default function RanksPanel() {
     setCatalog(updated);
     const enabledKeys = updated.filter((item) => item.enabled).map((item) => item.key);
     await api.patch(`/achievements/config?memberName=${encodeURIComponent(name)}`, { enabledKeys });
+    void fetchData(period);
   };
 
   // Session-scoped, tiny (one entry per custom achievement created) — no cleanup needed.
@@ -229,6 +230,7 @@ export default function RanksPanel() {
       // it doesn't unmount/remount (and replay its pop-in animation) the instant the server responds.
       clientKeyByServerKeyRef.current.set(created.key, optimistic.key);
       setAchievements((current) => current.map((a) => (a.id === tempId ? created : a)));
+      void fetchData(period);
     } catch {
       setAchievements((current) => current.filter((a) => a.id !== tempId));
       setCustomTitle(draft.customTitle);
@@ -243,6 +245,7 @@ export default function RanksPanel() {
   const handleDeleteAchievement = async (achievement: Achievement) => {
     await api.delete(`/achievements/custom/${Math.abs(achievement.id)}?memberName=${encodeURIComponent(name)}`);
     setAchievements((current) => current.filter((item) => item.id !== achievement.id));
+    void fetchData(period);
   };
 
   if (loading || !data) {

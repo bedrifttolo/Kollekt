@@ -188,6 +188,7 @@ export default function CalendarPage() {
       try {
         const created = await api.post<GuestNotice>("/guest-notices", body);
         setGuestNotices((previous) => previous.map((g) => (g.id === tempId ? created : g)));
+        void fetchEvents();
       } catch {
         setGuestNotices((previous) => previous.filter((g) => g.id !== tempId));
         setNewTitle(draft.newTitle);
@@ -218,6 +219,7 @@ export default function CalendarPage() {
     try {
       const created = await api.post<CalendarEvent>("/events", body);
       setEvents((prev) => prev.map((e) => (e.id === tempId ? created : e)));
+      void fetchEvents();
     } catch {
       setEvents((prev) => prev.filter((e) => e.id !== tempId));
       setNewTitle(draft.newTitle);
@@ -231,6 +233,7 @@ export default function CalendarPage() {
   const handleDelete = async (id: number) => {
     await api.delete(`/events/${id}`);
     setEvents((prev) => prev.filter((e) => e.id !== id));
+    void fetchEvents();
   };
 
   // Join/pass RSVP. Tapping your current answer again clears it.
@@ -240,6 +243,7 @@ export default function CalendarPage() {
       status: mine === status ? null : status,
     });
     setEvents((prev) => prev.map((e) => (e.id === event.id ? updated : e)));
+    void fetchEvents();
   };
 
   const openEdit = (e: CalendarEvent) => {
@@ -263,6 +267,7 @@ export default function CalendarPage() {
     );
     setEvents((prev) => prev.map((e) => (e.id === updated.id ? updated : e)));
     setEditingEvent(null);
+    void fetchEvents();
   };
 
 

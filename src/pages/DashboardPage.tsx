@@ -161,7 +161,13 @@ export default function DashboardPage() {
   useRealtimeEvent(
     (event) => {
       if (!name) return;
-      if (['TASK_UPDATED', 'TASK_CREATED', 'TASK_DELETED', 'TASK_COMPLETED_LATE', 'EXPENSE_CREATED', 'EVENT_CREATED', 'EVENT_UPDATED', 'EVENT_DELETED', 'BALANCES_SETTLED'].includes(event.type)) {
+      if ([
+        'TASK_UPDATED', 'TASK_CREATED', 'TASK_DELETED', 'TASK_COMPLETED_LATE', 'TASK_REGRET',
+        'TASK_FEEDBACK_UPDATED', 'TASK_PENALTY_APPLIED',
+        'EXPENSE_CREATED', 'EXPENSE_UPDATED', 'EXPENSE_DELETED',
+        'EVENT_CREATED', 'EVENT_UPDATED', 'EVENT_DELETED',
+        'BALANCES_SETTLED', 'ACHIEVEMENT_CONFIG_UPDATED',
+      ].includes(event.type)) {
         void queryClient.invalidateQueries({ queryKey: qk.dashboard(name) });
       }
       if (event.type === 'MEMBER_UPDATED') {

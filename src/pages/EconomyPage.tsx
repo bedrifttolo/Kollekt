@@ -166,7 +166,7 @@ export default function EconomyPage() {
 
   useRealtimeEvent(
     (event) => {
-      if (['EXPENSE_CREATED', 'EXPENSE_UPDATED', 'EXPENSE_DELETED', 'BALANCES_SETTLED', 'PANT_ADDED'].includes(event.type)) {
+      if (['EXPENSE_CREATED', 'EXPENSE_UPDATED', 'EXPENSE_DELETED', 'BALANCES_SETTLED', 'PANT_ADDED', 'PANT_UPDATED', 'PANT_DELETED'].includes(event.type)) {
         fetchSummary();
       }
       if (event.type === 'BUDGET_UPDATED' && name) {

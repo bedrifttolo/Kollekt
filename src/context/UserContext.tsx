@@ -26,6 +26,11 @@ interface UserContextValue {
    *  useRealtimeEvent hook below over calling this directly. */
   subscribeRealtimeEvent: (listener: RealtimeEventListener) => () => void;
   subscribeRealtimeReconnect: (listener: RealtimeReconnectListener) => () => void;
+  /** Live count of members connected to the collective's realtime socket right now, derived
+   *  from MEMBER_ONLINE/OFFLINE broadcasts. Kept here (not per-page) because the bootstrap
+   *  count arrives once, right when the shared socket opens at login — long before any page
+   *  that wants to display it has mounted. */
+  onlineCount: number | null;
 }
 
 const UserContext = createContext<UserContextValue | null>(null);
@@ -47,6 +52,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   // instead of opening their own socket.
   const eventListenersRef = useRef(new Set<RealtimeEventListener>());
   const reconnectListenersRef = useRef(new Set<RealtimeReconnectListener>());
+  const [onlineCount, setOnlineCount] = useState<number | null>(null);
 
   const subscribeRealtimeEvent = useCallback((listener: RealtimeEventListener) => {
     eventListenersRef.current.add(listener);
@@ -159,6 +165,10 @@ export function UserProvider({ children }: { children: ReactNode }) {
         if (event.type === 'NOTIFICATION_CREATED') {
           fetchNotifications(name);
         }
+        if (event.type === 'MEMBER_ONLINE' || event.type === 'MEMBER_OFFLINE') {
+          const count = (event.payload as { count?: number })?.count;
+          if (count !== undefined) setOnlineCount(count);
+        }
         eventListenersRef.current.forEach((listener) => listener(event));
       },
       {
@@ -222,6 +232,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
       markAllNotificationsRead,
       subscribeRealtimeEvent,
       subscribeRealtimeReconnect,
+      onlineCount,
     }}>
       {children}
     </UserContext.Provider>
