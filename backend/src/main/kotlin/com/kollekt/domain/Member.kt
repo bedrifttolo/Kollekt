@@ -40,5 +40,6 @@ data class Member(
     @Column(name = "mobilepay_handle", nullable = true, length = 32) val mobilepayHandle: String? = null,
     @Column(name = "paypal_handle", nullable = true, length = 64) val paypalHandle: String? = null,
     @Column(name = "bank_account", nullable = true, length = 64) val bankAccount: String? = null,
+    @Column(name = "card_info", nullable = true, length = 256) val cardInfo: String? = null,
     @Column(nullable = true, length = 2) val language: String? = null,
 )

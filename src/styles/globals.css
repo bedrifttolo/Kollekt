@@ -503,4 +503,16 @@ button, a, label, [role="tab"], [role="button"] { -webkit-tap-highlight-color: t
 .overflow-y-auto, .overflow-x-auto { overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
 .scrollbar-none { scrollbar-width: none; }
 .scrollbar-none::-webkit-scrollbar { display: none; }
-@media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+/* A bare animation-duration clamp doesn't stop infinite loaders (e.g. Tailwind's animate-pulse
+   used for every loading state) — it just compresses their cycle, so they keep repainting every
+   frame at a near-random phase, which reads as strobing/flashing rather than a graceful load.
+   Capping iteration-count to 1 lets them settle instead of looping forever; finite
+   animations/transitions only ever run 1 iteration anyway, so this is safe app-wide. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}

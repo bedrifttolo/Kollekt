@@ -12,8 +12,8 @@ import type { ChatMessage } from './types';
  *  drawn tight together, the way Snapchat and iMessage group them. */
 const GROUP_WINDOW_MS = 2 * 60 * 1000;
 
-export interface DecoratedMessage {
-  message: ChatMessage;
+export interface DecoratedMessage<M extends ChatMessage = ChatMessage> {
+  message: M;
   /** First bubble of a same-sender run — the only one that shows the sender's name. */
   isFirstOfGroup: boolean;
   /** Last bubble of a run — the only one that shows a timestamp, and the only one with a tail. */
@@ -45,7 +45,7 @@ function isGrouped(previous: ChatMessage | undefined, current: ChatMessage | und
  * @param lastSeenId the newest message id this member had already seen; null when they have never
  *   opened the thread, in which case nothing is marked unread — a first visit is not "new".
  */
-export function decorateMessages(messages: ChatMessage[], lastSeenId: number | null): DecoratedMessage[] {
+export function decorateMessages<M extends ChatMessage>(messages: M[], lastSeenId: number | null): DecoratedMessage<M>[] {
   // Only mark a boundary if there is something newer AND something older to divide it from.
   // When the whole thread is newer than the cursor the divider would sit at the very top saying
   // "everything is new", which tells the reader nothing — so it is suppressed entirely rather

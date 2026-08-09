@@ -167,6 +167,10 @@ export default function DashboardPage() {
       if (event.type === 'MEMBER_UPDATED') {
         void queryClient.invalidateQueries({ queryKey: qk.members(name) });
       }
+      if (event.type === 'MEMBER_RENAMED') {
+        void queryClient.invalidateQueries({ queryKey: qk.members(name) });
+        void queryClient.invalidateQueries({ queryKey: qk.dashboard(name) });
+      }
     },
     () => { if (name) void queryClient.invalidateQueries({ queryKey: qk.dashboard(name) }); },
   );
@@ -185,7 +189,15 @@ export default function DashboardPage() {
 
   const hour = new Date().getHours();
   const greetingKey =
-    hour < 12 ? 'dashboard.greetingMorning' : hour < 18 ? 'dashboard.greetingAfternoon' : 'dashboard.greetingEvening';
+    hour >= 6 && hour < 10
+      ? 'dashboard.greetingMorning'
+      : hour >= 10 && hour < 16
+        ? 'dashboard.greetingDay'
+        : hour >= 16 && hour < 19
+          ? 'dashboard.greetingAfternoon'
+          : hour >= 19 && hour < 23
+            ? 'dashboard.greetingEvening'
+            : 'dashboard.greetingNight';
 
   // One of six house prompts, rotating once a day. Seeded by the calendar date rather than random,
   // so it is the same line all day for everyone in the household and cannot reshuffle under you

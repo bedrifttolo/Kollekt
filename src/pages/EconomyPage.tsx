@@ -12,7 +12,7 @@ import { formatCurrency, formatDate, translateKey } from '../i18n/helpers';
 import type { AppUser, Budget, EconomySummary, Expense, PaymentHandles, PayOption } from '../lib/types';
 import { Avatar, CountUp, EmptyState, Eyebrow, Fab, IconButton, OverflowMenu, ProgressRing } from '../components/ui-kit';
 import { PAGE_ACCENTS } from '../lib/pageAccent';
-import { listContainer, listItem, pressableSubtle } from '../lib/motion';
+import { listContainer, listItem, pressableSubtle, useReducedMotion } from '../lib/motion';
 import { celebrate } from '../lib/celebrate';
 import { colorForMember } from '../lib/memberColors';
 import {
@@ -44,6 +44,7 @@ const PROVIDER_LABELS: Record<string, string> = {
   mobilepay: 'MobilePay',
   paypal: 'PayPal',
   bank: 'economy.pay.bankTransfer',
+  card: 'economy.pay.cardInfo',
 };
 
 // Single source of truth, shared with the stats layer and matched by the V60 CHECK constraint.
@@ -67,6 +68,7 @@ export default function EconomyPage() {
     () => !sharedQueryClient.getQueryData(qk.economy(currentUser?.name ?? '')),
   );
   const wasLoadingRef = useRef(loading);
+  const reducedMotion = useReducedMotion();
   const [settling, setSettling] = useState(false);
   const [showAllExpenses, setShowAllExpenses] = useState(false);
   // null until the summary lands, then defaults to the newest month that actually has expenses —
@@ -169,6 +171,10 @@ export default function EconomyPage() {
       }
       if (event.type === 'BUDGET_UPDATED' && name) {
         void queryClient.invalidateQueries({ queryKey: qk.budgets(name) });
+      }
+      if (event.type === 'MEMBER_RENAMED') {
+        void queryClient.invalidateQueries({ queryKey: qk.members(name) });
+        fetchSummary();
       }
     },
     () => fetchSummary(),
@@ -327,7 +333,7 @@ export default function EconomyPage() {
   // Tracks whether this render followed a real loading state, so the per-item entrance
   // animations below only replay right after a genuine cold load — a warm revisit (loading
   // never true) renders instantly instead of restaging the stagger-in on every tab switch.
-  const justFinishedLoading = wasLoadingRef.current;
+  const justFinishedLoading = wasLoadingRef.current && !reducedMotion;
   wasLoadingRef.current = false;
 
   const myBalance = summary.balances.find((b) => b.name === name);

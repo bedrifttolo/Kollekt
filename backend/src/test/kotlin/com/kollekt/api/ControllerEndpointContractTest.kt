@@ -37,6 +37,7 @@ import com.kollekt.service.CurrentMemberContext
 import com.kollekt.service.EconomyOperations
 import com.kollekt.service.EventOperations
 import com.kollekt.service.MemberOperations
+import com.kollekt.service.MemberRenameOperations
 import com.kollekt.service.ShoppingOperations
 import com.kollekt.service.SocialAuthService
 import com.kollekt.service.StatsService
@@ -112,6 +113,8 @@ class ControllerEndpointContractTest {
     @MockitoBean lateinit var statsService: StatsService
 
     @MockitoBean lateinit var memberOperations: MemberOperations
+
+    @MockitoBean lateinit var memberRenameOperations: MemberRenameOperations
 
     @MockitoBean lateinit var tokenStoreService: TokenStoreService
 

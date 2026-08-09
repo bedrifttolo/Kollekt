@@ -89,6 +89,7 @@ class MemberOperations(
             mobilepay = member.mobilepayHandle,
             paypal = member.paypalHandle,
             bankAccount = member.bankAccount,
+            cardInfo = member.cardInfo,
         )
     }
 
@@ -100,6 +101,7 @@ class MemberOperations(
         val mobilepay = normalizePhoneHandle(request.mobilepay, "MobilePay")
         val paypal = normalizePaypalHandle(request.paypal)
         val bankAccount = normalizeBankAccount(request.bankAccount)
+        val cardInfo = normalizeCardInfo(request.cardInfo)
 
         memberRepository.save(
             member.copy(
@@ -107,10 +109,17 @@ class MemberOperations(
                 mobilepayHandle = mobilepay,
                 paypalHandle = paypal,
                 bankAccount = bankAccount,
+                cardInfo = cardInfo,
             ),
         )
 
-        return PaymentHandlesDto(vipps = vipps, mobilepay = mobilepay, paypal = paypal, bankAccount = bankAccount)
+        return PaymentHandlesDto(
+            vipps = vipps,
+            mobilepay = mobilepay,
+            paypal = paypal,
+            bankAccount = bankAccount,
+            cardInfo = cardInfo,
+        )
     }
 
     private fun normalizePhoneHandle(
@@ -135,6 +144,18 @@ class MemberOperations(
         if (trimmed.isBlank()) return null
         require(trimmed.matches(Regex("^[A-Za-z0-9]{6,34}$"))) { "Bank account / IBAN must be 6–34 letters or digits" }
         return trimmed.uppercase()
+    }
+
+    // Freeform note, not a structured handle — no format to validate. Still guarded against
+    // holding an actual card number: this field is shown as-is to any housemate who owes money,
+    // so storing a real PAN here would be a plaintext-card-data exposure, not just bad advice.
+    private fun normalizeCardInfo(raw: String?): String? {
+        val trimmed = raw?.trim().orEmpty()
+        if (trimmed.isBlank()) return null
+        require(trimmed.length <= 256) { "Card payment note must be 256 characters or fewer" }
+        val digitsOnly = trimmed.replace(Regex("[^0-9]"), "")
+        require(digitsOnly.length < 12) { "Don't enter a full card number here — leave a note instead, like \"ask me in person\"" }
+        return trimmed
     }
 
     @Transactional

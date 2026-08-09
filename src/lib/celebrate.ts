@@ -1,5 +1,6 @@
 import confetti from 'canvas-confetti';
 import { errorFeedback, successFeedback, tapFeedback, ImpactStyle } from './haptics';
+import { prefersReducedMotion } from './motion';
 
 /**
  * The app's reward moments.
@@ -82,11 +83,6 @@ function paletteFor(palette: Recipe['palette']): string[] {
         cssVar('--tone-blush', '#f0d6cc'),
       ];
   }
-}
-
-function prefersReducedMotion(): boolean {
-  if (typeof window === 'undefined' || !window.matchMedia) return false;
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
 /**

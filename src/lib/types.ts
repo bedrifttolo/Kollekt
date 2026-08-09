@@ -65,6 +65,12 @@ export interface CheckinSummary {
   responses: CheckinResponse[];
 }
 
+export interface CollectiveDetails {
+  id: number;
+  name: string;
+  address: string | null;
+}
+
 export interface HouseRules {
   version: number;
   content: string;
@@ -185,6 +191,7 @@ export interface PaymentHandles {
   mobilepay?: string | null;
   paypal?: string | null;
   bankAccount?: string | null;
+  cardInfo?: string | null;
 }
 
 export interface PayOption {

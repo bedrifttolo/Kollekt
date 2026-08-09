@@ -88,7 +88,10 @@ export default function App() {
     // reducedMotion="user" is the only thing that actually stills framer-motion when the OS setting
     // is on. The `prefers-reduced-motion` block in globals.css clamps CSS animations, but JS-driven
     // springs ignore it entirely, so without this the app kept animating for people who asked it not
-    // to. Transform/opacity animations are skipped; layout and colour changes still apply.
+    // to. It only stills positional/transform animations (x, y, scale, layout, height, ...) — opacity
+    // and colour still animate at full duration by framer-motion's own design. Pages that gate an
+    // opacity fade on load state must separately check useReducedMotion() (see lib/motion.ts) to avoid
+    // a partial-animation flash — see EconomyPage/ChatPage/ProfilePage/PantTrackerPage.
     <MotionConfig reducedMotion="user">
       <BrowserRouter>
         <UserProvider>

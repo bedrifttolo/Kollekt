@@ -257,6 +257,7 @@ class EconomyOperations(
                         mobilepay = member.mobilepayHandle,
                         paypal = member.paypalHandle,
                         bankAccount = member.bankAccount,
+                        cardInfo = member.cardInfo,
                     )
             }
         val members = memberEntities.map { it.name }

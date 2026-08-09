@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { useReducedMotion } from "../lib/motion";
 import {
   Mail,
   LogOut,
@@ -20,6 +21,9 @@ import {
   ScrollText,
   AlertTriangle,
   Sparkles,
+  Gem,
+  WashingMachine,
+  Pencil,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -43,11 +47,15 @@ import type {
   HouseRules,
   QuietHours,
   Kudo,
+  Task,
+  CollectiveDetails,
 } from "../lib/types";
 import { useTheme } from "../context/ThemeContext";
-import { Eyebrow } from "../components/ui-kit";
+import { AddSheet, Avatar, Eyebrow, Field } from "../components/ui-kit";
 import LanguageSwitcher from "../components/LanguageSwitcher";
 import { MEMBER_COLORS, colorForMember } from "../lib/memberColors";
+import { usePremiumEntitlement } from "../lib/purchases";
+import SubscriptionPaywall from "../components/SubscriptionPaywall";
 
 const PROFILE_REFRESH_EVENTS = new Set([
   "TASK_CREATED",
@@ -63,6 +71,9 @@ const STATUS_OPTIONS: { value: MemberStatus; dotClass: string }[] = [
   { value: "ACTIVE", dotClass: "bg-emerald-500" },
   { value: "AWAY", dotClass: "bg-amber-500" },
 ];
+
+const WASHING_RECURRENCE_OPTIONS = ["WEEKLY", "MONTHLY", "NONE"] as const;
+const WASHING_PLAN_XP = 10;
 
 // Mirrors ALL_NOTIFICATION_TYPES in NotificationService.kt so every notification the backend can
 // send is toggleable here. Keep the two lists in sync when adding a notification type.
@@ -116,6 +127,8 @@ export default function ProfilePage() {
   const [paymentHandles, setPaymentHandles] = useState<PaymentHandles>({});
   const [paymentSaving, setPaymentSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const { isUnlocked: premiumUnlocked } = usePremiumEntitlement();
+  const [showPremiumPaywall, setShowPremiumPaywall] = useState(false);
   // Seeded from the React Query cache so a warm re-navigation shows the real numbers/cards from
   // the first paint instead of the query's empty defaults for one frame before the sync effects
   // below correct them.
@@ -125,7 +138,7 @@ export default function ProfilePage() {
       achievements: PromiseSettledResult<Achievement[]>;
     }>(qk.profileStats(currentUser?.name ?? ""));
   const cachedRules = () =>
-    sharedQueryClient.getQueryData<{ collectiveId: number; rules: HouseRules; quiet: QuietHours }>(
+    sharedQueryClient.getQueryData<{ collectiveId: number; rules: HouseRules; quiet: QuietHours; home: CollectiveDetails }>(
       qk.profileRules(currentUser?.name ?? ""),
     );
   const cachedKudos = () => sharedQueryClient.getQueryData<Kudo[]>(qk.profileKudos(currentUser?.name ?? ""));
@@ -158,6 +171,11 @@ export default function ProfilePage() {
   const [showRulesEditor, setShowRulesEditor] = useState(false);
   const [rulesDraft, setRulesDraft] = useState("");
   const [rulesSaving, setRulesSaving] = useState(false);
+  const [homeDetails, setHomeDetails] = useState<CollectiveDetails | null>(() => cachedRules()?.home ?? null);
+  const [showHomeEditor, setShowHomeEditor] = useState(false);
+  const [homeNameDraft, setHomeNameDraft] = useState("");
+  const [homeAddressDraft, setHomeAddressDraft] = useState("");
+  const [homeSaving, setHomeSaving] = useState(false);
   const [receivedKudos, setReceivedKudos] = useState(
     () => cachedKudos()?.filter((kudo) => kudo.receiver === currentUser?.name).length ?? 0,
   );
@@ -170,6 +188,16 @@ export default function ProfilePage() {
   const [violationNote, setViolationNote] = useState("");
   const [violationAnonymous, setViolationAnonymous] = useState(false);
   const [violationSaving, setViolationSaving] = useState(false);
+  const [editingName, setEditingName] = useState(false);
+  const [nameDraft, setNameDraft] = useState("");
+  const [nameSaving, setNameSaving] = useState(false);
+  const [showWashingForm, setShowWashingForm] = useState(false);
+  const [editingWashingId, setEditingWashingId] = useState<number | null>(null);
+  const [washingTitle, setWashingTitle] = useState("");
+  const [washingAssignee, setWashingAssignee] = useState("");
+  const [washingDue, setWashingDue] = useState("");
+  const [washingRecurrence, setWashingRecurrence] = useState<string>("WEEKLY");
+  const [washingSaving, setWashingSaving] = useState(false);
 
   const name = currentUser?.name ?? "";
   const queryClient = useQueryClient();
@@ -190,11 +218,12 @@ export default function ProfilePage() {
     enabled: !!currentUser?.id,
     queryFn: async () => {
       const collective = await api.get<{ collectiveId: number }>(`/onboarding/collectives/code/${currentUser!.id}`);
-      const [rules, quiet] = await Promise.all([
+      const [rules, quiet, home] = await Promise.all([
         api.get<HouseRules>(`/collectives/${collective.collectiveId}/rules`),
         api.get<QuietHours>(`/collectives/${collective.collectiveId}/quiet-hours`),
+        api.get<CollectiveDetails>(`/collectives/${collective.collectiveId}`),
       ]);
-      return { collectiveId: collective.collectiveId, rules, quiet };
+      return { collectiveId: collective.collectiveId, rules, quiet, home };
     },
   });
 
@@ -203,6 +232,7 @@ export default function ProfilePage() {
     setCollectiveId(rulesQuery.data.collectiveId);
     setHouseRules(rulesQuery.data.rules);
     setQuietHours(rulesQuery.data.quiet);
+    setHomeDetails(rulesQuery.data.home);
   }, [rulesQuery.data]);
 
   const loadHouseRules = useCallback(async () => {
@@ -298,6 +328,7 @@ export default function ProfilePage() {
   const loading =
     !!name && (statsQuery.isPending || rulesQuery.isPending || kudosQuery.isPending || householdMembersQuery.isPending);
   const wasLoadingRef = useRef(loading);
+  const reducedMotion = useReducedMotion();
 
   const paymentHandlesQuery = useQuery({
     queryKey: qk.profilePayments(name),
@@ -309,12 +340,30 @@ export default function ProfilePage() {
     if (paymentHandlesQuery.data) setPaymentHandles(paymentHandlesQuery.data);
   }, [paymentHandlesQuery.data]);
 
+  // Washing Plan shows tasks tagged category=LAUNDRY. The onboarding "laundry" room suggestion
+  // is seeded as CLEANING (see CollectiveOperations.createOnboardingTasks), so it won't appear
+  // here until someone (re)creates it via this section or recategorizes it on the Tasks page.
+  const washingQuery = useQuery({
+    queryKey: qk.tasks(name),
+    enabled: !!name,
+    queryFn: () => api.get<Task[]>(`/tasks?memberName=${encodeURIComponent(name)}`),
+  });
+  const washingTasks = (washingQuery.data ?? []).filter((task) => task.category === "LAUNDRY");
+
   useRealtimeEvent(
     (event) => {
       if (PROFILE_REFRESH_EVENTS.has(event.type)) void loadStatsAndAchievements();
       if (event.type === "HOUSE_RULES_UPDATED") void loadHouseRules();
       if (event.type === "KUDOS_CREATED") void loadKudos();
       if (event.type === "MEMBER_UPDATED") void queryClient.invalidateQueries({ queryKey: qk.members(name) });
+      if (event.type === "MEMBER_RENAMED") {
+        void queryClient.invalidateQueries({ queryKey: qk.members(name) });
+        void queryClient.invalidateQueries({ queryKey: qk.tasks(name) });
+        void loadKudos();
+      }
+      if (["TASK_CREATED", "TASK_UPDATED", "TASK_DELETED"].includes(event.type)) {
+        void queryClient.invalidateQueries({ queryKey: qk.tasks(name) });
+      }
     },
     () => {
       void loadStatsAndAchievements();
@@ -322,6 +371,61 @@ export default function ProfilePage() {
       void loadKudos();
     },
   );
+
+  const resetWashingForm = () => {
+    setWashingTitle("");
+    setWashingAssignee(name);
+    setWashingDue("");
+    setWashingRecurrence("WEEKLY");
+    setShowWashingForm(false);
+    setEditingWashingId(null);
+  };
+
+  const startEditWashing = (task: Task) => {
+    setShowWashingForm(false);
+    setEditingWashingId(task.id);
+    setWashingTitle(task.title);
+    setWashingAssignee(task.assignee);
+    setWashingDue(task.dueDate);
+    setWashingRecurrence(task.recurrenceRule ?? "NONE");
+  };
+
+  const saveWashingEntry = async () => {
+    if (!washingTitle.trim() || washingSaving) return;
+    setWashingSaving(true);
+    setFeedback(null);
+    const body = {
+      title: washingTitle.trim(),
+      assignee: washingAssignee || name,
+      dueDate: washingDue || new Date().toISOString().split("T")[0],
+      category: "LAUNDRY" as const,
+      xp: WASHING_PLAN_XP,
+      recurrenceRule: washingRecurrence === "NONE" ? null : washingRecurrence,
+    };
+    try {
+      if (editingWashingId) {
+        await api.patch(`/tasks/${editingWashingId}?memberName=${encodeURIComponent(name)}`, body);
+      } else {
+        await api.post("/tasks", body);
+      }
+      await queryClient.invalidateQueries({ queryKey: qk.tasks(name) });
+      resetWashingForm();
+    } catch (error: unknown) {
+      setFeedback({ type: "error", text: getUserMessage(error, t("profile.washingPlan.saveFailed")) });
+    } finally {
+      setWashingSaving(false);
+    }
+  };
+
+  const deleteWashingEntry = async (taskId: number) => {
+    setFeedback(null);
+    try {
+      await api.delete(`/tasks/${taskId}?memberName=${encodeURIComponent(name)}`);
+      await queryClient.invalidateQueries({ queryKey: qk.tasks(name) });
+    } catch (error: unknown) {
+      setFeedback({ type: "error", text: getUserMessage(error, t("profile.washingPlan.saveFailed")) });
+    }
+  };
 
   const saveHouseRules = async () => {
     if (!collectiveId || !rulesDraft.trim() || rulesSaving) return;
@@ -332,6 +436,24 @@ export default function ProfilePage() {
       setShowRulesEditor(false);
     } finally {
       setRulesSaving(false);
+    }
+  };
+
+  const saveHomeDetails = async () => {
+    if (!collectiveId || !homeNameDraft.trim() || homeSaving) return;
+    setHomeSaving(true);
+    setFeedback(null);
+    try {
+      const saved = await api.patch<CollectiveDetails>(`/collectives/${collectiveId}`, {
+        name: homeNameDraft.trim(),
+        address: homeAddressDraft.trim() || null,
+      });
+      setHomeDetails(saved);
+      setShowHomeEditor(false);
+    } catch (error: unknown) {
+      setFeedback({ type: "error", text: getUserMessage(error, t("profile.homeDetails.saveFailed")) });
+    } finally {
+      setHomeSaving(false);
     }
   };
 
@@ -389,6 +511,25 @@ export default function ProfilePage() {
       setFeedback({ type: "error", text: getUserMessage(error, t("profile.errors.colorUpdateFailed")) });
     } finally {
       setColorSaving(false);
+    }
+  };
+
+  const saveName = async () => {
+    if (!currentUser || !nameDraft.trim() || nameSaving) return;
+    setNameSaving(true);
+    setFeedback(null);
+    try {
+      const updated = await api.patch<AppUser>("/members/rename", {
+        memberName: name,
+        newName: nameDraft.trim(),
+      });
+      setCurrentUser(updated);
+      setEditingName(false);
+      setFeedback({ type: "success", text: t("profile.feedback.nameSaved") });
+    } catch (error: unknown) {
+      setFeedback({ type: "error", text: getUserMessage(error, t("profile.errors.renameFailed")) });
+    } finally {
+      setNameSaving(false);
     }
   };
 
@@ -452,6 +593,7 @@ export default function ProfilePage() {
         mobilepay: paymentHandles.mobilepay ?? null,
         paypal: paymentHandles.paypal ?? null,
         bankAccount: paymentHandles.bankAccount ?? null,
+        cardInfo: paymentHandles.cardInfo ?? null,
       });
       setPaymentHandles(saved);
       setFeedback({ type: "success", text: t("profile.paymentMethods.saved") });
@@ -511,6 +653,14 @@ export default function ProfilePage() {
     navigate("/login");
   };
 
+  // TourOverlay only checks its localStorage flag once, on mount, so clearing the flag alone
+  // wouldn't restart it — the app needs a fresh JS context for the check to run again. A full
+  // navigation does that reliably without new context plumbing for what's a rarely-used action.
+  const handleReplayGuide = () => {
+    if (currentUser?.id) localStorage.removeItem(`kollekt_tour_v2_${currentUser.id}`);
+    window.location.href = "/";
+  };
+
   if (loading) {
     wasLoadingRef.current = true;
     return (
@@ -521,7 +671,7 @@ export default function ProfilePage() {
   }
   // Tracks whether this render followed a real loading state, so the entrance fade below only
   // plays right after a genuine cold load — a warm revisit (loading never true) renders instantly.
-  const justFinishedLoading = wasLoadingRef.current;
+  const justFinishedLoading = wasLoadingRef.current && !reducedMotion;
   wasLoadingRef.current = false;
 
   return (
@@ -564,7 +714,47 @@ export default function ProfilePage() {
             {name[0]?.toUpperCase()}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-display text-xl font-bold">{name}</p>
+            {editingName ? (
+              <div className="flex items-center gap-1.5">
+                <input
+                  value={nameDraft}
+                  onChange={(event) => setNameDraft(event.target.value)}
+                  maxLength={40}
+                  autoFocus
+                  onKeyDown={(event) => event.key === "Enter" && void saveName()}
+                  className="min-w-0 flex-1 rounded-lg border border-border bg-background px-2 py-1 font-display text-xl font-bold focus:outline-none focus:ring-1 focus:ring-primary"
+                />
+                <button
+                  onClick={() => void saveName()}
+                  disabled={!nameDraft.trim() || nameSaving}
+                  aria-label={t("profile.saveName")}
+                  className="pressable-tight grid h-8 w-8 shrink-0 place-items-center rounded-full bg-ink text-ink-foreground disabled:opacity-50"
+                >
+                  <Check className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={() => setEditingName(false)}
+                  aria-label={t("common.cancel")}
+                  className="pressable-tight grid h-8 w-8 shrink-0 place-items-center rounded-full bg-muted"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1.5">
+                <p className="truncate font-display text-xl font-bold">{name}</p>
+                <button
+                  onClick={() => {
+                    setNameDraft(name);
+                    setEditingName(true);
+                  }}
+                  aria-label={t("profile.editName")}
+                  className="pressable-tight grid h-7 w-7 shrink-0 place-items-center rounded-full bg-muted"
+                >
+                  <Pencil className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            )}
             <p className="text-xs text-muted-foreground truncate">
               {currentUser?.email}
             </p>
@@ -650,6 +840,27 @@ export default function ProfilePage() {
             </button>
           </div>
         )}
+
+        {homeDetails && (
+          <div className="mt-4 flex items-center justify-between bg-muted/30 rounded-xl px-3 py-2">
+            <div className="min-w-0">
+              <p className="text-[10px] text-muted-foreground">{t("profile.homeDetails.title")}</p>
+              <p className="truncate font-display font-bold text-sm">{homeDetails.name}</p>
+              {homeDetails.address && <p className="truncate text-xs text-muted-foreground">{homeDetails.address}</p>}
+            </div>
+            <button
+              onClick={() => {
+                setHomeNameDraft(homeDetails.name);
+                setHomeAddressDraft(homeDetails.address ?? "");
+                setShowHomeEditor(true);
+              }}
+              aria-label={t("profile.homeDetails.edit")}
+              className="pressable-tight h-8 w-8 shrink-0 rounded-lg glass flex items-center justify-center"
+            >
+              <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
+            </button>
+          </div>
+        )}
       </div>
 
       {myStats && (
@@ -714,6 +925,130 @@ export default function ProfilePage() {
           </div>
         </div>
       )}
+
+      <div className="card space-y-3">
+        <div className="flex items-center gap-3">
+          <div className="grid h-9 w-9 place-items-center rounded-xl bg-primary/20 dark:bg-accent/20">
+            <WashingMachine className="h-4 w-4 text-primary dark:text-accent" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold">{t("profile.washingPlan.title")}</p>
+            <p className="text-[10px] text-muted-foreground">{t("profile.washingPlan.subtitle")}</p>
+          </div>
+          <button
+            onClick={() => {
+              resetWashingForm();
+              setShowWashingForm(true);
+            }}
+            className="rounded-full border border-border px-3 py-1.5 text-xs font-bold"
+          >
+            {t("profile.washingPlan.add")}
+          </button>
+        </div>
+
+        {washingTasks.length > 0 ? (
+          <ul className="space-y-2">
+            {washingTasks.map((task) => (
+              <li key={task.id} className="flex items-center gap-3 rounded-xl bg-muted/30 px-3 py-2">
+                <Avatar name={task.assignee} color={householdMembers.find((m) => m.name === task.assignee)?.color} className="h-8 w-8 text-[11px]" />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-semibold">{task.title}</p>
+                  <p className="text-[10px] text-muted-foreground">
+                    {task.assignee} · {translateKey("common.recurrence", task.recurrenceRule ?? "NONE")}
+                  </p>
+                </div>
+                <button
+                  onClick={() => startEditWashing(task)}
+                  aria-label={t("profile.washingPlan.edit")}
+                  className="pressable-tight grid h-8 w-8 shrink-0 place-items-center rounded-full bg-muted"
+                >
+                  <Pencil className="h-3.5 w-3.5" />
+                </button>
+                <button
+                  onClick={() => void deleteWashingEntry(task.id)}
+                  aria-label={t("profile.washingPlan.remove")}
+                  className="pressable-tight grid h-8 w-8 shrink-0 place-items-center rounded-full bg-destructive/10"
+                >
+                  <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                </button>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          !showWashingForm && <p className="text-xs text-muted-foreground">{t("profile.washingPlan.empty")}</p>
+        )}
+
+        {(showWashingForm || editingWashingId) && (
+          <AddSheet
+            title={editingWashingId ? t("profile.washingPlan.editTitle") : t("profile.washingPlan.addTitle")}
+            onClose={resetWashingForm}
+          >
+            <label className="block space-y-1">
+              <span className="text-xs font-semibold text-muted-foreground">{t("profile.washingPlan.nameLabel")}</span>
+              <input
+                value={washingTitle}
+                onChange={(event) => setWashingTitle(event.target.value)}
+                placeholder={t("profile.washingPlan.namePlaceholder")}
+                className="w-full min-h-[var(--ctl-lg)] bg-muted/50 rounded-lg px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                autoFocus
+              />
+            </label>
+            <div className="space-y-1">
+              <span className="text-xs font-semibold text-muted-foreground">{t("profile.washingPlan.assigneeLabel")}</span>
+              <div className="flex flex-wrap gap-1.5">
+                {(householdMembers.length > 0 ? householdMembers.map((m) => m.name) : [name]).map((member) => (
+                  <button
+                    key={member}
+                    type="button"
+                    onClick={() => setWashingAssignee(member)}
+                    aria-pressed={washingAssignee === member}
+                    className={`flex min-h-11 items-center gap-1.5 rounded-full py-1 pl-1 pr-3 text-xs font-bold transition-colors ${
+                      washingAssignee === member ? "bg-ink text-ink-foreground" : "bg-muted/60 text-muted-foreground"
+                    }`}
+                  >
+                    <Avatar name={member} className="h-8 w-8 text-[11px]" />
+                    {member}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <label className="block space-y-1">
+              <span className="text-xs font-semibold text-muted-foreground">{t("profile.washingPlan.dueDateLabel")}</span>
+              <input
+                type="date"
+                value={washingDue}
+                onChange={(event) => setWashingDue(event.target.value)}
+                className="w-full min-h-[var(--ctl-lg)] bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+              />
+            </label>
+            <label className="block space-y-1">
+              <span className="text-xs font-semibold text-muted-foreground">{t("profile.washingPlan.recurrenceLabel")}</span>
+              <select
+                value={washingRecurrence}
+                onChange={(event) => setWashingRecurrence(event.target.value)}
+                className="w-full min-h-[var(--ctl-lg)] bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+              >
+                {WASHING_RECURRENCE_OPTIONS.map((recurrence) => (
+                  <option key={recurrence} value={recurrence}>
+                    {translateKey("common.recurrence", recurrence)}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <button
+              onClick={() => void saveWashingEntry()}
+              disabled={!washingTitle.trim() || washingSaving}
+              className="w-full gradient-primary rounded-lg py-2 text-sm font-semibold text-ink-foreground disabled:opacity-50"
+            >
+              {washingSaving
+                ? t("profile.loading.saving")
+                : editingWashingId
+                  ? t("profile.washingPlan.save")
+                  : t("profile.washingPlan.add")}
+            </button>
+          </AddSheet>
+        )}
+      </div>
 
       {houseRules && (
         <div className="card space-y-3">
@@ -1026,6 +1361,19 @@ export default function ProfilePage() {
                     className="w-full min-h-[var(--ctl-lg)] bg-muted/50 rounded-xl px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
                   />
                 </label>
+                <label className="block space-y-1">
+                  <span className="text-xs font-medium">{t("profile.paymentMethods.cardLabel")}</span>
+                  <textarea
+                    value={paymentHandles.cardInfo ?? ""}
+                    onChange={(event) => setPaymentHandles((p) => ({ ...p, cardInfo: event.target.value }))}
+                    placeholder={t("profile.paymentMethods.cardPlaceholder")}
+                    autoComplete="off"
+                    spellCheck={false}
+                    maxLength={256}
+                    rows={2}
+                    className="w-full bg-muted/50 rounded-xl px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary resize-none"
+                  />
+                </label>
                 <p className="text-[10px] text-muted-foreground">{t("profile.paymentMethods.hint")}</p>
                 <p className="text-[10px] font-medium text-destructive">{t("profile.paymentMethods.securityHint")}</p>
                 <button
@@ -1105,6 +1453,27 @@ export default function ProfilePage() {
         </p>
 
         <button
+          onClick={() => { if (!premiumUnlocked) setShowPremiumPaywall(true); }}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-muted/40 transition-colors"
+        >
+          <Gem className="h-4 w-4 text-muted-foreground" />
+          <div className="text-left flex-1">
+            <p className="text-sm font-medium">{t("social.games.premium")}</p>
+            <p className="text-[10px] text-muted-foreground">
+              {premiumUnlocked ? t("profile.premiumUnlockedSubtitle") : t("social.games.paywall.body")}
+            </p>
+          </div>
+        </button>
+
+        <button
+          onClick={handleReplayGuide}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-muted/40 transition-colors"
+        >
+          <Sparkles className="h-4 w-4 text-muted-foreground" />
+          <span className="text-sm font-medium">{t("profile.replayGuide")}</span>
+        </button>
+
+        <button
           onClick={doLogout}
           className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-muted/40 transition-colors"
         >
@@ -1181,6 +1550,52 @@ export default function ProfilePage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <AnimatePresence>
+        {showHomeEditor && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4"
+            onClick={() => setShowHomeEditor(false)}
+          >
+            <motion.div
+              initial={{ y: 24 }}
+              animate={{ y: 0 }}
+              exit={{ y: 24 }}
+              className="w-full max-w-lg max-h-[85vh] overflow-y-auto rounded-[1.5rem] bg-background p-5"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <div className="flex items-center justify-between">
+                <h3 className="font-display text-xl font-bold">{t("profile.homeDetails.editorTitle")}</h3>
+                <button onClick={() => setShowHomeEditor(false)} aria-label={t("common.close")} className="pressable-tight grid h-9 w-9 place-items-center rounded-full bg-muted">
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              <div className="mt-4 space-y-3">
+                <Field
+                  label={t("profile.homeDetails.nameLabel")}
+                  value={homeNameDraft}
+                  onChange={(event) => setHomeNameDraft(event.target.value)}
+                  maxLength={80}
+                />
+                <Field
+                  label={t("profile.homeDetails.addressLabel")}
+                  value={homeAddressDraft}
+                  onChange={(event) => setHomeAddressDraft(event.target.value)}
+                  maxLength={200}
+                />
+              </div>
+              <button onClick={() => void saveHomeDetails()} disabled={!homeNameDraft.trim() || homeSaving} className="mt-4 w-full rounded-xl bg-ink py-2.5 text-sm font-bold text-ink-foreground disabled:opacity-50">
+                {homeSaving ? t("profile.loading.saving") : t("profile.homeDetails.save")}
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {showPremiumPaywall && <SubscriptionPaywall onClose={() => setShowPremiumPaywall(false)} />}
     </motion.div>
   );
 }

@@ -3,6 +3,7 @@ package com.kollekt.api
 import com.kollekt.service.CollectiveOperations
 import com.kollekt.service.CurrentMemberContext
 import com.kollekt.service.MemberOperations
+import com.kollekt.service.MemberRenameOperations
 import com.kollekt.service.TokenStoreService
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
@@ -30,6 +31,8 @@ class MemberControllerContractTest {
     @MockitoBean lateinit var memberOperations: MemberOperations
 
     @MockitoBean lateinit var collectiveOperations: CollectiveOperations
+
+    @MockitoBean lateinit var memberRenameOperations: MemberRenameOperations
 
     @MockitoBean lateinit var tokenStoreService: TokenStoreService
 

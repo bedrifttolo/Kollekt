@@ -148,6 +148,10 @@ export default function RanksPanel() {
       if (event.type === 'MEMBER_UPDATED') {
         void queryClient.invalidateQueries({ queryKey: qk.members(name) });
       }
+      if (event.type === 'MEMBER_RENAMED') {
+        void queryClient.invalidateQueries({ queryKey: qk.members(name) });
+        void fetchData(period);
+      }
     },
     () => void fetchData(period),
   );

@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import type { TargetAndTransition, Transition, Variants } from 'framer-motion';
 
 /**
@@ -11,6 +12,35 @@ import type { TargetAndTransition, Transition, Variants } from 'framer-motion';
  * Durations and easings mirror the `--dur-` and `--ease-` custom properties in globals.css.
  * A CSS transition and a spring sitting next to each other must agree, so change both or neither.
  */
+
+const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)';
+
+/** One-time snapshot, for call sites that fire once outside a render (e.g. celebrate.ts). Does not
+ *  react to the user toggling the OS setting mid-session — use useReducedMotion() for that. */
+export function prefersReducedMotion(): boolean {
+  if (typeof window === 'undefined' || !window.matchMedia) return false;
+  return window.matchMedia(REDUCED_MOTION_QUERY).matches;
+}
+
+/**
+ * Live-updating reduced-motion preference, for components that need to branch their own JS logic
+ * (skip a fade, skip a stagger delay) rather than rely on framer-motion's own stilling, which only
+ * ever touches positional/transform values (x, y, scale, layout, height, ...) — opacity and colour
+ * keep animating at full duration by framer-motion's own design. Mirrors ThemeContext's matchMedia
+ * listener pattern so a mid-session OS toggle (Settings → Accessibility → Motion, then back to the
+ * already-open app) takes effect without a relaunch.
+ */
+export function useReducedMotion(): boolean {
+  const [reduced, setReduced] = useState(prefersReducedMotion);
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return;
+    const mql = window.matchMedia(REDUCED_MOTION_QUERY);
+    const onChange = (e: MediaQueryListEvent) => setReduced(e.matches);
+    mql.addEventListener('change', onChange);
+    return () => mql.removeEventListener('change', onChange);
+  }, []);
+  return reduced;
+}
 
 /** Cards, lists, layout shifts. Settles without overshoot — the default for anything large. */
 export const springSoft: Transition = { type: 'spring', stiffness: 320, damping: 32, mass: 0.9 };

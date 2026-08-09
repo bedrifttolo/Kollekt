@@ -33,6 +33,23 @@ services:
       # https://kollekt-backend.onrender.com/api/google-calendar/callback
       - key: GOOGLE_REDIRECT_URI
         sync: false
+      # --- Push notifications (APNs, iOS only) — without these, PushyApnsGateway silently
+      # no-ops (one INFO log line) and no push is ever sent. Set the real values in the
+      # dashboard: team-id/key-id/bundle-id from the Apple Developer portal, auth-key-base64
+      # is the base64-encoded contents of the .p8 key file. App.entitlements ships
+      # aps-environment=production, so APNS_PRODUCTION should be "true" for TestFlight/App
+      # Store builds — leaving it false against a production-signed app causes APNs to reject
+      # every token as BadDeviceToken (and the token then gets silently deleted).
+      - key: APNS_TEAM_ID
+        sync: false
+      - key: APNS_KEY_ID
+        sync: false
+      - key: APNS_AUTH_KEY_BASE64
+        sync: false
+      - key: APNS_BUNDLE_ID
+        value: "no.kollekt.app"
+      - key: APNS_PRODUCTION
+        value: "true"
       # --- Non-secret config ---
       - key: SPRING_FLYWAY_ENABLED
         value: "true"

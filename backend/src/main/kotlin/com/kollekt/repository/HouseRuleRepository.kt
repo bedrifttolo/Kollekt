@@ -5,6 +5,7 @@ import com.kollekt.domain.HouseRuleAck
 import jakarta.persistence.LockModeType
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Lock
+import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 
@@ -21,6 +22,14 @@ interface HouseRuleRepository : JpaRepository<HouseRule, Long> {
     fun findByIdForUpdate(
         @Param("id") id: Long,
     ): HouseRule?
+
+    @Modifying
+    @Query("update HouseRule r set r.updatedBy = :newName where r.updatedBy = :oldName and r.collectiveCode = :collectiveCode")
+    fun renameUpdatedBy(
+        @Param("oldName") oldName: String,
+        @Param("newName") newName: String,
+        @Param("collectiveCode") collectiveCode: String,
+    ): Int
 }
 
 interface HouseRuleAckRepository : JpaRepository<HouseRuleAck, Long> {
@@ -28,4 +37,15 @@ interface HouseRuleAckRepository : JpaRepository<HouseRuleAck, Long> {
         ruleId: Long,
         memberName: String,
     ): Boolean
+
+    @Modifying
+    @Query(
+        "update HouseRuleAck a set a.memberName = :newName where a.memberName = :oldName and " +
+            "a.ruleId in (select r.id from HouseRule r where r.collectiveCode = :collectiveCode)",
+    )
+    fun renameMemberName(
+        @Param("oldName") oldName: String,
+        @Param("newName") newName: String,
+        @Param("collectiveCode") collectiveCode: String,
+    ): Int
 }

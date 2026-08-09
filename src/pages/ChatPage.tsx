@@ -25,9 +25,12 @@ import { usePremiumEntitlement } from '../lib/purchases';
 import SubscriptionPaywall from '../components/SubscriptionPaywall';
 import type { AppUser, ChatMessage, CheckinSummary, HouseCheckin, Kudo, KudoType, Task } from '../lib/types';
 
+/** Local-only send state layered onto a message while it's in flight; never sent to the server. */
+type LocalChatMessage = ChatMessage & { status?: 'sending' | 'failed' };
+
 const KUDO_TYPES: KudoType[] = ['THANK_YOU', 'CLEANEST', 'MOST_HELPFUL', 'PEACEMAKER'];
 import { AddSheet, AvatarStack, IconButton } from '../components/ui-kit';
-import { collapseVariants, popIn, pressable, springPop } from '../lib/motion';
+import { collapseVariants, popIn, pressable, springPop, useReducedMotion } from '../lib/motion';
 import { colorForMember } from '../lib/memberColors';
 import { PAGE_ACCENTS } from '../lib/pageAccent';
 
@@ -89,7 +92,7 @@ export default function ChatPage() {
   const navigate = useNavigate();
   // Seed the household thread from the warm cache so re-opening Chat shows messages
   // instantly instead of the loading state; a background fetch then refreshes them.
-  const [messages, setMessages] = useState<ChatMessage[]>(
+  const [messages, setMessages] = useState<LocalChatMessage[]>(
     () => sharedQueryClient.getQueryData<ChatMessage[]>(qk.chat(currentUser?.name ?? '')) ?? [],
   );
   const [input, setInput] = useState('');
@@ -119,6 +122,7 @@ export default function ChatPage() {
   // Tracks whether this render followed a real loading state, so the content fade-in below only
   // plays right after a genuine cold load — a warm revisit (loading never true) renders instantly.
   const wasLoadingRef = useRef(loading);
+  const reducedMotion = useReducedMotion();
   const [checkinExpanded, setCheckinExpanded] = useState(false);
   // Collapses the thread switcher + house-meeting banner so more of the message list is visible;
   // the identity row above stays put since it's the only way back to Profile from this page.
@@ -142,6 +146,14 @@ export default function ChatPage() {
   const formatMood = (value?: number | null) =>
     value == null ? '' : Number.isInteger(value) ? String(value) : value.toFixed(1);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  // Whether the reader is close enough to the bottom that a new message should auto-scroll them
+  // along with it. Someone scrolled up reading history should never get yanked back down by a
+  // message or reaction that isn't theirs.
+  const nearBottomRef = useRef(true);
+  // The last id we already auto-scrolled for, so a reaction/poll update that patches an existing
+  // message (not the newest one) doesn't re-trigger a scroll it never needed.
+  const lastAutoScrolledIdRef = useRef<number | null>(null);
   // True until the thread currently on screen has done its first scroll-to-bottom. Opening (or
   // switching) a thread should land on the latest message instantly, not animate down through
   // the whole history — only messages that arrive after that should scroll smoothly.
@@ -240,6 +252,40 @@ export default function ChatPage() {
     else sharedQueryClient.setQueryData(qk.chatDirect(name, thread), res);
   };
 
+  // Patches a single message into the open thread instead of refetching the whole conversation —
+  // the realtime event already carries the full message. Handles three cases: a brand new
+  // message from someone else (append), an update to one already on screen (reaction/poll vote,
+  // or our own message echoed back — replace in place), and our own message's echo arriving
+  // before its POST response does (reconcile the matching "sending" placeholder so the POST's
+  // own reconciliation becomes a no-op instead of creating a duplicate bubble).
+  const applyIncomingMessage = (incoming: ChatMessage, thread: string | null) => {
+    setMessages((prev) => {
+      const existingIndex = prev.findIndex((m) => m.id === incoming.id);
+      let next: LocalChatMessage[];
+      if (existingIndex !== -1) {
+        next = prev.map((m) => (m.id === incoming.id ? incoming : m));
+      } else if (incoming.sender === name) {
+        const pendingIndex = prev.findIndex(
+          (m) =>
+            m.status === 'sending' &&
+            m.text === incoming.text &&
+            (m.recipient ?? null) === (incoming.recipient ?? null),
+        );
+        if (pendingIndex === -1) {
+          next = [...prev, incoming];
+        } else {
+          clientIdByServerIdRef.current.set(incoming.id, prev[pendingIndex].id);
+          next = prev.map((m, i) => (i === pendingIndex ? incoming : m));
+        }
+      } else {
+        next = [...prev, incoming];
+      }
+      if (thread) sharedQueryClient.setQueryData(qk.chatDirect(name, thread), next);
+      else sharedQueryClient.setQueryData(qk.chat(name), next);
+      return next;
+    });
+  };
+
   const selectThread = (thread: string | null) => {
     if (thread === activeThreadRef.current) return;
     activeThreadRef.current = thread;
@@ -268,13 +314,14 @@ export default function ChatPage() {
     (event) => {
       if (!name) return;
       if (['MESSAGE_CREATED', 'MESSAGE_REACTION_UPDATED', 'MESSAGE_POLL_UPDATED'].includes(event.type)) {
-        // Household events only matter while the household thread is open.
-        if (activeThreadRef.current == null) void fetchMessages(null);
+        // Household events only matter while the household thread is open. The payload already
+        // carries the full message, so patch it in directly instead of refetching everything.
+        if (activeThreadRef.current == null) applyIncomingMessage(event.payload as ChatMessage, null);
       }
       if (event.type === 'DIRECT_MESSAGE_CREATED') {
-        const dm = event.payload as { sender?: string; recipient?: string } | undefined;
-        const other = dm?.sender === name ? dm?.recipient : dm?.sender;
-        if (other && other === activeThreadRef.current) void fetchMessages(other);
+        const dm = event.payload as ChatMessage;
+        const other = dm.sender === name ? dm.recipient : dm.sender;
+        if (other && other === activeThreadRef.current) applyIncomingMessage(dm, other);
       }
       if (event.type === 'CHECKIN_UPDATED') {
         queryClient.invalidateQueries({ queryKey: qk.checkin(name) });
@@ -286,6 +333,12 @@ export default function ChatPage() {
       }
       if (event.type === 'MEMBER_UPDATED') {
         queryClient.invalidateQueries({ queryKey: qk.members(name) });
+      }
+      if (event.type === 'MEMBER_RENAMED') {
+        // A housemate's name changed — refetch this thread's messages (sender/recipient
+        // fields) and the member list rather than patching the rename in place.
+        queryClient.invalidateQueries({ queryKey: qk.members(name) });
+        void fetchMessages(activeThreadRef.current);
       }
     },
     () => {
@@ -300,8 +353,24 @@ export default function ChatPage() {
     setBackground(getChatBackground(name));
   }, [name]);
 
+  // Tracks how close to the bottom the reader currently is, so an incoming message only pulls
+  // them along when they're already near the end of the thread — not when they've scrolled up to
+  // read history and someone else's message (or a reaction on an old one) refreshes the array.
+  const handleScroll = () => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    nearBottomRef.current = el.scrollHeight - el.scrollTop - el.clientHeight < 150;
+  };
+
   useEffect(() => {
     if (messages.length === 0) return;
+    const newestId = newestMessageId(messages);
+    const isNewMessage = newestId !== null && newestId !== lastAutoScrolledIdRef.current;
+    if (!instantScrollRef.current && !isNewMessage) return;
+    const newest = messages[messages.length - 1];
+    const shouldFollow = instantScrollRef.current || newest?.sender === name || nearBottomRef.current;
+    if (newestId !== null) lastAutoScrolledIdRef.current = newestId;
+    if (!shouldFollow) return;
     bottomRef.current?.scrollIntoView({ behavior: instantScrollRef.current ? 'auto' : 'smooth' });
     instantScrollRef.current = false;
   }, [messages]);
@@ -334,6 +403,30 @@ export default function ChatPage() {
   // the instant the server responds. Session-scoped and tiny — no cleanup needed.
   const clientIdByServerIdRef = useRef(new Map<number, number>());
 
+  // Does the actual POST for a message already showing on screen with status "sending", and
+  // reconciles the result. Shared by the initial send and by retry, both keyed off the same
+  // tempId — retry never creates a second bubble, it just re-tries the same one.
+  const deliverMessage = async (
+    tempId: number,
+    text: string,
+    thread: string | null,
+    replyToMessageId: number | null,
+  ) => {
+    try {
+      const saved = thread
+        ? await api.post<ChatMessage>('/chat/direct', { recipient: thread, text })
+        : await api.post<ChatMessage>('/chat/messages', { sender: name, text, replyToMessageId });
+      clientIdByServerIdRef.current.set(saved.id, tempId);
+      // A no-op if the realtime echo already reconciled this message (see applyIncomingMessage) —
+      // no message with id === tempId remains, so nothing matches and nothing duplicates.
+      setMessages((prev) => prev.map((m) => (m.id === tempId ? saved : m)));
+    } catch {
+      // Keep the bubble visible so the user can retry instead of losing the message and having
+      // to retype it.
+      setMessages((prev) => prev.map((m) => (m.id === tempId ? { ...m, status: 'failed' } : m)));
+    }
+  };
+
   const sendMessage = async () => {
     if (!input.trim()) return;
     if (messageInputRef.current) messageInputRef.current.style.height = 'auto';
@@ -348,7 +441,7 @@ export default function ChatPage() {
     // when the server responds. Avoids waiting on the POST (and a second full refetch)
     // before anything appears — the send now feels immediate.
     const tempId = -Date.now();
-    const optimistic: ChatMessage = {
+    const optimistic: LocalChatMessage = {
       id: tempId,
       sender: name,
       recipient: thread ?? null,
@@ -356,20 +449,16 @@ export default function ChatPage() {
       replyToMessageId: replyToMessageId ?? null,
       timestamp: new Date().toISOString(),
       reactions: [],
+      status: 'sending',
     };
     setMessages((prev) => [...prev, optimistic]);
+    await deliverMessage(tempId, text, thread, replyToMessageId ?? null);
+  };
 
-    try {
-      const saved = thread
-        ? await api.post<ChatMessage>('/chat/direct', { recipient: thread, text })
-        : await api.post<ChatMessage>('/chat/messages', { sender: name, text, replyToMessageId });
-      clientIdByServerIdRef.current.set(saved.id, tempId);
-      setMessages((prev) => prev.map((m) => (m.id === tempId ? saved : m)));
-    } catch {
-      // Roll back the placeholder and restore the draft so the user can retry.
-      setMessages((prev) => prev.filter((m) => m.id !== tempId));
-      setInput(text);
-    }
+  const retryMessage = (message: LocalChatMessage) => {
+    if (message.status !== 'failed') return;
+    setMessages((prev) => prev.map((m) => (m.id === message.id ? { ...m, status: 'sending' } : m)));
+    void deliverMessage(message.id, message.text, message.recipient ?? null, message.replyToMessageId ?? null);
   };
 
   // Detect an in-progress "@name" token immediately before the caret.
@@ -638,7 +727,7 @@ export default function ChatPage() {
       </div>
     );
   }
-  const justFinishedLoading = wasLoadingRef.current;
+  const justFinishedLoading = wasLoadingRef.current && !reducedMotion;
   wasLoadingRef.current = false;
 
   return (
@@ -799,7 +888,14 @@ export default function ChatPage() {
             <div className="absolute inset-0 bg-background/55" />
           </div>
         )}
-        <div data-chat-scroll className="relative h-full overflow-y-auto px-4 py-4 sm:px-6" onTouchStart={handleSwipeStart} onTouchEnd={handleSwipeEnd}>
+        <div
+          ref={scrollContainerRef}
+          data-chat-scroll
+          className="relative h-full overflow-y-auto px-4 py-4 sm:px-6"
+          onScroll={handleScroll}
+          onTouchStart={handleSwipeStart}
+          onTouchEnd={handleSwipeEnd}
+        >
         {decorateMessages(messages, seenCursor).map(({ message, isFirstOfGroup, isLastOfGroup, startsNewDay, startsUnread }, i, all) => {
           const isSelf = message.sender === name;
           const senderColor = colorForMember(message.sender, memberColorMap.get(message.sender));
@@ -909,9 +1005,20 @@ export default function ChatPage() {
                       })}
                     </div>
                   )}
-                  {isLastOfGroup && (
+                  {isLastOfGroup && message.status === 'failed' && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        retryMessage(message);
+                      }}
+                      className="mt-1 text-[9px] font-semibold text-destructive underline decoration-dotted"
+                    >
+                      {t('chat.sendFailedRetry')}
+                    </button>
+                  )}
+                  {isLastOfGroup && message.status !== 'failed' && (
                     <p className={`text-[9px] mt-1 ${isSelf ? 'text-white/70' : 'text-muted-foreground'}`}>
-                      {formatMessageTimestamp(message.timestamp)}
+                      {message.status === 'sending' ? t('chat.sending') : formatMessageTimestamp(message.timestamp)}
                     </p>
                   )}
                 </motion.div>

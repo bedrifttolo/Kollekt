@@ -6,6 +6,7 @@ import { api, getUserMessage, setAccessToken, setRefreshToken } from '../lib/api
 import { useUser } from '../context/UserContext';
 import type { AuthResponse, AppUser, Invitation } from '../lib/types';
 import { AppleMark, BrandMark, GoogleMark } from '../components/ui-kit';
+import LanguageSwitcher from '../components/LanguageSwitcher';
 import { PRIVACY_URL, TERMS_URL } from '../lib/legalLinks';
 import { getSocialIdentity, getSocialProviders, type SocialProvider } from '../lib/socialAuth';
 
@@ -73,6 +74,12 @@ export default function LoginPage() {
         animate={{ opacity: 1, y: 0 }}
         className="mx-auto flex w-full max-w-sm flex-1 flex-col"
       >
+        {/* Visible before any auth happens, so international users can pick a language before
+            they even attempt to sign in. */}
+        <div className="flex w-full justify-end pt-2">
+          <LanguageSwitcher />
+        </div>
+
         {/* items-center would size each child to its content, which stops the long headline from
             wrapping and overflows the viewport — hence w-full on everything textual below. */}
         <div className="flex flex-1 flex-col items-center justify-center text-center">

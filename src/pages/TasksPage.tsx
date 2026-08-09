@@ -462,8 +462,12 @@ function TasksMain() {
           'SHOPPING_ITEM_BOUGHT',
           'MAINTENANCE_UPDATED',
           'MAINTENANCE_DELETED',
+          // A housemate's name changed — refetch everything rather than patching assignee/
+          // addedBy/createdBy strings in place across tasks, shopping and maintenance.
+          'MEMBER_RENAMED',
         ].includes(event.type)
       ) {
+        void queryClient.invalidateQueries({ queryKey: qk.members(name) });
         void fetchAll();
       }
     },

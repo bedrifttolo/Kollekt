@@ -44,7 +44,7 @@ Originally a student project (DAT251) based on a Figma export.
 - Shared types: `src/lib/types.ts` — the contract mirror of backend DTOs.
 - Pages: `src/pages/` — bottom-nav tabs are Home `/`, Tasks `/tasks`, Calendar `/calendar`, Chat `/chat`, Economy `/economy`, Social `/social`.
 - Games UI: `src/games/`; catalog in `src/games/catalog.ts`; launcher in `src/pages/social/GamesPanel.tsx`; engine bridge in `src/lib/kollektGame.ts` (imports from `othergames/src/engine` and `othergames/src/content`).
-- i18n: `src/i18n/` — four languages: English, Norwegian, Swedish, Danish (`locales/en/no/sv/da.json`). Language key `kollekt-language`, fallback `no`. Locale bundles are code-split; call `loadLanguage()` before `changeLanguage`.
+- i18n: `src/i18n/` — four languages: English, Norwegian, Swedish, Danish (`locales/en/no/sv/da.json`). Language key `kollekt-language`, fallback `en`. A fresh install detects the device locale (`nb`/`nn` alias to `no`) and falls back to English if it's unsupported; an explicit choice (e.g. via `LanguageSwitcher`, shown on the login page and in Profile settings) always wins on later visits. Locale bundles are code-split; call `loadLanguage()` before `changeLanguage`.
 
 ### Backend (`backend/`, `com.kollekt`)
 

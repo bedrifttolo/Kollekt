@@ -13,6 +13,7 @@ import type { PantSummary, PantEntry } from "../lib/types";
 import { CountUp, Eyebrow, OverflowMenu, ProgressBar, ProgressRing } from "../components/ui-kit";
 import { PAGE_ACCENTS } from "../lib/pageAccent";
 import { celebrate } from "../lib/celebrate";
+import { useReducedMotion } from "../lib/motion";
 
 export default function PantTrackerPage() {
   const navigate = useNavigate();
@@ -27,6 +28,7 @@ export default function PantTrackerPage() {
     () => !sharedQueryClient.getQueryData(qk.pant(currentUser?.name ?? "")),
   );
   const wasLoadingRef = useRef(loading);
+  const reducedMotion = useReducedMotion();
   const [addAmount, setAddAmount] = useState("");
   const [editingTotal, setEditingTotal] = useState(false);
   const [editTotalValue, setEditTotalValue] = useState("");
@@ -151,7 +153,7 @@ export default function PantTrackerPage() {
   // Tracks whether this render followed a real loading state, so the history list's stagger-in
   // below only replays right after a genuine cold load — a warm revisit (loading never true)
   // renders instantly instead of restaging it on every tab switch.
-  const justFinishedLoading = wasLoadingRef.current;
+  const justFinishedLoading = wasLoadingRef.current && !reducedMotion;
   wasLoadingRef.current = false;
 
   const totalBottles = pantSummary.entries.reduce((s, e) => s + e.bottles, 0);

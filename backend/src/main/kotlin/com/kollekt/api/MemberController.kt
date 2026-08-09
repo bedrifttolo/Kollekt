@@ -5,6 +5,7 @@ import com.kollekt.api.dto.UserDto
 import com.kollekt.service.CollectiveOperations
 import com.kollekt.service.CurrentMemberContext
 import com.kollekt.service.MemberOperations
+import com.kollekt.service.MemberRenameOperations
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -21,11 +22,17 @@ import org.springframework.web.bind.annotation.RestController
 class MemberController(
     private val memberOperations: MemberOperations,
     private val collectiveOperations: CollectiveOperations,
+    private val memberRenameOperations: MemberRenameOperations,
     private val currentMemberContext: CurrentMemberContext,
 ) {
     data class InviteRequest(
         val email: String,
         val collectiveCode: String,
+    )
+
+    data class RenameRequest(
+        val memberName: String,
+        val newName: String,
     )
 
     data class StatusUpdateRequest(
@@ -102,6 +109,15 @@ class MemberController(
     ) {
         currentMemberContext.requireTokenSubject(jwt, req.memberName)
         memberOperations.updateMemberLanguage(req.memberName, req.language)
+    }
+
+    @PatchMapping("/rename")
+    fun rename(
+        @RequestBody req: RenameRequest,
+        @AuthenticationPrincipal jwt: Jwt,
+    ): UserDto {
+        currentMemberContext.requireTokenSubject(jwt, req.memberName)
+        return memberRenameOperations.renameMember(req.memberName, req.newName)
     }
 
     @GetMapping("/payment-handles")

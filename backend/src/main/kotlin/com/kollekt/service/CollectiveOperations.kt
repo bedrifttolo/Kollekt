@@ -1,9 +1,11 @@
 package com.kollekt.service
 
 import com.kollekt.api.dto.CollectiveCodeDto
+import com.kollekt.api.dto.CollectiveDetailsDto
 import com.kollekt.api.dto.CollectiveDto
 import com.kollekt.api.dto.CreateCollectiveRequest
 import com.kollekt.api.dto.JoinCollectiveRequest
+import com.kollekt.api.dto.UpdateCollectiveDetailsRequest
 import com.kollekt.api.dto.UserDto
 import com.kollekt.domain.Collective
 import com.kollekt.domain.Invitation
@@ -16,6 +18,7 @@ import com.kollekt.repository.InvitationRepository
 import com.kollekt.repository.MemberRepository
 import com.kollekt.repository.RoomRepository
 import com.kollekt.repository.TaskRepository
+import org.springframework.security.access.AccessDeniedException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
@@ -183,6 +186,42 @@ class CollectiveOperations(
                 invitedBy = inviter.name,
             ),
         )
+    }
+
+    fun getCollectiveDetails(
+        collectiveId: Long,
+        actorName: String,
+    ): CollectiveDetailsDto {
+        val collective = requireCollectiveMember(collectiveId, actorName)
+        return CollectiveDetailsDto(collective.id, collective.name, collective.address)
+    }
+
+    @Transactional
+    fun updateCollectiveDetails(
+        collectiveId: Long,
+        request: UpdateCollectiveDetailsRequest,
+        actorName: String,
+    ): CollectiveDetailsDto {
+        val collective = requireCollectiveMember(collectiveId, actorName)
+        val name = request.name.trim()
+        require(name.isNotBlank()) { "Household name is required" }
+        require(name.length <= 80) { "Household name must be at most 80 characters" }
+        val address = request.address?.trim()?.takeIf { it.isNotBlank() }
+        val saved = collectiveRepository.save(collective.copy(name = name, address = address))
+        return CollectiveDetailsDto(saved.id, saved.name, saved.address)
+    }
+
+    private fun requireCollectiveMember(
+        collectiveId: Long,
+        actorName: String,
+    ): Collective {
+        val collective =
+            collectiveRepository.findById(collectiveId).orElseThrow {
+                IllegalArgumentException("Collective $collectiveId not found")
+            }
+        memberRepository.findByNameAndCollectiveCode(actorName, collective.joinCode)
+            ?: throw AccessDeniedException("Collective access denied")
+        return collective
     }
 
     fun getCollectiveCodeForUser(userId: Long): CollectiveCodeDto {

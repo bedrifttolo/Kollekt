@@ -3,7 +3,7 @@ import { Browser } from '@capacitor/browser';
 import { Capacitor } from '@capacitor/core';
 import type { PaymentHandles } from './types';
 
-export type PaymentProvider = 'vipps' | 'mobilepay' | 'paypal' | 'bank';
+export type PaymentProvider = 'vipps' | 'mobilepay' | 'paypal' | 'bank' | 'card';
 
 export interface PaymentMethod {
   provider: PaymentProvider;
@@ -40,11 +40,17 @@ export function availableMethods(handles: PaymentHandles, amount: number): Payme
   if (handles.bankAccount) {
     methods.push({ provider: 'bank', value: handles.bankAccount, url: null });
   }
+  if (handles.cardInfo) {
+    methods.push({ provider: 'card', value: handles.cardInfo, url: null });
+  }
   return methods;
 }
 
 export function hasAnyMethod(handles: PaymentHandles | undefined): boolean {
-  return !!(handles && (handles.vipps || handles.mobilepay || handles.paypal || handles.bankAccount));
+  return !!(
+    handles &&
+    (handles.vipps || handles.mobilepay || handles.paypal || handles.bankAccount || handles.cardInfo)
+  );
 }
 
 /**
@@ -64,7 +70,12 @@ export function clipboardPayload(method: PaymentMethod): string {
 
 /** True when the app being opened cannot pre-fill, so the user must paste the details in. */
 export function needsManualEntry(method: PaymentMethod): boolean {
-  return method.provider === 'vipps' || method.provider === 'mobilepay' || method.provider === 'bank';
+  return (
+    method.provider === 'vipps' ||
+    method.provider === 'mobilepay' ||
+    method.provider === 'bank' ||
+    method.provider === 'card'
+  );
 }
 
 /**

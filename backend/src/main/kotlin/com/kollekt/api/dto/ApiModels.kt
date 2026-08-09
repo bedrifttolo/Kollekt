@@ -416,6 +416,17 @@ data class CollectiveDto(
     val joinCode: String,
 )
 
+data class CollectiveDetailsDto(
+    val id: Long,
+    val name: String,
+    val address: String?,
+)
+
+data class UpdateCollectiveDetailsRequest(
+    val name: String,
+    val address: String? = null,
+)
+
 data class CreateCollectiveRequest(
     val name: String,
     val address: String? = null,
@@ -688,6 +699,7 @@ data class PaymentHandlesDto(
     val mobilepay: String? = null,
     val paypal: String? = null,
     val bankAccount: String? = null,
+    val cardInfo: String? = null,
 )
 
 data class UpdatePaymentHandlesRequest(
@@ -696,6 +708,7 @@ data class UpdatePaymentHandlesRequest(
     val mobilepay: String? = null,
     val paypal: String? = null,
     val bankAccount: String? = null,
+    val cardInfo: String? = null,
 )
 
 data class SettleUpResponse(
