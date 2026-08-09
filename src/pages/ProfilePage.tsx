@@ -138,7 +138,7 @@ export default function ProfilePage() {
       achievements: PromiseSettledResult<Achievement[]>;
     }>(qk.profileStats(currentUser?.name ?? ""));
   const cachedRules = () =>
-    sharedQueryClient.getQueryData<{ collectiveId: number; rules: HouseRules; quiet: QuietHours; home: CollectiveDetails }>(
+    sharedQueryClient.getQueryData<{ collectiveId: number; rules: HouseRules; quiet: QuietHours; home: CollectiveDetails | null }>(
       qk.profileRules(currentUser?.name ?? ""),
     );
   const cachedKudos = () => sharedQueryClient.getQueryData<Kudo[]>(qk.profileKudos(currentUser?.name ?? ""));
@@ -218,10 +218,13 @@ export default function ProfilePage() {
     enabled: !!currentUser?.id,
     queryFn: async () => {
       const collective = await api.get<{ collectiveId: number }>(`/onboarding/collectives/code/${currentUser!.id}`);
+      // Home details is fetched independently (allSettled, not all) so a backend that hasn't
+      // rolled out the /collectives/{id} endpoint yet can't take house rules and quiet hours
+      // down with it — those two already worked before this endpoint existed.
       const [rules, quiet, home] = await Promise.all([
         api.get<HouseRules>(`/collectives/${collective.collectiveId}/rules`),
         api.get<QuietHours>(`/collectives/${collective.collectiveId}/quiet-hours`),
-        api.get<CollectiveDetails>(`/collectives/${collective.collectiveId}`),
+        api.get<CollectiveDetails>(`/collectives/${collective.collectiveId}`).catch(() => null),
       ]);
       return { collectiveId: collective.collectiveId, rules, quiet, home };
     },
@@ -232,7 +235,7 @@ export default function ProfilePage() {
     setCollectiveId(rulesQuery.data.collectiveId);
     setHouseRules(rulesQuery.data.rules);
     setQuietHours(rulesQuery.data.quiet);
-    setHomeDetails(rulesQuery.data.home);
+    if (rulesQuery.data.home) setHomeDetails(rulesQuery.data.home);
   }, [rulesQuery.data]);
 
   const loadHouseRules = useCallback(async () => {

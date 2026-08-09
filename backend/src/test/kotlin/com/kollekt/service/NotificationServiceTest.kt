@@ -21,7 +21,7 @@ class NotificationServiceTest {
     private lateinit var notificationRepository: NotificationRepository
     private lateinit var memberRepository: MemberRepository
     private lateinit var realtimeUpdateService: RealtimeUpdateService
-    private lateinit var apnsPushService: ApnsPushService
+    private lateinit var pushDispatchService: PushDispatchService
     private lateinit var service: NotificationService
 
     @BeforeEach
@@ -29,8 +29,9 @@ class NotificationServiceTest {
         notificationRepository = mock()
         memberRepository = mock()
         realtimeUpdateService = mock()
-        apnsPushService = mock()
-        service = NotificationService(notificationRepository, memberRepository, realtimeUpdateService, apnsPushService)
+        pushDispatchService = mock()
+        service =
+            NotificationService(notificationRepository, memberRepository, realtimeUpdateService, pushDispatchService)
     }
 
     @Test
@@ -45,7 +46,7 @@ class NotificationServiceTest {
         assertEquals("{\"title\":\"Take out trash\"}", saved.message)
         assertEquals("TASK_ASSIGNED", saved.type)
         assertFalse(saved.read)
-        verify(apnsPushService).sendPush("Kasper", "TASK_ASSIGNED", mapOf("title" to "Take out trash"))
+        verify(pushDispatchService).sendPush("Kasper", "TASK_ASSIGNED", mapOf("title" to "Take out trash"))
     }
 
     @Test
@@ -60,7 +61,7 @@ class NotificationServiceTest {
         assertEquals("Task overdue", saved.message)
         assertEquals("TASK_OVERDUE", saved.type)
         assertFalse(saved.read)
-        verify(apnsPushService).sendPush("Emma", "TASK_OVERDUE", mapOf("message" to "Task overdue"))
+        verify(pushDispatchService).sendPush("Emma", "TASK_OVERDUE", mapOf("message" to "Task overdue"))
     }
 
     @Test
@@ -76,8 +77,8 @@ class NotificationServiceTest {
         assertTrue(notifications.all { it.type == "GROUP" })
         assertTrue(notifications.all { !it.read })
         assertEquals(1, notifications.map { it.timestamp }.distinct().size)
-        verify(apnsPushService).sendPush("Emma", "GROUP", mapOf("message" to "Shared alert"))
-        verify(apnsPushService).sendPush("Kasper", "GROUP", mapOf("message" to "Shared alert"))
+        verify(pushDispatchService).sendPush("Emma", "GROUP", mapOf("message" to "Shared alert"))
+        verify(pushDispatchService).sendPush("Kasper", "GROUP", mapOf("message" to "Shared alert"))
     }
 
     @Test
@@ -143,7 +144,7 @@ class NotificationServiceTest {
         service.createTaskAssignedNotification("Kasper", "Clean up")
 
         verify(notificationRepository, never()).save(any())
-        verify(apnsPushService, never()).sendPush(any(), any(), any())
+        verify(pushDispatchService, never()).sendPush(any(), any(), any())
     }
 
     @Test
@@ -153,7 +154,7 @@ class NotificationServiceTest {
         service.createCustomNotification("Kasper", "You owe 100 kr", "EXPENSE_OWED")
 
         verify(notificationRepository, never()).save(any())
-        verify(apnsPushService, never()).sendPush(any(), any(), any())
+        verify(pushDispatchService, never()).sendPush(any(), any(), any())
     }
 
     @Test
@@ -168,7 +169,7 @@ class NotificationServiceTest {
         assertEquals("TASK_OVERDUE", saved.type)
         assertTrue(saved.message.contains("Take out trash"))
         assertFalse(saved.read)
-        verify(apnsPushService).sendPush("Kasper", "TASK_OVERDUE", mapOf("title" to "Take out trash"))
+        verify(pushDispatchService).sendPush("Kasper", "TASK_OVERDUE", mapOf("title" to "Take out trash"))
     }
 
     @Test
@@ -184,8 +185,8 @@ class NotificationServiceTest {
         assertEquals(2, notifications.size)
         assertTrue(notifications.all { it.type == "GROUP_TYPE" })
         assertFalse(notifications.any { it.read })
-        verify(apnsPushService).sendPush("Emma", "GROUP_TYPE", mapOf("key" to "value"))
-        verify(apnsPushService).sendPush("Kasper", "GROUP_TYPE", mapOf("key" to "value"))
+        verify(pushDispatchService).sendPush("Emma", "GROUP_TYPE", mapOf("key" to "value"))
+        verify(pushDispatchService).sendPush("Kasper", "GROUP_TYPE", mapOf("key" to "value"))
     }
 
     @Test

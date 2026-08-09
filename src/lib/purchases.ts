@@ -5,24 +5,27 @@ import { Purchases, LOG_LEVEL } from '@revenuecat/purchases-capacitor';
 // Single premium entitlement gating the game hub + chat GIFs, sold as a one-time
 // lifetime unlock (29 kr, non-consumable) via RevenueCat / App Store In-App Purchase.
 //
-// Setup that lives outside this repo (App Store Connect + RevenueCat dashboard) is
-// documented in REVENUECAT_SETUP.md. Once that's done, set VITE_REVENUECAT_API_KEY_IOS
-// in .env.mobile and this module activates automatically — no code change needed.
+// Setup that lives outside this repo (App Store Connect / Play Console + RevenueCat
+// dashboard) is documented in release/REVENUECAT_SETUP.md (iOS) and
+// release/ANDROID_RELEASE_SETUP.md (Android). Once that's done, set
+// VITE_REVENUECAT_API_KEY_IOS / VITE_REVENUECAT_API_KEY_ANDROID in .env.mobile and this
+// module activates automatically per-platform — no code change needed.
 
 export const PREMIUM_ENTITLEMENT_ID = 'premium_lifetime';
 export const LIFETIME_PRODUCT_ID = 'kollekt_lifetime_unlock';
 
 const API_KEY_IOS = import.meta.env.VITE_REVENUECAT_API_KEY_IOS as string | undefined;
+const API_KEY_ANDROID = import.meta.env.VITE_REVENUECAT_API_KEY_ANDROID as string | undefined;
 
 /** True once a platform-appropriate RevenueCat API key is present in the build. */
-export const PURCHASES_CONFIGURED = !!API_KEY_IOS;
+export const PURCHASES_CONFIGURED = !!API_KEY_IOS || !!API_KEY_ANDROID;
 
 let configured = false;
 
 /** Configure the RevenueCat SDK once at app startup. No-ops on web or without a key. */
 export async function initPurchases(): Promise<void> {
   if (configured || !Capacitor.isNativePlatform() || !PURCHASES_CONFIGURED) return;
-  const apiKey = Capacitor.getPlatform() === 'ios' ? API_KEY_IOS : undefined;
+  const apiKey = Capacitor.getPlatform() === 'ios' ? API_KEY_IOS : API_KEY_ANDROID;
   if (!apiKey) return;
   configured = true;
   try {

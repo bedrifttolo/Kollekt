@@ -38,6 +38,7 @@ dependencies {
     implementation("com.google.apis:google-api-services-calendar:v3-rev20231123-2.0.0")
 
     implementation("com.eatthepath:pushy:0.15.6")
+    implementation("com.google.firebase:firebase-admin:9.9.0")
 
     runtimeOnly("org.postgresql:postgresql")
 

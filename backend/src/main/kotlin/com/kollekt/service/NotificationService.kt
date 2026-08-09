@@ -43,7 +43,7 @@ class NotificationService(
     private val notificationRepository: NotificationRepository,
     private val memberRepository: MemberRepository,
     private val realtimeUpdateService: RealtimeUpdateService,
-    private val apnsPushService: ApnsPushService,
+    private val pushDispatchService: PushDispatchService,
 ) {
     private val objectMapper = jacksonObjectMapper()
 
@@ -95,7 +95,7 @@ class NotificationService(
 
     private fun saveAndPublish(notification: Notification) {
         notificationRepository.save(notification)
-        apnsPushService.sendPush(notification.userName, notification.type, messageParams(notification.message))
+        pushDispatchService.sendPush(notification.userName, notification.type, messageParams(notification.message))
         val collectiveCode = findMemberByName(notification.userName)?.collectiveCode ?: return
         realtimeUpdateService.publish(
             collectiveCode,
@@ -178,7 +178,7 @@ class NotificationService(
                 Notification(userName = userName, message = message, type = type, timestamp = now, read = false)
             }
         notificationRepository.saveAll(notifications)
-        enabled.forEach { userName -> apnsPushService.sendPush(userName, type, mapOf("message" to message)) }
+        enabled.forEach { userName -> pushDispatchService.sendPush(userName, type, mapOf("message" to message)) }
         val collectiveCodes = enabled.mapNotNull { findMemberByName(it)?.collectiveCode }.distinct()
         for (code in collectiveCodes) {
             realtimeUpdateService.publish(code, "NOTIFICATION_CREATED", mapOf("type" to type))
@@ -199,7 +199,7 @@ class NotificationService(
                 Notification(userName = userName, message = messageJson, type = type, timestamp = now, read = false)
             }
         notificationRepository.saveAll(notifications)
-        enabled.forEach { userName -> apnsPushService.sendPush(userName, type, params) }
+        enabled.forEach { userName -> pushDispatchService.sendPush(userName, type, params) }
         val collectiveCodes = enabled.mapNotNull { findMemberByName(it)?.collectiveCode }.distinct()
         for (code in collectiveCodes) {
             realtimeUpdateService.publish(code, "NOTIFICATION_CREATED", mapOf("type" to type))

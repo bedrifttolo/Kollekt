@@ -251,4 +251,16 @@ object PushNotificationCopy {
         template: String,
         params: Map<String, String>,
     ): String = PARAM_PATTERN.replace(template) { match -> params[match.groupValues[1]] ?: match.value }
+
+    /** In-app route a tap on this notification type should deep-link to. Shared by every push
+     *  gateway ([ApnsPushService], [FcmPushService]) so the mapping is defined once. */
+    fun routeFor(type: String): String =
+        when {
+            type.startsWith("TASK_") || type == "SHOPPING_ITEM_ADDED" -> "/tasks"
+            type == "NEW_MESSAGE" -> "/chat"
+            type.startsWith("EXPENSE_") -> "/economy"
+            type == "KUDOS_RECEIVED" || type == "WEEKLY_RECAP" -> "/social"
+            type == "EVENT_ADDED" -> "/calendar"
+            else -> "/"
+        }
 }

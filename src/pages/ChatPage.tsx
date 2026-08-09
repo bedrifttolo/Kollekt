@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Image as ImageIcon, BarChart3, X, Smile, Reply, HeartHandshake, ChevronDown, WashingMachine, Film, Lock, Plus, ThumbsUp, ThumbsDown, Heart, Laugh, PartyPopper, Flame, Frown, MessageCircle, Wallpaper, Pin, PinOff, type LucideIcon } from 'lucide-react';
+import { ArrowUp, Image as ImageIcon, BarChart3, X, Smile, Reply, HeartHandshake, ChevronDown, WashingMachine, Film, Lock, Plus, ThumbsUp, ThumbsDown, Heart, Laugh, PartyPopper, Flame, Frown, MessageCircle, Wallpaper, Pin, PinOff, type LucideIcon } from 'lucide-react';
 
 type LaundryType = 'WHITES' | 'COLORS' | 'DELICATES' | 'WOOL' | 'SPORTS' | 'TOWELS';
 const LAUNDRY_TYPES: LaundryType[] = ['WHITES', 'COLORS', 'DELICATES', 'WOOL', 'SPORTS', 'TOWELS'];
@@ -29,7 +29,7 @@ import type { AppUser, ChatMessage, CheckinSummary, HouseCheckin, Kudo, KudoType
 type LocalChatMessage = ChatMessage & { status?: 'sending' | 'failed' };
 
 const KUDO_TYPES: KudoType[] = ['THANK_YOU', 'CLEANEST', 'MOST_HELPFUL', 'PEACEMAKER'];
-import { AddSheet, AvatarStack, IconButton } from '../components/ui-kit';
+import { AddSheet, AvatarStack } from '../components/ui-kit';
 import { collapseVariants, popIn, pressable, springPop, useReducedMotion } from '../lib/motion';
 import { colorForMember } from '../lib/memberColors';
 import { PAGE_ACCENTS } from '../lib/pageAccent';
@@ -245,11 +245,14 @@ export default function ChatPage() {
       ? `/chat/direct?memberName=${encodeURIComponent(name)}&otherName=${encodeURIComponent(thread)}`
       : `/chat/messages?memberName=${encodeURIComponent(name)}`;
     const res = await api.get<ChatMessage[]>(url);
-    setMessages(res);
-    setLoading(false);
     // Cache both household and DM threads so revisiting either renders instantly from cache.
     if (!thread) sharedQueryClient.setQueryData(qk.chat(name), res);
     else sharedQueryClient.setQueryData(qk.chatDirect(name, thread), res);
+    // The user may have switched to a different thread while this request was in flight — a
+    // stale response for the thread they've since left must not clobber what's on screen now.
+    if (thread !== activeThreadRef.current) return;
+    setMessages(res);
+    setLoading(false);
   };
 
   // Patches a single message into the open thread instead of refetching the whole conversation —
@@ -929,7 +932,7 @@ export default function ChatPage() {
               className={`flex ${isSelf ? 'justify-end' : 'justify-start'} ${isFirstOfGroup && !startsNewDay && !startsUnread ? 'mt-3' : 'mt-0.5'}`}
             >
               <div className="max-w-[78%] space-y-1">
-                {!isSelf && isFirstOfGroup && <p className="px-1 text-xs font-bold" style={{ color: senderColor }}>{message.sender}</p>}
+                {!isSelf && isFirstOfGroup && <p className="font-ios px-1 text-xs font-bold" style={{ color: senderColor }}>{message.sender}</p>}
                 {replyTarget && (
                   <div
                     className={`mx-1 rounded-lg px-2.5 py-1.5 text-[10px] leading-tight border ${
@@ -964,7 +967,7 @@ export default function ChatPage() {
 	                  onPointerLeave={clearLongPress}
 	                >
                   {message.text && !message.poll && (
-                    <p className={`text-[15px] leading-relaxed ${isSelf ? 'text-white' : 'text-black dark:text-white'}`}>
+                    <p className={`font-ios text-[15px] leading-relaxed ${isSelf ? 'text-white' : 'text-black dark:text-white'}`}>
                       {message.text}
                     </p>
                   )}
@@ -1017,7 +1020,7 @@ export default function ChatPage() {
                     </button>
                   )}
                   {isLastOfGroup && message.status !== 'failed' && (
-                    <p className={`text-[9px] mt-1 ${isSelf ? 'text-white/70' : 'text-muted-foreground'}`}>
+                    <p className={`font-ios text-[11px] mt-1 ${isSelf ? 'text-white/70' : 'text-muted-foreground'}`}>
                       {message.status === 'sending' ? t('chat.sending') : formatMessageTimestamp(message.timestamp)}
                     </p>
                   )}
@@ -1202,9 +1205,11 @@ export default function ChatPage() {
             ))}
           </div>
         )}
-        {/* Action bar — revealed by the + button */}
+        {/* Action bar — revealed by the + button. Photo comes first since it's the most common
+            non-text action (mirrors iMessage's attachment tray); the rest are collective-only
+            concepts and stay hidden in a 1:1 thread. */}
         <AnimatePresence>
-        {!isDirect && showActionBar && (
+        {showActionBar && (
           <motion.div
             variants={collapseVariants}
             initial="hidden"
@@ -1212,6 +1217,15 @@ export default function ChatPage() {
             exit="exit"
             className="elev-2 mb-2 flex gap-2 overflow-x-auto overflow-y-hidden rounded-2xl border border-border bg-card px-3 py-2"
           >
+            <button
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => { setShowActionBar(false); void handlePickImage(); }}
+              className="flex min-h-11 shrink-0 flex-col items-center gap-1 rounded-xl px-3 py-2 hover:bg-muted/60"
+              aria-label={t('chat.sendImage')}
+            >
+              <ImageIcon className="h-5 w-5 text-muted-foreground" />
+              <span className="text-[9px] font-medium text-muted-foreground">{t('chat.sendImage')}</span>
+            </button>
             <button
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => {
@@ -1225,18 +1239,24 @@ export default function ChatPage() {
               {isUnlocked ? <Film className="h-5 w-5 text-muted-foreground" /> : <Lock className="h-5 w-5 text-muted-foreground" />}
               <span className="text-[9px] font-medium text-muted-foreground">GIF</span>
             </button>
-            <button onMouseDown={(e) => e.preventDefault()} onClick={() => { setShowPollForm((v) => !v); setShowActionBar(false); }} className="flex min-h-11 shrink-0 flex-col items-center gap-1 rounded-xl px-3 py-2 hover:bg-muted/60" aria-label={t('chat.togglePollForm')}>
-              <BarChart3 className="h-5 w-5 text-muted-foreground" />
-              <span className="text-[9px] font-medium text-muted-foreground">{t('chat.createPoll')}</span>
-            </button>
-            <button onMouseDown={(e) => e.preventDefault()} onClick={() => { setShowLaundryForm((v) => !v); setShowActionBar(false); }} className="flex min-h-11 shrink-0 flex-col items-center gap-1 rounded-xl px-3 py-2 hover:bg-muted/60" aria-label={t('laundry.title')}>
-              <WashingMachine className="h-5 w-5 text-accent" />
-              <span className="text-[9px] font-medium text-muted-foreground">{t('laundry.title')}</span>
-            </button>
-            <button onMouseDown={(e) => e.preventDefault()} onClick={() => { setShowKudosForm((v) => !v); setShowActionBar(false); }} className="flex min-h-11 shrink-0 flex-col items-center gap-1 rounded-xl px-3 py-2 hover:bg-muted/60" aria-label={t('kudos.sendTitle')}>
-              <HeartHandshake className="h-5 w-5 text-primary" />
-              <span className="text-[9px] font-medium text-muted-foreground">{t('kudos.sendTitle')}</span>
-            </button>
+            {!isDirect && (
+              <button onMouseDown={(e) => e.preventDefault()} onClick={() => { setShowPollForm((v) => !v); setShowActionBar(false); }} className="flex min-h-11 shrink-0 flex-col items-center gap-1 rounded-xl px-3 py-2 hover:bg-muted/60" aria-label={t('chat.togglePollForm')}>
+                <BarChart3 className="h-5 w-5 text-muted-foreground" />
+                <span className="text-[9px] font-medium text-muted-foreground">{t('chat.createPoll')}</span>
+              </button>
+            )}
+            {!isDirect && (
+              <button onMouseDown={(e) => e.preventDefault()} onClick={() => { setShowLaundryForm((v) => !v); setShowActionBar(false); }} className="flex min-h-11 shrink-0 flex-col items-center gap-1 rounded-xl px-3 py-2 hover:bg-muted/60" aria-label={t('laundry.title')}>
+                <WashingMachine className="h-5 w-5 text-accent" />
+                <span className="text-[9px] font-medium text-muted-foreground">{t('laundry.title')}</span>
+              </button>
+            )}
+            {!isDirect && (
+              <button onMouseDown={(e) => e.preventDefault()} onClick={() => { setShowKudosForm((v) => !v); setShowActionBar(false); }} className="flex min-h-11 shrink-0 flex-col items-center gap-1 rounded-xl px-3 py-2 hover:bg-muted/60" aria-label={t('kudos.sendTitle')}>
+                <HeartHandshake className="h-5 w-5 text-primary" />
+                <span className="text-[9px] font-medium text-muted-foreground">{t('kudos.sendTitle')}</span>
+              </button>
+            )}
             <button
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => {
@@ -1272,28 +1292,17 @@ export default function ChatPage() {
           {/* Web fallback for the wallpaper picker; native uses the Camera plugin's own sheet. */}
           <input ref={backgroundInputRef} type="file" accept="image/*"
             className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) void applyBackgroundFile(f); }} />
-          {!isDirect && (
-            <motion.button
-              onMouseDown={(e) => e.preventDefault()}
-              onClick={() => { void tapFeedback(); setShowActionBar((v) => !v); }}
-              {...pressable}
-              className={`pressable grid shrink-0 place-items-center rounded-full transition-colors ${showActionBar ? 'bg-ink text-ink-foreground' : 'bg-muted'}`}
-              aria-label="Actions"
-            >
-              <motion.span animate={{ rotate: showActionBar ? 45 : 0 }} transition={springPop}>
-                <Plus className="h-5 w-5" />
-              </motion.span>
-            </motion.button>
-          )}
-          {/* Camera lives in the composer rather than behind "+": sending a photo is the most
-              common non-text action, and this makes it one tap instead of two. */}
-          <IconButton
+          <motion.button
             onMouseDown={(e) => e.preventDefault()}
-            onClick={() => void handlePickImage()}
-            variant="muted"
-            label={t('chat.sendImage')}
-            icon={<ImageIcon className="h-5 w-5 text-muted-foreground" />}
-          />
+            onClick={() => { void tapFeedback(); setShowActionBar((v) => !v); }}
+            {...pressable}
+            className={`pressable grid shrink-0 place-items-center rounded-full transition-colors ${showActionBar ? 'bg-ink text-ink-foreground' : 'bg-muted'}`}
+            aria-label="Actions"
+          >
+            <motion.span animate={{ rotate: showActionBar ? 45 : 0 }} transition={springPop}>
+              <Plus className="h-5 w-5" />
+            </motion.span>
+          </motion.button>
           <textarea
             ref={messageInputRef}
             // Opts out of nativeBootstrap's generic keyboard-scroll-assist (which centers whichever
@@ -1320,7 +1329,7 @@ export default function ChatPage() {
               if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
             }}
             placeholder={t('chat.messagePlaceholder')}
-            className="min-w-36 flex-1 resize-none self-center rounded-3xl bg-muted px-4 py-2.5 text-sm leading-snug text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+            className="font-ios min-w-36 flex-1 resize-none self-center rounded-3xl bg-muted px-4 py-2.5 text-sm leading-snug text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
           />
           {/* The send button wakes up when there is something to send: dimmed and slightly small
               while the composer is empty, full size and full colour the moment you type. */}
@@ -1332,7 +1341,7 @@ export default function ChatPage() {
             className="pressable grid shrink-0 place-items-center rounded-full bg-primary dark:bg-white"
             aria-label={t('common.send')}
           >
-            <Send className="h-4 w-4 text-primary-foreground dark:text-black" />
+            <ArrowUp className="h-4 w-4 text-primary-foreground dark:text-black" strokeWidth={2.5} />
           </motion.button>
         </div>
       </div>

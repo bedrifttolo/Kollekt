@@ -128,5 +128,5 @@ If the paywall shows "Purchases aren't available yet" instead of the price, `VIT
 
 ## Not needed for this launch (optional later)
 
-- **Android**: only the iOS key is wired up (`VITE_REVENUECAT_API_KEY_IOS`). Adding Android later means creating the same non-consumable product in Google Play Console, connecting a Play service-account key in RevenueCat, adding `VITE_REVENUECAT_API_KEY_ANDROID` here, and a small change to the platform check in [src/lib/purchases.ts](src/lib/purchases.ts) (`initPurchases`).
+- **Android**: `src/lib/purchases.ts` already reads a platform-appropriate key (`VITE_REVENUECAT_API_KEY_IOS` on iOS, `VITE_REVENUECAT_API_KEY_ANDROID` on Android) — no further code change needed. The Play Console product + RevenueCat dashboard setup for Android is documented in [release/ANDROID_RELEASE_SETUP.md](release/ANDROID_RELEASE_SETUP.md).
 - **Backend involvement**: entitlement is checked entirely on-device via the RevenueCat SDK, matching how the rest of the games feature works (bundled at build time, no game server). No backend changes were made or are needed. If you ever want server-side visibility into who's purchased (e.g. an admin view), that would mean adding a RevenueCat webhook endpoint to the backend later — skipped for now since nothing needs it.
