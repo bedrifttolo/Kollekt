@@ -819,6 +819,7 @@
         "hundredQuestions": "100 Questions",
         "truthOrChug": "Truth or Chug",
         "neverHaveIEver": "Never have I ever",
+        "kingsCommands": "The King Commands",
         "mexican": "Mexican",
         "kingsCup": "Kings Cup",
         "categories": "Categories",
@@ -837,6 +838,7 @@
         "hundredQuestions": "Point to the person who best matches each question.",
         "truthOrChug": "Pick a number, answer the truth or take the challenge.",
         "neverHaveIEver": "Lose a point when you have done what the card says.",
+        "kingsCommands": "Draw a card and follow the king's command — or pay the price.",
         "mexican": "Roll in turn and beat the previous player's hidden result.",
         "kingsCup": "Draw cards and follow the rule tied to each rank.",
         "categories": "Name something in the category before time runs out.",
@@ -855,14 +857,15 @@
         "hundredQuestions": "Read each question and point to the person who fits it best. Count votes out loud, discuss the result, then move to the next card.",
         "truthOrChug": "Pick a numbered card. Either answer honestly or take the challenge instead. The group decides how strict the penalties are before starting.",
         "neverHaveIEver": "Read the statement aloud. Anyone who has done it takes the agreed penalty. After the reactions settle, continue to the next card.",
+        "kingsCommands": "Draw one card and read the command aloud. The whole table follows it together. Anyone who can't — or won't — takes the drink penalty: 2 on Chill and Medium, 3 on Spicy.",
         "mexican": "Roll secretly and announce a result higher than the previous player. The next player can believe you and roll, or challenge. A wrong challenge loses.",
         "kingsCup": "Draw cards in turn. Each card rank has a rule. Follow the rule, keep the pace moving, and agree before starting what happens when the final king appears.",
         "categories": "A category appears and players answer in turn before time runs out. Repeats, wrong answers, or silence knock a player out. Last player remaining wins.",
         "charades": "One player acts without speaking while the others guess. Score the round when someone guesses correctly, then pass the acting turn to the next player.",
         "snusboksen": "Pass the can around. When it's your turn, flip a card, read it out loud, and everyone points to whoever fits best. Then pass the can on.",
         "whoAreWe": "Draw a card and read it out loud. Everyone points to the person they think fits best. That person can agree, disagree, or share the real story. Keep the conversation going as long as you want before moving on. No right answers — just honest ones.",
-        "guysNight": "Flip a card and do what it says. Mix of never have I ever, pointing rounds, dares, and drinking rules. Pick Mild to warm up, Droy when the night gets going.",
-        "girlsNight": "Flip a card and do what it says. Mix of never have I ever, pointing rounds, dares, and drinking rules. Mild to ease in, Droy when the wine kicks in."
+        "guysNight": "Flip a card and do what it says. Mix of never have I ever, pointing rounds, dares, and drinking rules. Pick Chill to warm up, Spicy when the night gets going.",
+        "girlsNight": "Flip a card and do what it says. Mix of never have I ever, pointing rounds, dares, and drinking rules. Chill to ease in, Spicy when the wine kicks in."
       },
       "dice": {
         "roll": "Roll the die",
@@ -1023,17 +1026,17 @@
       },
       "whoAreWe": {
         "deckNames": {
-          "mild": "Mild",
+          "chill": "Chill",
           "medium": "Medium",
-          "droy": "Drøy"
+          "spicy": "Spicy"
         },
         "deckDescriptions": {
-          "mild": "Light questions to get everyone talking.",
+          "chill": "Light questions to get everyone talking.",
           "medium": "More personal — with a bit of spice.",
-          "droy": "No filter. Who are you really?"
+          "spicy": "No filter. Who are you really?"
         },
         "decks": {
-          "mild": [
+          "chill": [
             "Who here is still in bed when everyone else is up?",
             "Who here doesn't function without coffee or tea in the morning?",
             "Who here always hogs the bathroom the longest?",
@@ -1097,7 +1100,7 @@
             "Who here would make the first move and regret it instantly?",
             "Who here flirts without realizing they're doing it?"
           ],
-          "droy": [
+          "spicy": [
             "Who here would have a one-night stand tonight if the chance came up?",
             "Who here has a kinky side nobody here knows about?",
             "Who here has the wildest place they've ever had sex?",
@@ -1133,17 +1136,17 @@
       },
       "guysNight": {
         "deckNames": {
-          "mild": "Mild",
+          "chill": "Chill",
           "medium": "Medium",
-          "droy": "Drøy"
+          "spicy": "Spicy"
         },
         "deckDescriptions": {
-          "mild": "Fun, social, competitive. Good for warming up.",
+          "chill": "Fun, social, competitive. Good for warming up.",
           "medium": "More personal — some roasting, some confessions, some spice.",
-          "droy": "Brutal honesty. Bold dares. No mercy."
+          "spicy": "Brutal honesty. Bold dares. No mercy."
         },
         "decks": {
-          "mild": [
+          "chill": [
             "Point at who'd last the longest in the woods with no gear.",
             "Never have I ever skipped leg day and worn shorts the next day.",
             "Everyone who's sent a 'you up?' text this past month drinks.",
@@ -1207,7 +1210,7 @@
             "Everyone who's been called 'the emotionally unavailable one' drinks.",
             "Point at who's got the most chaotic situationship story right now."
           ],
-          "droy": [
+          "spicy": [
             "Point at who's most likely to get some tonight.",
             "Never have I ever been in a sexual situation I couldn't explain on the spot.",
             "Everyone who's sent explicit pics drinks.",
@@ -1243,17 +1246,17 @@
       },
       "girlsNight": {
         "deckNames": {
-          "mild": "Mild",
+          "chill": "Chill",
           "medium": "Medium",
-          "droy": "Drøy"
+          "spicy": "Spicy"
         },
         "deckDescriptions": {
-          "mild": "Fun, social, a little chaotic. Perfect for warming up.",
+          "chill": "Fun, social, a little chaotic. Perfect for warming up.",
           "medium": "More personal — gossip, feelings, a bit of spice.",
-          "droy": "Fully unfiltered. Things that stay in the room."
+          "spicy": "Fully unfiltered. Things that stay in the room."
         },
         "decks": {
-          "mild": [
+          "chill": [
             "Point at who'd survive the longest without their phone.",
             "Never have I ever cried in the toilet at a party and gone straight back to dance.",
             "Everyone who's kept a piece of clothing from an ex drinks.",
@@ -1317,7 +1320,7 @@
             "Everyone with a number higher than they'd admit in polite company drinks.",
             "Never have I ever had sex and immediately wished I was somewhere else."
           ],
-          "droy": [
+          "spicy": [
             "Point at who's most likely to get some tonight.",
             "Never have I ever done something in bed I'd never tell my mum about.",
             "Everyone who's sent explicit pics drinks.",
@@ -1354,14 +1357,14 @@
       "snusboksen": {
         "pickDeck": "Pick a deck",
         "deckNames": {
-          "mild": "Mild",
+          "chill": "Chill",
           "medium": "Medium",
-          "droy": "Drøy"
+          "spicy": "Spicy"
         },
         "deckDescriptions": {
-          "mild": "Light questions to get everyone talking.",
+          "chill": "Light questions to get everyone talking.",
           "medium": "Juicier questions that spark real debates.",
-          "droy": "The boldest, most revealing cards. No mercy."
+          "spicy": "The boldest, most revealing cards. No mercy."
         },
         "progress": "Card {{current}} of {{total}}",
         "pass": "Pass the can to {{player}}",
@@ -1372,7 +1375,7 @@
         "playAgain": "Reshuffle and play again",
         "changeDeck": "Change deck",
         "decks": {
-          "mild": [
+          "chill": [
             "Who in the room would survive longest in the wilderness with zero preparation?",
             "Who in the room would accidentally go viral on TikTok?",
             "Who in the room is still awake at 6am while everyone else is asleep?",
@@ -1436,7 +1439,7 @@
             "Who in the room has the most alarming screen time?",
             "Who in the room would ghost someone they were actually into because they got scared?"
           ],
-          "droy": [
+          "spicy": [
             "Who in the room would go home with someone tonight even with a 7am alarm?",
             "Who in the room has a more interesting toilet story than they've let on?",
             "Who in the room has liked an ex's photo from three years ago at 1am?",
@@ -1752,14 +1755,11 @@
         "drinks_multiplier": " · ×{{m}} drinks"
       },
       "presets": {
-        "quick": {
-          "description": "8 rounds — get in, get merry, get out."
+        "chill": {
+          "description": "30 rounds, easygoing — light sips, mostly hot-seat and trivia."
         },
-        "hardcore": {
-          "description": "20 rounds, double drinks, no mercy."
-        },
-        "casual": {
-          "description": "12 rounds, light sips, stats barely matter."
+        "spicy": {
+          "description": "30 rounds, high stakes — more challenges, double drinks, no mercy."
         }
       },
       "playing": {
@@ -1824,21 +1824,17 @@
       "drinks_multiplier": " · ×{{m}} points"
     },
     "presets": {
-      "default": {
-        "label": "Standard",
-        "description": "15 rounds, balanced mix of chaos and stats."
+      "chill": {
+        "label": "Chill",
+        "description": "30 rounds, easygoing — light stakes, mostly hot-seat and trivia."
       },
-      "quick": {
-        "label": "Quick",
-        "description": "8 rounds — get in, get chaotic, get out."
+      "medium": {
+        "label": "Medium",
+        "description": "30 rounds, balanced mix of chaos and stats."
       },
-      "hardcore": {
-        "label": "Hardcore",
-        "description": "20 rounds, double points, no mercy."
-      },
-      "casual": {
-        "label": "Casual",
-        "description": "12 rounds, low stakes, stats barely matter."
+      "spicy": {
+        "label": "Spicy",
+        "description": "30 rounds, high stakes — more challenges, double points, no mercy."
       }
     },
     "playing": {
@@ -1853,7 +1849,8 @@
       "CHALLENGE": "Challenge",
       "HOT_SEAT": "Hot Seat",
       "TRIVIA_TWIST": "Trivia",
-      "RANDOM_EVENT": "Wild Card"
+      "RANDOM_EVENT": "Wild Card",
+      "PROMPT_CARD": "Card Draw"
     },
     "drinking": {
       "distributes": "{{name}} distributes {{count}} point(s)",
@@ -1914,7 +1911,23 @@
       "vote": "Question",
       "challenge": "Challenge",
       "toast": "Toast",
-      "never": "Never have I ever"
+      "never": "Never have I ever",
+      "command": "Command"
+    },
+    "spice": {
+      "title": "Pick your spice level",
+      "chill": "Chill",
+      "medium": "Medium",
+      "spicy": "Spicy",
+      "chillHint": "Easy, friendly questions to warm up.",
+      "mediumHint": "More personal, a bit more edge.",
+      "spicyHint": "No filter. Bold and explicit."
+    },
+    "roundOver": {
+      "title": "Round over!",
+      "subtitle": "You made it through all 30 questions.",
+      "newRound": "New round",
+      "changeTier": "Change spice level"
     }
   },
   "profile": {

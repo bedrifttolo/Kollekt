@@ -63,6 +63,7 @@ export function generateAllRounds(
     'HOT_SEAT',
     'TRIVIA_TWIST',
     'RANDOM_EVENT',
+    'PROMPT_CARD',
   ];
 
   let lastType: RoundType | null = null;

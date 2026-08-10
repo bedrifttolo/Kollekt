@@ -18,527 +18,632 @@
     {
       "id": 1,
       "text": "Har du ligget med noen på snapchat-lista di?",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "spicy"
     },
     {
       "id": 2,
       "text": "Hvem her er mest pysete i senga?",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "spicy"
     },
     {
       "id": 3,
       "text": "Hvem lå du med sist?",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "spicy"
     },
     {
       "id": 4,
       "text": "Fortell den største hemmeligheten din.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "medium"
     },
     {
       "id": 5,
       "text": "Ring bestemor og spør hvem som er favorittbarnebarnet.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "chill"
     },
     {
       "id": 6,
       "text": "Hvem her liker du best?",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "chill"
     },
     {
       "id": 7,
       "text": "På en skala fra 1 til 10, hvor rullete er du egentlig?",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "medium"
     },
     {
       "id": 8,
       "text": "Kunne du ligget med faren til han som holder festen?",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "medium"
     },
     {
       "id": 9,
       "text": "Legg til fem tilfeldige på Quick Add og send dem en snap.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "chill"
     },
     {
       "id": 10,
       "text": "Har du prøvd 69? Hvis ja, drikk 6 slurker.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "spicy"
     },
     {
       "id": 11,
       "text": "Gi en shot til han som holder festen.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "chill"
     },
     {
       "id": 12,
       "text": "Syng et refreng helt uten musikk.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "chill"
     },
     {
       "id": 13,
       "text": "Fortell en vits. Hvis ingen ler, drikk.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "chill"
     },
     {
       "id": 14,
       "text": "Legg ut en insta-story akkurat nå.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "chill"
     },
     {
       "id": 15,
       "text": "Ring et familiemedlem og si du nettopp har fått deg leilighet.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "chill"
     },
     {
       "id": 16,
       "text": "Les opp søkehistorikken din på Instagram.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "medium"
     },
     {
       "id": 17,
       "text": "Hvilken sjanger går du oftest for på porno?",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "spicy"
     },
     {
       "id": 18,
       "text": "Vis skjermen til han på venstre — de velger én kontakt du MÅ sende en uskyldig snap til.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "chill"
     },
     {
       "id": 19,
       "text": "Legg ut «kjører i kveld 🚗» på snap-storyen.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "chill"
     },
     {
       "id": 20,
       "text": "Si de tre øverste på snap-bestisene dine.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "chill"
     },
     {
       "id": 21,
       "text": "Send «streak?» til noen du aldri snapper med.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "chill"
     },
     {
       "id": 22,
       "text": "Svar på den første insta-storyen som dukker opp.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "chill"
     },
     {
       "id": 23,
       "text": "Legg ut et bilde på Facebook.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "chill"
     },
     {
       "id": 24,
       "text": "Gå live på Facebook i ti sekunder.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "chill"
     },
     {
       "id": 25,
       "text": "Innrøm en fetish, hvis du tør.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "spicy"
     },
     {
       "id": 26,
       "text": "Fortell den kleineste sexhistorien din.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "spicy"
     },
     {
       "id": 27,
       "text": "Pek på den største pysa i rommet.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "chill"
     },
     {
       "id": 28,
       "text": "Legg ut en TikTok på Instagram.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "chill"
     },
     {
       "id": 29,
       "text": "Send en DM til en kjendis.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "chill"
     },
     {
       "id": 30,
       "text": "Si tallet på personer du har ligget med.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "spicy"
     },
     {
       "id": 31,
       "text": "Gjett tallet til han på venstre og han på høyre.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "medium"
     },
     {
       "id": 32,
       "text": "Hvem her tenker du på litt for ofte?",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "medium"
     },
     {
       "id": 33,
       "text": "Hvem er den beste du har ligget med?",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "medium"
     },
     {
       "id": 34,
       "text": "Sett deg i hotseat — gruppa stiller tre spørsmål du MÅ svare ærlig på.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "medium"
     },
     {
       "id": 35,
       "text": "Bland en drink til noen i rommet.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "chill"
     },
     {
       "id": 36,
       "text": "Bytt antrekk med han på høyre.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "chill"
     },
     {
       "id": 37,
       "text": "La noen bla gjennom mobilen din i 30 sekunder.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "medium"
     },
     {
       "id": 38,
       "text": "Legg ut en insta-story: «Noen her er forelska i meg 👀»",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "medium"
     },
     {
       "id": 39,
       "text": "Si noe til han på venstre som du aldri ville sagt edru.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "medium"
     },
     {
       "id": 40,
       "text": "Pek på den som gråt sist.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "chill"
     },
     {
       "id": 41,
       "text": "Stilleleken — alle er stille i 60 sekunder, musikken også. Snakker du, drikk 5 slurker.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "chill"
     },
     {
       "id": 42,
       "text": "Drikk ti slurker.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "chill"
     },
     {
       "id": 43,
       "text": "Del ut ti slurker.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "chill"
     },
     {
       "id": 44,
       "text": "Hvor har du mest lyst til å ha sex?",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "spicy"
     },
     {
       "id": 45,
       "text": "Rareste stedet du har hatt sex?",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "spicy"
     },
     {
       "id": 46,
       "text": "Hvem her ryker først i en zombie-apokalypse?",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "chill"
     },
     {
       "id": 47,
       "text": "La han på høyre velge en kontakt — send dem en tilfeldig GIF.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "chill"
     },
     {
       "id": 48,
       "text": "La gruppa skrive og sende én melding fra mobilen din. Du bestemmer hvem den går til.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "medium"
     },
     {
       "id": 49,
       "text": "Har du hatt sex i utlandet?",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "spicy"
     },
     {
       "id": 50,
       "text": "Team anal eller ikke? Bare ja eller nei.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "spicy"
     },
     {
       "id": 51,
       "text": "Innrøm hvem her du hadde swipet høyre på hvis dere ikke kjente hverandre.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "medium"
     },
     {
       "id": 52,
       "text": "Beskriv det beste og det verste ligget ditt — uten navn.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "spicy"
     },
     {
       "id": 53,
       "text": "Fortell om første gang.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "spicy"
     },
     {
       "id": 54,
       "text": "Vis på en pute hvordan du legger an før sex.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "spicy"
     },
     {
       "id": 55,
       "text": "Gjør din beste imitasjon av noen i rommet — resten gjetter hvem.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "chill"
     },
     {
       "id": 56,
       "text": "Hva er det beste flørtetrikset ditt?",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "medium"
     },
     {
       "id": 57,
       "text": "Fortell om den beste Tinder-daten din.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "medium"
     },
     {
       "id": 58,
       "text": "Har du noen gang glemt at du har hatt sex?",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "spicy"
     },
     {
       "id": 59,
       "text": "Hvilken av eksene til vennene dine er farligst for deg?",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "medium"
     },
     {
       "id": 60,
       "text": "Vipps 50 kr til nummer 7 i kontaktlista.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "chill"
     },
     {
       "id": 61,
       "text": "Ta en shot.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "chill"
     },
     {
       "id": 62,
       "text": "Ring den neste i kontaktene, si «hei, ringte bare for å si at jeg er glad i deg» og legg på.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "chill"
     },
     {
       "id": 63,
       "text": "Hvilket realityprogram kunne du vært med på, og hvorfor?",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "chill"
     },
     {
       "id": 64,
       "text": "Hvem her trenger å få seg noe i kveld?",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "spicy"
     },
     {
       "id": 65,
       "text": "Si et sted du har hatt sex — alle som har hatt sex på samme sted drikker.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "medium"
     },
     {
       "id": 66,
       "text": "Har du hatt sex i senga til noen som er her nå?",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "spicy"
     },
     {
       "id": 67,
       "text": "Favorittstillingen din?",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "spicy"
     },
     {
       "id": 68,
       "text": "Har du noen gang blitt tatt på fersken? Utdyp.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "medium"
     },
     {
       "id": 69,
       "text": "Har du ligget med mer enn ti personer totalt?",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "spicy"
     },
     {
       "id": 70,
       "text": "Når gråt du sist?",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "chill"
     },
     {
       "id": 71,
       "text": "Send en «hei, lenge siden 👀» til den siste du lå med.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "medium"
     },
     {
       "id": 72,
       "text": "Send en fellessnap til alle som har navn på M.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "chill"
     },
     {
       "id": 73,
       "text": "Send en familiesnap.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "chill"
     },
     {
       "id": 74,
       "text": "Hvor lang er tørketiden din akkurat nå?",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "medium"
     },
     {
       "id": 75,
       "text": "Lik det eldste bildet du finner på Instagram-profilen til han på venstre.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "chill"
     },
     {
       "id": 76,
       "text": "Hvem er den verste du har ligget med?",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "medium"
     },
     {
       "id": 77,
       "text": "Pek på hvem som må chugge.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "chill"
     },
     {
       "id": 78,
       "text": "Du må snakke engelsk resten av leken.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "chill"
     },
     {
       "id": 79,
       "text": "Fortell en sexfantasi.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "spicy"
     },
     {
       "id": 80,
       "text": "Kunne du vært med på Ex on the Beach?",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "medium"
     },
     {
       "id": 81,
       "text": "Hvem her har mest bruk for en psykolog?",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "medium"
     },
     {
       "id": 82,
       "text": "Har du hatt telefonsex?",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "medium"
     },
     {
       "id": 83,
       "text": "Les opp søkehistorikken din i Safari.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "medium"
     },
     {
       "id": 84,
       "text": "Send en selfie til den siste du lå med og skriv «rate meg».",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "spicy"
     },
     {
       "id": 85,
       "text": "Fortell det mest pinlige du har gjort for å imponere noen du likte.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "medium"
     },
     {
       "id": 86,
       "text": "Gi oss din beste orgasmelyd.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "spicy"
     },
     {
       "id": 87,
       "text": "Hvem her liker du minst? (Med glimt i øyet.)",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "chill"
     },
     {
       "id": 88,
       "text": "Innrøm en guilty pleasure ingen vet om.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "medium"
     },
     {
       "id": 89,
       "text": "Har du hatt sex i senga til noen i rommet?",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "spicy"
     },
     {
       "id": 90,
       "text": "Velg noen å ta en shot med.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "chill"
     },
     {
       "id": 91,
       "text": "Hva er det verste du har opplevd?",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "medium"
     },
     {
       "id": 92,
       "text": "La han på venstre velge en kontakt — send dem en selfie med teksten «Hei! 😊»",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "chill"
     },
     {
       "id": 93,
       "text": "Rygg mot rygg med han på høyre. Gruppa stiller ett spørsmål, dere svarer samtidig på 3, 2, 1.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "chill"
     },
     {
       "id": 94,
       "text": "Fortell den villeste sexhistorien din.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "spicy"
     },
     {
       "id": 95,
       "text": "Gi en oppriktig kompliment til den peneste i rommet.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "chill"
     },
     {
       "id": 96,
       "text": "Hvem i rommet har hatt flest hookups? Alle peker.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "medium"
     },
     {
       "id": 97,
       "text": "Har du prompet under sex? Ærlig nå.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "spicy"
     },
     {
       "id": 98,
       "text": "Har du noen gang hørt foreldrene dine ha sex?",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "spicy"
     },
     {
       "id": 99,
       "text": "Hvem er morsomst her? Klovnen tar 5 slurker.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "chill"
     },
     {
       "id": 100,
       "text": "Hvor mange samtaler har du gående på dating-apper akkurat nå?",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "medium"
     },
     {
       "id": 101,
       "text": "Gruppa velger ett ord du IKKE får si resten av leken. Fem slurker hvis du sier det.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "chill"
     },
     {
       "id": 102,
       "text": "Fortell om et hett øyeblikk du aldri glemmer.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "spicy"
     },
     {
       "id": 103,
       "text": "Har du tissa på deg under sex? Ja eller nei.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "spicy"
     },
     {
       "id": 104,
       "text": "La gruppa sende én melding til hvem de vil fra mobilen din.",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "medium"
     },
     {
       "id": 105,
       "text": "Drikk like mange slurker som antallet du har ligget med (maks 10).",
-      "kind": "challenge"
+      "kind": "challenge",
+      "spice": "spicy"
     }
   ],
   "translations": {

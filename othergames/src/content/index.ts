@@ -2,16 +2,19 @@ import hundredQuestionsGame from './100_SPØRSMÅL.json';
 import truthOrChugGame from './CHUG_OR_TRUTH.json';
 import neverHaveIEverGame from './JEG_HAR_ALDRI.json';
 import whoAreWeGame from './WHO_ARE_WE.json';
+import kingsCommandsGame from './KONGEN_BEFALER.json';
 
-export type DrinkingGameId = 'hundred-questions' | 'truth-or-chug' | 'never-have-i-ever' | 'who-are-we';
+export type DrinkingGameId = 'hundred-questions' | 'truth-or-chug' | 'never-have-i-ever' | 'who-are-we' | 'kings-commands';
 export type DrinkingGameMode = 'ordered-deck' | 'number-board';
-export type DrinkingPromptKind = 'vote' | 'challenge' | 'toast' | 'never';
+export type DrinkingPromptKind = 'vote' | 'challenge' | 'toast' | 'never' | 'command';
 export type DrinkingGameLanguage = 'en' | 'no' | 'sv' | 'da';
+export type PromptSpice = 'chill' | 'medium' | 'spicy';
 
 export interface DrinkingGamePrompt {
   id: number;
   text: string;
   kind: DrinkingPromptKind;
+  spice: PromptSpice;
 }
 
 export interface DrinkingPromptTranslation {
@@ -46,6 +49,7 @@ export const drinkingGames = [
   truthOrChugGame,
   neverHaveIEverGame,
   whoAreWeGame,
+  kingsCommandsGame,
 ] as unknown as DrinkingGameDefinition[];
 
 function normalizeGameLanguage(language?: string): DrinkingGameLanguage {

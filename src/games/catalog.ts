@@ -4,6 +4,7 @@
 
 import {
   Beer,
+  Crown,
   Dices,
   Drama,
   EyeOff,
@@ -48,7 +49,7 @@ export interface GameEntry {
    * GamesPanel via `useGamesSubscription`.
    */
   requiresSubscription?: boolean;
-  drinkingGameId?: 'hundred-questions' | 'truth-or-chug' | 'never-have-i-ever' | 'who-are-we';
+  drinkingGameId?: 'hundred-questions' | 'truth-or-chug' | 'never-have-i-ever' | 'who-are-we' | 'kings-commands';
   /** Key into `social.games.<deckGameKey>` locale section — uses DeckGame component with mild/medium/droy decks */
   deckGameKey?: string;
   roomGame?: boolean;
@@ -74,6 +75,7 @@ export const GAME_CATALOG: GameEntry[] = [
   { id: 'liars-dice', titleKey: 'liarsDice', descriptionKey: 'liarsDice', icon: GlassWater, category: 'classic', difficulty: 'medium', minPlayers: 1, minutes: 15, playable: true, soloGame: true, requiresSubscription: true },
   { id: 'truth-or-chug', titleKey: 'truthOrChug', descriptionKey: 'truthOrChug', icon: Beer, category: 'party', difficulty: 'party', minPlayers: 2, minutes: 25, playable: true, drinkingGameId: 'truth-or-chug', requiresSubscription: true, hidden: true },
   { id: 'never-have-i-ever', titleKey: 'neverHaveIEver', descriptionKey: 'neverHaveIEver', icon: EyeOff, category: 'party', difficulty: 'party', minPlayers: 2, minutes: 20, playable: true, drinkingGameId: 'never-have-i-ever', requiresSubscription: true },
+  { id: 'kings-commands', titleKey: 'kingsCommands', descriptionKey: 'kingsCommands', icon: Crown, category: 'party', difficulty: 'party', minPlayers: 2, minutes: 20, playable: true, drinkingGameId: 'kings-commands', requiresSubscription: true },
   { id: 'kings-cup', titleKey: 'kingsCup', descriptionKey: 'kingsCup', icon: Spade, category: 'cards', difficulty: 'medium', minPlayers: 2, minutes: 30, playable: true, requiresSubscription: true },
   { id: 'charades', titleKey: 'charades', descriptionKey: 'charades', icon: Drama, category: 'party', difficulty: 'party', minPlayers: 2, minutes: 20, playable: true, requiresSubscription: true, hidden: true },
 ];

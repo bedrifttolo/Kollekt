@@ -59,6 +59,7 @@ const ROUND_TYPE_ICONS: Record<RoundType, typeof Zap> = {
   HOT_SEAT: Crown,
   TRIVIA_TWIST: Brain,
   RANDOM_EVENT: Sparkles,
+  PROMPT_CARD: PartyPopper,
 };
 
 const ROUND_TYPE_COLORS: Record<RoundType, string> = {
@@ -67,6 +68,7 @@ const ROUND_TYPE_COLORS: Record<RoundType, string> = {
   HOT_SEAT: 'text-accent',
   TRIVIA_TWIST: 'text-purple-400',
   RANDOM_EVENT: 'text-yellow-400',
+  PROMPT_CARD: 'text-orange-400',
 };
 
 const ROUND_TYPE_BG: Record<RoundType, string> = {
@@ -75,6 +77,7 @@ const ROUND_TYPE_BG: Record<RoundType, string> = {
   HOT_SEAT: 'from-accent/30 to-accent/5 border-accent/25',
   TRIVIA_TWIST: 'from-purple-500/20 to-purple-500/5 border-purple-500/20',
   RANDOM_EVENT: 'from-yellow-500/20 to-yellow-500/5 border-yellow-500/20',
+  PROMPT_CARD: 'from-orange-500/20 to-orange-500/5 border-orange-500/20',
 };
 
 // ─── Phase types ──────────────────────────────────────────────────────────────
@@ -107,8 +110,8 @@ export default function CollektGamePage() {
   const [loadErrorKey, setLoadErrorKey] = useState<string | null>(null);
   const [players, setPlayers] = useState<Player[]>([]);
   const [presets, setPresets] = useState<Record<GamePreset, GamePresetEntry> | null>(null);
-  const [selectedPreset, setSelectedPreset] = useState<GamePreset>('default');
-  const [sessionPreset, setSessionPreset] = useState<GamePreset>('default');
+  const [selectedPreset, setSelectedPreset] = useState<GamePreset>('medium');
+  const [sessionPreset, setSessionPreset] = useState<GamePreset>('medium');
   const [guestName, setGuestName] = useState('');
   const [guestNameErrorKey, setGuestNameErrorKey] = useState<string | null>(null);
   // Only ever true in a build with ALCOHOL_MODE_AVAILABLE — see src/lib/kollektGame.ts.

@@ -1,0 +1,4749 @@
+{
+  "gameId": "kollektivkrig",
+  "prompts": [
+    {
+      "id": 1,
+      "category": "Pek",
+      "text": "Pek på den som lar oppvasken stå til noen andre tar den",
+      "spice": "chill",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who leaves the dishes for someone else to do"
+    },
+    {
+      "id": 2,
+      "category": "Pek",
+      "text": "Pek på den som bruker lengst tid på badet",
+      "spice": "chill",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who spends the longest time in the bathroom"
+    },
+    {
+      "id": 3,
+      "category": "Pek",
+      "text": "Pek på den som låner flest ladere uten å spørre",
+      "spice": "chill",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who borrows the most chargers without asking"
+    },
+    {
+      "id": 4,
+      "category": "Pek",
+      "text": "Pek på den som glemmer søpla i gangen",
+      "spice": "chill",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who leaves the trash in the hallway"
+    },
+    {
+      "id": 5,
+      "category": "Pek",
+      "text": "Pek på den som sniker seg unna vaskelista",
+      "spice": "chill",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who sneaks out of chore duty"
+    },
+    {
+      "id": 6,
+      "category": "Pek",
+      "text": "Pek på den som lager best nattmat",
+      "spice": "chill",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who makes the best late-night snacks"
+    },
+    {
+      "id": 7,
+      "category": "Pek",
+      "text": "Pek på den som sovner først på sofaen",
+      "spice": "chill",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who falls asleep on the couch first"
+    },
+    {
+      "id": 8,
+      "category": "Pek",
+      "text": "Pek på den som spiller musikk høyest",
+      "spice": "chill",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who plays music the loudest"
+    },
+    {
+      "id": 9,
+      "category": "Pek",
+      "text": "Pek på den som kjøper dopapir når det faktisk er tomt",
+      "spice": "chill",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who actually buys toilet paper when it runs out"
+    },
+    {
+      "id": 10,
+      "category": "Pek",
+      "text": "Pek på den som kommer sist til vors",
+      "spice": "chill",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who's always last to pre-drinks"
+    },
+    {
+      "id": 11,
+      "category": "Pek",
+      "text": "Pek på den som mister nøklene oftest",
+      "spice": "chill",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who loses their keys the most"
+    },
+    {
+      "id": 12,
+      "category": "Pek",
+      "text": "Pek på den som bruker mest penger på takeaway",
+      "spice": "chill",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who spends the most money on takeout"
+    },
+    {
+      "id": 13,
+      "category": "Pek",
+      "text": "Pek på den som tar over fjernkontrollen",
+      "spice": "chill",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who hogs the remote"
+    },
+    {
+      "id": 14,
+      "category": "Pek",
+      "text": "Pek på den som inviterer folk uten å varsle",
+      "spice": "chill",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who invites people over without warning"
+    },
+    {
+      "id": 15,
+      "category": "Pek",
+      "text": "Pek på den som sender flest meldinger i kollektivchatten",
+      "spice": "chill",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who sends the most messages in the house group chat"
+    },
+    {
+      "id": 16,
+      "category": "Pek",
+      "text": "Pek på den som holder rommet ryddigst",
+      "spice": "chill",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who keeps their room the tidiest"
+    },
+    {
+      "id": 17,
+      "category": "Pek",
+      "text": "Pek på den som lar klær ligge i vaskemaskinen",
+      "spice": "chill",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who leaves clothes in the washing machine"
+    },
+    {
+      "id": 18,
+      "category": "Pek",
+      "text": "Pek på den som pynter mest til fest",
+      "spice": "chill",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who decorates the most for parties"
+    },
+    {
+      "id": 19,
+      "category": "Pek",
+      "text": "Pek på den som fikser ting uten å lage drama",
+      "spice": "chill",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who fixes things without making it a drama"
+    },
+    {
+      "id": 20,
+      "category": "Pek",
+      "text": "Pek på den som spiser andres rester",
+      "spice": "chill",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who eats other people's leftovers"
+    },
+    {
+      "id": 21,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri skyldt på noen andre for rotet mitt",
+      "spice": "chill",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever blamed someone else for my own mess"
+    },
+    {
+      "id": 22,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri spist middag rett fra stekepanna",
+      "spice": "chill",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever eaten dinner straight out of the frying pan"
+    },
+    {
+      "id": 23,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri gjemt skittentøy før besøk",
+      "spice": "chill",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever hidden dirty laundry before guests came over"
+    },
+    {
+      "id": 24,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri bestilt mat fordi kjøkkenet var fullt",
+      "spice": "chill",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever ordered food because the kitchen was full"
+    },
+    {
+      "id": 25,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri glemt hvilken dag jeg hadde vaskedag",
+      "spice": "chill",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever forgotten which day was my laundry day"
+    },
+    {
+      "id": 26,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri låst meg ute av kollektivet",
+      "spice": "chill",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever locked myself out of the house"
+    },
+    {
+      "id": 27,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri sovnet med lyset på",
+      "spice": "chill",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever fallen asleep with the light on"
+    },
+    {
+      "id": 28,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri brukt en kopp fordi alle glassene var skitne",
+      "spice": "chill",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever used a mug because every glass was dirty"
+    },
+    {
+      "id": 29,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri funnet mat i kjøleskapet jeg ikke husket",
+      "spice": "chill",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever found food in the fridge I didn't remember buying"
+    },
+    {
+      "id": 30,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri gått på butikken i tøfler",
+      "spice": "chill",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever gone to the store in slippers"
+    },
+    {
+      "id": 31,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri sendt en melding til feil gruppechat",
+      "spice": "chill",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever sent a message to the wrong group chat"
+    },
+    {
+      "id": 32,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri latet som jeg ikke hørte ringeklokka",
+      "spice": "chill",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever pretended not to hear the doorbell"
+    },
+    {
+      "id": 33,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri spist frokost etter klokka tolv",
+      "spice": "chill",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever eaten breakfast after noon"
+    },
+    {
+      "id": 34,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri mistet bankkortet på byen",
+      "spice": "chill",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever lost my bank card on a night out"
+    },
+    {
+      "id": 35,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri sunget karaoke foran fremmede",
+      "spice": "chill",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever sung karaoke in front of strangers"
+    },
+    {
+      "id": 36,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri glemt en avtale samme dag",
+      "spice": "chill",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever forgotten an appointment on the same day"
+    },
+    {
+      "id": 37,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri lånt en genser og beholdt den i flere uker",
+      "spice": "chill",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever borrowed a sweater and kept it for weeks"
+    },
+    {
+      "id": 38,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri sett en hel serie på én natt",
+      "spice": "chill",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever watched an entire series in one night"
+    },
+    {
+      "id": 39,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri brent maten og spist den likevel",
+      "spice": "chill",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever burned the food and eaten it anyway"
+    },
+    {
+      "id": 40,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri tatt siste bit uten å spørre",
+      "spice": "chill",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever taken the last piece without asking"
+    },
+    {
+      "id": 41,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som tar initiativ til husfest",
+      "spice": "chill",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who's most likely to start a house party"
+    },
+    {
+      "id": 42,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som alltid har snacks på rommet",
+      "spice": "chill",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who always has snacks in their room"
+    },
+    {
+      "id": 43,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som kan sovne hvor som helst",
+      "spice": "chill",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who can fall asleep anywhere"
+    },
+    {
+      "id": 44,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som har best kontroll på økonomien",
+      "spice": "chill",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who has the best handle on their finances"
+    },
+    {
+      "id": 45,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som ville vunnet en ryddekonkurranse",
+      "spice": "chill",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who would win a tidying contest"
+    },
+    {
+      "id": 46,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som kan flest sangtekster",
+      "spice": "chill",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who knows the most song lyrics"
+    },
+    {
+      "id": 47,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som blir kjent med naboene først",
+      "spice": "chill",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who gets to know the neighbors first"
+    },
+    {
+      "id": 48,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som har flest alarmer om morgenen",
+      "spice": "chill",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who sets the most alarms in the morning"
+    },
+    {
+      "id": 49,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som lager den beste spillelista",
+      "spice": "chill",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who makes the best playlist"
+    },
+    {
+      "id": 50,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som glemmer hvor mobilen ligger",
+      "spice": "chill",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who always forgets where their phone is"
+    },
+    {
+      "id": 51,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som ville klart seg lengst uten internett",
+      "spice": "chill",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who would last longest without internet"
+    },
+    {
+      "id": 52,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som er best til å mekke ting",
+      "spice": "chill",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who's best at fixing things"
+    },
+    {
+      "id": 53,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som har mest planteansvar",
+      "spice": "chill",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who's most responsible for the plants"
+    },
+    {
+      "id": 54,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som bestiller taxi først",
+      "spice": "chill",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who books the taxi first"
+    },
+    {
+      "id": 55,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som kommer med den beste nattmaten",
+      "spice": "chill",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who brings the best late-night snacks"
+    },
+    {
+      "id": 56,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som har den rareste døgnrytmen",
+      "spice": "chill",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who has the weirdest sleep schedule"
+    },
+    {
+      "id": 57,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som holder lengst ut på dansegulvet",
+      "spice": "chill",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who lasts longest on the dance floor"
+    },
+    {
+      "id": 58,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som har flest uåpnede meldinger",
+      "spice": "chill",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who has the most unread messages"
+    },
+    {
+      "id": 59,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som blir venner med vakta",
+      "spice": "chill",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who becomes friends with the bouncer"
+    },
+    {
+      "id": 60,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som rydder før gjestene har gått",
+      "spice": "chill",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who starts cleaning before the guests have left"
+    },
+    {
+      "id": 61,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} har best døgnrytme",
+      "spice": "chill",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} has the healthiest sleep schedule"
+    },
+    {
+      "id": 62,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} bruker mest tid på mobilen",
+      "spice": "chill",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} spends the most time on their phone"
+    },
+    {
+      "id": 63,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} er mest ryddig",
+      "spice": "chill",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} is the tidiest"
+    },
+    {
+      "id": 64,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} kommer oftest for sent",
+      "spice": "chill",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} is late the most often"
+    },
+    {
+      "id": 65,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} blir lettest distrahert",
+      "spice": "chill",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} gets distracted the easiest"
+    },
+    {
+      "id": 66,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} bruker mest penger på mat",
+      "spice": "chill",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} spends the most money on food"
+    },
+    {
+      "id": 67,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} er best til å lage middag",
+      "spice": "chill",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} is the best cook"
+    },
+    {
+      "id": 68,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} har dårligst retningssans",
+      "spice": "chill",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} has the worst sense of direction"
+    },
+    {
+      "id": 69,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} er mest sosial med naboene",
+      "spice": "chill",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} is the most social with the neighbors"
+    },
+    {
+      "id": 70,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} mister ting oftest",
+      "spice": "chill",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} loses things the most often"
+    },
+    {
+      "id": 71,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} har best musikksmak",
+      "spice": "chill",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} has the best music taste"
+    },
+    {
+      "id": 72,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} er mest spontan",
+      "spice": "chill",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} is the most spontaneous"
+    },
+    {
+      "id": 73,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} har flest klær på gulvet",
+      "spice": "chill",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} has the most clothes on the floor"
+    },
+    {
+      "id": 74,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} holder best orden på avtaler",
+      "spice": "chill",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} keeps the best track of appointments"
+    },
+    {
+      "id": 75,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} er mest konkurranseinnstilt",
+      "spice": "chill",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} is the most competitive"
+    },
+    {
+      "id": 76,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} blir først trøtt på vors",
+      "spice": "chill",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} gets tired first at pre-drinks"
+    },
+    {
+      "id": 77,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} har best pokerfjes",
+      "spice": "chill",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} has the best poker face"
+    },
+    {
+      "id": 78,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} er mest morgenmenneske",
+      "spice": "chill",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} is more of a morning person"
+    },
+    {
+      "id": 79,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} ville klart seg best på hyttetur",
+      "spice": "chill",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} would do best on a cabin trip"
+    },
+    {
+      "id": 80,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} er flinkest til å spare penger",
+      "spice": "chill",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} is best at saving money"
+    },
+    {
+      "id": 81,
+      "category": "Alle som",
+      "text": "Alle som har spist nudler denne uka",
+      "spice": "chill",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has eaten instant noodles this week"
+    },
+    {
+      "id": 82,
+      "category": "Alle som",
+      "text": "Alle som har en stol full av klær",
+      "spice": "chill",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has a chair full of clothes"
+    },
+    {
+      "id": 83,
+      "category": "Alle som",
+      "text": "Alle som har utsatt klesvasken i minst én uke",
+      "spice": "chill",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has put off laundry for at least a week"
+    },
+    {
+      "id": 84,
+      "category": "Alle som",
+      "text": "Alle som har glemt å kjøpe dopapir",
+      "spice": "chill",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has forgotten to buy toilet paper"
+    },
+    {
+      "id": 85,
+      "category": "Alle som",
+      "text": "Alle som har sovnet på sofaen i kollektivet",
+      "spice": "chill",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has fallen asleep on the living room couch"
+    },
+    {
+      "id": 86,
+      "category": "Alle som",
+      "text": "Alle som har sendt en passiv melding i kollektivchatten",
+      "spice": "chill",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has sent a passive-aggressive message in the house group chat"
+    },
+    {
+      "id": 87,
+      "category": "Alle som",
+      "text": "Alle som har brukt mat som egentlig tilhørte noen andre",
+      "spice": "chill",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has used food that belonged to someone else"
+    },
+    {
+      "id": 88,
+      "category": "Alle som",
+      "text": "Alle som har hatt besøk uten å varsle",
+      "spice": "chill",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has had guests over without giving notice"
+    },
+    {
+      "id": 89,
+      "category": "Alle som",
+      "text": "Alle som har danset på kjøkkenet",
+      "spice": "chill",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has danced in the kitchen"
+    },
+    {
+      "id": 90,
+      "category": "Alle som",
+      "text": "Alle som har gått tom for penger før lønning",
+      "spice": "chill",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has run out of money before payday"
+    },
+    {
+      "id": 91,
+      "category": "Alle som",
+      "text": "Alle som har bestilt takeaway denne uka",
+      "spice": "chill",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has ordered takeout this week"
+    },
+    {
+      "id": 92,
+      "category": "Alle som",
+      "text": "Alle som har brukt samme kopp hele dagen",
+      "spice": "chill",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has used the same mug all day"
+    },
+    {
+      "id": 93,
+      "category": "Alle som",
+      "text": "Alle som har sunget i dusjen i dag",
+      "spice": "chill",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has sung in the shower today"
+    },
+    {
+      "id": 94,
+      "category": "Alle som",
+      "text": "Alle som har låst seg ute",
+      "spice": "chill",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has locked themselves out"
+    },
+    {
+      "id": 95,
+      "category": "Alle som",
+      "text": "Alle som har mistet en sokk i vasken",
+      "spice": "chill",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has lost a sock in the wash"
+    },
+    {
+      "id": 96,
+      "category": "Alle som",
+      "text": "Alle som har spist middag etter midnatt",
+      "spice": "chill",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has eaten dinner after midnight"
+    },
+    {
+      "id": 97,
+      "category": "Alle som",
+      "text": "Alle som har en plante de nesten har drept",
+      "spice": "chill",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has a plant they've nearly killed"
+    },
+    {
+      "id": 98,
+      "category": "Alle som",
+      "text": "Alle som har sett naboen i pysj",
+      "spice": "chill",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has seen the neighbor in their pajamas"
+    },
+    {
+      "id": 99,
+      "category": "Alle som",
+      "text": "Alle som har sovet gjennom en alarm",
+      "spice": "chill",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has slept through an alarm"
+    },
+    {
+      "id": 100,
+      "category": "Alle som",
+      "text": "Alle som har brukt kollektivets felleskonto for sent",
+      "spice": "chill",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who's used the shared house account and paid back too late"
+    },
+    {
+      "id": 101,
+      "category": "Pek",
+      "text": "Pek på den som har sendt den sureste meldingen i kollektivchatten",
+      "spice": "medium",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who's sent the pettiest message in the house chat"
+    },
+    {
+      "id": 102,
+      "category": "Pek",
+      "text": "Pek på den som ville flyttet ut etter én dårlig husfest",
+      "spice": "medium",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who would move out after one bad house party"
+    },
+    {
+      "id": 103,
+      "category": "Pek",
+      "text": "Pek på den som har mest hemmelig rot på rommet",
+      "spice": "medium",
+      "categoryEn": "Point",
+      "textEn": "Point at the person with the most secret mess in their room"
+    },
+    {
+      "id": 104,
+      "category": "Pek",
+      "text": "Pek på den som bruker andres sjampo uten å spørre",
+      "spice": "medium",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who uses other people's shampoo without asking"
+    },
+    {
+      "id": 105,
+      "category": "Pek",
+      "text": "Pek på den som har snoket mest i kjøleskapet",
+      "spice": "medium",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who's snooped in the fridge the most"
+    },
+    {
+      "id": 106,
+      "category": "Pek",
+      "text": "Pek på den som ville startet en konflikt om strømregninga",
+      "spice": "medium",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who would start a fight over the electricity bill"
+    },
+    {
+      "id": 107,
+      "category": "Pek",
+      "text": "Pek på den som har hatt flest dater på besøk",
+      "spice": "medium",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who's had the most dates over"
+    },
+    {
+      "id": 108,
+      "category": "Pek",
+      "text": "Pek på den som blir mest irritert av tyggelyder",
+      "spice": "medium",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who gets most annoyed by chewing sounds"
+    },
+    {
+      "id": 109,
+      "category": "Pek",
+      "text": "Pek på den som har løyet mest om når de kommer hjem",
+      "spice": "medium",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who's lied the most about when they're coming home"
+    },
+    {
+      "id": 110,
+      "category": "Pek",
+      "text": "Pek på den som ville glemt å betale husleia",
+      "spice": "medium",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who would forget to pay rent"
+    },
+    {
+      "id": 111,
+      "category": "Pek",
+      "text": "Pek på den som har den verste fyllesyken",
+      "spice": "medium",
+      "categoryEn": "Point",
+      "textEn": "Point at the person with the worst hangovers"
+    },
+    {
+      "id": 112,
+      "category": "Pek",
+      "text": "Pek på den som har ghostet flest meldinger",
+      "spice": "medium",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who's ghosted the most texts"
+    },
+    {
+      "id": 113,
+      "category": "Pek",
+      "text": "Pek på den som ville tatt med eksen på nach",
+      "spice": "medium",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who would bring their ex to the afterparty"
+    },
+    {
+      "id": 114,
+      "category": "Pek",
+      "text": "Pek på den som har sendt flest fyllemeldinger",
+      "spice": "medium",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who's sent the most drunk texts"
+    },
+    {
+      "id": 115,
+      "category": "Pek",
+      "text": "Pek på den som blir sjalu først",
+      "spice": "medium",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who gets jealous first"
+    },
+    {
+      "id": 116,
+      "category": "Pek",
+      "text": "Pek på den som har størst sjanse for å havne på reality-TV",
+      "spice": "medium",
+      "categoryEn": "Point",
+      "textEn": "Point at the person most likely to end up on reality TV"
+    },
+    {
+      "id": 117,
+      "category": "Pek",
+      "text": "Pek på den som ville røpet en hemmelighet ved et uhell",
+      "spice": "medium",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who would accidentally spill a secret"
+    },
+    {
+      "id": 118,
+      "category": "Pek",
+      "text": "Pek på den som har det villeste kjærlighetslivet",
+      "spice": "medium",
+      "categoryEn": "Point",
+      "textEn": "Point at the person with the wildest love life"
+    },
+    {
+      "id": 119,
+      "category": "Pek",
+      "text": "Pek på den som har dårligst impulskontroll på byen",
+      "spice": "medium",
+      "categoryEn": "Point",
+      "textEn": "Point at the person with the worst impulse control on a night out"
+    },
+    {
+      "id": 120,
+      "category": "Pek",
+      "text": "Pek på den som ville flørtet seg ut av en bot",
+      "spice": "medium",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who would flirt their way out of a fine"
+    },
+    {
+      "id": 121,
+      "category": "Pek",
+      "text": "Pek på den som har brukt mest penger på en kveld",
+      "spice": "medium",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who's spent the most money in one night"
+    },
+    {
+      "id": 122,
+      "category": "Pek",
+      "text": "Pek på den som ville kysset noen på første date",
+      "spice": "medium",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who would kiss someone on the first date"
+    },
+    {
+      "id": 123,
+      "category": "Pek",
+      "text": "Pek på den som har avlyst flest planer i siste liten",
+      "spice": "medium",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who's cancelled the most plans last minute"
+    },
+    {
+      "id": 124,
+      "category": "Pek",
+      "text": "Pek på den som har mest drama med en eks",
+      "spice": "medium",
+      "categoryEn": "Point",
+      "textEn": "Point at the person with the most drama with an ex"
+    },
+    {
+      "id": 125,
+      "category": "Pek",
+      "text": "Pek på den som ville blitt venn med en tilfeldig person på do",
+      "spice": "medium",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who would befriend a random stranger in the bathroom line"
+    },
+    {
+      "id": 126,
+      "category": "Pek",
+      "text": "Pek på den som har flest skjermbilder de ikke burde ha",
+      "spice": "medium",
+      "categoryEn": "Point",
+      "textEn": "Point at the person with the most screenshots they shouldn't have"
+    },
+    {
+      "id": 127,
+      "category": "Pek",
+      "text": "Pek på den som har sjekket en crush sin profil lengst bakover",
+      "spice": "medium",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who's scrolled furthest back on a crush's profile"
+    },
+    {
+      "id": 128,
+      "category": "Pek",
+      "text": "Pek på den som ville forsvunnet fra festen uten å si fra",
+      "spice": "medium",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who would disappear from the party without telling anyone"
+    },
+    {
+      "id": 129,
+      "category": "Pek",
+      "text": "Pek på den som har sovet lengst etter nach",
+      "spice": "medium",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who's slept the longest after an afterparty"
+    },
+    {
+      "id": 130,
+      "category": "Pek",
+      "text": "Pek på den som blir mest annerledes når de drikker",
+      "spice": "medium",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who changes the most when they drink"
+    },
+    {
+      "id": 131,
+      "category": "Pek",
+      "text": "Pek på den som har hatt den rareste Tinder-daten",
+      "spice": "medium",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who's had the weirdest Tinder date"
+    },
+    {
+      "id": 132,
+      "category": "Pek",
+      "text": "Pek på den som ville sendt en risikabel snap først",
+      "spice": "medium",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who would send a risky Snap first"
+    },
+    {
+      "id": 133,
+      "category": "Pek",
+      "text": "Pek på den som har datet den største røde varsellampa",
+      "spice": "medium",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who's dated the biggest red flag"
+    },
+    {
+      "id": 134,
+      "category": "Pek",
+      "text": "Pek på den som ville tatt en tatovering spontant",
+      "spice": "medium",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who would get a tattoo on a whim"
+    },
+    {
+      "id": 135,
+      "category": "Pek",
+      "text": "Pek på den som har kranglet mest om småting",
+      "spice": "medium",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who argues the most over small things"
+    },
+    {
+      "id": 136,
+      "category": "Pek",
+      "text": "Pek på den som ville sagt opp jobben etter én dårlig dag",
+      "spice": "medium",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who would quit their job after one bad day"
+    },
+    {
+      "id": 137,
+      "category": "Pek",
+      "text": "Pek på den som har brukt en dårlig unnskyldning for å slippe planer",
+      "spice": "medium",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who's used a bad excuse to get out of plans"
+    },
+    {
+      "id": 138,
+      "category": "Pek",
+      "text": "Pek på den som har mest sannsynlig en hemmelig crush",
+      "spice": "medium",
+      "categoryEn": "Point",
+      "textEn": "Point at the person most likely to have a secret crush"
+    },
+    {
+      "id": 139,
+      "category": "Pek",
+      "text": "Pek på den som ville blitt sammen med noen fra kollektivet",
+      "spice": "medium",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who would date someone from the house"
+    },
+    {
+      "id": 140,
+      "category": "Pek",
+      "text": "Pek på den som har den mest tvilsomme søkehistorikken",
+      "spice": "medium",
+      "categoryEn": "Point",
+      "textEn": "Point at the person with the most questionable search history"
+    },
+    {
+      "id": 141,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri brukt noen andres håndkle med vilje",
+      "spice": "medium",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever used someone else's towel on purpose"
+    },
+    {
+      "id": 142,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri kastet mat og sagt at den var dårlig",
+      "spice": "medium",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever thrown out food and claimed it had gone bad"
+    },
+    {
+      "id": 143,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri skrevet en sur melding og slettet den",
+      "spice": "medium",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever written an angry text and deleted it"
+    },
+    {
+      "id": 144,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri lyttet ved døra til en krangel",
+      "spice": "medium",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever eavesdropped on an argument through a door"
+    },
+    {
+      "id": 145,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri blitt irritert av noen som tygger",
+      "spice": "medium",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever gotten annoyed by someone chewing"
+    },
+    {
+      "id": 146,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri løyet om at jeg hadde ryddet",
+      "spice": "medium",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever lied about having cleaned"
+    },
+    {
+      "id": 147,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri glemt å betale min del av en regning",
+      "spice": "medium",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever forgotten to pay my share of a bill"
+    },
+    {
+      "id": 148,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri blokkert noen og åpnet igjen samme kveld",
+      "spice": "medium",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever blocked someone and unblocked them the same night"
+    },
+    {
+      "id": 149,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri ghostet noen jeg egentlig likte",
+      "spice": "medium",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever ghosted someone I actually liked"
+    },
+    {
+      "id": 150,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri sendt en fyllemelding til en eks",
+      "spice": "medium",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever sent a drunk text to an ex"
+    },
+    {
+      "id": 151,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri vært på date mest for gratis mat",
+      "spice": "medium",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever gone on a date mostly for the free food"
+    },
+    {
+      "id": 152,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri angret på et kyss morgenen etter",
+      "spice": "medium",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever regretted a kiss the morning after"
+    },
+    {
+      "id": 153,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri sjekket hvem en crush nylig fulgte",
+      "spice": "medium",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever checked who my crush recently followed"
+    },
+    {
+      "id": 154,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri latt en melding stå på lest med vilje",
+      "spice": "medium",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever left a text on read on purpose"
+    },
+    {
+      "id": 155,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri funnet på en unnskyldning for å dra fra en fest",
+      "spice": "medium",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever made up an excuse to leave a party"
+    },
+    {
+      "id": 156,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri flørtet med noen for å få noe gratis",
+      "spice": "medium",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever flirted with someone to get something for free"
+    },
+    {
+      "id": 157,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri sovet hos noen og sneket meg ut tidlig",
+      "spice": "medium",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever stayed over at someone's place and snuck out early"
+    },
+    {
+      "id": 158,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri kranglet med en venn på byen",
+      "spice": "medium",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever gotten into a fight with a friend on a night out"
+    },
+    {
+      "id": 159,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri løyet om hvor mange jeg hadde datet",
+      "spice": "medium",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever lied about how many people I've dated"
+    },
+    {
+      "id": 160,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri fortalt en hemmelighet jeg skulle holdt",
+      "spice": "medium",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever told a secret I was supposed to keep"
+    },
+    {
+      "id": 161,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri blitt sjalu på en venns forhold",
+      "spice": "medium",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever been jealous of a friend's relationship"
+    },
+    {
+      "id": 162,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri hatt et crush på en venns søsken",
+      "spice": "medium",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever had a crush on a friend's sibling"
+    },
+    {
+      "id": 163,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri sendt skjermbilde til personen det handlet om",
+      "spice": "medium",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever sent a screenshot to the person it was about"
+    },
+    {
+      "id": 164,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri brukt en venn som unnskyldning for å avlyse",
+      "spice": "medium",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever used a friend as an excuse to cancel"
+    },
+    {
+      "id": 165,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri datet to personer i samme uke",
+      "spice": "medium",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever dated two people in the same week"
+    },
+    {
+      "id": 166,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri gått tilbake til noen jeg sa jeg var ferdig med",
+      "spice": "medium",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever gone back to someone I said I was done with"
+    },
+    {
+      "id": 167,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri slettet en story fordi feil person så den",
+      "spice": "medium",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever deleted a story because the wrong person saw it"
+    },
+    {
+      "id": 168,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri latet som jeg ikke kjente noen på byen",
+      "spice": "medium",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever pretended not to know someone on a night out"
+    },
+    {
+      "id": 169,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri vært med på nach jeg ikke var invitert til",
+      "spice": "medium",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever crashed an afterparty I wasn't invited to"
+    },
+    {
+      "id": 170,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri våknet uten å huske hvordan jeg kom hjem",
+      "spice": "medium",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever woken up not remembering how I got home"
+    },
+    {
+      "id": 171,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri stjålet med meg mat fra et nach",
+      "spice": "medium",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever swiped food from an afterparty"
+    },
+    {
+      "id": 172,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri sendt en snap og angret med én gang",
+      "spice": "medium",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever sent a Snap and instantly regretted it"
+    },
+    {
+      "id": 173,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri brukt flere timer på å tolke én melding",
+      "spice": "medium",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever spent hours overanalyzing one text"
+    },
+    {
+      "id": 174,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri sagt at jeg var syk for å slippe en date",
+      "spice": "medium",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever claimed I was sick to get out of a date"
+    },
+    {
+      "id": 175,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri hatt en flørt i samme oppgang",
+      "spice": "medium",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever had a flirtation with someone in the same building"
+    },
+    {
+      "id": 176,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri blitt tatt i en løgn av kollektivkameraten min",
+      "spice": "medium",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever been caught in a lie by a roommate"
+    },
+    {
+      "id": 177,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri overhørt noe jeg aldri skulle hørt",
+      "spice": "medium",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever overheard something I was never supposed to hear"
+    },
+    {
+      "id": 178,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri gått på en date uten å vite etternavnet",
+      "spice": "medium",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever gone on a date without knowing their last name"
+    },
+    {
+      "id": 179,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri beholdt kontakten med noen bare for oppmerksomhet",
+      "spice": "medium",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever kept in touch with someone just for the attention"
+    },
+    {
+      "id": 180,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri flørtet med en jeg visste var dårlig nytt",
+      "spice": "medium",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever flirted with someone I knew was bad news"
+    },
+    {
+      "id": 181,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som har flest hemmeligheter på mobilen",
+      "spice": "medium",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person with the most secrets on their phone"
+    },
+    {
+      "id": 182,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som ville kysset en fremmed på byen",
+      "spice": "medium",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who would kiss a stranger on a night out"
+    },
+    {
+      "id": 183,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som har mest rotete datinghistorikk",
+      "spice": "medium",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person with the messiest dating history"
+    },
+    {
+      "id": 184,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som kan overtale gruppa til nach",
+      "spice": "medium",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who can talk the group into an afterparty"
+    },
+    {
+      "id": 185,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som ville ringt eksen etter midnatt",
+      "spice": "medium",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who would call their ex after midnight"
+    },
+    {
+      "id": 186,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som har vært mest sjalu",
+      "spice": "medium",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who's been the most jealous"
+    },
+    {
+      "id": 187,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som har sendt den verste fyllemeldingen",
+      "spice": "medium",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who's sent the worst drunk text"
+    },
+    {
+      "id": 188,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som ville overlevd kortest uten mobilen",
+      "spice": "medium",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who would survive the shortest without their phone"
+    },
+    {
+      "id": 189,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som har størst behov for en ny start",
+      "spice": "medium",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person most in need of a fresh start"
+    },
+    {
+      "id": 190,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som blir mest ærlig etter noen glass",
+      "spice": "medium",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who gets the most honest after a few drinks"
+    },
+    {
+      "id": 191,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som ville blitt avslørt av skjermbildene sine",
+      "spice": "medium",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who would get exposed by their own screenshots"
+    },
+    {
+      "id": 192,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som har hatt flest dårlige første dater",
+      "spice": "medium",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who's had the most bad first dates"
+    },
+    {
+      "id": 193,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som ville gått tilbake til feil person",
+      "spice": "medium",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who would go back to the wrong person"
+    },
+    {
+      "id": 194,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som har den mest uventede crushen",
+      "spice": "medium",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person with the most unexpected crush"
+    },
+    {
+      "id": 195,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som kan skape drama uten å prøve",
+      "spice": "medium",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who can start drama without even trying"
+    },
+    {
+      "id": 196,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som ville rømt fra en klein date",
+      "spice": "medium",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who would flee an awkward date"
+    },
+    {
+      "id": 197,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som har blokkert flest personer",
+      "spice": "medium",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who's blocked the most people"
+    },
+    {
+      "id": 198,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som ville blitt sammen med en nabo",
+      "spice": "medium",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who would date a neighbor"
+    },
+    {
+      "id": 199,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som har løyet best for foreldrene sine",
+      "spice": "medium",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who's the best liar to their parents"
+    },
+    {
+      "id": 200,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som ville kysset noen i dette rommet",
+      "spice": "medium",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who would kiss someone in this room"
+    },
+    {
+      "id": 201,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som har brukt mest tid på Tinder",
+      "spice": "medium",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who's spent the most time on Tinder"
+    },
+    {
+      "id": 202,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som ville sendt en melding de angrer på i natt",
+      "spice": "medium",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who would send a text they'd regret tonight"
+    },
+    {
+      "id": 203,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som har vært nærmest å bli kastet ut fra byen",
+      "spice": "medium",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who's come closest to getting thrown out of a club"
+    },
+    {
+      "id": 204,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som ville valgt fest framfor en tidlig forelesning",
+      "spice": "medium",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who would choose a party over an early morning class"
+    },
+    {
+      "id": 205,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som har den største samlingen med gamle bilder",
+      "spice": "medium",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person with the biggest collection of old photos"
+    },
+    {
+      "id": 206,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som ville sladret først etter et nach",
+      "spice": "medium",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who would spill the gossip first after an afterparty"
+    },
+    {
+      "id": 207,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som har fått flest uventede telefoner",
+      "spice": "medium",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who's gotten the most unexpected phone calls"
+    },
+    {
+      "id": 208,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som ville vært verst å dele bad med",
+      "spice": "medium",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who would be the worst to share a bathroom with"
+    },
+    {
+      "id": 209,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som har hatt den lengste tørkeperioden",
+      "spice": "medium",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person with the longest dry spell"
+    },
+    {
+      "id": 210,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som ville flyttet inn med en kjæreste for tidlig",
+      "spice": "medium",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who would move in with a partner too soon"
+    },
+    {
+      "id": 211,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som har vært mest forelsket i feil person",
+      "spice": "medium",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who's been the most in love with the wrong person"
+    },
+    {
+      "id": 212,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som ville flørtet med bartenderen",
+      "spice": "medium",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who would flirt with the bartender"
+    },
+    {
+      "id": 213,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som har mest sannsynlig en plan B",
+      "spice": "medium",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person most likely to have a plan B"
+    },
+    {
+      "id": 214,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som ville beholdt en hemmelighet lengst",
+      "spice": "medium",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who would keep a secret the longest"
+    },
+    {
+      "id": 215,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som har tatt det dårligste valget på ferie",
+      "spice": "medium",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who's made the worst decision on vacation"
+    },
+    {
+      "id": 216,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som ville våknet med mest fylleangst",
+      "spice": "medium",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who would wake up with the worst hangover anxiety"
+    },
+    {
+      "id": 217,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som har mest å forklare fra forrige helg",
+      "spice": "medium",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person with the most explaining to do from last weekend"
+    },
+    {
+      "id": 218,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som ville vunnet en krangel uten å ha rett",
+      "spice": "medium",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who would win an argument without being right"
+    },
+    {
+      "id": 219,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som har vært på flest spontane eventyr",
+      "spice": "medium",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who's been on the most spontaneous adventures"
+    },
+    {
+      "id": 220,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som ville endret hårfarge etter et brudd",
+      "spice": "medium",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who would change their hair color after a breakup"
+    },
+    {
+      "id": 221,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} har dårligst impulskontroll",
+      "spice": "medium",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} has the worst impulse control"
+    },
+    {
+      "id": 222,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} blir fortest sjalu",
+      "spice": "medium",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} gets jealous the fastest"
+    },
+    {
+      "id": 223,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} har flest uleste meldinger fra en eks",
+      "spice": "medium",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} has the most unread messages from an ex"
+    },
+    {
+      "id": 224,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} har mest rotete kjærlighetsliv",
+      "spice": "medium",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} has the messiest love life"
+    },
+    {
+      "id": 225,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} overtenker meldinger lengst",
+      "spice": "medium",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} overthinks texts the longest"
+    },
+    {
+      "id": 226,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} har flest hemmelige crush",
+      "spice": "medium",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} has the most secret crushes"
+    },
+    {
+      "id": 227,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} blir lettest fornærmet",
+      "spice": "medium",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} gets offended the easiest"
+    },
+    {
+      "id": 228,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} er mest sannsynlig til å ghoste",
+      "spice": "medium",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} is most likely to ghost someone"
+    },
+    {
+      "id": 229,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} har brukt mest penger på byen",
+      "spice": "medium",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} has spent the most money on nights out"
+    },
+    {
+      "id": 230,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} ville blitt med på en spontan blinddate",
+      "spice": "medium",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} would go on a spontaneous blind date"
+    },
+    {
+      "id": 231,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} har flest bilder de aldri viser",
+      "spice": "medium",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} has the most photos they never show anyone"
+    },
+    {
+      "id": 232,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} blir mest høylytt på nach",
+      "spice": "medium",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} gets loudest at afterparties"
+    },
+    {
+      "id": 233,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} har dårligst pokerfjes når de lyver",
+      "spice": "medium",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} has the worst poker face when lying"
+    },
+    {
+      "id": 234,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} ville blitt venn med en eks igjen",
+      "spice": "medium",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} would become friends with an ex again"
+    },
+    {
+      "id": 235,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} har størst sjanse for å sende feil snap",
+      "spice": "medium",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} is most likely to send a Snap to the wrong person"
+    },
+    {
+      "id": 236,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} er mest sta i en krangel",
+      "spice": "medium",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} is the most stubborn in an argument"
+    },
+    {
+      "id": 237,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} ville flyttet for kjærligheten",
+      "spice": "medium",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} would move for love"
+    },
+    {
+      "id": 238,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} har fått flest rare komplimenter på date",
+      "spice": "medium",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} has gotten the weirdest compliments on a date"
+    },
+    {
+      "id": 239,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} blir mest sentimental i fylla",
+      "spice": "medium",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} gets the most sentimental when drunk"
+    },
+    {
+      "id": 240,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} ville meldt seg på reality-TV",
+      "spice": "medium",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} would sign up for reality TV"
+    },
+    {
+      "id": 241,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} har flest uferdige flørter",
+      "spice": "medium",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} has the most unresolved flirtations"
+    },
+    {
+      "id": 242,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} ville tatt kontakt med en gammel crush",
+      "spice": "medium",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} would reach out to an old crush"
+    },
+    {
+      "id": 243,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} har dårligst smak i kjærester",
+      "spice": "medium",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} has the worst taste in partners"
+    },
+    {
+      "id": 244,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} blir lettest revet med",
+      "spice": "medium",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} gets swept up the easiest"
+    },
+    {
+      "id": 245,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} ville skjult en ny flørt lengst",
+      "spice": "medium",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} would hide a new flirtation the longest"
+    },
+    {
+      "id": 246,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} har mest behov for bekreftelse",
+      "spice": "medium",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} needs the most validation"
+    },
+    {
+      "id": 247,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} ville gått på date med en kollega",
+      "spice": "medium",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} would go on a date with a coworker"
+    },
+    {
+      "id": 248,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} har størst sjanse for å bli sammen med naboen",
+      "spice": "medium",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} is most likely to end up with the neighbor"
+    },
+    {
+      "id": 249,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} ville avslørt en hemmelighet først",
+      "spice": "medium",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} would spill a secret first"
+    },
+    {
+      "id": 250,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} har den verste fylleangsten",
+      "spice": "medium",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} has the worst hangover anxiety"
+    },
+    {
+      "id": 251,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} ville reist på ferie med en de nettopp møtte",
+      "spice": "medium",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} would go on vacation with someone they just met"
+    },
+    {
+      "id": 252,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} har vært mest forelsket",
+      "spice": "medium",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} has been the most in love"
+    },
+    {
+      "id": 253,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} ville sendt en risikabel melding i kveld",
+      "spice": "medium",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} would send a risky text tonight"
+    },
+    {
+      "id": 254,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} har mest drama rundt seg",
+      "spice": "medium",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} has the most drama around them"
+    },
+    {
+      "id": 255,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} blir fortest venn med fremmede",
+      "spice": "medium",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} makes friends with strangers the fastest"
+    },
+    {
+      "id": 256,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} ville avlyst planer for en date",
+      "spice": "medium",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} would cancel plans for a date"
+    },
+    {
+      "id": 257,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} har flest røde varsellamper selv",
+      "spice": "medium",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} is themselves the most red flags"
+    },
+    {
+      "id": 258,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} ville blitt tatt i å snoke",
+      "spice": "medium",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} would get caught snooping"
+    },
+    {
+      "id": 259,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} har mest å skjule på mobilen",
+      "spice": "medium",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} has the most to hide on their phone"
+    },
+    {
+      "id": 260,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} ville havnet i en spontan tatoveringssjappe",
+      "spice": "medium",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} would end up at a tattoo shop on a whim"
+    },
+    {
+      "id": 261,
+      "category": "Alle som",
+      "text": "Alle som har ghostet noen det siste året",
+      "spice": "medium",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has ghosted someone in the past year"
+    },
+    {
+      "id": 262,
+      "category": "Alle som",
+      "text": "Alle som har sendt en fyllemelding de angret på",
+      "spice": "medium",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has sent a drunk text they regretted"
+    },
+    {
+      "id": 263,
+      "category": "Alle som",
+      "text": "Alle som har blitt med på en date samme dag som invitasjonen",
+      "spice": "medium",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has gone on a date the same day they were asked"
+    },
+    {
+      "id": 264,
+      "category": "Alle som",
+      "text": "Alle som har blokkert en eks",
+      "spice": "medium",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has blocked an ex"
+    },
+    {
+      "id": 265,
+      "category": "Alle som",
+      "text": "Alle som har slettet en melding før den ble lest",
+      "spice": "medium",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has deleted a message before it was read"
+    },
+    {
+      "id": 266,
+      "category": "Alle som",
+      "text": "Alle som har hatt et crush på en kollega",
+      "spice": "medium",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has had a crush on a coworker"
+    },
+    {
+      "id": 267,
+      "category": "Alle som",
+      "text": "Alle som har sendt en melding til noen de burde blokkert",
+      "spice": "medium",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has texted someone they should have blocked"
+    },
+    {
+      "id": 268,
+      "category": "Alle som",
+      "text": "Alle som har løyet om hvorfor de avlyste",
+      "spice": "medium",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has lied about why they cancelled"
+    },
+    {
+      "id": 269,
+      "category": "Alle som",
+      "text": "Alle som har sjekket en crush sin posisjon",
+      "spice": "medium",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has checked a crush's location"
+    },
+    {
+      "id": 270,
+      "category": "Alle som",
+      "text": "Alle som har datet noen vennene mislikte",
+      "spice": "medium",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has dated someone their friends disliked"
+    },
+    {
+      "id": 271,
+      "category": "Alle som",
+      "text": "Alle som har våknet med fylleangst denne måneden",
+      "spice": "medium",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has woken up with hangover anxiety this month"
+    },
+    {
+      "id": 272,
+      "category": "Alle som",
+      "text": "Alle som har vært på nach med fremmede",
+      "spice": "medium",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has gone to an afterparty with strangers"
+    },
+    {
+      "id": 273,
+      "category": "Alle som",
+      "text": "Alle som har sendt snap til feil person",
+      "spice": "medium",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has sent a Snap to the wrong person"
+    },
+    {
+      "id": 274,
+      "category": "Alle som",
+      "text": "Alle som har vært sjalu uten grunn",
+      "spice": "medium",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has been jealous for no reason"
+    },
+    {
+      "id": 275,
+      "category": "Alle som",
+      "text": "Alle som har kysset en venn",
+      "spice": "medium",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has kissed a friend"
+    },
+    {
+      "id": 276,
+      "category": "Alle som",
+      "text": "Alle som har hatt en flørt i kollektivet",
+      "spice": "medium",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has flirted with someone in the house"
+    },
+    {
+      "id": 277,
+      "category": "Alle som",
+      "text": "Alle som har lest gamle meldinger etter et brudd",
+      "spice": "medium",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has reread old texts after a breakup"
+    },
+    {
+      "id": 278,
+      "category": "Alle som",
+      "text": "Alle som har holdt kontakt med en eks i skjul",
+      "spice": "medium",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has secretly kept in touch with an ex"
+    },
+    {
+      "id": 279,
+      "category": "Alle som",
+      "text": "Alle som har brukt en datingapp denne uka",
+      "spice": "medium",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has used a dating app this week"
+    },
+    {
+      "id": 280,
+      "category": "Alle som",
+      "text": "Alle som har avlyst for å bli hjemme",
+      "spice": "medium",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has cancelled plans to stay home"
+    },
+    {
+      "id": 281,
+      "category": "Alle som",
+      "text": "Alle som har sneket seg ut uten å si farvel",
+      "spice": "medium",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has snuck out without saying goodbye"
+    },
+    {
+      "id": 282,
+      "category": "Alle som",
+      "text": "Alle som har fått en advarsel av naboen",
+      "spice": "medium",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has gotten a warning from the neighbor"
+    },
+    {
+      "id": 283,
+      "category": "Alle som",
+      "text": "Alle som har kranglet om husarbeid",
+      "spice": "medium",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has argued about chores"
+    },
+    {
+      "id": 284,
+      "category": "Alle som",
+      "text": "Alle som har lånt penger av en kollektivkamerat",
+      "spice": "medium",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has borrowed money from a roommate"
+    },
+    {
+      "id": 285,
+      "category": "Alle som",
+      "text": "Alle som har sovet på et sted de ikke husker",
+      "spice": "medium",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has slept somewhere they don't remember"
+    },
+    {
+      "id": 286,
+      "category": "Alle som",
+      "text": "Alle som har mistet noe viktig på byen",
+      "spice": "medium",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has lost something important on a night out"
+    },
+    {
+      "id": 287,
+      "category": "Alle som",
+      "text": "Alle som har fortalt en løgn i kveld",
+      "spice": "medium",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has told a lie tonight"
+    },
+    {
+      "id": 288,
+      "category": "Alle som",
+      "text": "Alle som har en hemmelig crush nå",
+      "spice": "medium",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who currently has a secret crush"
+    },
+    {
+      "id": 289,
+      "category": "Alle som",
+      "text": "Alle som har sendt et skjermbilde videre",
+      "spice": "medium",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has forwarded a screenshot"
+    },
+    {
+      "id": 290,
+      "category": "Alle som",
+      "text": "Alle som har flørtet for å komme foran i køen",
+      "spice": "medium",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has flirted to skip the line"
+    },
+    {
+      "id": 291,
+      "category": "Alle som",
+      "text": "Alle som har dratt på fest med en dårlig unnskyldning",
+      "spice": "medium",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has gone to a party using a bad excuse"
+    },
+    {
+      "id": 292,
+      "category": "Alle som",
+      "text": "Alle som har angret på hvem de inviterte hjem",
+      "spice": "medium",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has regretted who they invited home"
+    },
+    {
+      "id": 293,
+      "category": "Alle som",
+      "text": "Alle som har vært våken til sola kom opp",
+      "spice": "medium",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has stayed up until the sun came up"
+    },
+    {
+      "id": 294,
+      "category": "Alle som",
+      "text": "Alle som har tatt taxi en altfor kort strekning",
+      "spice": "medium",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has taken a taxi for a way-too-short distance"
+    },
+    {
+      "id": 295,
+      "category": "Alle som",
+      "text": "Alle som har bestilt mat de ikke hadde råd til",
+      "spice": "medium",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has ordered food they couldn't afford"
+    },
+    {
+      "id": 296,
+      "category": "Alle som",
+      "text": "Alle som har løyet om alderen sin på byen",
+      "spice": "medium",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has lied about their age on a night out"
+    },
+    {
+      "id": 297,
+      "category": "Alle som",
+      "text": "Alle som har blitt tatt i å lese over skulderen",
+      "spice": "medium",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has been caught reading over someone's shoulder"
+    },
+    {
+      "id": 298,
+      "category": "Alle som",
+      "text": "Alle som har vært på dobbeldate",
+      "spice": "medium",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has been on a double date"
+    },
+    {
+      "id": 299,
+      "category": "Alle som",
+      "text": "Alle som har avtalt to vors samme kveld",
+      "spice": "medium",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has scheduled two pre-drinks the same night"
+    },
+    {
+      "id": 300,
+      "category": "Alle som",
+      "text": "Alle som har sagt «jeg er på vei» hjemmefra",
+      "spice": "medium",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has said 'I'm on my way' while still at home"
+    },
+    {
+      "id": 301,
+      "category": "Pek",
+      "text": "Pek på den som har ligget med flest",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who's slept with the most people"
+    },
+    {
+      "id": 302,
+      "category": "Pek",
+      "text": "Pek på den som ville hooket med en eks igjen",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who would hook up with an ex again"
+    },
+    {
+      "id": 303,
+      "category": "Pek",
+      "text": "Pek på den som har sendt flest nakenbilder",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who's sent the most nudes"
+    },
+    {
+      "id": 304,
+      "category": "Pek",
+      "text": "Pek på den som har hatt den villeste one night standen",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who's had the wildest one-night stand"
+    },
+    {
+      "id": 305,
+      "category": "Pek",
+      "text": "Pek på den som ville ligget med noen i dette rommet",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who would sleep with someone in this room"
+    },
+    {
+      "id": 306,
+      "category": "Pek",
+      "text": "Pek på den som har kysset flest på én kveld",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who's kissed the most people in one night"
+    },
+    {
+      "id": 307,
+      "category": "Pek",
+      "text": "Pek på den som ville blitt med en fremmed hjem",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who would go home with a stranger"
+    },
+    {
+      "id": 308,
+      "category": "Pek",
+      "text": "Pek på den som har hatt sex på det rareste stedet",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who's had sex in the weirdest place"
+    },
+    {
+      "id": 309,
+      "category": "Pek",
+      "text": "Pek på den som har størst sjanse for å bli tatt på fersken",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person most likely to get caught red-handed"
+    },
+    {
+      "id": 310,
+      "category": "Pek",
+      "text": "Pek på den som har sendt den mest direkte meldingen",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who's sent the most forward message"
+    },
+    {
+      "id": 311,
+      "category": "Pek",
+      "text": "Pek på den som ville hatt en venn med fordeler",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who would have a friends-with-benefits situation"
+    },
+    {
+      "id": 312,
+      "category": "Pek",
+      "text": "Pek på den som har dårligst dømmekraft når de er kåt",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person with the worst judgment when horny"
+    },
+    {
+      "id": 313,
+      "category": "Pek",
+      "text": "Pek på den som har angret mest på hvem de lå med",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who's regretted who they slept with the most"
+    },
+    {
+      "id": 314,
+      "category": "Pek",
+      "text": "Pek på den som ville hooket med en nabo",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who would hook up with a neighbor"
+    },
+    {
+      "id": 315,
+      "category": "Pek",
+      "text": "Pek på den som har hatt flest ligg de aldri nevner",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person with the most hookups they never mention"
+    },
+    {
+      "id": 316,
+      "category": "Pek",
+      "text": "Pek på den som ville kysset en venns eks",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who would kiss a friend's ex"
+    },
+    {
+      "id": 317,
+      "category": "Pek",
+      "text": "Pek på den som har mest sannsynlig en hemmelig sexliste",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person most likely to have a secret hookup list"
+    },
+    {
+      "id": 318,
+      "category": "Pek",
+      "text": "Pek på den som har prøvd flest rare steder",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who's had sex in the most unusual places"
+    },
+    {
+      "id": 319,
+      "category": "Pek",
+      "text": "Pek på den som har størst sjanse for å bli avslørt av varsler",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person most likely to get busted by a notification"
+    },
+    {
+      "id": 320,
+      "category": "Pek",
+      "text": "Pek på den som har hatt flest samtidige flørter",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who's had the most flirtations going at once"
+    },
+    {
+      "id": 321,
+      "category": "Pek",
+      "text": "Pek på den som ville ligget med en kjendis",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who would sleep with a celebrity"
+    },
+    {
+      "id": 322,
+      "category": "Pek",
+      "text": "Pek på den som har vært mest uærlig om bodycount",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who's been the least honest about their body count"
+    },
+    {
+      "id": 323,
+      "category": "Pek",
+      "text": "Pek på den som har den største svakheten for røde varsellamper",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person with the biggest weakness for red flags"
+    },
+    {
+      "id": 324,
+      "category": "Pek",
+      "text": "Pek på den som ville hooket med en kollega",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who would hook up with a coworker"
+    },
+    {
+      "id": 325,
+      "category": "Pek",
+      "text": "Pek på den som har hatt den verste walk of shame",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who's had the worst walk of shame"
+    },
+    {
+      "id": 326,
+      "category": "Pek",
+      "text": "Pek på den som ville tatt med noen hjem i kveld",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who would bring someone home tonight"
+    },
+    {
+      "id": 327,
+      "category": "Pek",
+      "text": "Pek på den som har hatt sex med en de nettopp møtte",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who's had sex with someone they just met"
+    },
+    {
+      "id": 328,
+      "category": "Pek",
+      "text": "Pek på den som har blitt mest hekta etter et ligg",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who's caught the most feelings after a hookup"
+    },
+    {
+      "id": 329,
+      "category": "Pek",
+      "text": "Pek på den som ville prøvd et åpent forhold",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who would try an open relationship"
+    },
+    {
+      "id": 330,
+      "category": "Pek",
+      "text": "Pek på den som har flest usendte dirty meldinger",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person with the most unsent dirty texts"
+    },
+    {
+      "id": 331,
+      "category": "Pek",
+      "text": "Pek på den som har vært nærmest å bli tatt av naboen",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who's come closest to getting caught by the neighbor"
+    },
+    {
+      "id": 332,
+      "category": "Pek",
+      "text": "Pek på den som ville kysset to personer samme kveld",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who would kiss two people in the same night"
+    },
+    {
+      "id": 333,
+      "category": "Pek",
+      "text": "Pek på den som har hatt et ligg de skjuler for vennegjengen",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person with a hookup they're hiding from their friend group"
+    },
+    {
+      "id": 334,
+      "category": "Pek",
+      "text": "Pek på den som ville hooket med en tidligere flørt",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who would hook up with a former flirtation"
+    },
+    {
+      "id": 335,
+      "category": "Pek",
+      "text": "Pek på den som har mest sannsynlig sovet over med vilje",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person most likely to have stayed over on purpose"
+    },
+    {
+      "id": 336,
+      "category": "Pek",
+      "text": "Pek på den som har hatt en flørt med stor aldersforskjell",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who's had a flirtation with a big age gap"
+    },
+    {
+      "id": 337,
+      "category": "Pek",
+      "text": "Pek på den som ville sendt «våken?» etter klokka to",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who would text 'you up?' after 2am"
+    },
+    {
+      "id": 338,
+      "category": "Pek",
+      "text": "Pek på den som har flest navn de håper aldri møtes",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person with the most names they hope never meet"
+    },
+    {
+      "id": 339,
+      "category": "Pek",
+      "text": "Pek på den som har hatt sex på ferie med en fremmed",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who's had vacation sex with a stranger"
+    },
+    {
+      "id": 340,
+      "category": "Pek",
+      "text": "Pek på den som ville ligget med en venn for å teste kjemien",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who would sleep with a friend just to test the chemistry"
+    },
+    {
+      "id": 341,
+      "category": "Pek",
+      "text": "Pek på den som har størst sjanse for å bli forelsket etter sex",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person most likely to fall in love after sex"
+    },
+    {
+      "id": 342,
+      "category": "Pek",
+      "text": "Pek på den som har fått flest sugmerker",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who's gotten the most hickeys"
+    },
+    {
+      "id": 343,
+      "category": "Pek",
+      "text": "Pek på den som ville skjult et hookup for hele kollektivet",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who would hide a hookup from the entire house"
+    },
+    {
+      "id": 344,
+      "category": "Pek",
+      "text": "Pek på den som har hatt mest drama etter en one night stand",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person with the most drama after a one-night stand"
+    },
+    {
+      "id": 345,
+      "category": "Pek",
+      "text": "Pek på den som ville tatt en trekant om sjansen kom",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who would have a threesome given the chance"
+    },
+    {
+      "id": 346,
+      "category": "Pek",
+      "text": "Pek på den som har vært mest borti en venns crush",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who's messed around with a friend's crush the most"
+    },
+    {
+      "id": 347,
+      "category": "Pek",
+      "text": "Pek på den som har sendt flest meldinger de slettet dagen etter",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who's sent the most texts they deleted the next day"
+    },
+    {
+      "id": 348,
+      "category": "Pek",
+      "text": "Pek på den som ville hatt sex på kollektivets sofa",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who would have sex on the living room couch"
+    },
+    {
+      "id": 349,
+      "category": "Pek",
+      "text": "Pek på den som har hatt det mest uventede ligget",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who's had the most unexpected hookup"
+    },
+    {
+      "id": 350,
+      "category": "Pek",
+      "text": "Pek på den som ville gått tilbake til den beste sexen",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who would go back for the best sex they've had"
+    },
+    {
+      "id": 351,
+      "category": "Pek",
+      "text": "Pek på den som har blitt tatt i å lyve om hvor de sov",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who's been caught lying about where they slept"
+    },
+    {
+      "id": 352,
+      "category": "Pek",
+      "text": "Pek på den som har størst sjanse for å hooke på nach",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person most likely to hook up at an afterparty"
+    },
+    {
+      "id": 353,
+      "category": "Pek",
+      "text": "Pek på den som har hatt flest hemmelige morgenbesøk",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person with the most secret morning visitors"
+    },
+    {
+      "id": 354,
+      "category": "Pek",
+      "text": "Pek på den som ville ligget med noen kun for utseendet",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who would sleep with someone based on looks alone"
+    },
+    {
+      "id": 355,
+      "category": "Pek",
+      "text": "Pek på den som har brukt mest penger på en hookup-helg",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who's spent the most money on a hookup weekend"
+    },
+    {
+      "id": 356,
+      "category": "Pek",
+      "text": "Pek på den som ville beholdt en sexhemmelighet lengst",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who would keep a sex secret the longest"
+    },
+    {
+      "id": 357,
+      "category": "Pek",
+      "text": "Pek på den som har vært nærmest å sende nakenbilder til feil person",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person who's come closest to sending nudes to the wrong person"
+    },
+    {
+      "id": 358,
+      "category": "Pek",
+      "text": "Pek på den som har mest å forklare hvis eksene møtes",
+      "spice": "spicy",
+      "categoryEn": "Point",
+      "textEn": "Point at the person with the most explaining to do if all the exes met"
+    },
+    {
+      "id": 359,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri ligget med noen samme kveld som vi møttes",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever slept with someone the same night we met"
+    },
+    {
+      "id": 360,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri sendt nakenbilder til feil person",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever sent nudes to the wrong person"
+    },
+    {
+      "id": 361,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri hooket med en venns eks",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever hooked up with a friend's ex"
+    },
+    {
+      "id": 362,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri hatt sex i et kollektivrom som ikke var mitt",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever had sex in a housemate's room that wasn't mine"
+    },
+    {
+      "id": 363,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri blitt tatt på fersken",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever been caught red-handed"
+    },
+    {
+      "id": 364,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri lyttet etter om noen var våkne først",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever listened to check if anyone was awake first"
+    },
+    {
+      "id": 365,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri gått tilbake til noen kun for sexen",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever gone back to someone just for the sex"
+    },
+    {
+      "id": 366,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri løyet om bodycount",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever lied about my body count"
+    },
+    {
+      "id": 367,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri hatt en venn med fordeler",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever had a friends-with-benefits situation"
+    },
+    {
+      "id": 368,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri kysset to personer samme kveld",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever kissed two people in the same night"
+    },
+    {
+      "id": 369,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri sendt «våken?» etter klokka to",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever texted 'you up?' after 2am"
+    },
+    {
+      "id": 370,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri hatt et ligg jeg aldri fortalte vennegjengen om",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever had a hookup I never told my friends about"
+    },
+    {
+      "id": 371,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri blitt forelsket i en hookup",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever fallen for a hookup"
+    },
+    {
+      "id": 372,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri hatt sex på første date",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever had sex on the first date"
+    },
+    {
+      "id": 373,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri angret før jeg kom hjem",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever regretted it before I even got home"
+    },
+    {
+      "id": 374,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri sneket noen ut av kollektivet om morgenen",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever snuck someone out of the house in the morning"
+    },
+    {
+      "id": 375,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri hooket med en nabo",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever hooked up with a neighbor"
+    },
+    {
+      "id": 376,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri hatt en flørt med en kollega",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever flirted with a coworker"
+    },
+    {
+      "id": 377,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri sendt en dirty melding midt på dagen",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever sent a dirty text in the middle of the day"
+    },
+    {
+      "id": 378,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri brukt en datingapp mens noen lå ved siden av meg",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever used a dating app while someone was lying next to me"
+    },
+    {
+      "id": 379,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri hatt sex i en båt",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever had sex on a boat"
+    },
+    {
+      "id": 380,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri kysset en venn jeg ikke burde kysset",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever kissed a friend I shouldn't have kissed"
+    },
+    {
+      "id": 381,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri prøvd å skjule et sugmerke",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever tried to hide a hickey"
+    },
+    {
+      "id": 382,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri blitt ghostet etter sex",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever been ghosted after sex"
+    },
+    {
+      "id": 383,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri ghostet noen etter sex",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever ghosted someone after sex"
+    },
+    {
+      "id": 384,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri hatt flere flørter gående samtidig",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever had multiple flirtations going at once"
+    },
+    {
+      "id": 385,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri ligget med noen jeg egentlig mislikte",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever slept with someone I actually didn't like"
+    },
+    {
+      "id": 386,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri hatt sex et sted vi kunne blitt oppdaget",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever had sex somewhere we could've been caught"
+    },
+    {
+      "id": 387,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri sendt nakenbilder uten ansikt med vilje",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever purposely sent nudes without my face in them"
+    },
+    {
+      "id": 388,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri hatt et crush på noen i dette rommet",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever had a crush on someone in this room"
+    },
+    {
+      "id": 389,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri blitt med hjem uten å vite etternavnet",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever gone home with someone without knowing their last name"
+    },
+    {
+      "id": 390,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri hatt en plan B på samme kveld",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever had a backup plan the same night"
+    },
+    {
+      "id": 391,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri sovet over bare for morgensex",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever stayed over just for morning sex"
+    },
+    {
+      "id": 392,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri angret på at jeg fortalte hvem jeg lå med",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever regretted telling someone who I slept with"
+    },
+    {
+      "id": 393,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri hooket med noen fra samme vennegjeng som en eks",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever hooked up with someone from the same friend group as an ex"
+    },
+    {
+      "id": 394,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri hatt sex med noen jeg møtte på nach",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever had sex with someone I met at an afterparty"
+    },
+    {
+      "id": 395,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri latt som jeg sov for å slippe å dra hjem",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever pretended to be asleep to avoid going home"
+    },
+    {
+      "id": 396,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri blitt sjalu på en jeg bare hooket med",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever gotten jealous over someone I was only hooking up with"
+    },
+    {
+      "id": 397,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri hatt en hemmelig liste over tidligere ligg",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever kept a secret list of past hookups"
+    },
+    {
+      "id": 398,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri sendt en melding jeg ikke ville vist høyt",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever sent a text I wouldn't want read out loud"
+    },
+    {
+      "id": 399,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri kysset noen mens jeg tenkte på en annen",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever kissed someone while thinking of someone else"
+    },
+    {
+      "id": 400,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri hatt sex med en jeg hadde blokkert før",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever had sex with someone I'd previously blocked"
+    },
+    {
+      "id": 401,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri blitt med på en trekant",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever had a threesome"
+    },
+    {
+      "id": 402,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri sagt feil navn i senga",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever said the wrong name in bed"
+    },
+    {
+      "id": 403,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri filmet noe jeg senere slettet",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever filmed something I later deleted"
+    },
+    {
+      "id": 404,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri hatt en sexdrøm om en venn",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever had a sex dream about a friend"
+    },
+    {
+      "id": 405,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri hooket med en person kollektivkameraten min likte",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever hooked up with someone my roommate liked"
+    },
+    {
+      "id": 406,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri gått hjem med noen for å gjøre en eks sjalu",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever gone home with someone to make an ex jealous"
+    },
+    {
+      "id": 407,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri brukt sex som grunn til å avlyse planer",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever used sex as an excuse to cancel plans"
+    },
+    {
+      "id": 408,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri hatt en hookup som ble værende hele helga",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever had a hookup stay the entire weekend"
+    },
+    {
+      "id": 409,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri hatt sex med noen jeg møtte på flyplassen",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever had sex with someone I met at the airport"
+    },
+    {
+      "id": 410,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri hatt sex med noen jeg møtte i et bryllup",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever had sex with someone I met at a wedding"
+    },
+    {
+      "id": 411,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri vært usikker på om vi faktisk datet",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever been unsure whether we were actually dating"
+    },
+    {
+      "id": 412,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri hatt sex uten å vite om døra var låst",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever had sex without knowing if the door was locked"
+    },
+    {
+      "id": 413,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri sendt nakenbilder fra kollektivbadet",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever sent nudes from the house bathroom"
+    },
+    {
+      "id": 414,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri hatt en flørt bare for spenningen",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever flirted with someone just for the thrill"
+    },
+    {
+      "id": 415,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri blitt avslørt av et navn på skjermen",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever been exposed by a name on a lock screen"
+    },
+    {
+      "id": 416,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri hatt sex med en jeg møtte gjennom Tinder samme dag",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever had sex with someone I matched with on Tinder the same day"
+    },
+    {
+      "id": 417,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri angret på en melding før jeg fikk svar",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever regretted a text before I even got a reply"
+    },
+    {
+      "id": 418,
+      "category": "Jeg har aldri",
+      "text": "Jeg har aldri holdt et hookup skjult for en nær venn",
+      "spice": "spicy",
+      "categoryEn": "Never Have I Ever",
+      "textEn": "Never have I ever kept a hookup secret from a close friend"
+    },
+    {
+      "id": 419,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som har hatt flest one night stands",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person with the most one-night stands"
+    },
+    {
+      "id": 420,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som ville sendt nakenbilder i kveld",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who would send nudes tonight"
+    },
+    {
+      "id": 421,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som har best erfaring med venner med fordeler",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person with the most experience in friends-with-benefits situations"
+    },
+    {
+      "id": 422,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som ville hooket med noen fra treningssenteret",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who would hook up with someone from the gym"
+    },
+    {
+      "id": 423,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som har den villeste bodycount-historien",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person with the wildest body count story"
+    },
+    {
+      "id": 424,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som ville invitert en ferieflørt til Norge",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who would invite a vacation fling to Norway"
+    },
+    {
+      "id": 425,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som har kysset flest i dette rommet",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who's kissed the most people in this room"
+    },
+    {
+      "id": 426,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som ville booket hotell med en de nettopp møtte",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who would book a hotel with someone they just met"
+    },
+    {
+      "id": 427,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som har skjult flest hookups",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who's hidden the most hookups"
+    },
+    {
+      "id": 428,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som ville gått tilbake til en eks for sex",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who would go back to an ex just for the sex"
+    },
+    {
+      "id": 429,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som har sendt den mest direkte dirty meldingen",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who's sent the most explicit dirty text"
+    },
+    {
+      "id": 430,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som ville prøvd en trekant",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who would try a threesome"
+    },
+    {
+      "id": 431,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som har hatt sex nærmest et åpent vindu",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who's had sex closest to an open window"
+    },
+    {
+      "id": 432,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som ville ligget med en kollega",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who would sleep with a coworker"
+    },
+    {
+      "id": 433,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som har mest erfaring med datingsider",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person with the most experience on dating sites"
+    },
+    {
+      "id": 434,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som ville kysset noen de nettopp kranglet med",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who would kiss someone they just argued with"
+    },
+    {
+      "id": 435,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som har hatt flest hemmelige flørter",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person with the most secret flirtations"
+    },
+    {
+      "id": 436,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som ville tatt med noen hjem fra nach",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who would bring someone home from an afterparty"
+    },
+    {
+      "id": 437,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som har den mest overraskende turn-onen",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person with the most surprising turn-on"
+    },
+    {
+      "id": 438,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som ville våknet hos en fremmed uten panikk",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who would wake up at a stranger's place without panicking"
+    },
+    {
+      "id": 439,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som har glemt flest ting hos en hookup",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who's left the most things behind at a hookup's place"
+    },
+    {
+      "id": 440,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som ville hooket med noen i oppgangen",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who would hook up with someone in the building"
+    },
+    {
+      "id": 441,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som har den verste historien om å bli tatt",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person with the worst story about getting caught"
+    },
+    {
+      "id": 442,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som ville sendt «kom over» først",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who would text 'come over' first"
+    },
+    {
+      "id": 443,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som har hatt mest drama etter sex",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person with the most drama after sex"
+    },
+    {
+      "id": 444,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som ville ligget med en kjendis uten å tenke seg om",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who would sleep with a celebrity without a second thought"
+    },
+    {
+      "id": 445,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som har vært mest sjalu på en hookup",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who's been the most jealous over a hookup"
+    },
+    {
+      "id": 446,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som ville skjult en flørt for vennegjengen",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who would hide a flirtation from their friend group"
+    },
+    {
+      "id": 447,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som har prøvd flest ting i senga",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who's tried the most things in bed"
+    },
+    {
+      "id": 448,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som ville hatt et åpent forhold",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who would have an open relationship"
+    },
+    {
+      "id": 449,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som har hatt flest morgenbesøk",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person with the most morning visitors"
+    },
+    {
+      "id": 450,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som ville kysset den til høyre",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who would kiss the person on their right"
+    },
+    {
+      "id": 451,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som har den beste walk of shame-historien",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person with the best walk-of-shame story"
+    },
+    {
+      "id": 452,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som ville beholdt kontakten kun for sexen",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who would keep in touch just for the sex"
+    },
+    {
+      "id": 453,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som har sendt flest nakenbilder uten ansikt",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who's sent the most faceless nudes"
+    },
+    {
+      "id": 454,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som ville ligget med en tidligere crush",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who would sleep with a former crush"
+    },
+    {
+      "id": 455,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som har størst sjanse for å bli hekta etter ett ligg",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person most likely to catch feelings after one hookup"
+    },
+    {
+      "id": 456,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som ville hooket med noen fra samme studie",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who would hook up with someone from the same program"
+    },
+    {
+      "id": 457,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som har løyet mest om hvor de sov",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who's lied the most about where they slept"
+    },
+    {
+      "id": 458,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som ville prøvd rollespill",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who would try roleplay"
+    },
+    {
+      "id": 459,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som har hatt sex etter en date som varte hele natta",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who's had sex after a date that lasted all night"
+    },
+    {
+      "id": 460,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som ville tatt en spontan hotellnatt",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who would book a spontaneous hotel night"
+    },
+    {
+      "id": 461,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som har flest navn de aldri vil nevne",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person with the most names they'll never mention"
+    },
+    {
+      "id": 462,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som har vært nærmest å bli avslørt av kollektivchatten",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who's come closest to getting exposed by the house chat"
+    },
+    {
+      "id": 463,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som ville ligget med noen bare for historien",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who would sleep with someone just for the story"
+    },
+    {
+      "id": 464,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som har hatt den mest uventede morgenkaffen",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who's had the most unexpected person over for morning coffee"
+    },
+    {
+      "id": 465,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som ville invitert en gammel flamme på hyttetur",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who would invite an old flame on a cabin trip"
+    },
+    {
+      "id": 466,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som har angret mest på et ligg",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who's regretted a hookup the most"
+    },
+    {
+      "id": 467,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som ville gått på date med en tidligere hookup",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who would go on a date with a former hookup"
+    },
+    {
+      "id": 468,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som har brukt mest tid på å skjule spor",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who's spent the most time covering their tracks"
+    },
+    {
+      "id": 469,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som ville hatt sex på kollektivets kjøkken",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who would have sex in the house kitchen"
+    },
+    {
+      "id": 470,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som har flest flørter som tror de er den eneste",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person with the most flirtations who each think they're the only one"
+    },
+    {
+      "id": 471,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som ville kysset noen før de visste navnet",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who would kiss someone before knowing their name"
+    },
+    {
+      "id": 472,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som har sendt den mest desperate nattmeldingen",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who's sent the most desperate late-night text"
+    },
+    {
+      "id": 473,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som ville ligget med en person de krangler med",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who would sleep with someone they argue with"
+    },
+    {
+      "id": 474,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som ville blitt med på en sexdate uten middag",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who would skip dinner and go straight to a hookup date"
+    },
+    {
+      "id": 475,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som har mest sannsynlig en skjult mappe",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person most likely to have a hidden folder"
+    },
+    {
+      "id": 476,
+      "category": "Kast boksen",
+      "text": "Kast boksen til den som ville valgt beste sex framfor beste personlighet",
+      "spice": "spicy",
+      "categoryEn": "Throw the Can",
+      "textEn": "Throw the can to the person who would choose the best sex over the best personality"
+    },
+    {
+      "id": 477,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} har størst sjanse for å glemme navnet morgenen etter",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} is most likely to forget the name the morning after"
+    },
+    {
+      "id": 478,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} har mest erfaring med hemmelige videosamtaler",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} has the most experience with secret video calls"
+    },
+    {
+      "id": 479,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} ville hooket på en blinddate",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} would hook up on a blind date"
+    },
+    {
+      "id": 480,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} har flest personer blokkert etter et ligg",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} has blocked the most people after a hookup"
+    },
+    {
+      "id": 481,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} blir fortest hekta etter sex",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} catches feelings the fastest after sex"
+    },
+    {
+      "id": 482,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} har størst sjanse for å kline i taxikøen",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} is most likely to make out in the taxi line"
+    },
+    {
+      "id": 483,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} ville hatt sex med bind for øynene",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} would have sex blindfolded"
+    },
+    {
+      "id": 484,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} har hatt den rareste one night standen",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} has had the weirdest one-night stand"
+    },
+    {
+      "id": 485,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} har størst sjanse for å ringe en gammel hookup",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} is most likely to call an old hookup"
+    },
+    {
+      "id": 486,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} har mest å skjule i kamerarullen",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} has the most to hide in their camera roll"
+    },
+    {
+      "id": 487,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} ville ligget med en venn",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} would sleep with a friend"
+    },
+    {
+      "id": 488,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} har blitt tatt flest ganger",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} has been caught the most times"
+    },
+    {
+      "id": 489,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} ville sendt «våken?» først",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} would text 'you up?' first"
+    },
+    {
+      "id": 490,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} har størst sjanse for å ghoste etter sex",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} is most likely to ghost after sex"
+    },
+    {
+      "id": 491,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} ville hatt en fast søndags-hookup",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} would have a standing Sunday hookup"
+    },
+    {
+      "id": 492,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} har hatt sex på det mest offentlige stedet",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} has had sex in the most public place"
+    },
+    {
+      "id": 493,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} ville våknet hos noen fra en festival",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} would wake up next to someone from a festival"
+    },
+    {
+      "id": 494,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} har flest navn de ikke nevner",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} has the most names they don't mention"
+    },
+    {
+      "id": 495,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} ville ligget med en nabo",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} would sleep with a neighbor"
+    },
+    {
+      "id": 496,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} har avlyst en date for et ligg",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} has cancelled a date for a hookup"
+    },
+    {
+      "id": 497,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} ville sendt et bilde med tidsbegrensning",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} would send a self-destructing photo"
+    },
+    {
+      "id": 498,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} har mest erfaring med Tinder-dater",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} has the most experience with Tinder dates"
+    },
+    {
+      "id": 499,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} ville svart en gammel hookup midt på natta",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} would text back an old hookup in the middle of the night"
+    },
+    {
+      "id": 500,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} har flest uavklarte ligg",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} has the most unresolved hookups"
+    },
+    {
+      "id": 501,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} ville kysset noen fra en annen vennegjeng i kveld",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} would kiss someone from another friend group tonight"
+    },
+    {
+      "id": 502,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} har mest sannsynlig skjult en sexhistorie for kjæresten",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} most likely has hidden a hookup story from a partner"
+    },
+    {
+      "id": 503,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} ville skjult et hookup lengst",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} would keep a hookup secret the longest"
+    },
+    {
+      "id": 504,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} har hatt flest sugmerker",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} has had the most hickeys"
+    },
+    {
+      "id": 505,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} ville hatt et langdistanseforhold",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} would do a long-distance relationship"
+    },
+    {
+      "id": 506,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} har angret mest på en natt",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} has regretted a night the most"
+    },
+    {
+      "id": 507,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} ville hooket med en gammel klassekamerat",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} would hook up with an old classmate"
+    },
+    {
+      "id": 508,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} har den mest uventede turn-onen",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} has the most unexpected turn-on"
+    },
+    {
+      "id": 509,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} ville invitert kveldens flørt på frokost",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} would invite tonight's flirtation to breakfast"
+    },
+    {
+      "id": 510,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} har fått den rareste meldingen morgenen etter",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} has gotten the weirdest text the morning after"
+    },
+    {
+      "id": 511,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} ville hooket med en eks sin romkamerat",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} would hook up with an ex's roommate"
+    },
+    {
+      "id": 512,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} har sendt den mest avslørende snapen",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} has sent the most revealing Snap"
+    },
+    {
+      "id": 513,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} ville hatt sex på en balkong",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} would have sex on a balcony"
+    },
+    {
+      "id": 514,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} har størst sjanse for å si feil navn",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} is most likely to say the wrong name"
+    },
+    {
+      "id": 515,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} har størst sjanse for å bli værende til middag",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} is most likely to end up staying for dinner"
+    },
+    {
+      "id": 516,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} har den verste walk of shame-historien",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} has the worst walk-of-shame story"
+    },
+    {
+      "id": 517,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} ville ligget med en kjent influencer",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} would sleep with a famous influencer"
+    },
+    {
+      "id": 518,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} har hatt den lengste hemmelige flørten",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} has had the longest secret flirtation"
+    },
+    {
+      "id": 519,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} ville prøvd leketøy i senga",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} would try toys in bed"
+    },
+    {
+      "id": 520,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} har vært nærmest å bli avslørt av et varsel",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} has come closest to getting exposed by a notification"
+    },
+    {
+      "id": 521,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} ville hooket med noen fra oppgangen",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} would hook up with someone from the building"
+    },
+    {
+      "id": 522,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} har mest erfaring med morgenbesøk",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} has the most experience with morning visitors"
+    },
+    {
+      "id": 523,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} ville valgt sex framfor søvn",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} would choose sex over sleep"
+    },
+    {
+      "id": 524,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} har møtt en hookup gjennom en felles eks",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} has met a hookup through a mutual ex"
+    },
+    {
+      "id": 525,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} ville invitert en hookup i familieselskap",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} would bring a hookup to a family gathering"
+    },
+    {
+      "id": 526,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} har flest skjermbilder fra flørter",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} has the most screenshots from flirtations"
+    },
+    {
+      "id": 527,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} ville ligget med noen de krangler med",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} would sleep with someone they argue with"
+    },
+    {
+      "id": 528,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} ville kysset noen uten å vite navnet",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} would kiss someone without knowing their name"
+    },
+    {
+      "id": 529,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} har mest sannsynlig skjult varsler på låseskjermen",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} most likely hides notifications on their lock screen"
+    },
+    {
+      "id": 530,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} ville hooket med noen de møtte på karaoke",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} would hook up with someone they met at karaoke"
+    },
+    {
+      "id": 531,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} har hatt den verste dagen-derpå-samtalen",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} has had the worst day-after conversation"
+    },
+    {
+      "id": 532,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} ville slettet nummeret morgenen etter",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} would delete the number the morning after"
+    },
+    {
+      "id": 533,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} har blitt mest overrasket i senga",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} has been the most surprised in bed"
+    },
+    {
+      "id": 534,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} ville booket en siste liten flytur med en flørt",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} would book a last-minute flight with a flirtation"
+    },
+    {
+      "id": 535,
+      "category": "Rygg mot rygg",
+      "text": "Hvem av {player} og {player2} har mest å forklare hvis alle eksene møttes",
+      "spice": "spicy",
+      "categoryEn": "Back to Back",
+      "textEn": "Which of {player} and {player2} has the most explaining to do if all the exes met"
+    },
+    {
+      "id": 536,
+      "category": "Alle som",
+      "text": "Alle som har sendt nakenbilder",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has sent nudes"
+    },
+    {
+      "id": 537,
+      "category": "Alle som",
+      "text": "Alle som har hatt en one night stand",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has had a one-night stand"
+    },
+    {
+      "id": 538,
+      "category": "Alle som",
+      "text": "Alle som har ligget med noen før de fikk nummeret deres",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has slept with someone before getting their number"
+    },
+    {
+      "id": 539,
+      "category": "Alle som",
+      "text": "Alle som har hooket med en eks mer enn én gang",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has hooked up with an ex more than once"
+    },
+    {
+      "id": 540,
+      "category": "Alle som",
+      "text": "Alle som har hatt en fast hookup i over et halvt år",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has had a standing hookup for more than six months"
+    },
+    {
+      "id": 541,
+      "category": "Alle som",
+      "text": "Alle som har møtt en tidligere hookup på jobb",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has run into a former hookup at work"
+    },
+    {
+      "id": 542,
+      "category": "Alle som",
+      "text": "Alle som har slettet en hookup fra Snap morgenen etter",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has deleted a hookup from Snapchat the morning after"
+    },
+    {
+      "id": 543,
+      "category": "Alle som",
+      "text": "Alle som har hatt sex før de visste etternavnet",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has had sex before knowing the last name"
+    },
+    {
+      "id": 544,
+      "category": "Alle som",
+      "text": "Alle som har kysset flere på samme kveld",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has kissed more than one person in the same night"
+    },
+    {
+      "id": 545,
+      "category": "Alle som",
+      "text": "Alle som har hatt sex i et kollektiv",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has had sex in a shared house"
+    },
+    {
+      "id": 546,
+      "category": "Alle som",
+      "text": "Alle som har sneket noen ut om morgenen",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has snuck someone out in the morning"
+    },
+    {
+      "id": 547,
+      "category": "Alle som",
+      "text": "Alle som har sendt romnummeret sitt uten tekst",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has sent their room number with no text"
+    },
+    {
+      "id": 548,
+      "category": "Alle som",
+      "text": "Alle som har oppgitt feil bodycount",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has lied about their body count"
+    },
+    {
+      "id": 549,
+      "category": "Alle som",
+      "text": "Alle som har mistet undertøy hos noen",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has left underwear at someone's place"
+    },
+    {
+      "id": 550,
+      "category": "Alle som",
+      "text": "Alle som har blitt avbrutt av en romkamerat",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has been interrupted by a roommate"
+    },
+    {
+      "id": 551,
+      "category": "Alle som",
+      "text": "Alle som har hatt sex på ferie",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has had vacation sex"
+    },
+    {
+      "id": 552,
+      "category": "Alle som",
+      "text": "Alle som har hooket med en kollega",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has hooked up with a coworker"
+    },
+    {
+      "id": 553,
+      "category": "Alle som",
+      "text": "Alle som har hatt et crush på en venn",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has had a crush on a friend"
+    },
+    {
+      "id": 554,
+      "category": "Alle som",
+      "text": "Alle som har ligget med en venns eks",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has slept with a friend's ex"
+    },
+    {
+      "id": 555,
+      "category": "Alle som",
+      "text": "Alle som har brukt Tinder samme dag som et ligg",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has used Tinder the same day as a hookup"
+    },
+    {
+      "id": 556,
+      "category": "Alle som",
+      "text": "Alle som har blitt sjalu på en hookup",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has gotten jealous over a hookup"
+    },
+    {
+      "id": 557,
+      "category": "Alle som",
+      "text": "Alle som har ligget med noen for å komme over en eks",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has slept with someone to get over an ex"
+    },
+    {
+      "id": 558,
+      "category": "Alle som",
+      "text": "Alle som har møtt en hookup og en eks på samme fest",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has run into a hookup and an ex at the same party"
+    },
+    {
+      "id": 559,
+      "category": "Alle som",
+      "text": "Alle som har beholdt en nøkkel hos en tidligere hookup",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has kept a key from a former hookup"
+    },
+    {
+      "id": 560,
+      "category": "Alle som",
+      "text": "Alle som har hatt sex mens andre var i samme leilighet",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has had sex while others were in the apartment"
+    },
+    {
+      "id": 561,
+      "category": "Alle som",
+      "text": "Alle som har sendt et bilde og slått av mobilen med én gang",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has sent a photo and immediately turned off their phone"
+    },
+    {
+      "id": 562,
+      "category": "Alle som",
+      "text": "Alle som har bestilt taxi før de fant klærne",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has ordered a taxi before finding their clothes"
+    },
+    {
+      "id": 563,
+      "category": "Alle som",
+      "text": "Alle som har hatt en sexdrøm om noen i rommet",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has had a sex dream about someone in this room"
+    },
+    {
+      "id": 564,
+      "category": "Alle som",
+      "text": "Alle som har sovet over bare for morgenen",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has stayed over just for the morning after"
+    },
+    {
+      "id": 565,
+      "category": "Alle som",
+      "text": "Alle som har avtalt to hookups samme helg",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has scheduled two hookups the same weekend"
+    },
+    {
+      "id": 566,
+      "category": "Alle som",
+      "text": "Alle som har hooket med noen på festivalcamp",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has hooked up with someone at festival camp"
+    },
+    {
+      "id": 567,
+      "category": "Alle som",
+      "text": "Alle som har skjult hvem de sov hos",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has hidden who they slept with"
+    },
+    {
+      "id": 568,
+      "category": "Alle som",
+      "text": "Alle som har hatt sex med noen fra en annen vennegjeng",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has had sex with someone from another friend group"
+    },
+    {
+      "id": 569,
+      "category": "Alle som",
+      "text": "Alle som har hatt sex etter en konsert",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has had sex after a concert"
+    },
+    {
+      "id": 570,
+      "category": "Alle som",
+      "text": "Alle som har hatt sex i et boblebad",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has had sex in a hot tub"
+    },
+    {
+      "id": 571,
+      "category": "Alle som",
+      "text": "Alle som har ledd midt under sex",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has laughed in the middle of sex"
+    },
+    {
+      "id": 572,
+      "category": "Alle som",
+      "text": "Alle som har sendt en video de ba mottakeren slette",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has sent a video and asked the recipient to delete it"
+    },
+    {
+      "id": 573,
+      "category": "Alle som",
+      "text": "Alle som har lagret noen under feil navn",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has saved someone under the wrong name"
+    },
+    {
+      "id": 574,
+      "category": "Alle som",
+      "text": "Alle som har sendt noe de aldri ville vist gruppa",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has sent something they'd never show the group"
+    },
+    {
+      "id": 575,
+      "category": "Alle som",
+      "text": "Alle som har kysset noen på et toalett",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has kissed someone in a bathroom"
+    },
+    {
+      "id": 576,
+      "category": "Alle som",
+      "text": "Alle som har hatt sex med døra ulåst",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has had sex with the door unlocked"
+    },
+    {
+      "id": 577,
+      "category": "Alle som",
+      "text": "Alle som har blitt hentet av en venn etter et ligg",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has been picked up by a friend after a hookup"
+    },
+    {
+      "id": 578,
+      "category": "Alle som",
+      "text": "Alle som har holdt kontakt med en eks for sex",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has kept in touch with an ex just for the sex"
+    },
+    {
+      "id": 579,
+      "category": "Alle som",
+      "text": "Alle som har hatt sex med noen fra samme studie",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has had sex with someone from the same program"
+    },
+    {
+      "id": 580,
+      "category": "Alle som",
+      "text": "Alle som har blitt hekta etter én natt",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has caught feelings after one night"
+    },
+    {
+      "id": 581,
+      "category": "Alle som",
+      "text": "Alle som har hatt en hookup som møtte hele kollektivet",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has had a hookup meet the entire house"
+    },
+    {
+      "id": 582,
+      "category": "Alle som",
+      "text": "Alle som har droppet forelesning etter et morgenbesøk",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has skipped class after a morning visitor"
+    },
+    {
+      "id": 583,
+      "category": "Alle som",
+      "text": "Alle som har hatt et ligg vennegjengen ikke vet om",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has had a hookup their friend group doesn't know about"
+    },
+    {
+      "id": 584,
+      "category": "Alle som",
+      "text": "Alle som har sendt nakenbilder fra badet",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has sent nudes from the bathroom"
+    },
+    {
+      "id": 585,
+      "category": "Alle som",
+      "text": "Alle som har møtt noen kun for sex",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has met up with someone purely for sex"
+    },
+    {
+      "id": 586,
+      "category": "Alle som",
+      "text": "Alle som har hatt sex på en sofa som ikke var deres",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has had sex on a couch that wasn't theirs"
+    },
+    {
+      "id": 587,
+      "category": "Alle som",
+      "text": "Alle som har blokkert noen og senere ligget med dem",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has blocked someone and later slept with them"
+    },
+    {
+      "id": 588,
+      "category": "Alle som",
+      "text": "Alle som har hooket med en venns crush",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has hooked up with a friend's crush"
+    },
+    {
+      "id": 589,
+      "category": "Alle som",
+      "text": "Alle som har våknet og angret på navnet ved siden av",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has woken up and regretted the name lying next to them"
+    },
+    {
+      "id": 590,
+      "category": "Alle som",
+      "text": "Alle som har introdusert en hookup som bare en venn",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has introduced a hookup as 'just a friend'"
+    },
+    {
+      "id": 591,
+      "category": "Alle som",
+      "text": "Alle som har hatt en skjult mappe på mobilen",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has had a hidden folder on their phone"
+    },
+    {
+      "id": 592,
+      "category": "Alle som",
+      "text": "Alle som har kysset noen i en heis",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has kissed someone in an elevator"
+    },
+    {
+      "id": 593,
+      "category": "Alle som",
+      "text": "Alle som har løyet om hvorfor de kom sent hjem",
+      "spice": "spicy",
+      "categoryEn": "Everyone Who",
+      "textEn": "Everyone who has lied about why they came home late"
+    }
+  ]
+}

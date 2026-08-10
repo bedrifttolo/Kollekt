@@ -47,7 +47,11 @@ export type RoundType =
   | 'CHALLENGE'       // personal dare derived from a player's own stats
   | 'HOT_SEAT'        // group votes on a stat-based question about each other
   | 'TRIVIA_TWIST'    // true/false about player stats; wrong guessers drink
-  | 'RANDOM_EVENT';   // fun wildcard (waterfall, rule-maker, etc.)
+  | 'RANDOM_EVENT'    // fun wildcard (waterfall, rule-maker, etc.)
+  | 'PROMPT_CARD';    // static flavor prompt drawn from the "kollektivkrig" card pool
+
+/** Tier a static prompt/deck belongs to — mirrors the chill/medium/spicy config presets. */
+export type PromptSpice = 'chill' | 'medium' | 'spicy';
 
 export type GameLang = 'en' | 'no';
 
@@ -118,6 +122,8 @@ export interface GameConfig {
    * (see `src/lib/kollektGame.ts`) — must stay false for the App Store build.
    */
   alcoholMode: boolean;
+  /** Which tier of the static PROMPT_CARD pool this preset draws from. */
+  promptSpice: PromptSpice;
 }
 
 // ─── Summary (for UI scoreboard) ─────────────────────────────────────────────

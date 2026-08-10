@@ -20,10 +20,9 @@ export type {
 export { DEFAULT_GUEST_STATS } from './types';
 
 export {
-  DEFAULT_GAME_CONFIG,
-  QUICK_GAME_CONFIG,
-  HARDCORE_GAME_CONFIG,
-  CASUAL_GAME_CONFIG,
+  CHILL_GAME_CONFIG,
+  MEDIUM_GAME_CONFIG,
+  SPICY_GAME_CONFIG,
   GAME_PRESETS,
 } from './gameConfig';
 export type { GamePreset } from './gameConfig';

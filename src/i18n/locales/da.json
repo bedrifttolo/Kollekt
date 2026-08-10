@@ -819,6 +819,7 @@
         "hundredQuestions": "100 spørgsmål",
         "truthOrChug": "Truth or Chug",
         "neverHaveIEver": "Jeg har aldrig",
+        "kingsCommands": "Kongen Befaler",
         "mexican": "Mexicaner",
         "kingsCup": "Kings Cup",
         "categories": "Kategorier",
@@ -837,6 +838,7 @@
         "hundredQuestions": "Peg på den person, der passer bedst til hvert spørgsmål.",
         "truthOrChug": "Vælg et nummer, svar ærligt, eller tag udfordringen.",
         "neverHaveIEver": "Mist et point, hvis du har gjort det, der står på kortet.",
+        "kingsCommands": "Træk et kort og følg kongens befaling — eller tag straffen.",
         "mexican": "Kast på skift, og slå den forrige spillers skjulte resultat.",
         "kingsCup": "Træk kort, og følg reglen for kortets værdi.",
         "categories": "Nævn noget i kategorien, før tiden løber ud.",
@@ -855,14 +857,15 @@
         "hundredQuestions": "Læs spørgsmålet højt, og peg på den person, der passer bedst. Tæl stemmerne højt, tal om resultatet, og gå videre til næste kort.",
         "truthOrChug": "Vælg et nummereret kort. Svar ærligt, eller tag udfordringen i stedet. Gruppen aftaler, hvor strenge straffene er, før I starter.",
         "neverHaveIEver": "Læs udsagnet højt. Alle, der har gjort det, tager den aftalte straf. Når reaktionerne har lagt sig, fortsætter I til næste kort.",
+        "kingsCommands": "Træk et kort og læs befalingen højt. Hele bordet følger den sammen. De, der ikke kan — eller ikke vil — tager straffen: 2 på Chill og Medium, 3 på Spicy.",
         "mexican": "Kast skjult, og annoncér et resultat, der slår forrige spiller. Næste spiller kan tro på dig og kaste videre eller udfordre. En forkert udfordring taber.",
         "kingsCup": "Træk kort efter tur. Hver kortværdi har en regel. Følg reglen, hold tempoet oppe, og aftal før start, hvad der sker, når sidste konge trækkes.",
         "categories": "En kategori vises, og spillerne svarer efter tur, før tiden løber ud. Gentagelser, forkerte svar eller stilhed slår en spiller ud. Sidste spiller tilbage vinder.",
         "charades": "Én spiller mimer uden at tale, mens de andre gætter. Giv point, når nogen gætter rigtigt, og send mimeturen videre.",
         "snusboksen": "Send dåsen rundt. Når det er din tur, viser du et kort og læser det højt — alle peger på den, der passer bedst. Send så dåsen videre.",
         "whoAreWe": "Træk et kort og læs det højt. Alle peger på den, de mener passer bedst. Den person kan bekræfte, afvise eller fortælle mere om sig selv. Lad samtalen køre så længe I vil. Ingen forkerte svar — bare ærlige.",
-        "guysNight": "Vend et kort og gør det, der står. Mix af jeg-har-aldrig, pegespil, udfordringer og drikkerregler. Mild for at varme op, Drøy når aftenen kører.",
-        "girlsNight": "Vend et kort og gør det, der står. Mix af jeg-har-aldrig, pegespil, udfordringer og drikkerregler. Mild for at starte, Drøy når vinen har sat sig."
+        "guysNight": "Vend et kort og gør det, der står. Mix af jeg-har-aldrig, pegespil, udfordringer og drikkerregler. Chill for at varme op, Spicy når aftenen kører.",
+        "girlsNight": "Vend et kort og gør det, der står. Mix af jeg-har-aldrig, pegespil, udfordringer og drikkerregler. Chill for at starte, Spicy når vinen har sat sig."
       },
       "dice": {
         "roll": "Kast terningen",
@@ -1023,17 +1026,17 @@
       },
       "whoAreWe": {
         "deckNames": {
-          "mild": "Mild",
+          "chill": "Chill",
           "medium": "Medium",
-          "droy": "Drøy"
+          "spicy": "Spicy"
         },
         "deckDescriptions": {
-          "mild": "Lette spørgsmål for at komme i gang.",
+          "chill": "Lette spørgsmål for at komme i gang.",
           "medium": "Mere personligt — med lidt krydder.",
-          "droy": "Ingen filter. Hvem er du egentlig?"
+          "spicy": "Ingen filter. Hvem er du egentlig?"
         },
         "decks": {
-          "mild": [
+          "chill": [
             "Hvem her ligger stadig i sengen, når alle andre er oppe?",
             "Hvem her fungerer ikke uden kaffe eller te om morgenen?",
             "Hvem her bruger altid længst tid på badeværelset?",
@@ -1097,7 +1100,7 @@
             "Hvem her ville tage det første skridt og fortryde det med det samme?",
             "Hvem her flirter uden at være klar over det?"
           ],
-          "droy": [
+          "spicy": [
             "Hvem her ville tage et one-night stand i nat, hvis chancen bød sig?",
             "Hvem her har en kinky side, ingen her aner noget om?",
             "Hvem her har det vildeste sted, de nogensinde har haft sex?",
@@ -1133,17 +1136,17 @@
       },
       "guysNight": {
         "deckNames": {
-          "mild": "Mild",
+          "chill": "Chill",
           "medium": "Medium",
-          "droy": "Drøy"
+          "spicy": "Spicy"
         },
         "deckDescriptions": {
-          "mild": "Sjovt, socialt og lidt konkurrencepræget. Perfekt til at varme op.",
+          "chill": "Sjovt, socialt og lidt konkurrencepræget. Perfekt til at varme op.",
           "medium": "Mere personligt — lidt roasting, lidt tilståelser, lidt krydder.",
-          "droy": "Brutal ærlighed. Drøje udfordringer. Ingen nåde."
+          "spicy": "Brutal ærlighed. Drøje udfordringer. Ingen nåde."
         },
         "decks": {
-          "mild": [
+          "chill": [
             "Peg på hvem der ville overleve længst i skoven uden udstyr.",
             "Jeg har aldrig sprunget over bendag og taget shorts på dagen efter.",
             "Alle, der har sendt en 'er du vågen?'-besked den seneste måned, drikker.",
@@ -1207,7 +1210,7 @@
             "Alle, der er blevet kaldt 'den følelsesmæssigt utilgængelige', drikker.",
             "Peg på hvem der har den mest kaotiske situationship-historie lige nu."
           ],
-          "droy": [
+          "spicy": [
             "Peg på hvem der mest sandsynligt får noget i nat.",
             "Jeg har aldrig været i en seksuel situation, jeg ikke kunne forklare på stedet.",
             "Alle, der har sendt eksplicitte billeder, drikker.",
@@ -1243,17 +1246,17 @@
       },
       "girlsNight": {
         "deckNames": {
-          "mild": "Mild",
+          "chill": "Chill",
           "medium": "Medium",
-          "droy": "Drøy"
+          "spicy": "Spicy"
         },
         "deckDescriptions": {
-          "mild": "Sjovt, socialt og lidt kaotisk. Perfekt til at varme op.",
+          "chill": "Sjovt, socialt og lidt kaotisk. Perfekt til at varme op.",
           "medium": "Mere personligt — sladder, følelser og lidt krydder.",
-          "droy": "Helt uden filter. Det, der sker her, bliver her."
+          "spicy": "Helt uden filter. Det, der sker her, bliver her."
         },
         "decks": {
-          "mild": [
+          "chill": [
             "Peg på hvem der ville overleve længst uden telefonen.",
             "Jeg har aldrig grædt på toilettet til en fest og gået direkte tilbage for at danse.",
             "Alle, der har beholdt et stykke tøj fra en eks, drikker.",
@@ -1317,7 +1320,7 @@
             "Alle med et tal højere, end de ville indrømme i pænt selskab, drikker.",
             "Jeg har aldrig haft sex og med det samme ønsket, jeg var et andet sted."
           ],
-          "droy": [
+          "spicy": [
             "Peg på hvem der mest sandsynligt får noget i nat.",
             "Jeg har aldrig gjort noget i sengen, jeg aldrig ville fortælle min mor om.",
             "Alle, der har sendt eksplicitte billeder, drikker.",
@@ -1354,14 +1357,14 @@
       "snusboksen": {
         "pickDeck": "Vælg en kortbunke",
         "deckNames": {
-          "mild": "Mild",
+          "chill": "Chill",
           "medium": "Medium",
-          "droy": "Drøy"
+          "spicy": "Spicy"
         },
         "deckDescriptions": {
-          "mild": "Lette spørgsmål for at komme i gang.",
+          "chill": "Lette spørgsmål for at komme i gang.",
           "medium": "Mere saftige spørgsmål der sætter gang i debatten.",
-          "droy": "De frækkeste, mest afslørende kort. Ingen nåde."
+          "spicy": "De frækkeste, mest afslørende kort. Ingen nåde."
         },
         "progress": "Kort {{current}} af {{total}}",
         "pass": "Send dåsen til {{player}}",
@@ -1372,7 +1375,7 @@
         "playAgain": "Bland og spil igen",
         "changeDeck": "Skift kortbunke",
         "decks": {
-          "mild": [
+          "chill": [
             "Hvem i rummet ville overleve længst i skoven uden forberedelse?",
             "Hvem i rummet ville tilfældigt blive berømt på TikTok?",
             "Hvem i rummet er stadig vågen klokken seks, mens alle andre sover?",
@@ -1436,7 +1439,7 @@
             "Hvem i rummet har den mest alarmerende skærmtid?",
             "Hvem i rummet ville ghosta nogen, de faktisk kunne lide, fordi de fik kolde fødder?"
           ],
-          "droy": [
+          "spicy": [
             "Hvem i rummet ville tage hjem med nogen i aften på trods af tidlig morgen?",
             "Hvem i rummet har haft en mere interessant toiletoplevelse, end de har indrømmet?",
             "Hvem i rummet har definitivt liked et billede af sin eks fra tre år siden klokken et om natten?",
@@ -1752,14 +1755,11 @@
         "drinks_multiplier": " · ×{{m}} drinks"
       },
       "presets": {
-        "quick": {
-          "description": "8 runder — kom ind, bliv glad, kom ud."
+        "chill": {
+          "description": "30 runder, afslappet — lette slurke, mest hotseat og quiz."
         },
-        "hardcore": {
-          "description": "20 runder, dobbelte drinks, ingen nåde."
-        },
-        "casual": {
-          "description": "12 runder, lette slurke, statistik betyder lidt."
+        "spicy": {
+          "description": "30 runder, høj indsats — flere udfordringer, dobbelte drinks, ingen nåde."
         }
       },
       "playing": {
@@ -1824,21 +1824,17 @@
       "drinks_multiplier": " · ×{{m}} point"
     },
     "presets": {
-      "default": {
-        "label": "Standard",
-        "description": "15 runder, balanceret blanding af kaos og statistik."
+      "chill": {
+        "label": "Chill",
+        "description": "30 runder, afslappet — lav indsats, mest hotseat og quiz."
       },
-      "quick": {
-        "label": "Hurtig",
-        "description": "8 runder — kom ind, bliv kaotisk, kom ud."
+      "medium": {
+        "label": "Medium",
+        "description": "30 runder, balanceret blanding af kaos og statistik."
       },
-      "hardcore": {
-        "label": "Hardcore",
-        "description": "20 runder, dobbelte point, ingen nåde."
-      },
-      "casual": {
-        "label": "Afslappet",
-        "description": "12 runder, lav indsats, statistik betyder lidt."
+      "spicy": {
+        "label": "Spicy",
+        "description": "30 runder, høj indsats — flere udfordringer, dobbelte point, ingen nåde."
       }
     },
     "playing": {
@@ -1853,7 +1849,8 @@
       "CHALLENGE": "Udfordring",
       "HOT_SEAT": "Den varme stol",
       "TRIVIA_TWIST": "Trivia",
-      "RANDOM_EVENT": "Jokerkort"
+      "RANDOM_EVENT": "Jokerkort",
+      "PROMPT_CARD": "Korttræk"
     },
     "drinking": {
       "distributes": "{{name}} deler {{count}} point ud",
@@ -1914,7 +1911,23 @@
       "vote": "Spørgsmål",
       "challenge": "Udfordring",
       "toast": "Skål",
-      "never": "Jeg har aldrig"
+      "never": "Jeg har aldrig",
+      "command": "Befaling"
+    },
+    "spice": {
+      "title": "Vælg spice-niveau",
+      "chill": "Chill",
+      "medium": "Medium",
+      "spicy": "Spicy",
+      "chillHint": "Nemme, søde spørgsmål til at varme op.",
+      "mediumHint": "Mere personligt, lidt mere på kanten.",
+      "spicyHint": "Intet filter. Dristigt og eksplicit."
+    },
+    "roundOver": {
+      "title": "Runden er slut!",
+      "subtitle": "I kom igennem alle 30 spørgsmål.",
+      "newRound": "Ny runde",
+      "changeTier": "Skift spice-niveau"
     }
   },
   "profile": {

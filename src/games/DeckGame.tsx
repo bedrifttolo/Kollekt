@@ -2,9 +2,9 @@ import { useMemo, useState } from 'react';
 import { ArrowLeft, Eye, RotateCcw, SkipForward } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-type DeckId = 'mild' | 'medium' | 'droy';
-const DECKS: DeckId[] = ['mild', 'medium', 'droy'];
-const PROMPTS_PER_SESSION = 25;
+type DeckId = 'chill' | 'medium' | 'spicy';
+const DECKS: DeckId[] = ['chill', 'medium', 'spicy'];
+const PROMPTS_PER_SESSION = 30;
 
 export default function DeckGame({
   gameKey,

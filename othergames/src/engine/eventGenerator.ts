@@ -20,6 +20,19 @@ import {
   genId,
 } from './weightedRng';
 import { alcoholTextFor } from './alcoholLookup';
+import promptCardsData from './promptCards.json';
+
+interface PromptCard {
+  id: number;
+  category: string;
+  text: string;
+  spice: 'chill' | 'medium' | 'spicy';
+  categoryEn: string;
+  textEn: string;
+}
+
+const PROMPT_CARDS = (promptCardsData as { prompts: PromptCard[] }).prompts;
+const PROMPT_CARD_BASE_DRINKS: Record<PromptCard['spice'], number> = { chill: 1, medium: 2, spicy: 3 };
 
 function sips(base: number, config: GameConfig): number {
   return Math.max(1, Math.round(base * config.drinkMultiplier));
@@ -805,6 +818,25 @@ export function generateEvent(
       return buildEvent(roundType, lang, textByLanguage, {
         targetPlayers: [],
         drinks: template.distribute ? 0 : sips(template.baseDrinks, config),
+      });
+    }
+
+    case 'PROMPT_CARD': {
+      const tierCards = PROMPT_CARDS.filter((card) => card.spice === config.promptSpice);
+      const pool = tierCards.filter((card) => !usedTemplateIds.has(`pc-${card.id}`));
+      const cards = pool.length > 0 ? pool : tierCards;
+      const card = cards[Math.floor(Math.random() * cards.length)];
+
+      usedTemplateIds.add(`pc-${card.id}`);
+
+      const textByLanguage = makeEventText(
+        { en: card.categoryEn, no: card.category },
+        { en: card.textEn, no: card.text },
+      );
+
+      return buildEvent(roundType, lang, textByLanguage, {
+        targetPlayers: [],
+        drinks: sips(PROMPT_CARD_BASE_DRINKS[card.spice], config),
       });
     }
   }

@@ -15,502 +15,602 @@
     {
       "id": 1,
       "text": "Har utrolig nok ikke vært i håndjern enda?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "spicy"
     },
     {
       "id": 2,
       "text": "Sender flest nudes?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "spicy"
     },
     {
       "id": 3,
       "text": "Tåler mest uten å bli dritings?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "medium"
     },
     {
       "id": 4,
       "text": "Har hooka med flest her i rommet?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "spicy"
     },
     {
       "id": 5,
       "text": "Er den største festløven?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "chill"
     },
     {
       "id": 6,
       "text": "Er mest sannsynlig til å være utro?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "spicy"
     },
     {
       "id": 7,
       "text": "Blir den beste mora eller faren?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "chill"
     },
     {
       "id": 8,
       "text": "Har best hygiene?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "medium"
     },
     {
       "id": 9,
       "text": "Har kjørt uten lappen?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "medium"
     },
     {
       "id": 10,
       "text": "Har hatt trekant?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "spicy"
     },
     {
       "id": 11,
       "text": "Skål for nummer 10!",
-      "kind": "toast"
+      "kind": "toast",
+      "spice": "chill"
     },
     {
       "id": 12,
       "text": "Er mest ubesluttsom?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "chill"
     },
     {
       "id": 13,
       "text": "Har runka på et offentlig sted?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "spicy"
     },
     {
       "id": 14,
       "text": "Bruker mest penger på byen?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "medium"
     },
     {
       "id": 15,
       "text": "Hvem her vil du bli strandet på en øde øy med?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "medium"
     },
     {
       "id": 16,
       "text": "Knuser flest hjerter?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "medium"
     },
     {
       "id": 17,
       "text": "Har best selvtillit?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "chill"
     },
     {
       "id": 18,
       "text": "Tror selv de er morsomst?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "chill"
     },
     {
       "id": 19,
       "text": "Har best musikksmak?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "chill"
     },
     {
       "id": 20,
       "text": "Hvem her kunne den på høyre for deg hooka med?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "spicy"
     },
     {
       "id": 21,
       "text": "Blir mest fyllesyk?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "medium"
     },
     {
       "id": 22,
       "text": "Er mest bortskjemt?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "chill"
     },
     {
       "id": 23,
       "text": "Hadde klart seg best på Farmen?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "chill"
     },
     {
       "id": 24,
       "text": "Lyser opp rommet?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "chill"
     },
     {
       "id": 25,
       "text": "Runker mest?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "spicy"
     },
     {
       "id": 26,
       "text": "Hvem her hadde du fått penest barn med?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "medium"
     },
     {
       "id": 27,
       "text": "Er flinkest på skolen?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "chill"
     },
     {
       "id": 28,
       "text": "Hvem ville du aldri gitt telefonen din til i en time?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "medium"
     },
     {
       "id": 29,
       "text": "Har finest rumpe?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "spicy"
     },
     {
       "id": 30,
       "text": "Er den beste vennen?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "chill"
     },
     {
       "id": 31,
       "text": "Har de fineste øynene?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "medium"
     },
     {
       "id": 32,
       "text": "Hvem trodde du var mest teit da dere møttes?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "medium"
     },
     {
       "id": 33,
       "text": "Er mest uheldig?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "chill"
     },
     {
       "id": 34,
       "text": "Har tatt flest jomfrudommer?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "spicy"
     },
     {
       "id": 35,
       "text": "Spyr i kveld?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "medium"
     },
     {
       "id": 36,
       "text": "Blir den beste kjæresten?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "medium"
     },
     {
       "id": 37,
       "text": "Har gått lengst uten sex?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "spicy"
     },
     {
       "id": 38,
       "text": "Er mest sannsynlig fyllesyk på en tirsdag?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "medium"
     },
     {
       "id": 39,
       "text": "Er morsomst?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "chill"
     },
     {
       "id": 40,
       "text": "Skål for nummer 40!",
-      "kind": "toast"
+      "kind": "toast",
+      "spice": "chill"
     },
     {
       "id": 41,
       "text": "Har hatt flest våte drømmer?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "spicy"
     },
     {
       "id": 42,
       "text": "Er smartest?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "chill"
     },
     {
       "id": 43,
       "text": "Er svigers drøm?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "medium"
     },
     {
       "id": 44,
       "text": "Er med på alt?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "medium"
     },
     {
       "id": 45,
       "text": "Er minst flink med prevensjon?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "spicy"
     },
     {
       "id": 46,
       "text": "Danser best?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "chill"
     },
     {
       "id": 47,
       "text": "Er mest ansvarlig?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "chill"
     },
     {
       "id": 48,
       "text": "Er minst ansvarlig?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "chill"
     },
     {
       "id": 49,
       "text": "Lukter best?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "medium"
     },
     {
       "id": 50,
       "text": "Er kåtest?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "spicy"
     },
     {
       "id": 51,
       "text": "Er den beste til å sjekke opp folk?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "medium"
     },
     {
       "id": 52,
       "text": "Har høyest IQ?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "chill"
     },
     {
       "id": 53,
       "text": "Har den skitneste meldingsloggen?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "spicy"
     },
     {
       "id": 54,
       "text": "Hadde blitt den beste statsministeren?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "chill"
     },
     {
       "id": 55,
       "text": "Har best karaktersnitt?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "chill"
     },
     {
       "id": 56,
       "text": "Er festens midtpunkt?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "chill"
     },
     {
       "id": 57,
       "text": "Er best til å kysse?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "spicy"
     },
     {
       "id": 58,
       "text": "Er den største dramaqueenen?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "chill"
     },
     {
       "id": 59,
       "text": "Har sett hele Netflix?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "chill"
     },
     {
       "id": 60,
       "text": "Skål for nummer 60!",
-      "kind": "toast"
+      "kind": "toast",
+      "spice": "chill"
     },
     {
       "id": 61,
       "text": "Hadde overlevd Hunger Games?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "chill"
     },
     {
       "id": 62,
       "text": "Hvem drikker mest i kveld?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "medium"
     },
     {
       "id": 63,
       "text": "Blir millionær først?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "chill"
     },
     {
       "id": 64,
       "text": "Er lærerens favoritt?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "chill"
     },
     {
       "id": 65,
       "text": "Blir best likt av nye folk?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "chill"
     },
     {
       "id": 66,
       "text": "Har de mest slitte knærne?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "spicy"
     },
     {
       "id": 67,
       "text": "Er best i senga?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "spicy"
     },
     {
       "id": 68,
       "text": "Er villest?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "medium"
     },
     {
       "id": 69,
       "text": "Er alltid klar for hva som helst?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "medium"
     },
     {
       "id": 70,
       "text": "Skål for nummer 70!",
-      "kind": "toast"
+      "kind": "toast",
+      "spice": "chill"
     },
     {
       "id": 71,
       "text": "Er lengst i dusjen?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "spicy"
     },
     {
       "id": 72,
       "text": "Blir mest suksessfull?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "chill"
     },
     {
       "id": 73,
       "text": "Hvem sover ikke hjemme i natt?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "spicy"
     },
     {
       "id": 74,
       "text": "Er flinkest med barn?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "chill"
     },
     {
       "id": 75,
       "text": "Har størst kjendisfaktor?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "chill"
     },
     {
       "id": 76,
       "text": "Kommer til himmelen?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "chill"
     },
     {
       "id": 77,
       "text": "Har best sjanse på deg?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "spicy"
     },
     {
       "id": 78,
       "text": "Har flest Tinder-matcher?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "medium"
     },
     {
       "id": 79,
       "text": "Ler på det verste tidspunktet?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "chill"
     },
     {
       "id": 80,
       "text": "Skål for nummer 80!",
-      "kind": "toast"
+      "kind": "toast",
+      "spice": "chill"
     },
     {
       "id": 81,
       "text": "Hvem vil du ha som beer pong-partner?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "medium"
     },
     {
       "id": 82,
       "text": "Blir gjenkjent på polet?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "medium"
     },
     {
       "id": 83,
       "text": "Blir gjenkjent i sexbutikken?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "spicy"
     },
     {
       "id": 84,
       "text": "Hvem stoler du mest på?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "chill"
     },
     {
       "id": 85,
       "text": "Hadde gjort mest for minst penger?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "medium"
     },
     {
       "id": 86,
       "text": "Hooker mest?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "spicy"
     },
     {
       "id": 87,
       "text": "Lager de villeste lydene i senga?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "spicy"
     },
     {
       "id": 88,
       "text": "Blir raskest sjalu?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "medium"
     },
     {
       "id": 89,
       "text": "Kunne mest sannsynlig spilt i en voksenfilm?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "spicy"
     },
     {
       "id": 90,
       "text": "Hadde mest sannsynlig betalt for det. Skål for nummer 90!",
-      "kind": "toast"
+      "kind": "toast",
+      "spice": "spicy"
     },
     {
       "id": 91,
       "text": "Får flest nudes?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "spicy"
     },
     {
       "id": 92,
       "text": "Er den største stalkeren?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "medium"
     },
     {
       "id": 93,
       "text": "Blir raskest ferdig?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "spicy"
     },
     {
       "id": 94,
       "text": "Har sex på første date?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "spicy"
     },
     {
       "id": 95,
       "text": "Er hekta på en lærer?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "spicy"
     },
     {
       "id": 96,
       "text": "Er mest overlegen?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "medium"
     },
     {
       "id": 97,
       "text": "Blir spandert mest på byen?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "medium"
     },
     {
       "id": 98,
       "text": "Tømmer og rømmer?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "medium"
     },
     {
       "id": 99,
       "text": "Hvem skal ta en bonski med deg?",
-      "kind": "vote"
+      "kind": "vote",
+      "spice": "spicy"
     },
     {
       "id": 100,
       "text": "Skål for nummer 100!!",
-      "kind": "toast"
+      "kind": "toast",
+      "spice": "chill"
     }
   ],
   "translations": {
