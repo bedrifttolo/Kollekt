@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ArrowUp, Image as ImageIcon, BarChart3, Check, Copy, X, Reply, HeartHandshake, ChevronDown, WashingMachine, Film, Lock, Plus, ThumbsUp, ThumbsDown, Heart, Laugh, PartyPopper, Flame, Frown, MessageCircle, Wallpaper, Pin, PinOff, type LucideIcon } from 'lucide-react';
+import { ArrowLeft, ArrowUp, Image as ImageIcon, BarChart3, Check, Copy, X, Reply, HeartHandshake, ChevronDown, WashingMachine, Film, Lock, Plus, Smile, MessageCircle, Wallpaper, Pin, PinOff } from 'lucide-react';
 
 type LaundryType = 'WHITES' | 'COLORS' | 'DELICATES' | 'WOOL' | 'SPORTS' | 'TOWELS';
 const LAUNDRY_TYPES: LaundryType[] = ['WHITES', 'COLORS', 'DELICATES', 'WOOL', 'SPORTS', 'TOWELS'];
@@ -31,24 +31,39 @@ import MeetingTopicMenu from './MeetingTopicMenu';
 type LocalChatMessage = ChatMessage & { status?: 'sending' | 'failed' };
 
 const KUDO_TYPES: KudoType[] = ['THANK_YOU', 'CLEANEST', 'MOST_HELPFUL', 'PEACEMAKER'];
-import { AddSheet, AvatarStack } from '../../components/ui-kit';
+import { AddSheet, AvatarStack, CloseButton } from '../../components/ui-kit';
 import { backdropVariants, collapseVariants, dialogVariants, popIn, pressable, springPop, useReducedMotion } from '../../lib/motion';
 import { colorForMember } from '../../lib/memberColors';
 import { PAGE_ACCENTS } from '../../lib/pageAccent';
+import { isIOS } from '../../lib/platform';
+import EmojiPickerSheet from './EmojiPickerSheet';
 
-// The backend validates reactions against a fixed emoji allowlist and stores them as emoji
-// strings, so the emoji stays the wire format — icons are presentation only.
-const REACTIONS: Array<{ emoji: string; icon: LucideIcon; labelKey: string }> = [
-  { emoji: '👍', icon: ThumbsUp, labelKey: 'chat.reactions.like' },
-  { emoji: '❤️', icon: Heart, labelKey: 'chat.reactions.love' },
-  { emoji: '😂', icon: Laugh, labelKey: 'chat.reactions.laugh' },
-  { emoji: '🎉', icon: PartyPopper, labelKey: 'chat.reactions.celebrate' },
-  { emoji: '🔥', icon: Flame, labelKey: 'chat.reactions.fire' },
-  { emoji: '😢', icon: Frown, labelKey: 'chat.reactions.sad' },
-  { emoji: '👎', icon: ThumbsDown, labelKey: 'chat.reactions.dislike' },
-];
+// The backend validates reactions against a fixed emoji allowlist (ChatOperations.kt) and stores
+// them as emoji strings, so the emoji itself is the wire format — no icon mapping needed. Real
+// glyphs render in each platform's own color-emoji font automatically, which is what makes these
+// look native on iOS vs Android without any per-platform asset work.
+// Apple's own Tapback set — leads the strip on iOS builds.
+const IOS_LEAD_REACTIONS = ['❤️', '👍', '👎', '😂', '‼️', '❓'];
+// Google Messages' own default quick reactions — leads the strip on Android builds.
+const ANDROID_LEAD_REACTIONS = ['❤️', '👍', '👎', '😆', '😮', '😢'];
+// A few extras shown after the platform lead set, before the "more" button opens the full picker.
+const EXTRA_REACTIONS = ['🎉', '🔥', '🙏', '💯'];
 
-const REACTION_ICON_BY_EMOJI = new Map(REACTIONS.map((r) => [r.emoji, r.icon]));
+const REACTION_LABEL_KEYS: Record<string, string> = {
+  '❤️': 'chat.reactions.love',
+  '👍': 'chat.reactions.like',
+  '👎': 'chat.reactions.dislike',
+  '😂': 'chat.reactions.laugh',
+  '‼️': 'chat.reactions.exclaim',
+  '❓': 'chat.reactions.question',
+  '😆': 'chat.reactions.laugh',
+  '😮': 'chat.reactions.wow',
+  '😢': 'chat.reactions.sad',
+  '🎉': 'chat.reactions.celebrate',
+  '🔥': 'chat.reactions.fire',
+  '🙏': 'chat.reactions.pray',
+  '💯': 'chat.reactions.hundred',
+};
 
 // Sticker glyphs are the lucide icon paths inlined as strings: the sticker is serialised to a
 // standalone SVG data URL and uploaded as an image, so it can't hold a React component, and
@@ -171,6 +186,7 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
   const [popoverAnchor, setPopoverAnchor] = useState<PopoverAnchor | null>(null);
   const [copiedMessageId, setCopiedMessageId] = useState<number | null>(null);
   const [replyingToId, setReplyingToId] = useState<number | null>(null);
+  const [emojiPickerForId, setEmojiPickerForId] = useState<number | null>(null);
   const [expandedImage, setExpandedImage] = useState<{ src: string; alt: string } | null>(null);
   const [loading, setLoading] = useState(
     () => !sharedQueryClient.getQueryData(threadCacheKey(currentUser?.name ?? '')),
@@ -225,6 +241,9 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
   });
 
   const name = currentUser?.name ?? '';
+  // Computed once per render rather than memoized — Capacitor.getPlatform() is a cheap sync read
+  // and the result never changes for the lifetime of the app.
+  const quickReactions = [...(isIOS() ? IOS_LEAD_REACTIONS : ANDROID_LEAD_REACTIONS), ...EXTRA_REACTIONS];
   const queryClient = useQueryClient();
   const { data: members = [] } = useQuery({
     queryKey: qk.members(name),
@@ -801,10 +820,10 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
         <div className="relative flex items-center gap-2 px-4 py-2.5 sm:px-6">
           <button
             onClick={() => navigate('/chat')}
-            className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-muted/60 text-muted-foreground"
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-muted/60 text-muted-foreground"
             aria-label={t('common.back')}
           >
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowLeft className="h-5 w-5" />
           </button>
           {isDirect ? (
             <span style={{ backgroundColor: colorForMember(thread!, memberColorMap.get(thread!)) }} className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-xs font-bold text-white">
@@ -1054,8 +1073,6 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
                     <AnimatePresence initial={false}>
                       {message.reactions.map((r) => {
                         const reacted = r.users.includes(name);
-                        // Reactions sent before the icon set existed fall back to their emoji.
-                        const ReactionIcon = REACTION_ICON_BY_EMOJI.get(r.emoji);
                         return (
                           <motion.button
                             key={r.emoji}
@@ -1068,7 +1085,7 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
                             onClick={() => void toggleReaction(message.id, r.emoji)}
                             className={`elev-1 pressable-tight flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-bold ${reacted ? 'border-primary/40 bg-primary/20' : 'border-border bg-card'}`}
                           >
-                            {ReactionIcon ? <ReactionIcon className="h-3.5 w-3.5 shrink-0" /> : r.emoji}
+                            <span className="text-sm leading-none">{r.emoji}</span>
                             {r.users.length}
                           </motion.button>
                         );
@@ -1203,17 +1220,28 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
         )}
       </AnimatePresence>
 
-      {replyingToId != null && messageById.get(replyingToId) && (
-        <div className="glass relative z-10 rounded-lg px-3 py-2 mb-2 flex items-start justify-between gap-2">
-          <div className="min-w-0">
-            <p className="text-[10px] font-semibold text-foreground">{t('chat.replyingTo', { name: messageById.get(replyingToId)?.sender })}</p>
-            <p className="text-xs truncate text-muted-foreground">{messageById.get(replyingToId)?.text || t('chat.imageAlt')}</p>
-          </div>
-          <button onClick={() => setReplyingToId(null)} className="text-[10px] text-muted-foreground hover:text-foreground shrink-0">
-            {t('chat.cancelReply')}
-          </button>
-        </div>
-      )}
+      <AnimatePresence initial={false}>
+        {replyingToId != null && messageById.get(replyingToId) && (
+          <motion.div
+            variants={collapseVariants}
+            initial="hidden"
+            animate="show"
+            exit="exit"
+            className="relative z-10 mb-2 overflow-hidden rounded-lg"
+          >
+            <div className="glass elev-1 flex items-start gap-2 border-l-2 border-l-primary py-2 pl-2.5 pr-2">
+              <Reply className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-semibold text-foreground">{t('chat.replyingTo', { name: messageById.get(replyingToId)?.sender })}</p>
+                <p className="truncate text-xs text-muted-foreground">{messageById.get(replyingToId)?.text || t('chat.imageAlt')}</p>
+              </div>
+              <button onClick={() => setReplyingToId(null)} className="pressable-tight shrink-0 rounded-full p-1 text-muted-foreground hover:text-foreground" aria-label={t('chat.cancelReply')}>
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Input bar. safe-bottom keeps the composer clear of the home indicator now that there's no
           bottom nav reserving that strip. Bleeds edge-to-edge like the header/list above, then
@@ -1405,20 +1433,28 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
                 onClick={(event) => event.stopPropagation()}
               >
                 <div className="elev-3 mb-2 flex gap-1 overflow-x-auto rounded-full border border-border bg-card/95 px-2 py-2 backdrop-blur scrollbar-none">
-                  {REACTIONS.map((reaction) => {
-                    const mine = popoverMessage.reactions.find((r) => r.emoji === reaction.emoji)?.users.includes(name);
+                  {quickReactions.map((emoji) => {
+                    const mine = popoverMessage.reactions.find((r) => r.emoji === emoji)?.users.includes(name);
                     return (
                       <motion.button
-                        key={reaction.emoji}
+                        key={emoji}
                         {...pressable}
-                        onClick={() => { void toggleReaction(popoverMessage.id, reaction.emoji); closePopover(); }}
-                        aria-label={t(reaction.labelKey)}
-                        className={`grid h-10 w-10 shrink-0 place-items-center rounded-full ${mine ? 'bg-primary/20' : ''}`}
+                        onClick={() => { void toggleReaction(popoverMessage.id, emoji); closePopover(); }}
+                        aria-label={REACTION_LABEL_KEYS[emoji] ? t(REACTION_LABEL_KEYS[emoji]) : emoji}
+                        className={`grid h-10 w-10 shrink-0 place-items-center rounded-full text-2xl ${mine ? 'bg-primary/20' : ''}`}
                       >
-                        <reaction.icon className="h-5 w-5" />
+                        {emoji}
                       </motion.button>
                     );
                   })}
+                  <motion.button
+                    {...pressable}
+                    onClick={() => { setEmojiPickerForId(popoverMessage.id); closePopover(); }}
+                    aria-label={t('chat.emojiPicker.more')}
+                    className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-muted text-muted-foreground"
+                  >
+                    <Smile className="h-5 w-5" />
+                  </motion.button>
                 </div>
                 <div className="elev-3 divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card">
                   <button
@@ -1482,6 +1518,20 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
       </AnimatePresence>
 
       {showPaywall && <SubscriptionPaywall onClose={() => setShowPaywall(false)} />}
+
+      <EmojiPickerSheet
+        open={emojiPickerForId != null}
+        onClose={() => setEmojiPickerForId(null)}
+        currentEmoji={
+          emojiPickerForId != null
+            ? messageById.get(emojiPickerForId)?.reactions.find((r) => r.users.includes(name))?.emoji
+            : undefined
+        }
+        onSelect={(emoji) => {
+          if (emojiPickerForId != null) void toggleReaction(emojiPickerForId, emoji);
+          setEmojiPickerForId(null);
+        }}
+      />
     </motion.div>
   );
 }

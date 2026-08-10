@@ -6,7 +6,7 @@ import { CalendarCheck2, Plus, Send, X } from 'lucide-react';
 import { api } from '../../lib/api';
 import { qk } from '../../lib/queryKeys';
 import { useRealtimeEvent } from '../../context/UserContext';
-import { collapseVariants } from '../../lib/motion';
+import { backdropVariants, collapseVariants } from '../../lib/motion';
 import type { AppUser, MeetingTopic } from '../../lib/types';
 
 interface MeetingTopicMenuProps {
@@ -74,13 +74,22 @@ export default function MeetingTopicMenu({ currentUser, onPostTopic }: MeetingTo
       </button>
       <AnimatePresence>
         {open && (
-          <motion.div
-            variants={collapseVariants}
-            initial="hidden"
-            animate="show"
-            exit="exit"
-            className="elev-2 absolute right-0 top-11 z-30 w-72 max-w-[80vw] rounded-2xl border border-border bg-card p-3"
-          >
+          <>
+            <motion.div
+              variants={backdropVariants}
+              initial="hidden"
+              animate="show"
+              exit="exit"
+              className="fixed inset-0 z-30 bg-black/30"
+              onClick={() => setOpen(false)}
+            />
+            <motion.div
+              variants={collapseVariants}
+              initial="hidden"
+              animate="show"
+              exit="exit"
+              className="elev-2 absolute right-0 top-11 z-40 w-72 max-w-[80vw] rounded-2xl border border-border bg-card p-3"
+            >
             <div className="mb-2 flex items-center justify-between">
               <p className="font-display text-sm font-bold">{t('chat.meetingTopic.title')}</p>
               <button onClick={() => setOpen(false)} aria-label={t('common.close')} className="text-muted-foreground">
@@ -131,7 +140,8 @@ export default function MeetingTopicMenu({ currentUser, onPostTopic }: MeetingTo
                 <Plus className="h-4 w-4" />
               </button>
             </div>
-          </motion.div>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
     </div>

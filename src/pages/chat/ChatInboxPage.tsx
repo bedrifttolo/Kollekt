@@ -84,38 +84,40 @@ export default function ChatInboxPage() {
     <div className="space-y-1 pt-3 pb-6">
       <Eyebrow accent={PAGE_ACCENTS['/chat']}>{t('chat.inbox.eyebrow')}</Eyebrow>
       <h1 className="mb-2 font-display text-2xl font-extrabold">{t('chat.inbox.title')}</h1>
-      {threads.map((thread) => {
-        const unread = thread.lastMessageId != null && (getLastSeenMessageId(name, thread.thread) ?? -1) < thread.lastMessageId;
-        return (
-          <button
-            key={thread.thread ?? '__household__'}
-            onClick={() => openThread(thread)}
-            className="flex w-full items-center gap-3 rounded-2xl px-2 py-2.5 text-left transition-colors hover:bg-muted/40"
-          >
-            {thread.thread === null ? (
-              <AvatarStack members={members.length > 0 ? members : [{ name: thread.displayName }]} max={1} />
-            ) : thread.isSystem ? (
-              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-muted text-muted-foreground">
-                <Bot className="h-4 w-4" />
+      <div className="divide-y divide-border">
+        {threads.map((thread) => {
+          const unread = thread.lastMessageId != null && (getLastSeenMessageId(name, thread.thread) ?? -1) < thread.lastMessageId;
+          return (
+            <button
+              key={thread.thread ?? '__household__'}
+              onClick={() => openThread(thread)}
+              className="flex w-full items-center gap-3 rounded-2xl px-2 py-3.5 text-left transition-colors hover:bg-muted/40"
+            >
+              {thread.thread === null ? (
+                <AvatarStack members={members.length > 0 ? members : [{ name: thread.displayName }]} max={1} />
+              ) : thread.isSystem ? (
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-muted text-muted-foreground">
+                  <Bot className="h-4 w-4" />
+                </span>
+              ) : (
+                <Avatar name={thread.displayName} color={members.find((m) => m.name === thread.thread)?.color} />
+              )}
+              <span className="min-w-0 flex-1">
+                <span className="flex items-center gap-1.5">
+                  {unread && <span className="h-2 w-2 shrink-0 rounded-full bg-primary" aria-hidden="true" />}
+                  <span className={`truncate font-display text-sm ${unread ? 'font-extrabold' : 'font-bold'}`}>{thread.displayName}</span>
+                </span>
+                <span className={`block truncate text-xs ${unread ? 'font-semibold text-foreground' : 'text-muted-foreground'}`}>
+                  {thread.lastMessagePreview || t('chat.inbox.noMessages')}
+                </span>
               </span>
-            ) : (
-              <Avatar name={thread.displayName} color={members.find((m) => m.name === thread.thread)?.color} />
-            )}
-            <span className="min-w-0 flex-1">
-              <span className="flex items-center gap-1.5">
-                {unread && <span className="h-2 w-2 shrink-0 rounded-full bg-primary" aria-hidden="true" />}
-                <span className={`truncate font-display text-sm ${unread ? 'font-extrabold' : 'font-bold'}`}>{thread.displayName}</span>
-              </span>
-              <span className={`block truncate text-xs ${unread ? 'font-semibold text-foreground' : 'text-muted-foreground'}`}>
-                {thread.lastMessagePreview || t('chat.inbox.noMessages')}
-              </span>
-            </span>
-            {thread.lastMessageTimestamp && (
-              <span className="shrink-0 self-start pt-0.5 text-[10px] text-muted-foreground">{formatRowTimestamp(thread.lastMessageTimestamp)}</span>
-            )}
-          </button>
-        );
-      })}
+              {thread.lastMessageTimestamp && (
+                <span className="shrink-0 self-start pt-0.5 text-[10px] text-muted-foreground">{formatRowTimestamp(thread.lastMessageTimestamp)}</span>
+              )}
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }

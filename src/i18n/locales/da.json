@@ -632,7 +632,20 @@
       "celebrate": "Fejrer",
       "fire": "Ild",
       "sad": "Trist",
-      "dislike": "Synes ikke om"
+      "dislike": "Synes ikke om",
+      "exclaim": "Fremhæv",
+      "question": "Spørgsmål",
+      "wow": "Wow",
+      "pray": "Beder",
+      "hundred": "100"
+    },
+    "emojiPicker": {
+      "title": "Reaktioner",
+      "more": "Flere reaktioner",
+      "smileys": "Smileys",
+      "hearts": "Hjerter",
+      "hands": "Hænder",
+      "other": "Andet"
     },
     "background": {
       "label": "Baggrund",

@@ -632,7 +632,20 @@
       "celebrate": "Firar",
       "fire": "Eld",
       "sad": "Ledsen",
-      "dislike": "Ogilla"
+      "dislike": "Ogilla",
+      "exclaim": "Betona",
+      "question": "Fråga",
+      "wow": "Wow",
+      "pray": "Ber",
+      "hundred": "100"
+    },
+    "emojiPicker": {
+      "title": "Reaktioner",
+      "more": "Fler reaktioner",
+      "smileys": "Smileys",
+      "hearts": "Hjärtan",
+      "hands": "Händer",
+      "other": "Övrigt"
     },
     "background": {
       "label": "Bakgrund",

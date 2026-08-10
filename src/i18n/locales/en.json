@@ -632,7 +632,20 @@
       "celebrate": "Celebrate",
       "fire": "Fire",
       "sad": "Sad",
-      "dislike": "Dislike"
+      "dislike": "Dislike",
+      "exclaim": "Emphasize",
+      "question": "Question",
+      "wow": "Wow",
+      "pray": "Pray",
+      "hundred": "100"
+    },
+    "emojiPicker": {
+      "title": "Reactions",
+      "more": "More reactions",
+      "smileys": "Smileys",
+      "hearts": "Hearts",
+      "hands": "Hands",
+      "other": "Other"
     },
     "background": {
       "label": "Wallpaper",

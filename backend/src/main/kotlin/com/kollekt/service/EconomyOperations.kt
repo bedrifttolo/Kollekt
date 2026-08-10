@@ -614,6 +614,11 @@ class EconomyOperations(
         val memberSet = members.toSet()
 
         expenses.forEach { expense ->
+            // If the payer has since left the collective, there's no one left to credit — drop the
+            // whole expense rather than leaving the remaining participants permanently debited with
+            // no way to settle it. Symmetric with the departed-participant handling below.
+            if (expense.paidBy !in memberSet) return@forEach
+
             // Split over the expense's original participants, not the current member set, so a
             // later departure never retroactively shrinks the divisor and inflates the remaining
             // members' shares.
@@ -622,15 +627,13 @@ class EconomyOperations(
             val split = expense.amount.toDouble() / originalParticipants.size.toDouble()
 
             // Only apply legs to members still in the collective. A departed participant's debit
-            // (and the matching credit to whoever paid) is dropped entirely rather than
-            // reassigned, so their debt simply disappears instead of lingering forever.
+            // is dropped entirely rather than reassigned, so their debt simply disappears instead
+            // of lingering forever.
             originalParticipants.intersect(memberSet).forEach { member ->
                 val checkpoint = memberCheckpoints[member] ?: 0L
                 if (expense.id > checkpoint) {
                     perMember[member] = perMember.getValue(member) - split
-                    if (expense.paidBy in memberSet) {
-                        perMember[expense.paidBy] = perMember.getValue(expense.paidBy) + split
-                    }
+                    perMember[expense.paidBy] = perMember.getValue(expense.paidBy) + split
                 }
             }
         }

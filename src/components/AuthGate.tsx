@@ -11,17 +11,26 @@ import { useUser } from '../context/UserContext';
  * (keyboard-open class + tap-outside-a-field blur). Extracted out of AppLayout so a chrome-less
  * route gets the same guarantees without duplicating this logic.
  */
+// Module-scope, not component state: AppLayout and ChatThreadLayout each mount their own AuthGate
+// as sibling routes, so React Router unmounts/remounts AuthGate on every inbox<->thread
+// navigation. Component state would re-arm the splash on each of those; this flag survives across
+// remounts for the life of the JS session and only resets on a real cold launch/reload.
+let bootSplashShown = false;
+
 export default function AuthGate({ children }: { children: React.ReactNode }) {
   const { currentUser, isLoading } = useUser();
   const { t } = useTranslation();
 
-  // Holds the boot splash (logo + "Kollekt") on screen for a fixed branding beat on every cold
-  // launch, regardless of how fast the session restore below actually resolves. This component
-  // only mounts once per fresh JS context — native app backgrounding/resume doesn't remount it —
-  // so it naturally never re-fires on a plain tab switch back into the app.
-  const [minSplashElapsed, setMinSplashElapsed] = useState(false);
+  // Holds the boot splash (logo + "Kollekt") on screen for a fixed branding beat on the very first
+  // AuthGate mount of the session, regardless of how fast the session restore below actually
+  // resolves. Later mounts (e.g. navigating between the chat inbox and a thread) skip it entirely.
+  const [minSplashElapsed, setMinSplashElapsed] = useState(bootSplashShown);
   useEffect(() => {
-    const timer = window.setTimeout(() => setMinSplashElapsed(true), 1000);
+    if (bootSplashShown) return;
+    const timer = window.setTimeout(() => {
+      bootSplashShown = true;
+      setMinSplashElapsed(true);
+    }, 1000);
     return () => window.clearTimeout(timer);
   }, []);
 

@@ -1092,7 +1092,7 @@ export default function ProfilePage() {
                 }}
                 aria-label={t(`profile.accentTheme.${pack.id}`)}
                 aria-pressed={selected}
-                className={`relative h-8 w-8 rounded-full grid place-items-center ${selected ? "ring-2 ring-offset-2 ring-offset-card ring-ink" : ""}`}
+                className={`relative h-8 w-8 rounded-full border border-border grid place-items-center ${selected ? "ring-2 ring-offset-2 ring-offset-card ring-ink" : ""}`}
                 style={{ backgroundColor: pack.swatch }}
               >
                 {locked && <Lock className="h-3 w-3 text-white/90" />}

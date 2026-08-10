@@ -9,10 +9,12 @@ type ResolvedTheme = 'light' | 'dark';
 /** Premium accent packs. 'teal' is the free default — matches the app's existing --primary/--accent,
  *  so it needs no CSS override (see the [data-accent="..."] rules in globals.css for the other three).
  *  Only --primary/--accent shift per pack; --ink (CTA/FAB/nav-active) stays put on purpose, same
- *  reasoning as --ink's own comment in globals.css. */
+ *  reasoning as --ink's own comment in globals.css. Its swatch below is deliberately shown as a
+ *  neutral --card preview (white/black per theme) rather than the actual teal it applies, so the
+ *  picker reads as "standard/unaccented" next to the three real color choices. */
 export type AccentPack = 'teal' | 'rose' | 'ocean' | 'gold';
 export const ACCENT_PACKS: { id: AccentPack; swatch: string }[] = [
-  { id: 'teal', swatch: '#48b4a2' },
+  { id: 'teal', swatch: 'var(--card)' },
   { id: 'rose', swatch: '#d9668a' },
   { id: 'ocean', swatch: '#3f8fd9' },
   { id: 'gold', swatch: '#c8912b' },
