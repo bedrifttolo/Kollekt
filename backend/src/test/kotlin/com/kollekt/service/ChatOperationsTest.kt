@@ -349,7 +349,10 @@ class ChatOperationsTest {
     }
 
     @Test
-    fun `reactions are blocked on direct messages so they never broadcast`() {
+    fun `reactions on direct messages are blocked for non-participants so they never broadcast`() {
+        // Kasper (the recipient) may react — only a third party outside the pair should be denied,
+        // since allowing that would leak the DM's existence to the rest of the household.
+        whenever(currentMemberContext.current("Ola")).thenReturn(member("Ola", "ola@example.com"))
         whenever(chatMessageRepository.findById(60)).thenReturn(
             Optional.of(
                 ChatMessage(
@@ -365,7 +368,7 @@ class ChatOperationsTest {
 
         val error =
             assertThrows(IllegalArgumentException::class.java) {
-                operations.addReaction(60, "🔥", "Kasper")
+                operations.addReaction(60, "🔥", "Ola")
             }
 
         assertEquals("Message not found", error.message)

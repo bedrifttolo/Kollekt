@@ -28,6 +28,7 @@ class ChatOperations(
     private val collectiveAccessService: CollectiveAccessService,
 ) {
     private val objectMapper = jacksonObjectMapper()
+
     // Kept in sync with the frontend's curated emoji-picker list in ChatThreadPage.tsx /
     // EmojiPickerSheet.tsx — this is the full set the reaction picker can offer, grouped the same
     // way the picker groups its categories.
