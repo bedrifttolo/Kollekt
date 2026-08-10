@@ -8,6 +8,35 @@
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
         <string>Kollekt</string>
+	<!-- Premium alternate app icons (Profile > Appearance color theme), matching the accent packs
+	     in src/context/ThemeContext.tsx / src/styles/globals.css. Set via @capacitor-community/app-icon
+	     (src/lib/appIcon.ts), which calls UIApplication.setAlternateIconName with these dict keys. -->
+	<key>CFBundleIcons</key>
+	<dict>
+		<key>CFBundlePrimaryIcon</key>
+		<dict>
+			<key>CFBundleIconName</key>
+			<string>AppIcon</string>
+		</dict>
+		<key>CFBundleAlternateIcons</key>
+		<dict>
+			<key>AppIcon-Rose</key>
+			<dict>
+				<key>CFBundleIconName</key>
+				<string>AppIcon-Rose</string>
+			</dict>
+			<key>AppIcon-Ocean</key>
+			<dict>
+				<key>CFBundleIconName</key>
+				<string>AppIcon-Ocean</string>
+			</dict>
+			<key>AppIcon-Gold</key>
+			<dict>
+				<key>CFBundleIconName</key>
+				<string>AppIcon-Gold</string>
+			</dict>
+		</dict>
+	</dict>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>

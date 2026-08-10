@@ -1899,6 +1899,14 @@
       "darkLabel": "Mörk",
       "toggle": "Växla mellan ljust och mörkt utseende"
     },
+    "accentTheme": {
+      "title": "Färgtema",
+      "subtitle": "Premium accentfärger för ikoner och märken",
+      "teal": "Turkos",
+      "rose": "Rosa",
+      "ocean": "Blå",
+      "gold": "Guld"
+    },
     "status": {
       "title": "Status i kollektivet",
       "activeDescription": "Tas med när återkommande uppgifter fördelas.",
@@ -2012,23 +2020,6 @@
       "addressLabel": "Adress",
       "save": "Spara",
       "saveFailed": "Kunde inte spara hushållsinformation"
-    },
-    "washingPlan": {
-      "title": "Tvättplan",
-      "subtitle": "Vem har tvättansvar, och när",
-      "empty": "Ingen tvättplan än — lägg till den första.",
-      "add": "Lägg till",
-      "edit": "Redigera",
-      "remove": "Ta bort",
-      "addTitle": "Lägg till tvättplanspost",
-      "editTitle": "Redigera tvättplanspost",
-      "nameLabel": "Namn",
-      "namePlaceholder": "t.ex. Tvättstuga",
-      "assigneeLabel": "Tilldelad",
-      "dueDateLabel": "Nästa datum",
-      "recurrenceLabel": "Upprepas",
-      "save": "Spara",
-      "saveFailed": "Kunde inte spara tvättplansposten"
     },
     "houseRules": {
       "title": "Husregler",

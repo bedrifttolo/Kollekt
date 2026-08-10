@@ -1899,6 +1899,14 @@
       "darkLabel": "Dark",
       "toggle": "Toggle light or dark appearance"
     },
+    "accentTheme": {
+      "title": "Color theme",
+      "subtitle": "Premium accent colors for icons and badges",
+      "teal": "Teal",
+      "rose": "Rose",
+      "ocean": "Ocean",
+      "gold": "Gold"
+    },
     "status": {
       "title": "Household status",
       "activeDescription": "In the rotation for recurring tasks.",
@@ -2012,23 +2020,6 @@
       "addressLabel": "Address",
       "save": "Save",
       "saveFailed": "Couldn't save household details"
-    },
-    "washingPlan": {
-      "title": "Washing plan",
-      "subtitle": "Who's on laundry, and when",
-      "empty": "No laundry rotation yet — add the first entry.",
-      "add": "Add",
-      "edit": "Edit entry",
-      "remove": "Remove entry",
-      "addTitle": "Add washing plan entry",
-      "editTitle": "Edit washing plan entry",
-      "nameLabel": "Name",
-      "namePlaceholder": "e.g. Laundry room",
-      "assigneeLabel": "Assigned to",
-      "dueDateLabel": "Next date",
-      "recurrenceLabel": "Repeats",
-      "save": "Save",
-      "saveFailed": "Couldn't save the washing plan entry"
     },
     "houseRules": {
       "title": "House Rules",

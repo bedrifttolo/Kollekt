@@ -27,6 +27,71 @@
             </intent-filter>
         </activity>
 
+        <!-- Premium alternate app icons (Profile > Appearance color theme), matching the accent
+             packs in src/context/ThemeContext.tsx. @capacitor-community/app-icon (src/lib/appIcon.ts)
+             switches the active launcher icon by disabling MainActivity and enabling one of these
+             aliases instead (both target MainActivity's real code, so nothing else changes). Each
+             alias repeats MainActivity's full intent-filter set, including the Google Calendar
+             OAuth callback filter — otherwise that deep link would stop resolving whenever a
+             non-default icon is active, since a disabled component's filters are not matched. -->
+        <activity-alias
+            android:name=".RoseIcon"
+            android:label="@string/app_name"
+            android:icon="@mipmap/ic_launcher_rose"
+            android:roundIcon="@mipmap/ic_launcher_rose_round"
+            android:targetActivity=".MainActivity"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="@string/custom_url_scheme" android:host="google-calendar-connected" />
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name=".OceanIcon"
+            android:label="@string/app_name"
+            android:icon="@mipmap/ic_launcher_ocean"
+            android:roundIcon="@mipmap/ic_launcher_ocean_round"
+            android:targetActivity=".MainActivity"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="@string/custom_url_scheme" android:host="google-calendar-connected" />
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name=".GoldIcon"
+            android:label="@string/app_name"
+            android:icon="@mipmap/ic_launcher_gold"
+            android:roundIcon="@mipmap/ic_launcher_gold_round"
+            android:targetActivity=".MainActivity"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="@string/custom_url_scheme" android:host="google-calendar-connected" />
+            </intent-filter>
+        </activity-alias>
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"

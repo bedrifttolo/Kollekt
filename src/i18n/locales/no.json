@@ -1899,6 +1899,14 @@
       "darkLabel": "Mørk",
       "toggle": "Bytt mellom lyst og mørkt utseende"
     },
+    "accentTheme": {
+      "title": "Fargetema",
+      "subtitle": "Premium aksentfarger for ikoner og merker",
+      "teal": "Turkis",
+      "rose": "Rosa",
+      "ocean": "Blå",
+      "gold": "Gull"
+    },
     "status": {
       "title": "Status i kollektivet",
       "activeDescription": "Tas med når gjentakende oppgaver fordeles.",
@@ -2012,23 +2020,6 @@
       "addressLabel": "Adresse",
       "save": "Lagre",
       "saveFailed": "Kunne ikke lagre husstandsinformasjon"
-    },
-    "washingPlan": {
-      "title": "Vaskeplan",
-      "subtitle": "Hvem har vaskeansvar, og når",
-      "empty": "Ingen vaskeplan ennå — legg til den første.",
-      "add": "Legg til",
-      "edit": "Rediger",
-      "remove": "Fjern",
-      "addTitle": "Legg til vaskeplan-oppføring",
-      "editTitle": "Rediger vaskeplan-oppføring",
-      "nameLabel": "Navn",
-      "namePlaceholder": "f.eks. Vaskerom",
-      "assigneeLabel": "Tildelt",
-      "dueDateLabel": "Neste dato",
-      "recurrenceLabel": "Gjentas",
-      "save": "Lagre",
-      "saveFailed": "Kunne ikke lagre vaskeplan-oppføringen"
     },
     "houseRules": {
       "title": "Husregler",

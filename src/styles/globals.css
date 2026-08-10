@@ -211,6 +211,19 @@
   --cat-other: #8a9490;
 }
 
+/* Premium accent packs (Profile > Appearance). 'teal' is the free default and needs no rule here —
+   it already matches the tokens above. Each pack only swaps --primary/--accent/--ring; --ink (the
+   CTA/FAB/nav-active fill) is deliberately left alone, same reasoning as --ink's own comment above,
+   so a pack restyles icons/badges/rings without touching the app's one shared action colour.
+   The .dark[data-accent="…"] variants only need to re-tune --accent(-foreground): --primary is
+   already the same hex in both :root and .dark, exactly like the free teal default. */
+[data-accent="rose"] { --primary: #d9668a; --accent: #c14f83; --accent-foreground: #ffffff; --ring: #d9668a; }
+.dark[data-accent="rose"] { --accent: #e28fb3; --accent-foreground: #2c0f1e; }
+[data-accent="ocean"] { --primary: #3f8fd9; --accent: #2f6fe0; --accent-foreground: #ffffff; --ring: #3f8fd9; }
+.dark[data-accent="ocean"] { --accent: #7fb0f5; --accent-foreground: #0c2144; }
+[data-accent="gold"] { --primary: #c8912b; --accent: #b9781f; --accent-foreground: #ffffff; --ring: #c8912b; }
+.dark[data-accent="gold"] { --accent: #eab765; --accent-foreground: #2c1c02; }
+
 @theme inline {
   --color-background: var(--background); --color-foreground: var(--foreground);
   --color-card: var(--card); --color-card-foreground: var(--card-foreground);

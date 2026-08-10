@@ -6,16 +6,36 @@ export type Theme = 'system' | 'light' | 'dark';
 /** What actually gets painted — 'system' resolves to whichever of these matches the OS setting. */
 type ResolvedTheme = 'light' | 'dark';
 
+/** Premium accent packs. 'teal' is the free default — matches the app's existing --primary/--accent,
+ *  so it needs no CSS override (see the [data-accent="..."] rules in globals.css for the other three).
+ *  Only --primary/--accent shift per pack; --ink (CTA/FAB/nav-active) stays put on purpose, same
+ *  reasoning as --ink's own comment in globals.css. */
+export type AccentPack = 'teal' | 'rose' | 'ocean' | 'gold';
+export const ACCENT_PACKS: { id: AccentPack; swatch: string }[] = [
+  { id: 'teal', swatch: '#48b4a2' },
+  { id: 'rose', swatch: '#d9668a' },
+  { id: 'ocean', swatch: '#3f8fd9' },
+  { id: 'gold', swatch: '#c8912b' },
+];
+
 const ThemeContext = createContext<{
   theme: Theme;
   setTheme: (theme: Theme) => void;
   resolvedTheme: ResolvedTheme;
+  accent: AccentPack;
+  setAccent: (accent: AccentPack) => void;
 } | null>(null);
 
 function initialTheme(): Theme {
   const stored = localStorage.getItem('kollekt-theme');
   if (stored === 'system' || stored === 'light' || stored === 'dark') return stored;
   return 'system';
+}
+
+function initialAccent(): AccentPack {
+  const stored = localStorage.getItem('kollekt-accent');
+  if (stored === 'teal' || stored === 'rose' || stored === 'ocean' || stored === 'gold') return stored;
+  return 'teal';
 }
 
 function prefersDark(): boolean {
@@ -31,8 +51,14 @@ const THEME_SURFACE: Record<ResolvedTheme, string> = {
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<Theme>(initialTheme);
+  const [accent, setAccent] = useState<AccentPack>(initialAccent);
   // Only relevant while theme === 'system': re-renders on a live OS appearance change.
   const [systemIsDark, setSystemIsDark] = useState<boolean>(prefersDark);
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-accent', accent);
+    localStorage.setItem('kollekt-accent', accent);
+  }, [accent]);
 
   useEffect(() => {
     const mql = window.matchMedia('(prefers-color-scheme: dark)');
@@ -62,7 +88,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       .catch(() => {});
   }, [theme, resolvedTheme]);
 
-  const value = useMemo(() => ({ theme, setTheme, resolvedTheme }), [theme, resolvedTheme]);
+  const value = useMemo(
+    () => ({ theme, setTheme, resolvedTheme, accent, setAccent }),
+    [theme, resolvedTheme, accent],
+  );
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
 

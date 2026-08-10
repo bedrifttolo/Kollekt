@@ -22,8 +22,9 @@ import {
   AlertTriangle,
   Sparkles,
   Gem,
-  WashingMachine,
   Pencil,
+  Palette,
+  Lock,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -47,11 +48,11 @@ import type {
   HouseRules,
   QuietHours,
   Kudo,
-  Task,
   CollectiveDetails,
 } from "../lib/types";
-import { useTheme } from "../context/ThemeContext";
-import { AddSheet, Avatar, Eyebrow, Field } from "../components/ui-kit";
+import { useTheme, ACCENT_PACKS } from "../context/ThemeContext";
+import { applyAppIcon } from "../lib/appIcon";
+import { Eyebrow, Field } from "../components/ui-kit";
 import LanguageSwitcher from "../components/LanguageSwitcher";
 import { MEMBER_COLORS, colorForMember } from "../lib/memberColors";
 import { usePremiumEntitlement } from "../lib/purchases";
@@ -71,9 +72,6 @@ const STATUS_OPTIONS: { value: MemberStatus; dotClass: string }[] = [
   { value: "ACTIVE", dotClass: "bg-emerald-500" },
   { value: "AWAY", dotClass: "bg-amber-500" },
 ];
-
-const WASHING_RECURRENCE_OPTIONS = ["WEEKLY", "MONTHLY", "NONE"] as const;
-const WASHING_PLAN_XP = 10;
 
 // Mirrors ALL_NOTIFICATION_TYPES in NotificationService.kt so every notification the backend can
 // send is toggleable here. Keep the two lists in sync when adding a notification type.
@@ -107,7 +105,7 @@ const NOTIFICATION_TYPES = [
 export default function ProfilePage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { theme, setTheme, resolvedTheme } = useTheme();
+  const { theme, setTheme, resolvedTheme, accent, setAccent } = useTheme();
   const {
     currentUser,
     setCurrentUser,
@@ -191,13 +189,6 @@ export default function ProfilePage() {
   const [editingName, setEditingName] = useState(false);
   const [nameDraft, setNameDraft] = useState("");
   const [nameSaving, setNameSaving] = useState(false);
-  const [showWashingForm, setShowWashingForm] = useState(false);
-  const [editingWashingId, setEditingWashingId] = useState<number | null>(null);
-  const [washingTitle, setWashingTitle] = useState("");
-  const [washingAssignee, setWashingAssignee] = useState("");
-  const [washingDue, setWashingDue] = useState("");
-  const [washingRecurrence, setWashingRecurrence] = useState<string>("WEEKLY");
-  const [washingSaving, setWashingSaving] = useState(false);
 
   const name = currentUser?.name ?? "";
   const queryClient = useQueryClient();
@@ -344,16 +335,6 @@ export default function ProfilePage() {
     if (paymentHandlesQuery.data) setPaymentHandles(paymentHandlesQuery.data);
   }, [paymentHandlesQuery.data]);
 
-  // Washing Plan shows tasks tagged category=LAUNDRY. The onboarding "laundry" room suggestion
-  // is seeded as CLEANING (see CollectiveOperations.createOnboardingTasks), so it won't appear
-  // here until someone (re)creates it via this section or recategorizes it on the Tasks page.
-  const washingQuery = useQuery({
-    queryKey: qk.tasksList(name),
-    enabled: !!name,
-    queryFn: () => api.get<Task[]>(`/tasks?memberName=${encodeURIComponent(name)}`),
-  });
-  const washingTasks = (washingQuery.data ?? []).filter((task) => task.category === "LAUNDRY");
-
   useRealtimeEvent(
     (event) => {
       if (PROFILE_REFRESH_EVENTS.has(event.type)) void loadStatsAndAchievements();
@@ -362,11 +343,7 @@ export default function ProfilePage() {
       if (event.type === "MEMBER_UPDATED") void queryClient.invalidateQueries({ queryKey: qk.members(name) });
       if (event.type === "MEMBER_RENAMED") {
         void queryClient.invalidateQueries({ queryKey: qk.members(name) });
-        void queryClient.invalidateQueries({ queryKey: qk.tasksList(name) });
         void loadKudos();
-      }
-      if (["TASK_CREATED", "TASK_UPDATED", "TASK_DELETED"].includes(event.type)) {
-        void queryClient.invalidateQueries({ queryKey: qk.tasksList(name) });
       }
     },
     () => {
@@ -375,61 +352,6 @@ export default function ProfilePage() {
       void loadKudos();
     },
   );
-
-  const resetWashingForm = () => {
-    setWashingTitle("");
-    setWashingAssignee(name);
-    setWashingDue("");
-    setWashingRecurrence("WEEKLY");
-    setShowWashingForm(false);
-    setEditingWashingId(null);
-  };
-
-  const startEditWashing = (task: Task) => {
-    setShowWashingForm(false);
-    setEditingWashingId(task.id);
-    setWashingTitle(task.title);
-    setWashingAssignee(task.assignee);
-    setWashingDue(task.dueDate);
-    setWashingRecurrence(task.recurrenceRule ?? "NONE");
-  };
-
-  const saveWashingEntry = async () => {
-    if (!washingTitle.trim() || washingSaving) return;
-    setWashingSaving(true);
-    setFeedback(null);
-    const body = {
-      title: washingTitle.trim(),
-      assignee: washingAssignee || name,
-      dueDate: washingDue || new Date().toISOString().split("T")[0],
-      category: "LAUNDRY" as const,
-      xp: WASHING_PLAN_XP,
-      recurrenceRule: washingRecurrence === "NONE" ? null : washingRecurrence,
-    };
-    try {
-      if (editingWashingId) {
-        await api.patch(`/tasks/${editingWashingId}?memberName=${encodeURIComponent(name)}`, body);
-      } else {
-        await api.post("/tasks", body);
-      }
-      await queryClient.invalidateQueries({ queryKey: qk.tasksList(name) });
-      resetWashingForm();
-    } catch (error: unknown) {
-      setFeedback({ type: "error", text: getUserMessage(error, t("profile.washingPlan.saveFailed")) });
-    } finally {
-      setWashingSaving(false);
-    }
-  };
-
-  const deleteWashingEntry = async (taskId: number) => {
-    setFeedback(null);
-    try {
-      await api.delete(`/tasks/${taskId}?memberName=${encodeURIComponent(name)}`);
-      await queryClient.invalidateQueries({ queryKey: qk.tasksList(name) });
-    } catch (error: unknown) {
-      setFeedback({ type: "error", text: getUserMessage(error, t("profile.washingPlan.saveFailed")) });
-    }
-  };
 
   const saveHouseRules = async () => {
     if (!collectiveId || !rulesDraft.trim() || rulesSaving) return;
@@ -934,130 +856,6 @@ export default function ProfilePage() {
         </div>
       )}
 
-      <div className="card space-y-3">
-        <div className="flex items-center gap-3">
-          <div className="grid h-9 w-9 place-items-center rounded-xl bg-primary/20 dark:bg-accent/20">
-            <WashingMachine className="h-4 w-4 text-primary dark:text-accent" />
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold">{t("profile.washingPlan.title")}</p>
-            <p className="text-[10px] text-muted-foreground">{t("profile.washingPlan.subtitle")}</p>
-          </div>
-          <button
-            onClick={() => {
-              resetWashingForm();
-              setShowWashingForm(true);
-            }}
-            className="rounded-full border border-border px-3 py-1.5 text-xs font-bold"
-          >
-            {t("profile.washingPlan.add")}
-          </button>
-        </div>
-
-        {washingTasks.length > 0 ? (
-          <ul className="space-y-2">
-            {washingTasks.map((task) => (
-              <li key={task.id} className="flex items-center gap-3 rounded-xl bg-muted/30 px-3 py-2">
-                <Avatar name={task.assignee} color={householdMembers.find((m) => m.name === task.assignee)?.color} className="h-8 w-8 text-[11px]" />
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold">{task.title}</p>
-                  <p className="text-[10px] text-muted-foreground">
-                    {task.assignee} · {translateKey("common.recurrence", task.recurrenceRule ?? "NONE")}
-                  </p>
-                </div>
-                <button
-                  onClick={() => startEditWashing(task)}
-                  aria-label={t("profile.washingPlan.edit")}
-                  className="pressable-tight grid h-8 w-8 shrink-0 place-items-center rounded-full bg-muted"
-                >
-                  <Pencil className="h-3.5 w-3.5" />
-                </button>
-                <button
-                  onClick={() => void deleteWashingEntry(task.id)}
-                  aria-label={t("profile.washingPlan.remove")}
-                  className="pressable-tight grid h-8 w-8 shrink-0 place-items-center rounded-full bg-destructive/10"
-                >
-                  <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                </button>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          !showWashingForm && <p className="text-xs text-muted-foreground">{t("profile.washingPlan.empty")}</p>
-        )}
-
-        {(showWashingForm || editingWashingId) && (
-          <AddSheet
-            title={editingWashingId ? t("profile.washingPlan.editTitle") : t("profile.washingPlan.addTitle")}
-            onClose={resetWashingForm}
-          >
-            <label className="block space-y-1">
-              <span className="text-xs font-semibold text-muted-foreground">{t("profile.washingPlan.nameLabel")}</span>
-              <input
-                value={washingTitle}
-                onChange={(event) => setWashingTitle(event.target.value)}
-                placeholder={t("profile.washingPlan.namePlaceholder")}
-                className="w-full min-h-[var(--ctl-lg)] bg-muted/50 rounded-lg px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                autoFocus
-              />
-            </label>
-            <div className="space-y-1">
-              <span className="text-xs font-semibold text-muted-foreground">{t("profile.washingPlan.assigneeLabel")}</span>
-              <div className="flex flex-wrap gap-1.5">
-                {(householdMembers.length > 0 ? householdMembers.map((m) => m.name) : [name]).map((member) => (
-                  <button
-                    key={member}
-                    type="button"
-                    onClick={() => setWashingAssignee(member)}
-                    aria-pressed={washingAssignee === member}
-                    className={`flex min-h-11 items-center gap-1.5 rounded-full py-1 pl-1 pr-3 text-xs font-bold transition-colors ${
-                      washingAssignee === member ? "bg-ink text-ink-foreground" : "bg-muted/60 text-muted-foreground"
-                    }`}
-                  >
-                    <Avatar name={member} className="h-8 w-8 text-[11px]" />
-                    {member}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <label className="block space-y-1">
-              <span className="text-xs font-semibold text-muted-foreground">{t("profile.washingPlan.dueDateLabel")}</span>
-              <input
-                type="date"
-                value={washingDue}
-                onChange={(event) => setWashingDue(event.target.value)}
-                className="w-full min-h-[var(--ctl-lg)] bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
-              />
-            </label>
-            <label className="block space-y-1">
-              <span className="text-xs font-semibold text-muted-foreground">{t("profile.washingPlan.recurrenceLabel")}</span>
-              <select
-                value={washingRecurrence}
-                onChange={(event) => setWashingRecurrence(event.target.value)}
-                className="w-full min-h-[var(--ctl-lg)] bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
-              >
-                {WASHING_RECURRENCE_OPTIONS.map((recurrence) => (
-                  <option key={recurrence} value={recurrence}>
-                    {translateKey("common.recurrence", recurrence)}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <button
-              onClick={() => void saveWashingEntry()}
-              disabled={!washingTitle.trim() || washingSaving}
-              className="w-full gradient-primary rounded-lg py-2 text-sm font-semibold text-ink-foreground disabled:opacity-50"
-            >
-              {washingSaving
-                ? t("profile.loading.saving")
-                : editingWashingId
-                  ? t("profile.washingPlan.save")
-                  : t("profile.washingPlan.add")}
-            </button>
-          </AddSheet>
-        )}
-      </div>
-
       {houseRules && (
         <div className="card space-y-3">
           <div className="flex items-center gap-3">
@@ -1269,6 +1067,38 @@ export default function ProfilePage() {
               {t(`profile.appearance.${option}Label`)}
             </button>
           ))}
+        </div>
+      </div>
+
+      <div className="glass rounded-2xl p-4 flex items-center gap-3">
+        <div className="h-9 w-9 rounded-xl bg-primary/20 dark:bg-accent/20 flex items-center justify-center shrink-0">
+          <Palette className="h-4 w-4 text-primary dark:text-accent" />
+        </div>
+        <div className="flex-1">
+          <p className="text-sm font-semibold">{t("profile.accentTheme.title")}</p>
+          <p className="text-[10px] text-muted-foreground">{t("profile.accentTheme.subtitle")}</p>
+        </div>
+        <div className="flex items-center gap-2" role="group" aria-label={t("profile.accentTheme.title")}>
+          {ACCENT_PACKS.map((pack) => {
+            const locked = pack.id !== "teal" && !premiumUnlocked;
+            const selected = accent === pack.id;
+            return (
+              <button
+                key={pack.id}
+                onClick={() => {
+                  if (locked) { setShowPremiumPaywall(true); return; }
+                  setAccent(pack.id);
+                  void applyAppIcon(pack.id);
+                }}
+                aria-label={t(`profile.accentTheme.${pack.id}`)}
+                aria-pressed={selected}
+                className={`relative h-8 w-8 rounded-full grid place-items-center ${selected ? "ring-2 ring-offset-2 ring-offset-card ring-ink" : ""}`}
+                style={{ backgroundColor: pack.swatch }}
+              >
+                {locked && <Lock className="h-3 w-3 text-white/90" />}
+              </button>
+            );
+          })}
         </div>
       </div>
 
