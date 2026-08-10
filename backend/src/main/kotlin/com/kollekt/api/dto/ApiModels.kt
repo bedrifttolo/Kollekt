@@ -383,7 +383,8 @@ data class CreateMeetingTopicRequest(
 
 /** One row in the chat inbox: the household thread, or a housemate's DM thread. */
 data class ChatThreadSummaryDto(
-    val thread: String?, // null = household; otherwise the other party's name (may be a system pseudo-sender)
+    // null = household; otherwise the other party's name (may be a system pseudo-sender)
+    val thread: String?,
     val displayName: String,
     val isSystem: Boolean = false,
     val lastMessageId: Long? = null,
