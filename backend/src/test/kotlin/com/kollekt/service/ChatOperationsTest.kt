@@ -35,6 +35,7 @@ class ChatOperationsTest {
     private lateinit var notificationService: NotificationService
     private lateinit var collectiveAccessService: CollectiveAccessService
     private lateinit var currentMemberContext: CurrentMemberContext
+    private lateinit var imageSafetyService: ImageSafetyService
     private lateinit var operations: ChatOperations
 
     @BeforeEach
@@ -45,6 +46,7 @@ class ChatOperationsTest {
         realtimeUpdateService = mock()
         notificationService = mock()
         currentMemberContext = mock()
+        imageSafetyService = mock()
         collectiveAccessService = CollectiveAccessService(currentMemberContext, collectiveRepository)
         operations =
             ChatOperations(
@@ -53,6 +55,7 @@ class ChatOperationsTest {
                 realtimeUpdateService,
                 notificationService,
                 collectiveAccessService,
+                imageSafetyService,
             )
         whenever(currentMemberContext.current("Kasper")).thenReturn(member("Kasper", "kasper@example.com"))
     }
@@ -80,6 +83,18 @@ class ChatOperationsTest {
 
         assertEquals("Finished", result.text)
         assertEquals(Base64.getEncoder().encodeToString("img".toByteArray()), result.imageData)
+    }
+
+    @Test
+    fun `create image message rejects an image flagged by moderation and never persists it`() {
+        val image = MockMultipartFile("image", "flagged.png", "image/png", "img".toByteArray())
+        whenever(imageSafetyService.validateAndModerate(any(), any())).thenThrow(ImageRejectedException())
+
+        assertThrows(ImageRejectedException::class.java) {
+            operations.createImageMessage(image, null, "Kasper")
+        }
+
+        verify(chatMessageRepository, never()).save(any<ChatMessage>())
     }
 
     @Test

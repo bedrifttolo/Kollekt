@@ -24,3 +24,7 @@ app:
     refresh-token-validity-seconds: 1209600
   cors:
     allowed-origins: http://localhost:5173
+  moderation:
+    # Full-context tests have no Vision API key and shouldn't make network calls; unit tests for
+    # moderation itself (ImageSafetyServiceTest) mock ImageModerationGateway directly instead.
+    enabled: false

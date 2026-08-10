@@ -84,14 +84,14 @@ export default function ChatInboxPage() {
     <div className="space-y-1 pt-3 pb-6">
       <Eyebrow accent={PAGE_ACCENTS['/chat']}>{t('chat.inbox.eyebrow')}</Eyebrow>
       <h1 className="mb-2 font-display text-2xl font-extrabold">{t('chat.inbox.title')}</h1>
-      <div className="divide-y divide-border">
+      <div>
         {threads.map((thread) => {
           const unread = thread.lastMessageId != null && (getLastSeenMessageId(name, thread.thread) ?? -1) < thread.lastMessageId;
           return (
             <button
               key={thread.thread ?? '__household__'}
               onClick={() => openThread(thread)}
-              className="flex w-full items-center gap-3 rounded-2xl px-2 py-3.5 text-left transition-colors hover:bg-muted/40"
+              className="flex w-full items-center gap-3 border-b border-border px-2 py-3.5 text-left transition-colors hover:bg-muted/40"
             >
               {thread.thread === null ? (
                 <AvatarStack members={members.length > 0 ? members : [{ name: thread.displayName }]} max={1} />

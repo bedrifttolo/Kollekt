@@ -26,6 +26,7 @@ class ChatOperations(
     private val realtimeUpdateService: RealtimeUpdateService,
     private val notificationService: NotificationService,
     private val collectiveAccessService: CollectiveAccessService,
+    private val imageSafetyService: ImageSafetyService,
 ) {
     private val objectMapper = jacksonObjectMapper()
 
@@ -48,7 +49,6 @@ class ChatOperations(
             "🎉", "🔥", "✅", "❌", "⭐", "💀", "🤷", "🍕", "☕", "🎂",
             "‼️", "❓",
         )
-    private val maxChatImageBytes = 5 * 1024 * 1024L
 
     fun getMessages(memberName: String): List<MessageDto> {
         val collectiveCode = collectiveAccessService.requireCollectiveCodeByMemberName(memberName)
@@ -251,8 +251,7 @@ class ChatOperations(
                 ?.trim()
                 .orEmpty()
                 .lowercase()
-        require(contentType.startsWith("image/")) { "Only image uploads are supported" }
-        require(image.size <= maxChatImageBytes) { "Image is too large (max 5 MB)" }
+        imageSafetyService.validateAndModerate(image.bytes, contentType)
 
         val collectiveCode = collectiveAccessService.requireCollectiveCodeByMemberName(actorName)
         val normalizedCaption = caption?.trim().orEmpty()

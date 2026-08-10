@@ -101,3 +101,11 @@ app:
     # settings > Service accounts > Generate new private key). Same base64 convention as
     # APNS_AUTH_KEY_BASE64, for the same env-var-pipeline-safety reason.
     credentials-base64: ${FCM_CREDENTIALS_BASE64:}
+  moderation:
+    # Every image upload (chat images, task feedback/completion photos) is checked against Google
+    # Cloud Vision SafeSearch before it's stored. Unlike the push gateways above, this fails
+    # CLOSED: a blank GOOGLE_CLOUD_VISION_API_KEY means every image upload is rejected, not
+    # silently allowed. Set APP_MODERATION_ENABLED=false only for local development if you don't
+    # want to configure a Vision API key yet — never set it false in production.
+    enabled: ${APP_MODERATION_ENABLED:true}
+    google-vision-api-key: ${GOOGLE_CLOUD_VISION_API_KEY:}

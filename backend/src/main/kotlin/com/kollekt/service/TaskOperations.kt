@@ -30,6 +30,7 @@ class TaskOperations(
     private val notificationService: NotificationService,
     private val collectiveAccessService: CollectiveAccessService,
     private val taskHistoryRepository: TaskHistoryRepository,
+    private val imageSafetyService: ImageSafetyService,
 ) {
     private companion object {
         const val XP_PER_LEVEL = 200
@@ -188,6 +189,10 @@ class TaskOperations(
             taskRepository.findByIdAndCollectiveCodeForUpdate(taskId, collectiveCode)
                 ?: throw IllegalArgumentException("Task $taskId not found")
 
+        if (imageData != null) {
+            imageSafetyService.validateAndModerateBase64(imageData, imageMimeType.orEmpty())
+        }
+
         taskFeedbackRepository.save(
             TaskFeedback(
                 taskId = taskId,
@@ -301,6 +306,10 @@ class TaskOperations(
         val task =
             taskRepository.findByIdAndCollectiveCodeForUpdate(taskId, collectiveCode)
                 ?: throw IllegalArgumentException("Task $taskId not found")
+
+        if (completionImageData != null) {
+            imageSafetyService.validateAndModerateBase64(completionImageData, completionImageMime.orEmpty())
+        }
 
         val completionXp = calculateCompletionAwardXp(task)
         val awardedXp = if (!task.completed && !task.xpAwarded) completionXp else 0

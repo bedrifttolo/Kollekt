@@ -39,6 +39,7 @@ class TaskOperationsTest {
     private lateinit var currentMemberContext: CurrentMemberContext
     private lateinit var taskFeedbackRepository: TaskFeedbackRepository
     private lateinit var taskHistoryRepository: TaskHistoryRepository
+    private lateinit var imageSafetyService: ImageSafetyService
     private lateinit var operations: TaskOperations
 
     @BeforeEach
@@ -51,6 +52,7 @@ class TaskOperationsTest {
         taskFeedbackRepository = mock()
         taskHistoryRepository = mock()
         currentMemberContext = mock()
+        imageSafetyService = mock()
         collectiveAccessService = CollectiveAccessService(currentMemberContext, collectiveRepository)
         operations =
             TaskOperations(
@@ -61,6 +63,7 @@ class TaskOperationsTest {
                 notificationService = notificationService,
                 collectiveAccessService = collectiveAccessService,
                 taskHistoryRepository = taskHistoryRepository,
+                imageSafetyService = imageSafetyService,
             )
         whenever(currentMemberContext.current("Kasper")).thenReturn(member("Kasper", "kasper@example.com"))
     }
@@ -1009,6 +1012,51 @@ class TaskOperationsTest {
         )
 
         assertThrows<IllegalArgumentException> { operations.nudgeTask(22, "Kasper") }
+    }
+
+    @Test
+    fun `give task feedback rejects an image flagged by moderation and never persists it`() {
+        whenever(taskRepository.findByIdAndCollectiveCodeForUpdate(15, "ABC123")).thenReturn(
+            TaskItem(
+                id = 15,
+                title = "Bad",
+                assignee = "Kasper",
+                collectiveCode = "ABC123",
+                dueDate = LocalDate.parse("2026-04-20"),
+                category = TaskCategory.CLEANING,
+            ),
+        )
+        whenever(imageSafetyService.validateAndModerateBase64(any(), any())).thenThrow(ImageRejectedException())
+
+        assertThrows<ImageRejectedException> {
+            operations.giveTaskFeedback(15, "Kasper", "Bra jobbet", false, "BASE64DATA", "image/png")
+        }
+
+        verify(taskFeedbackRepository, org.mockito.kotlin.never()).save(any<TaskFeedback>())
+    }
+
+    @Test
+    fun `toggle task with a completion photo flagged by moderation is rejected and not saved`() {
+        whenever(taskRepository.findByIdAndCollectiveCodeForUpdate(31, "ABC123")).thenReturn(
+            TaskItem(
+                id = 31,
+                title = "Bathroom",
+                assignee = "Kasper",
+                collectiveCode = "ABC123",
+                dueDate = LocalDate.now(),
+                category = TaskCategory.OTHER,
+                completed = false,
+                xpAwarded = false,
+                xp = 10,
+            ),
+        )
+        whenever(imageSafetyService.validateAndModerateBase64(any(), any())).thenThrow(ImageRejectedException())
+
+        assertThrows<ImageRejectedException> {
+            operations.toggleTask(31, "Kasper", "BASE64DATA", "image/png")
+        }
+
+        verify(taskRepository, org.mockito.kotlin.never()).save(any<TaskItem>())
     }
 
     @Test

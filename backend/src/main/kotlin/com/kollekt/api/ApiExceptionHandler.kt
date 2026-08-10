@@ -1,5 +1,7 @@
 package com.kollekt.api
 
+import com.kollekt.service.ImageModerationUnavailableException
+import com.kollekt.service.ImageRejectedException
 import com.kollekt.service.InvalidRefreshTokenException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -24,6 +26,18 @@ class ApiExceptionHandler {
         ResponseEntity
             .status(HttpStatus.FORBIDDEN)
             .body(mapOf("error" to (ex.message ?: "Forbidden")))
+
+    @ExceptionHandler(ImageRejectedException::class)
+    fun handleImageRejected(ex: ImageRejectedException): ResponseEntity<Map<String, String>> =
+        ResponseEntity
+            .status(HttpStatus.UNPROCESSABLE_ENTITY)
+            .body(mapOf("error" to (ex.message ?: "This photo can't be shared.")))
+
+    @ExceptionHandler(ImageModerationUnavailableException::class)
+    fun handleImageModerationUnavailable(ex: ImageModerationUnavailableException): ResponseEntity<Map<String, String>> =
+        ResponseEntity
+            .status(HttpStatus.SERVICE_UNAVAILABLE)
+            .body(mapOf("error" to (ex.message ?: "Couldn't check this photo right now. Please try again.")))
 
     @ExceptionHandler(IllegalArgumentException::class)
     fun handleIllegalArgument(ex: IllegalArgumentException): ResponseEntity<Map<String, String>> =

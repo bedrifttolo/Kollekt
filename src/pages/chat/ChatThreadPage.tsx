@@ -103,6 +103,30 @@ function starterGifDataUrl({ paths, bg, fg }: (typeof STARTER_GIFS)[number]) {
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 }
 
+/** The backend's image-moderation check only classifies raster photo formats, so a sticker sent
+ *  as a chat "image" must be rasterized first — sending it as `image/svg+xml` would either be
+ *  rejected outright or (worse) carve out an SVG exemption that could smuggle an embedded raster
+ *  image past moderation. */
+async function starterGifPngFile(gif: (typeof STARTER_GIFS)[number]): Promise<File> {
+  const img = new Image();
+  const loaded = new Promise<void>((resolve, reject) => {
+    img.onload = () => resolve();
+    img.onerror = () => reject(new Error('Failed to render sticker'));
+  });
+  img.src = starterGifDataUrl(gif);
+  await loaded;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = 320;
+  canvas.height = 220;
+  const ctx = canvas.getContext('2d');
+  ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+  const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/png'));
+  if (!blob) throw new Error('Failed to render sticker');
+  return new File([blob], `${gif.id}.png`, { type: 'image/png' });
+}
+
 interface PopoverAnchor {
   top: number;
   bottom: number;
@@ -659,9 +683,7 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
   };
 
   const sendStarterGif = async (gif: (typeof STARTER_GIFS)[number]) => {
-    const response = await fetch(starterGifDataUrl(gif));
-    const blob = await response.blob();
-    const file = new File([blob], `${gif.id}.svg`, { type: 'image/svg+xml' });
+    const file = await starterGifPngFile(gif);
     setShowGifPicker(false);
     await sendImage(file);
   };
@@ -810,14 +832,14 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
       )}
 
       <div
-        className={`relative z-10 safe-top -mx-4 -mt-2 border-b border-border sm:-mx-6 ${
+        className={`relative z-20 safe-top -mx-4 -mt-2 border-b border-border sm:-mx-6 ${
           background ? 'glass' : `tone-tile tone-${PAGE_ACCENTS['/chat']}`
         }`}
       >
         {/* Stronger scrim than the message list gets — header text doesn't have a bubble
             background behind it to help with contrast. */}
         {background && <div className="pointer-events-none absolute inset-0 bg-background/70" aria-hidden="true" />}
-        <div className="relative flex items-center gap-2 px-4 py-2.5 sm:px-6">
+        <div className="relative flex items-center gap-2 px-5 py-2.5 sm:px-7">
           <button
             onClick={() => navigate('/chat')}
             className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-muted/60 text-muted-foreground"
