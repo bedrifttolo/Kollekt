@@ -122,6 +122,22 @@ class ChatOperations(
         lastMessageTimestamp = last?.timestamp,
     )
 
+    // Household messages broadcast to the whole collective, same as before. DM messages only ever
+    // reach their two participants — the payload is the full MessageDto (including `text`), so a
+    // collective-wide publish would leak a private message's contents to every household member.
+    private fun publishMessageUpdate(
+        collectiveCode: String,
+        message: ChatMessage,
+        eventType: String,
+        dto: MessageDto,
+    ) {
+        if (message.recipient == null) {
+            realtimeUpdateService.publish(collectiveCode, eventType, dto)
+        } else {
+            realtimeUpdateService.publishToMembers(collectiveCode, setOf(message.sender, message.recipient), eventType, dto)
+        }
+    }
+
     private fun previewOf(message: ChatMessage): String =
         when {
             message.text.isNotBlank() -> if (message.text.length > 60) message.text.take(60) + "..." else message.text
@@ -134,6 +150,7 @@ class ChatOperations(
         recipient: String,
         text: String,
         actorName: String,
+        replyToMessageId: Long? = null,
     ): MessageDto {
         val collectiveCode = collectiveAccessService.requireCollectiveCodeByMemberName(actorName)
         val normalizedText = text.trim()
@@ -150,6 +167,7 @@ class ChatOperations(
                     collectiveCode = collectiveCode,
                     recipient = recipientMember.name,
                     text = normalizedText,
+                    replyToMessageId = replyToMessageId,
                     timestamp = LocalDateTime.now(),
                 ),
             )
@@ -261,7 +279,12 @@ class ChatOperations(
 
         val collectiveCode = collectiveAccessService.requireCollectiveCodeByMemberName(actorName)
         require(message.collectiveCode == collectiveCode) { "Message not found" }
-        require(message.recipient == null) { "Message not found" }
+        // Household messages: any collective member may react. DM messages: only the two
+        // participants — a third household member reacting to someone else's private message
+        // would leak that the message exists at all.
+        if (message.recipient != null) {
+            require(message.sender == actorName || message.recipient == actorName) { "Message not found" }
+        }
 
         val reactions =
             message
@@ -281,7 +304,7 @@ class ChatOperations(
             )
 
         val dto = updated.toDto()
-        realtimeUpdateService.publish(collectiveCode, "MESSAGE_REACTION_UPDATED", dto)
+        publishMessageUpdate(collectiveCode, updated, "MESSAGE_REACTION_UPDATED", dto)
         return dto
     }
 
@@ -300,7 +323,9 @@ class ChatOperations(
 
         val collectiveCode = collectiveAccessService.requireCollectiveCodeByMemberName(actorName)
         require(message.collectiveCode == collectiveCode) { "Message not found" }
-        require(message.recipient == null) { "Message not found" }
+        if (message.recipient != null) {
+            require(message.sender == actorName || message.recipient == actorName) { "Message not found" }
+        }
 
         val reactions = message.reactionMap().toMutableMap()
         val users = reactions[emoji]?.toMutableSet() ?: mutableSetOf()
@@ -318,7 +343,7 @@ class ChatOperations(
             )
 
         val dto = updated.toDto()
-        realtimeUpdateService.publish(collectiveCode, "MESSAGE_REACTION_UPDATED", dto)
+        publishMessageUpdate(collectiveCode, updated, "MESSAGE_REACTION_UPDATED", dto)
         return dto
     }
 

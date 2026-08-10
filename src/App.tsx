@@ -4,6 +4,7 @@ import { MotionConfig } from 'framer-motion';
 import { UserProvider, useUser } from './context/UserContext';
 import AppLayout from './components/AppLayout';
 import ChatThreadLayout from './components/ChatThreadLayout';
+import UpdateOverlay from './components/UpdateOverlay';
 import { LoadingDot } from './components/ui-kit';
 
 // Route-level code splitting: each page loads as its own chunk so the initial
@@ -111,6 +112,7 @@ export default function App() {
       <BrowserRouter>
         <UserProvider>
           <AppRoutes />
+          <UpdateOverlay />
         </UserProvider>
       </BrowserRouter>
     </MotionConfig>

@@ -83,7 +83,7 @@ export default function AppHeader() {
                 {currentUser.name[0].toUpperCase()}
               </span>
             ) : (
-              <User className="h-4 w-4 text-muted-foreground" />
+              <User className="h-4 w-4 text-primary-foreground" />
             )}
           </button>
         </div>

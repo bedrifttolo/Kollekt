@@ -4,6 +4,12 @@
     "tagline": "Kollektivliv, forenklet",
     "logoAlt": "Kollekt-logo"
   },
+  "appUpdate": {
+    "title": "Oppdatering tilgjengelig",
+    "body": "En nyere versjon av Kollekt er klar. Oppdater nå for de nyeste rettelsene og funksjonene.",
+    "wait": "Vent",
+    "update": "Oppdater"
+  },
   "tour": {
     "skip": "Hopp over",
     "next": "Neste",
@@ -606,8 +612,9 @@
     "addOption": "+ Legg til alternativ",
     "sendPoll": "Send avstemning",
     "messagePlaceholder": "Skriv en melding...",
-    "reactToMessage": "Reager på melding",
-    "replyToMessage": "Svar på melding",
+    "replyToMessage": "Svar",
+    "copyMessage": "Kopier",
+    "copied": "Kopiert",
     "replyingTo": "Svarer til {{name}}",
     "cancelReply": "Avbryt",
     "sendImage": "Send bilde",

@@ -70,6 +70,15 @@ app:
     # exempt (see AuthRateLimitFilter) — it is an authenticated client keeping a live session,
     # and throttling it reads to the user as being logged out.
     auth-rate-limit-per-minute: ${APP_SECURITY_AUTH_RATE_LIMIT_PER_MINUTE:10}
+  version:
+    # This must track what's actually LIVE on the App Store, not the Xcode project's
+    # MARKETING_VERSION — a build can sit in review for days ahead of that. Bump
+    # APP_VERSION_LATEST_IOS (no code deploy needed) only once Apple approves a new version and
+    # it's live, to trigger the "update available" overlay on older installs. Bumping it early
+    # (while the new build is still in review) would send users to an App Store page that
+    # doesn't have it yet.
+    latest-ios: ${APP_VERSION_LATEST_IOS:1.0}
+    ios-store-url: ${APP_VERSION_IOS_STORE_URL:https://apps.apple.com/no/app/kollekt/id6788522377?l=nb}
   google:
     client-id: ${GOOGLE_CLIENT_ID:}
     client-secret: ${GOOGLE_CLIENT_SECRET:}

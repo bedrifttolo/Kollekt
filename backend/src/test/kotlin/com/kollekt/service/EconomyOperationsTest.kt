@@ -362,6 +362,69 @@ class EconomyOperationsTest {
     }
 
     @Test
+    fun `getBalances drops a departed member's debt and does not inflate remaining members' shares`() {
+        whenever(memberRepository.findAllByCollectiveCode("ABC123")).thenReturn(
+            listOf(member("Kasper", "kasper@example.com"), member("Emma", "emma@example.com", id = 2)),
+        )
+        whenever(expenseRepository.findAllByCollectiveCode("ABC123")).thenReturn(
+            listOf(
+                Expense(
+                    id = 1,
+                    description = "Groceries",
+                    amount = 300,
+                    paidBy = "Kasper",
+                    collectiveCode = "ABC123",
+                    category = "Food",
+                    date = LocalDate.parse("2026-03-01"),
+                    participantNames = setOf("Kasper", "Emma", "Ola"),
+                ),
+            ),
+        )
+        whenever(settlementCheckpointRepository.findTopByCollectiveCodeAndSettledByOrderByIdDesc(any(), any()))
+            .thenReturn(null)
+        whenever(personalSettlementRepository.findAllByCollectiveCode("ABC123")).thenReturn(emptyList())
+
+        val result = operations.getBalances("Kasper")
+
+        assertEquals(2, result.size)
+        assertTrue(result.none { it.name == "Ola" })
+        assertEquals(100, result.find { it.name == "Kasper" }!!.amount)
+        assertEquals(-100, result.find { it.name == "Emma" }!!.amount)
+    }
+
+    @Test
+    fun `getBalances drops a personal settlement leg where one side has left`() {
+        whenever(memberRepository.findAllByCollectiveCode("ABC123")).thenReturn(
+            listOf(member("Kasper", "kasper@example.com"), member("Emma", "emma@example.com", id = 2)),
+        )
+        whenever(expenseRepository.findAllByCollectiveCode("ABC123")).thenReturn(
+            listOf(
+                Expense(
+                    id = 1,
+                    description = "Groceries",
+                    amount = 200,
+                    paidBy = "Kasper",
+                    collectiveCode = "ABC123",
+                    category = "Food",
+                    date = LocalDate.parse("2026-03-01"),
+                    participantNames = setOf("Kasper", "Emma"),
+                ),
+            ),
+        )
+        whenever(settlementCheckpointRepository.findTopByCollectiveCodeAndSettledByOrderByIdDesc(any(), any()))
+            .thenReturn(null)
+        whenever(personalSettlementRepository.findAllByCollectiveCode("ABC123")).thenReturn(
+            listOf(PersonalSettlement(id = 1, collectiveCode = "ABC123", paidBy = "Ola", paidTo = "Kasper", amount = 100)),
+        )
+
+        val result = operations.getBalances("Kasper")
+
+        assertTrue(result.none { it.name == "Ola" })
+        assertEquals(100, result.find { it.name == "Kasper" }!!.amount)
+        assertEquals(-100, result.find { it.name == "Emma" }!!.amount)
+    }
+
+    @Test
     fun `delete expense removes it and publishes event`() {
         val expense =
             Expense(
@@ -632,6 +695,35 @@ class EconomyOperationsTest {
 
         assertEquals(1, result.size)
         assertEquals("Kasper", result[0].name)
+        assertEquals(100, result[0].amount)
+    }
+
+    @Test
+    fun `getPayOptions preserves original split when the other participant left`() {
+        whenever(memberRepository.findAllByCollectiveCode("ABC123")).thenReturn(
+            listOf(member("Kasper", "kasper@example.com"), member("Emma", "emma@example.com", id = 2)),
+        )
+        whenever(expenseRepository.findAllByCollectiveCode("ABC123")).thenReturn(
+            listOf(
+                Expense(
+                    id = 1,
+                    description = "Dinner",
+                    amount = 300,
+                    paidBy = "Emma",
+                    collectiveCode = "ABC123",
+                    category = "Food",
+                    date = LocalDate.parse("2026-03-01"),
+                    participantNames = setOf("Kasper", "Emma", "Ola"),
+                ),
+            ),
+        )
+        whenever(settlementCheckpointRepository.findTopByCollectiveCodeAndSettledByOrderByIdDesc(any(), any())).thenReturn(null)
+        whenever(personalSettlementRepository.findAllByCollectiveCode("ABC123")).thenReturn(emptyList())
+
+        val result = operations.getPayOptions("Kasper")
+
+        assertEquals(1, result.size)
+        assertEquals("Emma", result[0].name)
         assertEquals(100, result[0].amount)
     }
 

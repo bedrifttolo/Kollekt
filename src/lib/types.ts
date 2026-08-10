@@ -510,3 +510,8 @@ export interface Promotion {
   ctaLabel?: string | null;
   ctaUrl?: string | null;
 }
+
+export interface AppVersionInfo {
+  latestIosVersion: string;
+  iosStoreUrl: string;
+}

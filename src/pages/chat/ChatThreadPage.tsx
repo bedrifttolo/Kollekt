@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ArrowUp, Image as ImageIcon, BarChart3, X, Smile, Reply, HeartHandshake, ChevronDown, WashingMachine, Film, Lock, Plus, ThumbsUp, ThumbsDown, Heart, Laugh, PartyPopper, Flame, Frown, MessageCircle, Wallpaper, Pin, PinOff, type LucideIcon } from 'lucide-react';
+import { ArrowLeft, ArrowUp, Image as ImageIcon, BarChart3, Check, Copy, X, Reply, HeartHandshake, ChevronDown, WashingMachine, Film, Lock, Plus, ThumbsUp, ThumbsDown, Heart, Laugh, PartyPopper, Flame, Frown, MessageCircle, Wallpaper, Pin, PinOff, type LucideIcon } from 'lucide-react';
 
 type LaundryType = 'WHITES' | 'COLORS' | 'DELICATES' | 'WOOL' | 'SPORTS' | 'TOWELS';
 const LAUNDRY_TYPES: LaundryType[] = ['WHITES', 'COLORS', 'DELICATES', 'WOOL', 'SPORTS', 'TOWELS'];
@@ -32,7 +32,7 @@ type LocalChatMessage = ChatMessage & { status?: 'sending' | 'failed' };
 
 const KUDO_TYPES: KudoType[] = ['THANK_YOU', 'CLEANEST', 'MOST_HELPFUL', 'PEACEMAKER'];
 import { AddSheet, AvatarStack } from '../../components/ui-kit';
-import { collapseVariants, popIn, pressable, springPop, useReducedMotion } from '../../lib/motion';
+import { backdropVariants, collapseVariants, dialogVariants, popIn, pressable, springPop, useReducedMotion } from '../../lib/motion';
 import { colorForMember } from '../../lib/memberColors';
 import { PAGE_ACCENTS } from '../../lib/pageAccent';
 
@@ -88,6 +88,45 @@ function starterGifDataUrl({ paths, bg, fg }: (typeof STARTER_GIFS)[number]) {
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 }
 
+interface PopoverAnchor {
+  top: number;
+  bottom: number;
+  left: number;
+  right: number;
+}
+
+/** Where to put the message action popover so it always fits on screen: hugs the bubble's own
+ *  side (own messages hug the right edge, others the left, matching iOS), prefers sitting above
+ *  the bubble, and falls back below it when there isn't enough headroom under the header.
+ *  `estimatedHeight` is exact, not a guess — every row in the popover is a fixed 44px (`min-h-11`). */
+function computePopoverPlacement(anchor: PopoverAnchor, isSelf: boolean, actionRowCount: number) {
+  const margin = 16;
+  const width = Math.min(280, window.innerWidth - margin * 2);
+  let left = isSelf ? anchor.right - width : anchor.left;
+  left = Math.max(margin, Math.min(left, window.innerWidth - width - margin));
+
+  const reactionStripHeight = 52;
+  const gap = 8;
+  const rowHeight = 44;
+  const cardPadding = 8;
+  const estimatedHeight = reactionStripHeight + gap + actionRowCount * rowHeight + cardPadding;
+
+  // Rough clearance for the header above and the composer/safe-area below — exact heights vary
+  // (composer grows with text, header collapses its check-in card), so these are deliberately
+  // generous rather than pixel-exact.
+  const headerClearance = 84;
+  const composerClearance = 96;
+  const spaceAbove = anchor.top - headerClearance;
+  const spaceBelow = window.innerHeight - anchor.bottom - composerClearance;
+
+  const top =
+    spaceAbove >= estimatedHeight || spaceAbove >= spaceBelow
+      ? Math.max(headerClearance, anchor.top - gap - estimatedHeight)
+      : Math.min(window.innerHeight - composerClearance - estimatedHeight, anchor.bottom + gap);
+
+  return { top, left, width };
+}
+
 interface ChatThreadPageProps {
   /** Pass `null` to fix this mount to the household thread (the /chat/household route). Left
    *  undefined on the DM route, where the thread comes from the :memberName param instead. */
@@ -128,8 +167,9 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
   const [kudosTaskId, setKudosTaskId] = useState('');
   const [pollQuestion, setPollQuestion] = useState('');
   const [pollOptions, setPollOptions] = useState(['', '']);
-  const [expandedReactionId, setExpandedReactionId] = useState<number | null>(null);
-  const [actionMenuMessageId, setActionMenuMessageId] = useState<number | null>(null);
+  const [popoverMessageId, setPopoverMessageId] = useState<number | null>(null);
+  const [popoverAnchor, setPopoverAnchor] = useState<PopoverAnchor | null>(null);
+  const [copiedMessageId, setCopiedMessageId] = useState<number | null>(null);
   const [replyingToId, setReplyingToId] = useState<number | null>(null);
   const [expandedImage, setExpandedImage] = useState<{ src: string; alt: string } | null>(null);
   const [loading, setLoading] = useState(
@@ -176,11 +216,12 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
   const fileInputRef = useRef<HTMLInputElement>(null);
   const backgroundInputRef = useRef<HTMLInputElement>(null);
   const messageInputRef = useRef<HTMLTextAreaElement>(null);
-  const longPressRef = useRef<{ timer: number | null; messageId: number | null; startX: number; startY: number }>({
+  const longPressRef = useRef<{ timer: number | null; messageId: number | null; startX: number; startY: number; bubbleEl: HTMLElement | null }>({
     timer: null,
     messageId: null,
     startX: 0,
     startY: 0,
+    bubbleEl: null,
   });
 
   const name = currentUser?.name ?? '';
@@ -220,11 +261,10 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
   const mentionCandidates = mention
     ? memberNames.filter((m) => m !== name && m.toLowerCase().includes(mention.query.toLowerCase())).slice(0, 6)
     : [];
-  const actionMenuMessage = actionMenuMessageId != null ? messageById.get(actionMenuMessageId) : undefined;
+  const popoverMessage = popoverMessageId != null ? messageById.get(popoverMessageId) : undefined;
   // The backend allows several messages to carry `pinned`, but the banner only has room for one, so
   // the newest wins — pinning something new supersedes rather than stacks.
   const pinnedMessage = [...messages].reverse().find((message) => message.pinned);
-  const reactionPickerMessage = expandedReactionId != null ? messageById.get(expandedReactionId) : undefined;
   /** Label for a day-separator chip: "Today"/"Yesterday" near the present, an absolute date
    *  further back — the relative words are what people actually scan for. */
   const formatDayDivider = (value: string) => {
@@ -303,9 +343,17 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
     (event) => {
       if (!name) return;
       if (['MESSAGE_CREATED', 'MESSAGE_REACTION_UPDATED', 'MESSAGE_POLL_UPDATED', 'MESSAGE_PINNED'].includes(event.type)) {
-        // Household events only matter while the household thread is open. The payload already
-        // carries the full message, so patch it in directly instead of refetching everything.
-        if (thread === null) applyIncomingMessage(event.payload as ChatMessage);
+        // The payload already carries the full message, so patch it in directly instead of
+        // refetching everything. Household messages (recipient null) only matter while the
+        // household thread is open; a DM message's reaction/pin update only matters while that
+        // exact DM thread is open — same matching DIRECT_MESSAGE_CREATED already does below.
+        const msg = event.payload as ChatMessage;
+        if (msg.recipient == null) {
+          if (thread === null) applyIncomingMessage(msg);
+        } else {
+          const other = msg.sender === name ? msg.recipient : msg.sender;
+          if (other && other === thread) applyIncomingMessage(msg);
+        }
       }
       if (event.type === 'DIRECT_MESSAGE_CREATED') {
         const dm = event.payload as ChatMessage;
@@ -396,7 +444,7 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
   const deliverMessage = async (tempId: number, text: string, replyToMessageId: number | null) => {
     try {
       const saved = thread
-        ? await api.post<ChatMessage>('/chat/direct', { recipient: thread, text })
+        ? await api.post<ChatMessage>('/chat/direct', { recipient: thread, text, replyToMessageId })
         : await api.post<ChatMessage>('/chat/messages', { sender: name, text, replyToMessageId });
       clientIdByServerIdRef.current.set(saved.id, tempId);
       // A no-op if the realtime echo already reconciled this message (see applyIncomingMessage) —
@@ -513,22 +561,35 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
     if (longPressRef.current.timer != null) window.clearTimeout(longPressRef.current.timer);
     longPressRef.current.timer = null;
     longPressRef.current.messageId = null;
+    longPressRef.current.bubbleEl = null;
+  };
+
+  const closePopover = () => {
+    setPopoverMessageId(null);
+    setPopoverAnchor(null);
   };
 
   const startMessagePress = (messageId: number, event: React.PointerEvent<HTMLElement>) => {
-    // Private 1:1 threads are text-only (no reactions/replies/polls), so skip the action menu.
-    if (isDirect) return;
+    // The automated-notice thread is fully read-only — nothing to reply to or react to there.
+    if (isSystemThread) return;
     if ((event.target as HTMLElement).closest('button, img')) return;
     clearLongPress();
+    // Captured now (not re-derived from the event later, which isn't safe once the handler
+    // returns) so the popover can measure its on-screen position when the timer actually fires.
+    const bubbleEl = event.currentTarget as HTMLElement;
     longPressRef.current = {
       timer: window.setTimeout(() => {
         longPressRef.current.timer = null;
-        setActionMenuMessageId(messageId);
+        // Measured now, not at press-start — the message may have scrolled during the 450ms hold.
+        const rect = bubbleEl.getBoundingClientRect();
+        setPopoverAnchor({ top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right });
+        setPopoverMessageId(messageId);
         void tapFeedback();
       }, 450),
       messageId,
       startX: event.clientX,
       startY: event.clientY,
+      bubbleEl,
     };
   };
 
@@ -541,18 +602,21 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
 
   const replyToMessage = (messageId: number) => {
     setReplyingToId(messageId);
-    setActionMenuMessageId(null);
-    setExpandedReactionId(null);
+    closePopover();
   };
 
-  const openReactionPicker = (messageId: number) => {
-    setExpandedReactionId(messageId);
-    setActionMenuMessageId(null);
-  };
-
-  const chooseReaction = (messageId: number, emoji: string) => {
-    toggleReaction(messageId, emoji);
-    setExpandedReactionId(null);
+  const copyMessage = async (message: ChatMessage) => {
+    try {
+      await navigator.clipboard.writeText(message.text);
+      void tapFeedback();
+      setCopiedMessageId(message.id);
+      window.setTimeout(() => {
+        setCopiedMessageId(null);
+        closePopover();
+      }, 900);
+    } catch {
+      closePopover();
+    }
   };
 
   /**
@@ -564,7 +628,7 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
    * thread for everyone else.
    */
   const togglePin = async (messageId: number) => {
-    setActionMenuMessageId(null);
+    closePopover();
     void tapFeedback();
     try {
       await api.post(`/chat/messages/${messageId}/pin`, {});
@@ -653,7 +717,6 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
     } else {
       await api.post(`/chat/messages/${messageId}/reactions`, { emoji });
     }
-    setExpandedReactionId(null);
     fetchMessages();
   };
 
@@ -1002,7 +1065,7 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
                             animate="show"
                             exit="exit"
                             {...pressable}
-                            onClick={() => chooseReaction(message.id, r.emoji)}
+                            onClick={() => void toggleReaction(message.id, r.emoji)}
                             className={`elev-1 pressable-tight flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-bold ${reacted ? 'border-primary/40 bg-primary/20' : 'border-border bg-card'}`}
                           >
                             {ReactionIcon ? <ReactionIcon className="h-3.5 w-3.5 shrink-0" /> : r.emoji}
@@ -1315,88 +1378,81 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
       </>
       )}
 
+      {/* Message action popover: a horizontal, scroll-across reaction strip sitting right above a
+          compact action list (Reply / Copy / Pin), anchored near the pressed bubble and clamped
+          to stay on screen — replaces the old bottom-sheet + separately centered reaction-grid
+          combo with the single overlay iOS Messages uses. */}
       <AnimatePresence>
-        {actionMenuMessage && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="absolute inset-0 z-40 flex items-end bg-black/25 p-4"
-            onClick={() => setActionMenuMessageId(null)}
-          >
+        {popoverMessage && popoverAnchor && (() => {
+          const canCopy = popoverMessage.text.trim().length > 0;
+          const actionRowCount = 1 + (canCopy ? 1 : 0) + (!isDirect ? 1 : 0);
+          const placement = computePopoverPlacement(popoverAnchor, popoverMessage.sender === name, actionRowCount);
+          return (
             <motion.div
-              initial={{ y: 24, scale: 0.98 }}
-              animate={{ y: 0, scale: 1 }}
-              exit={{ y: 24, scale: 0.98 }}
-              className="w-full rounded-2xl border border-border bg-card p-2 shadow-xl"
-              onClick={(event) => event.stopPropagation()}
+              variants={backdropVariants}
+              initial="hidden"
+              animate="show"
+              exit="exit"
+              className="fixed inset-0 z-40 bg-black/30"
+              onClick={closePopover}
             >
-              <button
-                onClick={() => replyToMessage(actionMenuMessage.id)}
-                className="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-semibold hover:bg-muted/60"
+              <motion.div
+                variants={dialogVariants}
+                initial="hidden"
+                animate="show"
+                exit="exit"
+                style={{ position: 'fixed', top: placement.top, left: placement.left, width: placement.width }}
+                onClick={(event) => event.stopPropagation()}
               >
-                <Reply className="h-4 w-4 text-muted-foreground" />
-                {t('chat.replyToMessage')}
-              </button>
-              <button
-                onClick={() => openReactionPicker(actionMenuMessage.id)}
-                className="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-semibold hover:bg-muted/60"
-              >
-                <Smile className="h-4 w-4 text-muted-foreground" />
-                {t('chat.reactToMessage')}
-              </button>
-              {!isDirect && (
-                <button
-                  onClick={() => void togglePin(actionMenuMessage.id)}
-                  className="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-semibold hover:bg-muted/60"
-                >
-                  {actionMenuMessage.pinned
-                    ? <><PinOff className="h-4 w-4 text-muted-foreground" />{t('chat.unpinMessage')}</>
-                    : <><Pin className="h-4 w-4 text-muted-foreground" />{t('chat.pinMessage')}</>}
-                </button>
-              )}
-              <button
-                onClick={() => setActionMenuMessageId(null)}
-                className="mt-1 flex min-h-11 w-full items-center justify-center rounded-xl px-3 text-sm font-semibold text-muted-foreground hover:bg-muted/60"
-              >
-                {t('common.cancel')}
-              </button>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {reactionPickerMessage && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="absolute inset-0 z-50 flex items-center justify-center bg-black/35 p-4"
-            onClick={() => setExpandedReactionId(null)}
-          >
-            <motion.div
-              initial={{ scale: 0.95, y: 8 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.95, y: 8 }}
-              className="w-full max-w-xs rounded-2xl border border-border bg-card p-3 shadow-xl"
-              onClick={(event) => event.stopPropagation()}
-            >
-              <div className="grid grid-cols-4 gap-1">
-                {REACTIONS.map((reaction) => (
+                <div className="elev-3 mb-2 flex gap-1 overflow-x-auto rounded-full border border-border bg-card/95 px-2 py-2 backdrop-blur scrollbar-none">
+                  {REACTIONS.map((reaction) => {
+                    const mine = popoverMessage.reactions.find((r) => r.emoji === reaction.emoji)?.users.includes(name);
+                    return (
+                      <motion.button
+                        key={reaction.emoji}
+                        {...pressable}
+                        onClick={() => { void toggleReaction(popoverMessage.id, reaction.emoji); closePopover(); }}
+                        aria-label={t(reaction.labelKey)}
+                        className={`grid h-10 w-10 shrink-0 place-items-center rounded-full ${mine ? 'bg-primary/20' : ''}`}
+                      >
+                        <reaction.icon className="h-5 w-5" />
+                      </motion.button>
+                    );
+                  })}
+                </div>
+                <div className="elev-3 divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card">
                   <button
-                    key={reaction.emoji}
-                    onClick={() => chooseReaction(reactionPickerMessage.id, reaction.emoji)}
-                    aria-label={t(reaction.labelKey)}
-                    className="grid h-12 w-12 place-items-center rounded-xl transition-transform hover:scale-110 hover:bg-muted"
+                    onClick={() => replyToMessage(popoverMessage.id)}
+                    className="flex min-h-11 w-full items-center gap-3 px-4 text-left text-sm font-semibold hover:bg-muted/60"
                   >
-                    <reaction.icon className="h-5 w-5" />
+                    <Reply className="h-4 w-4 text-muted-foreground" />
+                    {t('chat.replyToMessage')}
                   </button>
-                ))}
-              </div>
+                  {canCopy && (
+                    <button
+                      onClick={() => void copyMessage(popoverMessage)}
+                      className="flex min-h-11 w-full items-center gap-3 px-4 text-left text-sm font-semibold hover:bg-muted/60"
+                    >
+                      {copiedMessageId === popoverMessage.id
+                        ? <><Check className="h-4 w-4 text-primary" />{t('chat.copied')}</>
+                        : <><Copy className="h-4 w-4 text-muted-foreground" />{t('chat.copyMessage')}</>}
+                    </button>
+                  )}
+                  {!isDirect && (
+                    <button
+                      onClick={() => void togglePin(popoverMessage.id)}
+                      className="flex min-h-11 w-full items-center gap-3 px-4 text-left text-sm font-semibold hover:bg-muted/60"
+                    >
+                      {popoverMessage.pinned
+                        ? <><PinOff className="h-4 w-4 text-muted-foreground" />{t('chat.unpinMessage')}</>
+                        : <><Pin className="h-4 w-4 text-muted-foreground" />{t('chat.pinMessage')}</>}
+                    </button>
+                  )}
+                </div>
+              </motion.div>
             </motion.div>
-          </motion.div>
-        )}
+          );
+        })()}
       </AnimatePresence>
 
       <AnimatePresence>

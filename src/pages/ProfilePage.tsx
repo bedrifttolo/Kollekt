@@ -1035,7 +1035,7 @@ export default function ProfilePage() {
 
       <div className="glass rounded-2xl p-4 flex items-center gap-3">
         <div className="h-9 w-9 rounded-xl bg-accent/20 flex items-center justify-center shrink-0">
-          <Globe2 className="h-4 w-4 text-accent-foreground" />
+          <Globe2 className="h-4 w-4 text-accent" />
         </div>
         <div className="flex-1">
           <p className="text-sm font-semibold">{t("profile.language")}</p>

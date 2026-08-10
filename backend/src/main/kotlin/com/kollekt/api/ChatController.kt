@@ -64,7 +64,7 @@ class ChatController(
     fun createDirectMessage(
         @RequestBody request: CreateDirectMessageRequest,
         @AuthenticationPrincipal jwt: Jwt,
-    ): MessageDto = chatOperations.createDirectMessage(request.recipient, request.text, jwt.subject)
+    ): MessageDto = chatOperations.createDirectMessage(request.recipient, request.text, jwt.subject, request.replyToMessageId)
 
     @PostMapping("/images")
     @ResponseStatus(HttpStatus.CREATED)

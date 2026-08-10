@@ -614,26 +614,31 @@ class EconomyOperations(
         val memberSet = members.toSet()
 
         expenses.forEach { expense ->
-            val participants =
-                (
-                    if (expense.participantNames.isEmpty()) memberSet else expense.participantNames
-                ).intersect(memberSet)
+            // Split over the expense's original participants, not the current member set, so a
+            // later departure never retroactively shrinks the divisor and inflates the remaining
+            // members' shares.
+            val originalParticipants = expense.participantNames.ifEmpty { memberSet }
+            if (originalParticipants.isEmpty()) return@forEach
+            val split = expense.amount.toDouble() / originalParticipants.size.toDouble()
 
-            if (participants.isEmpty()) return@forEach
-
-            val split = expense.amount.toDouble() / participants.size.toDouble()
-            participants.forEach { member ->
+            // Only apply legs to members still in the collective. A departed participant's debit
+            // (and the matching credit to whoever paid) is dropped entirely rather than
+            // reassigned, so their debt simply disappears instead of lingering forever.
+            originalParticipants.intersect(memberSet).forEach { member ->
                 val checkpoint = memberCheckpoints[member] ?: 0L
                 if (expense.id > checkpoint) {
                     perMember[member] = perMember.getValue(member) - split
-                    perMember[expense.paidBy] = perMember.getOrDefault(expense.paidBy, 0.0) + split
+                    if (expense.paidBy in memberSet) {
+                        perMember[expense.paidBy] = perMember.getValue(expense.paidBy) + split
+                    }
                 }
             }
         }
 
         personalSettlements.forEach { settlement ->
-            perMember[settlement.paidBy] = perMember.getOrDefault(settlement.paidBy, 0.0) + settlement.amount
-            perMember[settlement.paidTo] = perMember.getOrDefault(settlement.paidTo, 0.0) - settlement.amount
+            if (settlement.paidBy !in memberSet || settlement.paidTo !in memberSet) return@forEach
+            perMember[settlement.paidBy] = perMember.getValue(settlement.paidBy) + settlement.amount
+            perMember[settlement.paidTo] = perMember.getValue(settlement.paidTo) - settlement.amount
         }
 
         return perMember
@@ -653,20 +658,18 @@ class EconomyOperations(
         var creditorOwesDebtor = 0.0
 
         expenses.forEach { expense ->
-            val participants =
-                (
-                    if (expense.participantNames.isEmpty()) allMembers else expense.participantNames
-                ).intersect(allMembers)
+            // Split over the expense's original participants (see calculateBalances) so a member
+            // leaving after this expense was created doesn't retroactively inflate this pair's split.
+            val originalParticipants = expense.participantNames.ifEmpty { allMembers }
+            if (originalParticipants.isEmpty()) return@forEach
 
-            if (participants.isEmpty()) return@forEach
+            val split = expense.amount.toDouble() / originalParticipants.size
 
-            val split = expense.amount.toDouble() / participants.size
-
-            if (expense.paidBy == creditor && debtor in participants && expense.id > debtorCheckpoint) {
+            if (expense.paidBy == creditor && debtor in originalParticipants && expense.id > debtorCheckpoint) {
                 debtorOwesCreditor += split
             }
 
-            if (expense.paidBy == debtor && creditor in participants && expense.id > creditorCheckpoint) {
+            if (expense.paidBy == debtor && creditor in originalParticipants && expense.id > creditorCheckpoint) {
                 creditorOwesDebtor += split
             }
         }

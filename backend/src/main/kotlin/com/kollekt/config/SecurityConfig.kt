@@ -67,6 +67,7 @@ class SecurityConfig(
                     ).permitAll()
                 it.requestMatchers(HttpMethod.GET, "/api/calendar-feed/**").permitAll()
                 it.requestMatchers(HttpMethod.GET, "/api/health").permitAll()
+                it.requestMatchers(HttpMethod.GET, "/api/app-version").permitAll()
                 it.requestMatchers("/ws/**").permitAll()
                 it.anyRequest().authenticated()
             }.oauth2ResourceServer {

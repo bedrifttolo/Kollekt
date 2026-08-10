@@ -4,6 +4,12 @@
     "tagline": "Shared living, simplified",
     "logoAlt": "Kollekt logo"
   },
+  "appUpdate": {
+    "title": "Update available",
+    "body": "A newer version of Kollekt is ready. Update now for the latest fixes and features.",
+    "wait": "Wait",
+    "update": "Update"
+  },
   "tour": {
     "skip": "Skip",
     "next": "Next",
@@ -606,8 +612,9 @@
     "addOption": "+ Add option",
     "sendPoll": "Send Poll",
     "messagePlaceholder": "Type a message...",
-    "reactToMessage": "React to message",
-    "replyToMessage": "Reply to message",
+    "replyToMessage": "Reply",
+    "copyMessage": "Copy",
+    "copied": "Copied",
     "replyingTo": "Replying to {{name}}",
     "cancelReply": "Cancel",
     "sendImage": "Send image",

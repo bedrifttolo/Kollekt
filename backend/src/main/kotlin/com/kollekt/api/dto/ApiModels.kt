@@ -367,6 +367,7 @@ data class CreateMessageRequest(
 data class CreateDirectMessageRequest(
     val recipient: String,
     val text: String,
+    val replyToMessageId: Long? = null,
 )
 
 data class MeetingTopicDto(
@@ -757,4 +758,9 @@ data class AddReactionRequest(
 
 data class RemoveReactionRequest(
     val emoji: String,
+)
+
+data class AppVersionInfoDto(
+    val latestIosVersion: String,
+    val iosStoreUrl: String,
 )
