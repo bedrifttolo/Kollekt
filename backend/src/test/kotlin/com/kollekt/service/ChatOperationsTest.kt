@@ -1,12 +1,16 @@
 package com.kollekt.service
 
 import com.kollekt.api.dto.CreateMessageRequest
+import com.kollekt.api.dto.CreatePollRequest
 import com.kollekt.domain.ChatMessage
+import com.kollekt.domain.Collective
 import com.kollekt.domain.Member
+import com.kollekt.domain.MemberStatus
 import com.kollekt.repository.ChatMessageRepository
 import com.kollekt.repository.CollectiveRepository
 import com.kollekt.repository.MemberRepository
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -373,6 +377,238 @@ class ChatOperationsTest {
 
         assertEquals("Message not found", error.message)
         verify(realtimeUpdateService, never()).publish(any(), any(), any())
+    }
+
+    @Test
+    fun `thread summaries list the household plus one row per DM thread, newest activity first`() {
+        whenever(collectiveRepository.findByJoinCode("ABC123"))
+            .thenReturn(Collective(name = "Kollektiv Cool", joinCode = "ABC123", ownerMemberId = 1))
+        val household =
+            ChatMessage(
+                id = 1,
+                sender = "Emma",
+                collectiveCode = "ABC123",
+                text = "x".repeat(80),
+                timestamp = LocalDateTime.now().minusHours(1),
+            )
+        whenever(chatMessageRepository.findTopByCollectiveCodeAndRecipientIsNullOrderByTimestampDesc("ABC123"))
+            .thenReturn(household)
+        whenever(memberRepository.findAllByCollectiveCode("ABC123")).thenReturn(
+            listOf(
+                member("Emma", "emma@example.com"),
+                member("Kasper", "kasper@example.com"),
+                member("Ola", "ola@example.com").copy(status = MemberStatus.LEFT),
+                member("Nils", "nils@example.com"),
+            ),
+        )
+        val emmaDm =
+            ChatMessage(
+                id = 2,
+                sender = "Emma",
+                recipient = "Kasper",
+                collectiveCode = "ABC123",
+                text = "hey",
+                timestamp = LocalDateTime.now().minusMinutes(30),
+            )
+        val systemDm =
+            ChatMessage(
+                id = 3,
+                sender = ChatOperations.SYSTEM_SENDER,
+                recipient = "Kasper",
+                collectiveCode = "ABC123",
+                text = "notice",
+                timestamp = LocalDateTime.now().minusMinutes(10),
+            )
+        whenever(chatMessageRepository.findAllDirectMessagesInvolving("ABC123", "Kasper"))
+            .thenReturn(listOf(emmaDm, systemDm))
+
+        val result = operations.getThreadSummaries("Kasper")
+
+        assertEquals(4, result.size)
+        assertNull(result[0].thread)
+        assertEquals("Kollektiv Cool", result[0].displayName)
+        assertEquals(household.id, result[0].lastMessageId)
+        assertTrue(result[0].lastMessagePreview!!.endsWith("..."))
+        assertEquals(ChatOperations.SYSTEM_SENDER, result[1].thread)
+        assertTrue(result[1].isSystem)
+        assertEquals("Emma", result[2].thread)
+        assertFalse(result[2].isSystem)
+        assertEquals("Nils", result[3].thread)
+        assertNull(result[3].lastMessageTimestamp)
+    }
+
+    @Test
+    fun `remove reaction drops the emoji entirely once its last voter is removed`() {
+        whenever(chatMessageRepository.findById(70)).thenReturn(
+            Optional.of(
+                ChatMessage(
+                    id = 70,
+                    sender = "Emma",
+                    collectiveCode = "ABC123",
+                    text = "hi",
+                    timestamp = LocalDateTime.now(),
+                    reactions = """{"🔥":["Kasper"]}""",
+                ),
+            ),
+        )
+        whenever(chatMessageRepository.save(any<ChatMessage>())).thenAnswer { it.arguments[0] as ChatMessage }
+
+        val result = operations.removeReaction(70, "🔥", "Kasper")
+
+        assertTrue(result.reactions.isEmpty())
+    }
+
+    @Test
+    fun `remove reaction keeps other voters on the same emoji`() {
+        whenever(chatMessageRepository.findById(71)).thenReturn(
+            Optional.of(
+                ChatMessage(
+                    id = 71,
+                    sender = "Emma",
+                    collectiveCode = "ABC123",
+                    text = "hi",
+                    timestamp = LocalDateTime.now(),
+                    reactions = """{"❤️":["Kasper","Emma"]}""",
+                ),
+            ),
+        )
+        whenever(chatMessageRepository.save(any<ChatMessage>())).thenAnswer { it.arguments[0] as ChatMessage }
+
+        val result = operations.removeReaction(71, "❤️", "Kasper")
+
+        assertEquals(listOf("Emma"), result.reactions.single { it.emoji == "❤️" }.users)
+    }
+
+    @Test
+    fun `create poll trims, dedupes options and notifies other active members`() {
+        whenever(memberRepository.findAllByCollectiveCode("ABC123")).thenReturn(
+            listOf(member("Emma", "emma@example.com"), member("Ola", "ola@example.com").copy(status = MemberStatus.LEFT)),
+        )
+        whenever(chatMessageRepository.save(any<ChatMessage>())).thenAnswer {
+            (it.arguments[0] as ChatMessage).copy(id = 80)
+        }
+
+        val result =
+            operations.createPoll(
+                CreatePollRequest(question = " Pizza or tacos? ", options = listOf(" Pizza ", "Tacos", "Pizza", " ")),
+                "Kasper",
+            )
+
+        assertEquals("Pizza or tacos?", result.poll!!.question)
+        assertEquals(listOf("Pizza", "Tacos"), result.poll!!.options.map { it.text })
+        assertEquals("📊 Pizza or tacos?", result.text)
+        verify(realtimeUpdateService).publish("ABC123", "MESSAGE_CREATED", result)
+        verify(notificationService).createParameterizedGroupNotification(eq(listOf("Emma")), eq("NEW_MESSAGE"), any())
+    }
+
+    @Test
+    fun `create poll rejects fewer than two unique options`() {
+        assertThrows(IllegalArgumentException::class.java) {
+            operations.createPoll(CreatePollRequest(question = "Snack?", options = listOf("Chips", "Chips")), "Kasper")
+        }
+    }
+
+    @Test
+    fun `vote poll rejects an option id that does not exist`() {
+        whenever(chatMessageRepository.findById(90)).thenReturn(
+            Optional.of(
+                ChatMessage(
+                    id = 90,
+                    sender = "Emma",
+                    collectiveCode = "ABC123",
+                    text = "Poll",
+                    timestamp = LocalDateTime.now(),
+                    poll = """{"question":"Snack?","options":[{"id":0,"text":"Chips","users":[]}]}""",
+                ),
+            ),
+        )
+
+        val error =
+            assertThrows(IllegalArgumentException::class.java) {
+                operations.votePoll(90, 5, "Kasper")
+            }
+
+        assertEquals("Invalid poll option", error.message)
+    }
+
+    @Test
+    fun `vote poll rejects a message that is not a poll`() {
+        whenever(chatMessageRepository.findById(91)).thenReturn(
+            Optional.of(
+                ChatMessage(
+                    id = 91,
+                    sender = "Emma",
+                    collectiveCode = "ABC123",
+                    text = "Not a poll",
+                    timestamp = LocalDateTime.now(),
+                ),
+            ),
+        )
+
+        val error =
+            assertThrows(IllegalArgumentException::class.java) {
+                operations.votePoll(91, 0, "Kasper")
+            }
+
+        assertEquals("Message is not a poll", error.message)
+    }
+
+    @Test
+    fun `toggle pin rejects a message from another collective`() {
+        whenever(chatMessageRepository.findById(95)).thenReturn(
+            Optional.of(
+                ChatMessage(
+                    id = 95,
+                    sender = "Emma",
+                    collectiveCode = "OTHER",
+                    text = "elsewhere",
+                    timestamp = LocalDateTime.now(),
+                ),
+            ),
+        )
+
+        val error =
+            assertThrows(IllegalArgumentException::class.java) {
+                operations.togglePin(95, "Kasper")
+            }
+
+        assertEquals("Message not found", error.message)
+    }
+
+    @Test
+    fun `post direct notice targets only the recipient and sends no notification`() {
+        whenever(chatMessageRepository.save(any<ChatMessage>())).thenAnswer {
+            (it.arguments[0] as ChatMessage).copy(id = 96)
+        }
+
+        val result = operations.postDirectNotice("ABC123", "Emma", ChatOperations.SYSTEM_SENDER, "Violation reported")
+
+        assertEquals("Emma", result.recipient)
+        assertEquals(ChatOperations.SYSTEM_SENDER, result.sender)
+        verify(realtimeUpdateService).publishToMembers("ABC123", setOf("Emma"), "DIRECT_MESSAGE_CREATED", result)
+        verify(notificationService, never()).createParameterizedGroupNotification(any(), any(), any())
+    }
+
+    @Test
+    fun `get messages tolerates malformed reaction and poll payloads`() {
+        whenever(chatMessageRepository.findAllByCollectiveCodeAndRecipientIsNull("ABC123")).thenReturn(
+            listOf(
+                ChatMessage(
+                    id = 97,
+                    sender = "Emma",
+                    collectiveCode = "ABC123",
+                    text = "broken",
+                    timestamp = LocalDateTime.now(),
+                    reactions = "not-json",
+                    poll = "not-json",
+                ),
+            ),
+        )
+
+        val result = operations.getMessages("Kasper").single()
+
+        assertTrue(result.reactions.isEmpty())
+        assertNull(result.poll)
     }
 
     private fun member(
