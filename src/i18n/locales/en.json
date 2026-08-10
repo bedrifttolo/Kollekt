@@ -637,7 +637,24 @@
     "newDivider": "New",
     "pinMessage": "Pin message",
     "unpinMessage": "Unpin message",
-    "pinnedLabel": "Pinned · {{name}}"
+    "pinnedLabel": "Pinned · {{name}}",
+    "systemThreadSubtitle": "Automated notice",
+    "systemThreadReadOnly": "This is an automated notice — replies aren't read.",
+    "inbox": {
+      "eyebrow": "Messages",
+      "title": "Chat",
+      "noMessages": "No messages yet"
+    },
+    "meetingTopic": {
+      "menuLabel": "House meeting topics",
+      "title": "House meeting",
+      "empty": "No open topics yet — add one below.",
+      "addPlaceholder": "Add a topic...",
+      "add": "Add topic",
+      "postToChat": "Post to chat",
+      "resolve": "Mark resolved",
+      "introMessage": "🗓️ New topic: {{title}}"
+    }
   },
   "economy": {
     "title": "Economy",

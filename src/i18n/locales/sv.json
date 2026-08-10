@@ -637,7 +637,24 @@
     "newDivider": "Ny",
     "pinMessage": "Fäst meddelande",
     "unpinMessage": "Lossa meddelande",
-    "pinnedLabel": "Fäst · {{name}}"
+    "pinnedLabel": "Fäst · {{name}}",
+    "systemThreadSubtitle": "Automatiskt meddelande",
+    "systemThreadReadOnly": "Det här är ett automatiskt meddelande — svar läses inte.",
+    "inbox": {
+      "eyebrow": "Meddelanden",
+      "title": "Chatt",
+      "noMessages": "Inga meddelanden ännu"
+    },
+    "meetingTopic": {
+      "menuLabel": "Ämnen till husmöte",
+      "title": "Husmöte",
+      "empty": "Inga öppna ämnen ännu — lägg till ett nedan.",
+      "addPlaceholder": "Lägg till ett ämne...",
+      "add": "Lägg till ämne",
+      "postToChat": "Dela i chatten",
+      "resolve": "Markera som löst",
+      "introMessage": "🗓️ Nytt ämne: {{title}}"
+    }
   },
   "economy": {
     "title": "Ekonomi",

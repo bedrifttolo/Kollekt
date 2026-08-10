@@ -637,7 +637,24 @@
     "newDivider": "Ny",
     "pinMessage": "Fastgør besked",
     "unpinMessage": "Frigør besked",
-    "pinnedLabel": "Fastgjort · {{name}}"
+    "pinnedLabel": "Fastgjort · {{name}}",
+    "systemThreadSubtitle": "Automatisk besked",
+    "systemThreadReadOnly": "Dette er en automatisk besked — svar bliver ikke læst.",
+    "inbox": {
+      "eyebrow": "Beskeder",
+      "title": "Chat",
+      "noMessages": "Ingen beskeder endnu"
+    },
+    "meetingTopic": {
+      "menuLabel": "Emner til husmøde",
+      "title": "Husmøde",
+      "empty": "Ingen åbne emner endnu — tilføj et nedenfor.",
+      "addPlaceholder": "Tilføj et emne...",
+      "add": "Tilføj emne",
+      "postToChat": "Del i chatten",
+      "resolve": "Marker som løst",
+      "introMessage": "🗓️ Nyt emne: {{title}}"
+    }
   },
   "economy": {
     "title": "Økonomi",

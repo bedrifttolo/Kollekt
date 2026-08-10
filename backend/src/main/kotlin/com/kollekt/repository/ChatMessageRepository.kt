@@ -23,6 +23,20 @@ interface ChatMessageRepository : JpaRepository<ChatMessage, Long> {
         @Param("otherName") otherName: String,
     ): List<ChatMessage>
 
+    /** Latest household message, for the chat inbox summary. */
+    fun findTopByCollectiveCodeAndRecipientIsNullOrderByTimestampDesc(collectiveCode: String): ChatMessage?
+
+    /** Every DM (either direction) `memberName` is party to, newest first — grouped by counterpart
+     *  in the service layer to get "latest message per DM partner" in one query instead of N. */
+    @Query(
+        "SELECT m FROM ChatMessage m WHERE m.collectiveCode = :collectiveCode AND m.recipient IS NOT NULL AND " +
+            "(m.sender = :memberName OR m.recipient = :memberName) ORDER BY m.timestamp DESC",
+    )
+    fun findAllDirectMessagesInvolving(
+        @Param("collectiveCode") collectiveCode: String,
+        @Param("memberName") memberName: String,
+    ): List<ChatMessage>
+
     fun existsByReplyToMessageId(replyToMessageId: Long): Boolean
 
     // sender/recipient only — reactions and poll are serialized JSON blobs that can reference the

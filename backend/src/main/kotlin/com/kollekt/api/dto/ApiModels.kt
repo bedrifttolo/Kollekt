@@ -369,6 +369,29 @@ data class CreateDirectMessageRequest(
     val text: String,
 )
 
+data class MeetingTopicDto(
+    val id: Long,
+    val title: String,
+    val createdBy: String,
+    val createdAt: LocalDateTime,
+    val resolved: Boolean,
+)
+
+data class CreateMeetingTopicRequest(
+    val title: String,
+)
+
+/** One row in the chat inbox: the household thread, or a housemate's DM thread. */
+data class ChatThreadSummaryDto(
+    val thread: String?, // null = household; otherwise the other party's name (may be a system pseudo-sender)
+    val displayName: String,
+    val isSystem: Boolean = false,
+    val lastMessageId: Long? = null,
+    val lastMessageSender: String? = null,
+    val lastMessagePreview: String? = null,
+    val lastMessageTimestamp: LocalDateTime? = null,
+)
+
 data class UserDto(
     val id: Long,
     val name: String,

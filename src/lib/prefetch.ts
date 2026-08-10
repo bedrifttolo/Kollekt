@@ -15,6 +15,7 @@ import type {
   Achievement,
   Fairness,
   ChatMessage,
+  ChatThreadSummary,
 } from './types';
 
 // Warms the caches after the active screen has had a chance to load. Running these
@@ -60,8 +61,15 @@ export async function prefetchMainData(queryClient: QueryClient, user: AppUser):
     },
   });
 
-  // Mirrors ChatPage's own household-thread fetch (fetchMessages(null)) so the Chat tab's first
-  // visit each session renders from cache too, instead of always being a guaranteed cold load.
+  // Mirrors ChatInboxPage's own fetch so the Chat tab's first visit each session renders the
+  // inbox from cache too, instead of always being a guaranteed cold load.
+  await queryClient.prefetchQuery({
+    queryKey: qk.chatThreads(name),
+    queryFn: () => api.get<ChatThreadSummary[]>(`/chat/threads?memberName=${enc}`),
+  });
+
+  // Mirrors ChatThreadPage's own household-thread fetch so drilling into the household thread
+  // from the inbox renders from cache too.
   await queryClient.prefetchQuery({
     queryKey: qk.chat(name),
     queryFn: () => api.get<ChatMessage[]>(`/chat/messages?memberName=${enc}`),

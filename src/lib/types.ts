@@ -445,6 +445,26 @@ export interface ChatMessage {
   pinned?: boolean;
 }
 
+/** One row in the chat inbox: the household thread, or a housemate's DM thread. */
+export interface ChatThreadSummary {
+  /** null = household; otherwise the other party's name (may be a system pseudo-sender). */
+  thread: string | null;
+  displayName: string;
+  isSystem: boolean;
+  lastMessageId: number | null;
+  lastMessageSender: string | null;
+  lastMessagePreview: string | null;
+  lastMessageTimestamp: string | null;
+}
+
+export interface MeetingTopic {
+  id: number;
+  title: string;
+  createdBy: string;
+  createdAt: string;
+  resolved: boolean;
+}
+
 export interface MemberShare {
   name: string;
   completedTasks: number;

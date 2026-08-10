@@ -2,6 +2,7 @@ package com.kollekt.service
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import com.kollekt.api.dto.ChatThreadSummaryDto
 import com.kollekt.api.dto.CreateMessageRequest
 import com.kollekt.api.dto.CreatePollRequest
 import com.kollekt.api.dto.MessageDto
@@ -43,21 +44,90 @@ class ChatOperations(
             .map { it.toDto() }
     }
 
-    /** The private 1:1 thread between the caller and another member of the same collective. */
+    /** The private 1:1 thread between the caller and another member of the same collective, or
+     *  between the caller and the system pseudo-sender (see [SYSTEM_SENDER]). */
     fun getDirectMessages(
         memberName: String,
         otherName: String,
     ): List<MessageDto> {
         val collectiveCode = collectiveAccessService.requireCollectiveCodeByMemberName(memberName)
         require(memberName != otherName) { "Cannot open a direct thread with yourself" }
-        requireNotNull(memberRepository.findByNameAndCollectiveCode(otherName, collectiveCode)) {
-            "Member '$otherName' is not in your collective"
+        if (otherName != SYSTEM_SENDER) {
+            requireNotNull(memberRepository.findByNameAndCollectiveCode(otherName, collectiveCode)) {
+                "Member '$otherName' is not in your collective"
+            }
         }
         return chatMessageRepository
             .findDirectThread(collectiveCode, memberName, otherName)
             .sortedBy { it.timestamp }
             .map { it.toDto() }
     }
+
+    /** The chat inbox: the household thread plus one row per DM thread the caller is party to,
+     *  newest-first (threads with no messages yet sort after any with activity, then alphabetically). */
+    fun getThreadSummaries(memberName: String): List<ChatThreadSummaryDto> {
+        val collectiveCode = collectiveAccessService.requireCollectiveCodeByMemberName(memberName)
+        val collective = collectiveAccessService.requireCollectiveByCode(collectiveCode)
+
+        val household = chatMessageRepository.findTopByCollectiveCodeAndRecipientIsNullOrderByTimestampDesc(collectiveCode)
+        val householdSummary =
+            ChatThreadSummaryDto(
+                thread = null,
+                displayName = collective.name,
+                lastMessageId = household?.id,
+                lastMessageSender = household?.sender,
+                lastMessagePreview = household?.let(::previewOf),
+                lastMessageTimestamp = household?.timestamp,
+            )
+
+        val otherMembers =
+            memberRepository
+                .findAllByCollectiveCode(collectiveCode)
+                .filter { it.status == MemberStatus.ACTIVE && it.name != memberName }
+        val latestByCounterpart =
+            chatMessageRepository
+                .findAllDirectMessagesInvolving(collectiveCode, memberName)
+                .groupBy { if (it.sender == memberName) it.recipient!! else it.sender }
+                .mapValues { (_, msgs) -> msgs.maxByOrNull { it.timestamp } }
+
+        val realMemberNames = otherMembers.map { it.name }.toSet()
+        val dmSummaries =
+            otherMembers.map { member -> threadSummaryFor(member.name, isSystem = false, latestByCounterpart[member.name]) } +
+                (latestByCounterpart.keys - realMemberNames).map { counterpart ->
+                    // Anything left over is a counterpart with no active Member row — currently only
+                    // the anonymous violation-report pseudo-sender, but this stays generic so a DM
+                    // also survives a member later leaving the household.
+                    threadSummaryFor(counterpart, isSystem = counterpart == SYSTEM_SENDER, latestByCounterpart[counterpart])
+                }
+
+        return listOf(householdSummary) +
+            dmSummaries.sortedWith(
+                compareByDescending<ChatThreadSummaryDto> { it.lastMessageTimestamp != null }
+                    .thenByDescending { it.lastMessageTimestamp }
+                    .thenBy { it.displayName },
+            )
+    }
+
+    private fun threadSummaryFor(
+        thread: String,
+        isSystem: Boolean,
+        last: ChatMessage?,
+    ) = ChatThreadSummaryDto(
+        thread = thread,
+        displayName = thread,
+        isSystem = isSystem,
+        lastMessageId = last?.id,
+        lastMessageSender = last?.sender,
+        lastMessagePreview = last?.let(::previewOf),
+        lastMessageTimestamp = last?.timestamp,
+    )
+
+    private fun previewOf(message: ChatMessage): String =
+        when {
+            message.text.isNotBlank() -> if (message.text.length > 60) message.text.take(60) + "..." else message.text
+            message.imageData != null -> "[Image]"
+            else -> ""
+        }
 
     @Transactional
     fun createDirectMessage(
@@ -386,6 +456,31 @@ class ChatOperations(
         return dto
     }
 
+    // A system-style notice sent as a private DM (e.g. a violation report aimed at one member).
+    // Saved and pushed like a normal direct message, but without a NEW_MESSAGE notification because
+    // the caller sends its own targeted notification for the event.
+    @Transactional
+    fun postDirectNotice(
+        collectiveCode: String,
+        recipient: String,
+        senderLabel: String,
+        text: String,
+    ): MessageDto {
+        val saved =
+            chatMessageRepository.save(
+                ChatMessage(
+                    sender = senderLabel,
+                    collectiveCode = collectiveCode,
+                    recipient = recipient,
+                    text = text,
+                    timestamp = LocalDateTime.now(),
+                ),
+            )
+        val dto = saved.toDto()
+        realtimeUpdateService.publishToMembers(collectiveCode, setOf(recipient), "DIRECT_MESSAGE_CREATED", dto)
+        return dto
+    }
+
     private fun notifyOtherMembers(
         collectiveCode: String,
         sender: String,
@@ -465,4 +560,11 @@ class ChatOperations(
                 },
             pinned = pinned,
         )
+
+    companion object {
+        // Display name used as the chat sender (and notification reporter) when a violation is
+        // reported anonymously, so it reads as an automated household notice rather than a person.
+        // Not a real Member row — getDirectMessages/getThreadSummaries both special-case it.
+        const val SYSTEM_SENDER = "Kollekt Bot 🤖"
+    }
 }

@@ -9,9 +9,9 @@ const TOP_GUARD = 8;
 /**
  * Toggles `nav-hidden` on the document root as the user scrolls down, and clears it on scroll-up
  * or when back near the top — see the `.app-bottom-nav` rules in globals.css for the actual
- * hide/show animation. Call once per active scroll container: AppLayout uses the window (which
- * covers every page except Chat, whose `.app-screen-full` layout never grows past the viewport),
- * and ChatPage passes a ref to its own internal message-list scroller.
+ * hide/show animation. AppLayout calls this once (using the window) and it covers every page
+ * inside it, including the chat inbox. An open chat thread has no bottom nav to hide at all —
+ * it renders outside AppLayout entirely (see ChatThreadLayout) — so it never calls this.
  */
 export function useScrollDirection(target?: RefObject<HTMLElement | null>) {
   const lastY = useRef(0);

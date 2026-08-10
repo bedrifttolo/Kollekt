@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowUp, Image as ImageIcon, BarChart3, X, Smile, Reply, HeartHandshake, ChevronDown, WashingMachine, Film, Lock, Plus, ThumbsUp, ThumbsDown, Heart, Laugh, PartyPopper, Flame, Frown, MessageCircle, Wallpaper, Pin, PinOff, type LucideIcon } from 'lucide-react';
+import { ArrowLeft, ArrowUp, Image as ImageIcon, BarChart3, X, Smile, Reply, HeartHandshake, ChevronDown, WashingMachine, Film, Lock, Plus, ThumbsUp, ThumbsDown, Heart, Laugh, PartyPopper, Flame, Frown, MessageCircle, Wallpaper, Pin, PinOff, type LucideIcon } from 'lucide-react';
 
 type LaundryType = 'WHITES' | 'COLORS' | 'DELICATES' | 'WOOL' | 'SPORTS' | 'TOWELS';
 const LAUNDRY_TYPES: LaundryType[] = ['WHITES', 'COLORS', 'DELICATES', 'WOOL', 'SPORTS', 'TOWELS'];
@@ -11,28 +11,30 @@ const LAUNDRY_TYPES: LaundryType[] = ['WHITES', 'COLORS', 'DELICATES', 'WOOL', '
 const MAX_COMPOSER_ROWS = 4;
 const LAUNDRY_TEMPS = [30, 40, 60, 90];
 import { useTranslation } from 'react-i18next';
-import { api } from '../lib/api';
-import { qk } from '../lib/queryKeys';
-import { queryClient as sharedQueryClient } from '../lib/queryClient';
-import { capturePhotoFile, nativeCameraAvailable } from '../lib/camera';
-import { clearChatBackground, getChatBackground, pickChatBackgroundFile, saveChatBackground } from '../lib/chatBackground';
-import { getLastSeenMessageId, setLastSeenMessageId } from '../lib/chatSeen';
-import { decorateMessages, newestMessageId } from '../lib/chatThread';
-import { useUser, useRealtimeEvent } from '../context/UserContext';
-import { formatDate, formatDateTime, formatTime } from '../i18n/helpers';
-import { tapFeedback } from '../lib/haptics';
-import { usePremiumEntitlement } from '../lib/purchases';
-import SubscriptionPaywall from '../components/SubscriptionPaywall';
-import type { AppUser, ChatMessage, CheckinSummary, HouseCheckin, Kudo, KudoType, Task } from '../lib/types';
+import { api } from '../../lib/api';
+import { qk } from '../../lib/queryKeys';
+import { queryClient as sharedQueryClient } from '../../lib/queryClient';
+import { capturePhotoFile, nativeCameraAvailable } from '../../lib/camera';
+import { clearChatBackground, getChatBackground, pickChatBackgroundFile, saveChatBackground } from '../../lib/chatBackground';
+import { getLastSeenMessageId, setLastSeenMessageId } from '../../lib/chatSeen';
+import { decorateMessages, newestMessageId } from '../../lib/chatThread';
+import { CHAT_SYSTEM_SENDER } from '../../lib/chatThreadSummary';
+import { useUser, useRealtimeEvent } from '../../context/UserContext';
+import { formatDate, formatDateTime, formatTime } from '../../i18n/helpers';
+import { tapFeedback } from '../../lib/haptics';
+import { usePremiumEntitlement } from '../../lib/purchases';
+import SubscriptionPaywall from '../../components/SubscriptionPaywall';
+import type { AppUser, ChatMessage, CheckinSummary, HouseCheckin, Kudo, KudoType, Task } from '../../lib/types';
+import MeetingTopicMenu from './MeetingTopicMenu';
 
 /** Local-only send state layered onto a message while it's in flight; never sent to the server. */
 type LocalChatMessage = ChatMessage & { status?: 'sending' | 'failed' };
 
 const KUDO_TYPES: KudoType[] = ['THANK_YOU', 'CLEANEST', 'MOST_HELPFUL', 'PEACEMAKER'];
-import { AddSheet, AvatarStack } from '../components/ui-kit';
-import { collapseVariants, popIn, pressable, springPop, useReducedMotion } from '../lib/motion';
-import { colorForMember } from '../lib/memberColors';
-import { PAGE_ACCENTS } from '../lib/pageAccent';
+import { AddSheet, AvatarStack } from '../../components/ui-kit';
+import { collapseVariants, popIn, pressable, springPop, useReducedMotion } from '../../lib/motion';
+import { colorForMember } from '../../lib/memberColors';
+import { PAGE_ACCENTS } from '../../lib/pageAccent';
 
 // The backend validates reactions against a fixed emoji allowlist and stores them as emoji
 // strings, so the emoji stays the wire format — icons are presentation only.
@@ -86,14 +88,29 @@ function starterGifDataUrl({ paths, bg, fg }: (typeof STARTER_GIFS)[number]) {
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 }
 
-export default function ChatPage() {
+interface ChatThreadPageProps {
+  /** Pass `null` to fix this mount to the household thread (the /chat/household route). Left
+   *  undefined on the DM route, where the thread comes from the :memberName param instead. */
+  thread?: null;
+}
+
+export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPageProps) {
   const { t } = useTranslation();
   const { currentUser, onlineCount } = useUser();
   const navigate = useNavigate();
-  // Seed the household thread from the warm cache so re-opening Chat shows messages
-  // instantly instead of the loading state; a background fetch then refreshes them.
+  const params = useParams<{ memberName?: string }>();
+  // Fixed for the lifetime of this mount — App.tsx keys the DM route on :memberName so a link
+  // straight from one DM to another (bypassing the inbox) remounts rather than silently reusing
+  // this thread's state for someone else's messages.
+  const thread = fixedThread === null ? null : params.memberName ? decodeURIComponent(params.memberName) : null;
+  const isDirect = thread != null;
+  const isSystemThread = thread === CHAT_SYSTEM_SENDER;
+  const threadCacheKey = (memberName: string) => (thread ? qk.chatDirect(memberName, thread) : qk.chat(memberName));
+
+  // Seed from the warm cache so re-opening a thread shows messages instantly instead of the
+  // loading state; a background fetch then refreshes them.
   const [messages, setMessages] = useState<LocalChatMessage[]>(
-    () => sharedQueryClient.getQueryData<ChatMessage[]>(qk.chat(currentUser?.name ?? '')) ?? [],
+    () => sharedQueryClient.getQueryData<ChatMessage[]>(threadCacheKey(currentUser?.name ?? '')) ?? [],
   );
   const [input, setInput] = useState('');
   const [showActionBar, setShowActionBar] = useState(false);
@@ -116,15 +133,14 @@ export default function ChatPage() {
   const [replyingToId, setReplyingToId] = useState<number | null>(null);
   const [expandedImage, setExpandedImage] = useState<{ src: string; alt: string } | null>(null);
   const [loading, setLoading] = useState(
-    () => !sharedQueryClient.getQueryData(qk.chat(currentUser?.name ?? '')),
+    () => !sharedQueryClient.getQueryData(threadCacheKey(currentUser?.name ?? '')),
   );
   // Tracks whether this render followed a real loading state, so the content fade-in below only
   // plays right after a genuine cold load — a warm revisit (loading never true) renders instantly.
   const wasLoadingRef = useRef(loading);
   const reducedMotion = useReducedMotion();
   const [checkinExpanded, setCheckinExpanded] = useState(false);
-  // Collapses the thread switcher + house-meeting banner so more of the message list is visible;
-  // the identity row above stays put since it's the only way back to Profile from this page.
+  // Collapses the check-in summary card (household only) so more of the message list is visible.
   // Starts collapsed so it doesn't push the message list down on every load — the header's
   // chevron toggle opens it on demand instead.
   const [headerExpanded, setHeaderExpanded] = useState(false);
@@ -136,10 +152,6 @@ export default function ChatPage() {
   // Device-local chat wallpaper. Seeded synchronously so it paints with the first frame instead
   // of flashing the plain background first.
   const [background, setBackground] = useState<string | null>(() => getChatBackground(currentUser?.name ?? ''));
-  // null = the household thread; otherwise the member name of the 1:1 private thread.
-  const [activeThread, setActiveThread] = useState<string | null>(null);
-  const activeThreadRef = useRef<string | null>(null);
-  const isDirect = activeThread != null;
 
   // Show whole averages as "5", fractional ones as "4.3".
   const formatMood = (value?: number | null) =>
@@ -153,9 +165,9 @@ export default function ChatPage() {
   // The last id we already auto-scrolled for, so a reaction/poll update that patches an existing
   // message (not the newest one) doesn't re-trigger a scroll it never needed.
   const lastAutoScrolledIdRef = useRef<number | null>(null);
-  // True until the thread currently on screen has done its first scroll-to-bottom. Opening (or
-  // switching) a thread should land on the latest message instantly, not animate down through
-  // the whole history — only messages that arrive after that should scroll smoothly.
+  // True until the thread currently on screen has done its first scroll-to-bottom. Opening a
+  // thread should land on the latest message instantly, not animate down through the whole
+  // history — only messages that arrive after that should scroll smoothly.
   const instantScrollRef = useRef(true);
   // False until just after the first commit, so the tail-bubble entrance animation (see `isRecent`
   // below) never replays for messages that were already there when the page mounted — only for
@@ -170,7 +182,6 @@ export default function ChatPage() {
     startX: 0,
     startY: 0,
   });
-  const swipeStartRef = useRef<{ x: number; y: number } | null>(null);
 
   const name = currentUser?.name ?? '';
   const queryClient = useQueryClient();
@@ -238,29 +249,25 @@ export default function ChatPage() {
     return isToday ? formatTime(value) : formatDateTime(value);
   };
 
-  const fetchMessages = async (thread: string | null = activeThreadRef.current) => {
+  const fetchMessages = async () => {
     if (!name) return;
     const url = thread
       ? `/chat/direct?memberName=${encodeURIComponent(name)}&otherName=${encodeURIComponent(thread)}`
       : `/chat/messages?memberName=${encodeURIComponent(name)}`;
     const res = await api.get<ChatMessage[]>(url);
-    // Cache both household and DM threads so revisiting either renders instantly from cache.
-    if (!thread) sharedQueryClient.setQueryData(qk.chat(name), res);
-    else sharedQueryClient.setQueryData(qk.chatDirect(name, thread), res);
-    // The user may have switched to a different thread while this request was in flight — a
-    // stale response for the thread they've since left must not clobber what's on screen now.
-    if (thread !== activeThreadRef.current) return;
+    // Cache this thread so revisiting it renders instantly from cache.
+    sharedQueryClient.setQueryData(threadCacheKey(name), res);
     setMessages(res);
     setLoading(false);
   };
 
-  // Patches a single message into the open thread instead of refetching the whole conversation —
-  // the realtime event already carries the full message. Handles three cases: a brand new
-  // message from someone else (append), an update to one already on screen (reaction/poll vote,
-  // or our own message echoed back — replace in place), and our own message's echo arriving
-  // before its POST response does (reconcile the matching "sending" placeholder so the POST's
-  // own reconciliation becomes a no-op instead of creating a duplicate bubble).
-  const applyIncomingMessage = (incoming: ChatMessage, thread: string | null) => {
+  // Patches a single message into the thread instead of refetching the whole conversation — the
+  // realtime event already carries the full message. Handles three cases: a brand new message
+  // from someone else (append), an update to one already on screen (reaction/poll vote, or our
+  // own message echoed back — replace in place), and our own message's echo arriving before its
+  // POST response does (reconcile the matching "sending" placeholder so the POST's own
+  // reconciliation becomes a no-op instead of creating a duplicate bubble).
+  const applyIncomingMessage = (incoming: ChatMessage) => {
     setMessages((prev) => {
       const existingIndex = prev.findIndex((m) => m.id === incoming.id);
       let next: LocalChatMessage[];
@@ -282,35 +289,15 @@ export default function ChatPage() {
       } else {
         next = [...prev, incoming];
       }
-      if (thread) sharedQueryClient.setQueryData(qk.chatDirect(name, thread), next);
-      else sharedQueryClient.setQueryData(qk.chat(name), next);
+      sharedQueryClient.setQueryData(threadCacheKey(name), next);
       return next;
     });
   };
 
-  const selectThread = (thread: string | null) => {
-    if (thread === activeThreadRef.current) return;
-    activeThreadRef.current = thread;
-    instantScrollRef.current = true;
-    setActiveThread(thread);
-    // A thread already opened this session renders instantly from cache while refreshing
-    // silently in the background; only a never-opened thread shows the skeleton.
-    const cached = thread
-      ? sharedQueryClient.getQueryData<ChatMessage[]>(qk.chatDirect(name, thread))
-      : sharedQueryClient.getQueryData<ChatMessage[]>(qk.chat(name));
-    setMessages(cached ?? []);
-    setLoading(!cached);
-    setReplyingToId(null);
-    setActionMenuMessageId(null);
-    setExpandedReactionId(null);
-    setInput('');
-    setMention(null);
-    void fetchMessages(thread);
-  };
-
   useEffect(() => {
-    fetchMessages();
-  }, [name]);
+    void fetchMessages();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [name, thread]);
 
   useRealtimeEvent(
     (event) => {
@@ -318,12 +305,12 @@ export default function ChatPage() {
       if (['MESSAGE_CREATED', 'MESSAGE_REACTION_UPDATED', 'MESSAGE_POLL_UPDATED', 'MESSAGE_PINNED'].includes(event.type)) {
         // Household events only matter while the household thread is open. The payload already
         // carries the full message, so patch it in directly instead of refetching everything.
-        if (activeThreadRef.current == null) applyIncomingMessage(event.payload as ChatMessage, null);
+        if (thread === null) applyIncomingMessage(event.payload as ChatMessage);
       }
       if (event.type === 'DIRECT_MESSAGE_CREATED') {
         const dm = event.payload as ChatMessage;
         const other = dm.sender === name ? dm.recipient : dm.sender;
-        if (other && other === activeThreadRef.current) applyIncomingMessage(dm, other);
+        if (other && other === thread) applyIncomingMessage(dm);
       }
       if (event.type === 'CHECKIN_UPDATED') {
         queryClient.invalidateQueries({ queryKey: qk.checkin(name) });
@@ -336,11 +323,11 @@ export default function ChatPage() {
         // A housemate's name changed — refetch this thread's messages (sender/recipient
         // fields) and the member list rather than patching the rename in place.
         queryClient.invalidateQueries({ queryKey: qk.members(name) });
-        void fetchMessages(activeThreadRef.current);
+        void fetchMessages();
       }
     },
     () => {
-      void fetchMessages(activeThreadRef.current);
+      void fetchMessages();
       queryClient.invalidateQueries({ queryKey: qk.checkin(name) });
     },
   );
@@ -377,18 +364,20 @@ export default function ChatPage() {
     hasMountedRef.current = true;
   }, []);
 
-  // Re-read the cursor whenever the thread changes, before any new messages land.
+  // Re-read the cursor before any new messages land.
   useEffect(() => {
-    setSeenCursor(getLastSeenMessageId(name, activeThread));
-  }, [name, activeThread]);
+    setSeenCursor(getLastSeenMessageId(name, thread));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [name, thread]);
 
   // Park the cursor at the newest message once the thread is on screen. The divider itself is
   // driven by the snapshot above, so writing here doesn't make it jump away mid-read.
   useEffect(() => {
     const newest = newestMessageId(messages);
     if (newest === null || !name) return;
-    setLastSeenMessageId(name, activeThread, newest);
-  }, [messages, name, activeThread]);
+    setLastSeenMessageId(name, thread, newest);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messages, name, thread]);
 
   useEffect(() => {
     return () => {
@@ -404,12 +393,7 @@ export default function ChatPage() {
   // Does the actual POST for a message already showing on screen with status "sending", and
   // reconciles the result. Shared by the initial send and by retry, both keyed off the same
   // tempId — retry never creates a second bubble, it just re-tries the same one.
-  const deliverMessage = async (
-    tempId: number,
-    text: string,
-    thread: string | null,
-    replyToMessageId: number | null,
-  ) => {
+  const deliverMessage = async (tempId: number, text: string, replyToMessageId: number | null) => {
     try {
       const saved = thread
         ? await api.post<ChatMessage>('/chat/direct', { recipient: thread, text })
@@ -421,7 +405,7 @@ export default function ChatPage() {
       // Also write the query cache directly (not just local state), matching every other mutation
       // in this file — otherwise a fast remount before the realtime echo arrives re-seeds from a
       // cache that never learned about the message just sent.
-      void fetchMessages(thread);
+      void fetchMessages();
     } catch {
       // Keep the bubble visible so the user can retry instead of losing the message and having
       // to retype it.
@@ -434,7 +418,6 @@ export default function ChatPage() {
     if (messageInputRef.current) messageInputRef.current.style.height = 'auto';
     const text = input;
     const replyToMessageId = replyingToId;
-    const thread = activeThreadRef.current;
     setInput('');
     setMention(null);
     setReplyingToId(null);
@@ -454,13 +437,31 @@ export default function ChatPage() {
       status: 'sending',
     };
     setMessages((prev) => [...prev, optimistic]);
-    await deliverMessage(tempId, text, thread, replyToMessageId ?? null);
+    await deliverMessage(tempId, text, replyToMessageId ?? null);
+  };
+
+  /** Posts a formatted string straight to the household thread, bypassing the composer's own
+   *  input state — used by the meeting-topic menu's "post to chat" action. */
+  const postFormattedMessage = (text: string) => {
+    const tempId = -Date.now();
+    const optimistic: LocalChatMessage = {
+      id: tempId,
+      sender: name,
+      recipient: null,
+      text,
+      replyToMessageId: null,
+      timestamp: new Date().toISOString(),
+      reactions: [],
+      status: 'sending',
+    };
+    setMessages((prev) => [...prev, optimistic]);
+    void deliverMessage(tempId, text, null);
   };
 
   const retryMessage = (message: LocalChatMessage) => {
     if (message.status !== 'failed') return;
     setMessages((prev) => prev.map((m) => (m.id === message.id ? { ...m, status: 'sending' } : m)));
-    void deliverMessage(message.id, message.text, message.recipient ?? null, message.replyToMessageId ?? null);
+    void deliverMessage(message.id, message.text, message.replyToMessageId ?? null);
   };
 
   // Detect an in-progress "@name" token immediately before the caret.
@@ -506,22 +507,6 @@ export default function ChatPage() {
         el.setSelectionRange(caret, caret);
       }
     });
-  };
-
-  const handleSwipeStart = (e: React.TouchEvent) => {
-    swipeStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-  };
-
-  const handleSwipeEnd = (e: React.TouchEvent) => {
-    if (!swipeStartRef.current) return;
-    const dx = e.changedTouches[0].clientX - swipeStartRef.current.x;
-    const dy = e.changedTouches[0].clientY - swipeStartRef.current.y;
-    swipeStartRef.current = null;
-    if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
-    const allThreads: Array<string | null> = [null, ...members.filter((m) => m.name !== name).map((m) => m.name)];
-    const currentIndex = allThreads.findIndex((t) => t === activeThread);
-    const nextIndex = dx < 0 ? currentIndex + 1 : currentIndex - 1;
-    if (nextIndex >= 0 && nextIndex < allThreads.length) selectThread(allThreads[nextIndex]);
   };
 
   const clearLongPress = () => {
@@ -716,7 +701,7 @@ export default function ChatPage() {
   if (loading) {
     wasLoadingRef.current = true;
     return (
-      <div className="app-screen-full relative flex flex-col">
+      <div className="app-thread-screen relative flex flex-col">
         <div className="-mx-4 -mt-2 h-[3.75rem] animate-pulse border-b border-border bg-muted/20 sm:-mx-6" />
         <div className="min-h-0 flex-1 space-y-3 px-4 py-4 sm:px-6">
           {[70, 45, 60, 35].map((width, i) => (
@@ -733,123 +718,102 @@ export default function ChatPage() {
   wasLoadingRef.current = false;
 
   return (
-    <motion.div initial={justFinishedLoading ? { opacity: 0 } : false} animate={{ opacity: 1 }} className="app-screen-full relative flex flex-col">
-      {/* Chat hides the shared AppHeader (see AppLayout's hideHeader), so this row carries its
-          own page-identity wash instead — bled edge-to-edge like every other page's header,
-          matching AppHeader's tone-tile treatment for PAGE_ACCENTS['/chat'] (tone-lilac).
-          safe-top pads its own content below the notch while letting the tone background paint
-          behind the status bar, the same way AppHeader's sticky/safe-top header does. */}
-      <div className={`safe-top -mx-4 -mt-2 border-b border-border tone-tile tone-${PAGE_ACCENTS['/chat']} sm:-mx-6`}>
-      <div className="flex items-center gap-2 px-4 py-2.5 sm:px-6">
-        {isDirect ? (
-          <span style={{ backgroundColor: colorForMember(activeThread!, memberColorMap.get(activeThread!)) }} className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-xs font-bold text-white">
-            {activeThread![0]?.toUpperCase()}
-          </span>
-        ) : (
-          <AvatarStack members={headerMembers} max={3} />
-        )}
-        <div className="min-w-0 flex-1">
-          <h2 className="truncate font-display text-lg font-extrabold">{isDirect ? activeThread : t('chat.threadTitle')}</h2>
-          <p className="text-xs text-muted-foreground">
-            {isDirect ? (
-              <span className="font-semibold text-foreground">{t('chat.directSubtitle')}</span>
-            ) : (
-              <>
-                <span className="font-semibold text-primary">● {onlineCount === null ? t('common.connecting') : t('chat.onlineCount', { count: onlineCount })}</span>
-                {members.length > 0 && <> · {t('chat.memberCount', { count: members.length })}</>}
-              </>
-            )}
-          </p>
+    <motion.div initial={justFinishedLoading ? { opacity: 0 } : false} animate={{ opacity: 1 }} className="app-thread-screen relative flex flex-col">
+      {/* Wallpaper paints behind the WHOLE screen (header, list, composer) — like Snapchat, not
+          just the middle scroll region. Everything else stacks above it with `relative`. */}
+      {background && (
+        <div className="pointer-events-none absolute inset-0 z-0" aria-hidden="true">
+          <img src={background} alt="" className="h-full w-full object-cover" />
         </div>
-        {/* Collapses the thread switcher + house-meeting banner below, freeing up space for
-            messages without losing the identity row (still the only way back to Profile). */}
-        <button
-          onClick={() => setHeaderExpanded((v) => !v)}
-          className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-muted/60 text-muted-foreground"
-          aria-label={headerExpanded ? t('chat.collapseHeader') : t('chat.expandHeader')}
-        >
-          <ChevronDown className={`h-4 w-4 transition-transform ${headerExpanded ? '' : 'rotate-180'}`} />
-        </button>
-        {/* Chat hides the shared app header, so profile access lives here instead. */}
-        <button
-          data-tour="profile"
-          onClick={() => navigate('/profile')}
-          style={currentUser ? { backgroundColor: colorForMember(currentUser.name, currentUser.color) } : undefined}
-          className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-border text-base font-bold text-white"
-          aria-label={t('header.profile')}
-        >
-          {currentUser?.name[0]?.toUpperCase()}
-        </button>
-      </div>
+      )}
+
+      <div
+        className={`relative z-10 safe-top -mx-4 -mt-2 border-b border-border sm:-mx-6 ${
+          background ? 'glass' : `tone-tile tone-${PAGE_ACCENTS['/chat']}`
+        }`}
+      >
+        {/* Stronger scrim than the message list gets — header text doesn't have a bubble
+            background behind it to help with contrast. */}
+        {background && <div className="pointer-events-none absolute inset-0 bg-background/70" aria-hidden="true" />}
+        <div className="relative flex items-center gap-2 px-4 py-2.5 sm:px-6">
+          <button
+            onClick={() => navigate('/chat')}
+            className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-muted/60 text-muted-foreground"
+            aria-label={t('common.back')}
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </button>
+          {isDirect ? (
+            <span style={{ backgroundColor: colorForMember(thread!, memberColorMap.get(thread!)) }} className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-xs font-bold text-white">
+              {thread![0]?.toUpperCase()}
+            </span>
+          ) : (
+            <AvatarStack members={headerMembers} max={3} />
+          )}
+          <div className="min-w-0 flex-1">
+            <h2 className="truncate font-display text-lg font-extrabold">{isDirect ? thread : t('chat.threadTitle')}</h2>
+            <p className="text-xs text-muted-foreground">
+              {isDirect ? (
+                <span className="font-semibold text-foreground">{isSystemThread ? t('chat.systemThreadSubtitle') : t('chat.directSubtitle')}</span>
+              ) : (
+                <>
+                  <span className="font-semibold text-primary">● {onlineCount === null ? t('common.connecting') : t('chat.onlineCount', { count: onlineCount })}</span>
+                  {members.length > 0 && <> · {t('chat.memberCount', { count: members.length })}</>}
+                </>
+              )}
+            </p>
+          </div>
+          {!isDirect && <MeetingTopicMenu currentUser={currentUser} onPostTopic={postFormattedMessage} />}
+          {!isDirect && checkinSummary && checkinSummary.responseCount > 0 && (
+            <button
+              onClick={() => setHeaderExpanded((v) => !v)}
+              className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-muted/60 text-muted-foreground"
+              aria-label={headerExpanded ? t('chat.collapseHeader') : t('chat.expandHeader')}
+            >
+              <ChevronDown className={`h-4 w-4 transition-transform ${headerExpanded ? '' : 'rotate-180'}`} />
+            </button>
+          )}
+        </div>
       </div>
 
       <AnimatePresence initial={false}>
-        {headerExpanded && (
-          <motion.div variants={collapseVariants} initial="hidden" animate="show" exit="exit" className="overflow-hidden">
-            {/* Thread switcher: household + a private 1:1 thread per housemate. */}
-            <div className="relative -mx-1">
-              <div className="flex gap-2 overflow-x-auto py-1.5 px-1 scrollbar-none">
+        {headerExpanded && !isDirect && checkinSummary && checkinSummary.responseCount > 0 && (
+          <motion.div variants={collapseVariants} initial="hidden" animate="show" exit="exit" className="relative z-10 overflow-hidden">
+            <div className="card mt-3 !p-0">
               <button
-                onClick={() => selectThread(null)}
-                className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${!isDirect ? 'bg-ink text-ink-foreground' : 'bg-muted text-muted-foreground'}`}
+                onClick={() => setCheckinExpanded((v) => !v)}
+                className="flex w-full items-center justify-between gap-3 p-3 text-left"
               >
-                {t('chat.householdThread')}
-              </button>
-              {members.filter((member) => member.name !== name).map((member) => (
-                <button
-                  key={member.name}
-                  onClick={() => selectThread(member.name)}
-                  className={`flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1.5 text-xs font-semibold transition-colors ${activeThread === member.name ? 'bg-ink text-ink-foreground' : 'bg-muted text-muted-foreground'}`}
-                >
-                  <span style={{ backgroundColor: colorForMember(member.name, member.color) }} className="grid h-5 w-5 place-items-center rounded-full text-[10px] font-bold text-white">
-                    {member.name[0]?.toUpperCase()}
-                  </span>
-                  {member.name}
-                </button>
-              ))}
-              </div>
-              {members.length > 3 && (
-                <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-background to-transparent" />
-              )}
-            </div>
-
-            {!isDirect && checkinSummary && checkinSummary.responseCount > 0 && (
-              <div className="card mt-3 !p-0">
-                <button
-                  onClick={() => setCheckinExpanded((v) => !v)}
-                  className="flex w-full items-center justify-between gap-3 p-3 text-left"
-                >
-                  <div className="min-w-0">
-                    <h3 className="flex items-center gap-1.5 font-display text-sm font-bold truncate">
-                      <MessageCircle className="h-4 w-4 shrink-0" />
-                      {t('checkin.summaryTitle')}
-                    </h3>
-                    <p className="text-[10px] text-muted-foreground">{t('checkin.progress', { count: checkinSummary.responseCount, total: checkinSummary.memberCount })}</p>
-                  </div>
-                  <div className="flex shrink-0 items-center gap-2">
-                    <span className="text-xs font-bold text-primary">{t('checkin.averageMood', { mood: formatMood(checkinSummary.averageMood) })}</span>
-                    <span className="grid h-7 w-7 place-items-center rounded-full bg-muted/60">
-                      <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${checkinExpanded ? 'rotate-180' : ''}`} />
-                    </span>
-                  </div>
-                </button>
-                <AnimatePresence>
-                  {checkinExpanded && (
-                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-                      <div className="space-y-2 px-3 pb-3">
-                        {checkinSummary.responses.map((response) => (
-                          <div key={response.id} className="rounded-xl bg-card p-3 text-xs">
-                            <p className="font-bold">{response.author ?? t('checkin.anonymousAuthor')} · {response.mood}/5</p>
-                            <p className="mt-1"><span className="text-muted-foreground">{t('checkin.issueLabel')}:</span> {response.issue}</p>
-                      <p className="mt-1"><span className="text-muted-foreground">{t('checkin.improvementLabel')}:</span> {response.improvement}</p>
-                    </div>
-                  ))}
+                <div className="min-w-0">
+                  <h3 className="flex items-center gap-1.5 font-display text-sm font-bold truncate">
+                    <MessageCircle className="h-4 w-4 shrink-0" />
+                    {t('checkin.summaryTitle')}
+                  </h3>
+                  <p className="text-[10px] text-muted-foreground">{t('checkin.progress', { count: checkinSummary.responseCount, total: checkinSummary.memberCount })}</p>
                 </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-              </div>
-            )}
+                <div className="flex shrink-0 items-center gap-2">
+                  <span className="text-xs font-bold text-primary">{t('checkin.averageMood', { mood: formatMood(checkinSummary.averageMood) })}</span>
+                  <span className="grid h-7 w-7 place-items-center rounded-full bg-muted/60">
+                    <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${checkinExpanded ? 'rotate-180' : ''}`} />
+                  </span>
+                </div>
+              </button>
+              <AnimatePresence>
+                {checkinExpanded && (
+                  <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+                    <div className="space-y-2 px-3 pb-3">
+                      {checkinSummary.responses.map((response) => (
+                        <div key={response.id} className="rounded-xl bg-card p-3 text-xs">
+                          <p className="font-bold">{response.author ?? t('checkin.anonymousAuthor')} · {response.mood}/5</p>
+                          <p className="mt-1"><span className="text-muted-foreground">{t('checkin.issueLabel')}:</span> {response.issue}</p>
+                          <p className="mt-1"><span className="text-muted-foreground">{t('checkin.improvementLabel')}:</span> {response.improvement}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -864,7 +828,7 @@ export default function ChatPage() {
             animate="show"
             exit="exit"
             onClick={() => void togglePin(pinnedMessage.id)}
-            className="tone-butter tone-wash tone-edge mb-2 flex w-full items-center gap-2.5 overflow-hidden rounded-xl border px-3 py-2 text-left"
+            className="tone-butter tone-wash tone-edge relative z-10 mb-2 flex w-full items-center gap-2.5 overflow-hidden rounded-xl border px-3 py-2 text-left"
           >
             <Pin className="h-4 w-4 shrink-0 text-muted-foreground" />
             <span className="min-w-0 flex-1">
@@ -882,10 +846,9 @@ export default function ChatPage() {
 
       {/* Message list. The negative margin lets the wallpaper bleed past <main>'s px-4 to the
           screen edges; the scroller puts the same padding back so bubbles keep their inset. */}
-      <div className="relative -mx-4 min-h-0 flex-1 overflow-hidden sm:-mx-6">
+      <div className="relative z-10 -mx-4 min-h-0 flex-1 overflow-hidden sm:-mx-6">
         {background && (
           <div className="pointer-events-none absolute inset-0" aria-hidden="true">
-            <img src={background} alt="" className="h-full w-full object-cover" />
             {/* Theme-aware scrim so sender names and reply chips stay legible over any photo. */}
             <div className="absolute inset-0 bg-background/55" />
           </div>
@@ -895,8 +858,6 @@ export default function ChatPage() {
           data-chat-scroll
           className="relative h-full overflow-y-auto px-4 py-4 sm:px-6"
           onScroll={handleScroll}
-          onTouchStart={handleSwipeStart}
-          onTouchEnd={handleSwipeEnd}
         >
         {decorateMessages(messages, seenCursor).map(({ message, isFirstOfGroup, isLastOfGroup, startsNewDay, startsUnread }, i, all) => {
           const isSelf = message.sender === name;
@@ -947,24 +908,24 @@ export default function ChatPage() {
                     <p className="truncate">{replyTarget.text || t('chat.imageAlt')}</p>
                   </div>
                 )}
-	                {/* The tail is the *last* bubble of a run: mid-run bubbles stay fully round on
-	                    both bottom corners so a run reads as one continuous shape. The old rule had
-	                    this inverted, which is why a run looked like a stack of unrelated boxes. */}
-	                <motion.div
-	                  whileTap={{ scale: 0.985 }}
-	                  transition={springPop}
-	                  className={`elev-1 select-none bub ${
-	                    isSelf
-	                      ? `bg-secondary text-white ${isLastOfGroup ? 'bub-tail-self' : ''}`
-	                      : `border border-border bg-white text-black dark:bg-neutral-700 dark:text-white ${isLastOfGroup ? 'bub-tail-other' : ''}`
-	                  }`}
-	                  style={!isSelf ? { borderLeftColor: senderColor, borderLeftWidth: 3 } : undefined}
-	                  onPointerDown={(event) => startMessagePress(message.id, event)}
-	                  onPointerMove={moveMessagePress}
-	                  onPointerUp={clearLongPress}
-	                  onPointerCancel={clearLongPress}
-	                  onPointerLeave={clearLongPress}
-	                >
+                {/* The tail is the *last* bubble of a run: mid-run bubbles stay fully round on
+                    both bottom corners so a run reads as one continuous shape. The old rule had
+                    this inverted, which is why a run looked like a stack of unrelated boxes. */}
+                <motion.div
+                  whileTap={{ scale: 0.985 }}
+                  transition={springPop}
+                  className={`elev-1 select-none bub ${
+                    isSelf
+                      ? `bg-secondary text-white ${isLastOfGroup ? 'bub-tail-self' : ''}`
+                      : `border border-border bg-white text-black dark:bg-neutral-700 dark:text-white ${isLastOfGroup ? 'bub-tail-other' : ''}`
+                  }`}
+                  style={!isSelf ? { borderLeftColor: senderColor, borderLeftWidth: 3 } : undefined}
+                  onPointerDown={(event) => startMessagePress(message.id, event)}
+                  onPointerMove={moveMessagePress}
+                  onPointerUp={clearLongPress}
+                  onPointerCancel={clearLongPress}
+                  onPointerLeave={clearLongPress}
+                >
                   {message.text && !message.poll && (
                     <p className={`font-ios text-[15px] leading-relaxed ${isSelf ? 'text-white' : 'text-black dark:text-white'}`}>
                       {message.text}
@@ -1025,34 +986,34 @@ export default function ChatPage() {
                   )}
                 </motion.div>
 
-	                {message.reactions.length > 0 && (
-	                  <div className={`px-1 flex gap-1 flex-wrap ${isSelf ? 'justify-end' : 'justify-start'}`}>
-	                    <AnimatePresence initial={false}>
-	                      {message.reactions.map((r) => {
-	                        const reacted = r.users.includes(name);
-	                        // Reactions sent before the icon set existed fall back to their emoji.
-	                        const ReactionIcon = REACTION_ICON_BY_EMOJI.get(r.emoji);
-	                        return (
-	                          <motion.button
-	                            key={r.emoji}
-	                            layout
-	                            variants={popIn}
-	                            initial="hidden"
-	                            animate="show"
-	                            exit="exit"
-	                            {...pressable}
-	                            onClick={() => chooseReaction(message.id, r.emoji)}
-	                            className={`elev-1 pressable-tight flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-bold ${reacted ? 'border-primary/40 bg-primary/20' : 'border-border bg-card'}`}
-	                          >
-	                            {ReactionIcon ? <ReactionIcon className="h-3.5 w-3.5 shrink-0" /> : r.emoji}
-	                            {r.users.length}
-	                          </motion.button>
-	                        );
-	                      })}
-	                    </AnimatePresence>
-	                  </div>
-	                )}
-	              </div>
+                {message.reactions.length > 0 && (
+                  <div className={`px-1 flex gap-1 flex-wrap ${isSelf ? 'justify-end' : 'justify-start'}`}>
+                    <AnimatePresence initial={false}>
+                      {message.reactions.map((r) => {
+                        const reacted = r.users.includes(name);
+                        // Reactions sent before the icon set existed fall back to their emoji.
+                        const ReactionIcon = REACTION_ICON_BY_EMOJI.get(r.emoji);
+                        return (
+                          <motion.button
+                            key={r.emoji}
+                            layout
+                            variants={popIn}
+                            initial="hidden"
+                            animate="show"
+                            exit="exit"
+                            {...pressable}
+                            onClick={() => chooseReaction(message.id, r.emoji)}
+                            className={`elev-1 pressable-tight flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-bold ${reacted ? 'border-primary/40 bg-primary/20' : 'border-border bg-card'}`}
+                          >
+                            {ReactionIcon ? <ReactionIcon className="h-3.5 w-3.5 shrink-0" /> : r.emoji}
+                            {r.users.length}
+                          </motion.button>
+                        );
+                      })}
+                    </AnimatePresence>
+                  </div>
+                )}
+              </div>
             </motion.div>
             </div>
           );
@@ -1061,10 +1022,18 @@ export default function ChatPage() {
         </div>
       </div>
 
+      {isSystemThread ? (
+        <div className="safe-bottom relative z-10 -mx-4 px-4 pb-2 sm:-mx-6 sm:px-6">
+          <p className="rounded-2xl border border-border bg-muted/40 px-4 py-3 text-center text-xs text-muted-foreground">
+            {t('chat.systemThreadReadOnly')}
+          </p>
+        </div>
+      ) : (
+      <>
       {/* Poll form */}
       <AnimatePresence>
         {showKudosForm && (
-          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
+          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="relative z-10 overflow-hidden">
             <AddSheet title={t('kudos.sendTitle')} onClose={() => setShowKudosForm(false)} className="mb-2 p-3">
               <select value={kudosReceiver} onChange={(event) => setKudosReceiver(event.target.value)} className="w-full rounded-lg bg-muted/50 px-3 py-2 text-xs">
                 <option value="">{t('kudos.chooseRoommate')}</option>
@@ -1098,7 +1067,7 @@ export default function ChatPage() {
 
       <AnimatePresence>
         {showGifPicker && (
-          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
+          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="relative z-10 overflow-hidden">
             <AddSheet title={t('chat.gifPickerTitle')} onClose={() => setShowGifPicker(false)} className="mb-2 p-3">
               <div className="grid grid-cols-5 gap-2">
                 {STARTER_GIFS.map((gif) => (
@@ -1119,7 +1088,7 @@ export default function ChatPage() {
 
       <AnimatePresence>
         {showLaundryForm && (
-          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
+          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="relative z-10 overflow-hidden">
             <AddSheet title={t('laundry.title')} onClose={() => setShowLaundryForm(false)} className="mb-2 p-3">
               <p className="text-[10px] font-semibold text-muted-foreground">{t('laundry.typeLabel')}</p>
               <div className="flex flex-wrap gap-1.5">
@@ -1147,7 +1116,7 @@ export default function ChatPage() {
 
       <AnimatePresence>
         {showPollForm && (
-          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
+          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="relative z-10 overflow-hidden">
             <AddSheet title={t('chat.createPoll')} onClose={() => setShowPollForm(false)} className="mb-2 p-3">
               <input value={pollQuestion} onChange={(e) => setPollQuestion(e.target.value)}
                 placeholder={t('chat.pollQuestionPlaceholder')}
@@ -1172,7 +1141,7 @@ export default function ChatPage() {
       </AnimatePresence>
 
       {replyingToId != null && messageById.get(replyingToId) && (
-        <div className="glass rounded-lg px-3 py-2 mb-2 flex items-start justify-between gap-2">
+        <div className="glass relative z-10 rounded-lg px-3 py-2 mb-2 flex items-start justify-between gap-2">
           <div className="min-w-0">
             <p className="text-[10px] font-semibold text-foreground">{t('chat.replyingTo', { name: messageById.get(replyingToId)?.sender })}</p>
             <p className="text-xs truncate text-muted-foreground">{messageById.get(replyingToId)?.text || t('chat.imageAlt')}</p>
@@ -1183,18 +1152,17 @@ export default function ChatPage() {
         </div>
       )}
 
-      {/* Input bar. pb-2 keeps the composer off the bottom nav's rounded top edge (and off the
-          keyboard once the nav hides) instead of sitting flush against it. Bleeds edge-to-edge
-          like the header/list above, then reapplies the inset as padding so the pill itself
-          still sits clear of the screen edges. */}
-      <div data-chat-composer className="relative -mx-4 px-4 pb-2 sm:-mx-6 sm:px-6">
+      {/* Input bar. safe-bottom keeps the composer clear of the home indicator now that there's no
+          bottom nav reserving that strip. Bleeds edge-to-edge like the header/list above, then
+          reapplies the inset as padding so the pill itself still sits clear of the screen edges. */}
+      <div data-chat-composer className="safe-bottom relative z-10 -mx-4 px-4 pb-2 sm:-mx-6 sm:px-6">
         {mention && mentionCandidates.length > 0 && (
           <div className="absolute bottom-full left-0 right-0 mb-2 z-30 max-h-52 overflow-y-auto rounded-2xl border border-border bg-popover p-1 shadow-xl">
             {mentionCandidates.map((member) => (
               <button
                 key={member}
                 onMouseDown={(e) => { e.preventDefault(); insertMention(member); }}
-                className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm hover:bg-muted/60"
+                className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left hover:bg-muted/60"
               >
                 <span style={{ backgroundColor: colorForMember(member, memberColorMap.get(member)) }} className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-xs font-bold text-white">
                   {member[0].toUpperCase()}
@@ -1285,7 +1253,7 @@ export default function ChatPage() {
         </AnimatePresence>
         {/* Fully round rather than a rounded rectangle — the composer is the one control that is
             always on screen, and the pill shape is what makes the chat read as a chat. */}
-        <div className="elev-2 flex gap-2 rounded-full border border-border bg-card p-2">
+        <div className={`elev-2 flex gap-2 rounded-full border border-border p-2 ${background ? 'glass' : 'bg-card'}`}>
           <input ref={fileInputRef} type="file" accept="image/*" capture="environment"
             className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) sendImage(f); }} />
           {/* Web fallback for the wallpaper picker; native uses the Camera plugin's own sheet. */}
@@ -1313,7 +1281,7 @@ export default function ChatPage() {
             onChange={handleInputChange}
             onFocus={() => {
               setShowActionBar(false);
-              // The keyboard opening shrinks the message list's viewport (see .app-screen-full's
+              // The keyboard opening shrinks the message list's viewport (see .app-thread-screen's
               // keyboard-open override), which otherwise leaves it looking scrolled to the middle
               // of the thread — re-anchor to the latest message once the resize settles. 350ms
               // matches the keyboard's own animation duration (see nativeBootstrap's assist).
@@ -1344,6 +1312,8 @@ export default function ChatPage() {
           </motion.button>
         </div>
       </div>
+      </>
+      )}
 
       <AnimatePresence>
         {actionMenuMessage && (

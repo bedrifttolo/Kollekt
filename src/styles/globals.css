@@ -97,7 +97,7 @@
   --cat-food: #eda100;
   --cat-other: #6f6459;
 
-  /* Layout constants. All three are consumed by .app-screen/.app-screen-full below; each mirrors
+  /* Layout constants. All three are consumed by .app-screen below; each mirrors
      a hard-coded value in a component, so they must be changed together:
        --app-header-h  AppHeader's inner bar (h-16)
        --app-nav-h     BottomNav's footprint excluding the safe-area inset (h-[4.75rem] + 1rem floor gap)
@@ -303,29 +303,24 @@
     height: calc(100dvh - var(--app-header-h) - var(--app-main-pt) - var(--app-nav-h) - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
     margin-bottom: calc(-6.25rem - env(safe-area-inset-bottom, 0px));
   }
-  /* Like .app-screen, but for a page rendered without the sticky app header (chat): the page
-     owns the full height above the bottom nav. The status-bar inset is NOT padded here — chat's
-     own header bleeds up to the true top of the screen and pads itself (see .safe-top on its
-     header div), the same way AppHeader does for every other page. Padding it here instead would
-     push the header's colored background down below the notch instead of painting behind it. */
-  .app-screen-full {
-    height: calc(100vh - var(--app-main-pt) - var(--app-nav-h) - env(safe-area-inset-bottom, 0px));
-    height: calc(100dvh - var(--app-main-pt) - var(--app-nav-h) - env(safe-area-inset-bottom, 0px));
-    margin-bottom: calc(-6.25rem - env(safe-area-inset-bottom, 0px));
+  /* Full-viewport chat thread screen (household or a DM) — rendered outside AppLayout entirely
+     (see ChatThreadLayout), so there's no header or bottom nav to subtract or cancel a margin
+     against, unlike .app-screen above. Chat's own header bleeds up to the true
+     top of the screen and pads itself (see .safe-top on its header div), the same way AppHeader
+     does for every other page's .app-screen. 100dvh already tracks the keyboard-resized webview,
+     so — unlike .app-screen — no separate keyboard-open override is needed here. */
+  .app-thread-screen {
+    height: 100vh;
+    height: 100dvh;
   }
   /* When the on-screen keyboard is up, the bottom nav is hidden, so pages reclaim the space
      it (and its reserved padding) used to occupy — inputs dock flush above the keyboard. */
   html.keyboard-open .app-bottom-nav { display: none; }
   html.keyboard-open .safe-content-bottom { padding-bottom: 0; }
-  html.keyboard-open .app-screen,
-  html.keyboard-open .app-screen-full { margin-bottom: 0; }
+  html.keyboard-open .app-screen { margin-bottom: 0; }
   html.keyboard-open .app-screen {
     height: calc(100vh - var(--app-header-h) - var(--app-main-pt) - env(safe-area-inset-top, 0px));
     height: calc(100dvh - var(--app-header-h) - var(--app-main-pt) - env(safe-area-inset-top, 0px));
-  }
-  html.keyboard-open .app-screen-full {
-    height: calc(100vh - var(--app-main-pt) - env(safe-area-inset-bottom, 0px));
-    height: calc(100dvh - var(--app-main-pt) - env(safe-area-inset-bottom, 0px));
   }
   /* Scroll-aware dock: hidden on scroll-down, back on scroll-up (see useScrollDirection). Skipped
      while the keyboard is already forcing it hidden via the rule above. */

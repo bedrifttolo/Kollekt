@@ -1,8 +1,9 @@
 import { lazy, Suspense } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { MotionConfig } from 'framer-motion';
 import { UserProvider, useUser } from './context/UserContext';
 import AppLayout from './components/AppLayout';
+import ChatThreadLayout from './components/ChatThreadLayout';
 import { LoadingDot } from './components/ui-kit';
 
 // Route-level code splitting: each page loads as its own chunk so the initial
@@ -14,7 +15,8 @@ const CreateHouseholdPage = lazy(() => import('./pages/CreateHouseholdPage'));
 const DashboardPage = lazy(() => import('./pages/DashboardPage'));
 const TasksPage = lazy(() => import('./pages/TasksPage'));
 const CalendarPage = lazy(() => import('./pages/CalendarPage'));
-const ChatPage = lazy(() => import('./pages/ChatPage'));
+const ChatInboxPage = lazy(() => import('./pages/chat/ChatInboxPage'));
+const ChatThreadPage = lazy(() => import('./pages/chat/ChatThreadPage'));
 const EconomyPage = lazy(() => import('./pages/EconomyPage'));
 const PantTrackerPage = lazy(() => import('./pages/PantTrackerPage'));
 const SocialPage = lazy(() => import('./pages/SocialPage'));
@@ -47,6 +49,15 @@ function GuestOnlyRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+// Keyed on :memberName so a link straight from one DM into another (bypassing the inbox, e.g.
+// browser back/forward) remounts ChatThreadPage instead of silently reusing the previous thread's
+// state — in normal use the back button always returns to the inbox first, so this only matters
+// for that edge case.
+function ChatDmThreadRoute() {
+  const { memberName } = useParams<{ memberName: string }>();
+  return <ChatThreadPage key={memberName} />;
+}
+
 function RouteFallback() {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center">
@@ -68,7 +79,7 @@ function AppRoutes() {
         <Route path="/" element={<DashboardPage />} />
         <Route path="/tasks" element={<TasksPage />} />
         <Route path="/calendar" element={<CalendarPage />} />
-        <Route path="/chat" element={<ChatPage />} />
+        <Route path="/chat" element={<ChatInboxPage />} />
         <Route path="/economy" element={<EconomyPage />} />
         <Route path="/economy/pant" element={<PantTrackerPage />} />
         <Route path="/social" element={<SocialPage />} />
@@ -76,6 +87,10 @@ function AppRoutes() {
         <Route path="/games" element={<Navigate to="/social" replace />} />
         <Route path="/games/kollekt" element={<CollektGamePage />} />
         <Route path="/profile" element={<ProfilePage />} />
+      </Route>
+      <Route element={<ChatThreadLayout />}>
+        <Route path="/chat/household" element={<ChatThreadPage thread={null} />} />
+        <Route path="/chat/dm/:memberName" element={<ChatDmThreadRoute />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
@@ -91,7 +106,7 @@ export default function App() {
     // to. It only stills positional/transform animations (x, y, scale, layout, height, ...) — opacity
     // and colour still animate at full duration by framer-motion's own design. Pages that gate an
     // opacity fade on load state must separately check useReducedMotion() (see lib/motion.ts) to avoid
-    // a partial-animation flash — see EconomyPage/ChatPage/ProfilePage/PantTrackerPage.
+    // a partial-animation flash — see EconomyPage/ChatThreadPage/ProfilePage/PantTrackerPage.
     <MotionConfig reducedMotion="user">
       <BrowserRouter>
         <UserProvider>

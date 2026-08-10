@@ -637,7 +637,24 @@
     "newDivider": "Ny",
     "pinMessage": "Fest melding",
     "unpinMessage": "Løsne melding",
-    "pinnedLabel": "Festet · {{name}}"
+    "pinnedLabel": "Festet · {{name}}",
+    "systemThreadSubtitle": "Automatisk varsel",
+    "systemThreadReadOnly": "Dette er et automatisk varsel — svar blir ikke lest.",
+    "inbox": {
+      "eyebrow": "Meldinger",
+      "title": "Chat",
+      "noMessages": "Ingen meldinger ennå"
+    },
+    "meetingTopic": {
+      "menuLabel": "Saker til husmøte",
+      "title": "Husmøte",
+      "empty": "Ingen åpne saker ennå — legg til en under.",
+      "addPlaceholder": "Legg til en sak...",
+      "add": "Legg til sak",
+      "postToChat": "Del i chatten",
+      "resolve": "Merk som løst",
+      "introMessage": "🗓️ Ny sak: {{title}}"
+    }
   },
   "economy": {
     "title": "Økonomi",

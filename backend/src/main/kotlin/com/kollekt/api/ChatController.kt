@@ -3,6 +3,7 @@
 package com.kollekt.api
 
 import com.kollekt.api.dto.AddReactionRequest
+import com.kollekt.api.dto.ChatThreadSummaryDto
 import com.kollekt.api.dto.CreateDirectMessageRequest
 import com.kollekt.api.dto.CreateMessageRequest
 import com.kollekt.api.dto.CreatePollRequest
@@ -38,6 +39,15 @@ class ChatController(
         @RequestBody request: CreateMessageRequest,
         @AuthenticationPrincipal jwt: Jwt,
     ): MessageDto = chatOperations.createMessage(request, jwt.subject)
+
+    @GetMapping("/threads")
+    fun getThreadSummaries(
+        @RequestParam memberName: String,
+        @AuthenticationPrincipal jwt: Jwt,
+    ): List<ChatThreadSummaryDto> {
+        currentMemberContext.requireTokenSubject(jwt, memberName)
+        return chatOperations.getThreadSummaries(memberName)
+    }
 
     @GetMapping("/direct")
     fun getDirectMessages(
