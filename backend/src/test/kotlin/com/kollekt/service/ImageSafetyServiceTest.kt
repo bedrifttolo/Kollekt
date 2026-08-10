@@ -13,12 +13,18 @@ import java.util.Base64
 
 class ImageSafetyServiceTest {
     private lateinit var gateway: ImageModerationGateway
+    private lateinit var usageTracker: VisionApiUsageTracker
 
-    private fun service(enabled: Boolean = true) = ImageSafetyService(enabled, gateway)
+    private fun service(
+        enabled: Boolean = true,
+        monthlyCallLimit: Int = 1000,
+    ) = ImageSafetyService(enabled, monthlyCallLimit, gateway, usageTracker)
 
     @BeforeEach
     fun setUp() {
         gateway = mock()
+        usageTracker = mock()
+        whenever(usageTracker.tryConsumeCall(any())).thenReturn(true)
     }
 
     @Test
@@ -82,6 +88,16 @@ class ImageSafetyServiceTest {
         assertDoesNotThrow {
             service().validateAndModerateBase64(encoded, "image/jpeg")
         }
+    }
+
+    @Test
+    fun `allows the upload without calling the gateway once the monthly call limit is reached`() {
+        whenever(usageTracker.tryConsumeCall(any())).thenReturn(false)
+
+        assertDoesNotThrow {
+            service().validateAndModerate("photo".toByteArray(), "image/jpeg")
+        }
+        verify(gateway, never()).review(any())
     }
 
     @Test

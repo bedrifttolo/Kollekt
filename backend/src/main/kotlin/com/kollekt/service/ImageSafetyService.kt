@@ -17,11 +17,18 @@ class ImageModerationUnavailableException : RuntimeException("Couldn't check thi
  * disallowed type/size, a moderation REJECTED verdict, or the moderation provider being
  * unreachable/unconfigured all block the upload. [enabled] exists only as an explicit local-dev
  * opt-out (`APP_MODERATION_ENABLED=false`) — it must never be silently false in production.
+ *
+ * One deliberate exception to fail-closed: once [monthlyCallLimit] Vision API calls have been
+ * made this calendar month, further uploads are allowed through *without* a moderation check
+ * rather than being blocked for the rest of the month — see [usageTracker]. This trades a known,
+ * bounded moderation gap for uninterrupted uploads and a hard cap on Vision API billing.
  */
 @Service
 class ImageSafetyService(
     @Value("\${app.moderation.enabled:true}") private val enabled: Boolean,
+    @Value("\${app.moderation.monthly-call-limit:1000}") private val monthlyCallLimit: Int,
     private val gateway: ImageModerationGateway,
+    private val usageTracker: VisionApiUsageTracker,
 ) {
     private val log = LoggerFactory.getLogger(ImageSafetyService::class.java)
 
@@ -46,6 +53,11 @@ class ImageSafetyService(
         require(bytes.size <= MAX_IMAGE_BYTES) { "Image is too large (max 5 MB)" }
 
         if (!enabled) return
+
+        if (!usageTracker.tryConsumeCall(monthlyCallLimit)) {
+            log.warn("Vision API monthly call limit ({}) reached; allowing upload without moderation.", monthlyCallLimit)
+            return
+        }
 
         val verdict =
             try {

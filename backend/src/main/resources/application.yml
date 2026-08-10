@@ -109,3 +109,9 @@ app:
     # want to configure a Vision API key yet — never set it false in production.
     enabled: ${APP_MODERATION_ENABLED:true}
     google-vision-api-key: ${GOOGLE_CLOUD_VISION_API_KEY:}
+    # Vision API's free tier is 1,000 SafeSearch calls/month; Google's own quota UI can't enforce
+    # a precise monthly cap (only per-minute), so we track calls ourselves. Once the limit is hit
+    # for the current calendar month, moderation is skipped (fails OPEN, unlike the checks above)
+    # so uploads keep working rather than being blocked for the rest of the month — a deliberate
+    # trade-off accepted in exchange for never being billed beyond the free tier.
+    monthly-call-limit: ${APP_MODERATION_MONTHLY_CALL_LIMIT:1000}
