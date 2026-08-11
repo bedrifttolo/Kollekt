@@ -23,7 +23,9 @@ import type {
   AppUser,
 } from '../../lib/types';
 
-const PERIODS: LeaderboardPeriod[] = ['OVERALL', 'YEAR', 'MONTH'];
+// Month first and selected by default: the monthly prize is what the household is actually racing
+// for, so the standings that matter are this month's, not the all-time total.
+const PERIODS: LeaderboardPeriod[] = ['MONTH', 'YEAR', 'OVERALL'];
 const CUSTOM_METRICS: CustomAchievementMetric[] = ['TASKS_COMPLETED', 'XP_EARNED', 'STREAK_DAYS', 'EARLY_COMPLETIONS', 'ON_TIME_COMPLETIONS', 'RECURRING_COMPLETIONS', 'CATEGORY_COMPLETIONS'];
 const TASK_CATEGORIES: TaskCategory[] = ['CLEANING', 'VACUUMING', 'MOPPING', 'BATHROOM', 'KITCHEN', 'LAUNDRY', 'DISHES', 'TRASH', 'DUSTING', 'WINDOWS', 'SHOPPING', 'OTHER'];
 
@@ -67,7 +69,7 @@ function daysToMonthEnd(): number {
 export default function RanksPanel() {
   const { t } = useTranslation();
   const { currentUser } = useUser();
-  const [period, setPeriod] = useState<LeaderboardPeriod>('OVERALL');
+  const [period, setPeriod] = useState<LeaderboardPeriod>('MONTH');
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [showPrize, setShowPrize] = useState(false);
   const [prize, setPrize] = useState('');
@@ -163,19 +165,34 @@ export default function RanksPanel() {
     fetchData(period);
   };
 
-  const handleOpenMemberStats = async (memberName: string) => {
-    setSelectedMember(memberName);
-    setMemberStats(null);
+  /** Scoped to the selected period so the sheet reports the same XP, level and rank as the row
+   *  that was tapped — it used to fetch lifetime totals and could contradict the list outright
+   *  (a member showing 55 XP in the list read -455 XP and "Nv.-1" in the sheet). */
+  const loadMemberStats = async (memberName: string, forPeriod: LeaderboardPeriod) => {
     setMemberStatsLoading(true);
     try {
       const stats = await api.get<MemberStats>(
-        `/members/stats?viewerName=${encodeURIComponent(name)}&targetName=${encodeURIComponent(memberName)}`,
+        `/members/stats?viewerName=${encodeURIComponent(name)}&targetName=${encodeURIComponent(memberName)}&period=${forPeriod}`,
       );
       setMemberStats(stats);
     } finally {
       setMemberStatsLoading(false);
     }
   };
+
+  const handleOpenMemberStats = async (memberName: string) => {
+    setSelectedMember(memberName);
+    setMemberStats(null);
+    await loadMemberStats(memberName, period);
+  };
+
+  // Switching Måned/År/Totalt while the sheet is open re-scopes it rather than leaving stale
+  // numbers behind the new tab.
+  useEffect(() => {
+    if (!selectedMember) return;
+    void loadMemberStats(selectedMember, period);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [period, selectedMember]);
 
   const handleOpenAchievementConfig = async () => {
     setShowAchievementConfig(true);
@@ -563,12 +580,12 @@ export default function RanksPanel() {
         {memberStats && !memberStatsLoading && (
           <div className="grid grid-cols-3 gap-2">
             {[
-              { label: 'XP', value: memberStats.xp.toString() },
-              { label: 'Streak', value: `${memberStats.streak}d` },
-              { label: 'Tasks done', value: memberStats.tasksCompleted.toString() },
-              { label: 'Late', value: memberStats.lateCompletions.toString() },
-              { label: 'Skipped', value: memberStats.skippedTasks.toString() },
-              { label: 'Achievements', value: `${memberStats.achievementsUnlocked}/${memberStats.achievementsTotal}` },
+              { label: t('leaderboard.memberStats.xp'), value: memberStats.xp.toString() },
+              { label: t('leaderboard.memberStats.streak'), value: `${memberStats.streak}d` },
+              { label: t('leaderboard.memberStats.tasksDone'), value: memberStats.tasksCompleted.toString() },
+              { label: t('leaderboard.memberStats.late'), value: memberStats.lateCompletions.toString() },
+              { label: t('leaderboard.memberStats.skipped'), value: memberStats.skippedTasks.toString() },
+              { label: t('leaderboard.memberStats.achievements'), value: `${memberStats.achievementsUnlocked}/${memberStats.achievementsTotal}` },
             ].map((s) => (
               <div key={s.label} className="min-h-14 rounded-lg bg-background/30 p-2.5 text-center">
                 <p className="font-display font-bold text-sm">{s.value}</p>

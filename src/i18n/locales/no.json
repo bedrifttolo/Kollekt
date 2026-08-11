@@ -625,6 +625,7 @@
     "closeImage": "Lukk bilde",
     "sending": "Sender …",
     "sendFailedRetry": "Ikke sendt — trykk for å prøve igjen",
+    "imageSendFailed": "Bildet ble ikke sendt. Prøv igjen.",
     "reactions": {
       "like": "Liker",
       "love": "Elsker",
@@ -1747,6 +1748,14 @@
       "title": "Rettferdig fordeling",
       "balanced": "BALANSERT",
       "window": "Siste {{days}} dager"
+    },
+    "memberStats": {
+      "xp": "XP",
+      "streak": "Rekke",
+      "tasksDone": "Oppgaver",
+      "late": "For sent",
+      "skipped": "Hoppet over",
+      "achievements": "Prestasjoner"
     }
   },
   "kollektGame": {

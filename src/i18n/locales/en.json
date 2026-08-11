@@ -625,6 +625,7 @@
     "closeImage": "Close image",
     "sending": "Sending…",
     "sendFailedRetry": "Not sent — tap to retry",
+    "imageSendFailed": "The image couldn't be sent. Please try again.",
     "reactions": {
       "like": "Like",
       "love": "Love",
@@ -1747,6 +1748,14 @@
       "title": "Fair share",
       "balanced": "BALANCED",
       "window": "Last {{days}} days"
+    },
+    "memberStats": {
+      "xp": "XP",
+      "streak": "Streak",
+      "tasksDone": "Tasks done",
+      "late": "Late",
+      "skipped": "Skipped",
+      "achievements": "Achievements"
     }
   },
   "kollektGame": {

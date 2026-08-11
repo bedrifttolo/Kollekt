@@ -15,6 +15,11 @@ export async function capturePhotoFile(): Promise<File | null> {
       source: CameraSource.Prompt,
       quality: 80,
       allowEditing: false,
+      // A full-res capture at quality 80 clears the backend's 5 MB upload cap on its own, which
+      // is how photo sending broke. Capping here means the plugin does the downscale natively;
+      // prepareImageForUpload() is still the backstop for the web file-input path.
+      width: 1600,
+      correctOrientation: true,
     });
     const format = photo.format || 'jpeg';
     const mime = `image/${format === 'jpg' ? 'jpeg' : format}`;

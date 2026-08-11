@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { AnimatePresence, motion } from 'framer-motion';
-import { CalendarCheck2, Plus, Send, X } from 'lucide-react';
+import { MessageCircleHeart, Plus, Send, X } from 'lucide-react';
 import { api } from '../../lib/api';
 import { qk } from '../../lib/queryKeys';
 import { useRealtimeEvent } from '../../context/UserContext';
@@ -67,10 +67,10 @@ export default function MeetingTopicMenu({ currentUser, onPostTopic }: MeetingTo
     <div className="relative shrink-0">
       <button
         onClick={() => setOpen((v) => !v)}
-        className={`grid h-9 w-9 shrink-0 place-items-center rounded-full text-muted-foreground ${open ? 'bg-ink text-ink-foreground' : 'bg-muted/60'}`}
+        className={`grid h-11 w-11 shrink-0 place-items-center rounded-full text-muted-foreground ${open ? 'bg-ink text-ink-foreground' : 'bg-muted/60'}`}
         aria-label={t('chat.meetingTopic.menuLabel')}
       >
-        <CalendarCheck2 className="h-4 w-4" />
+        <MessageCircleHeart className="h-5 w-5" />
       </button>
       <AnimatePresence>
         {open && (
@@ -88,7 +88,7 @@ export default function MeetingTopicMenu({ currentUser, onPostTopic }: MeetingTo
               initial="hidden"
               animate="show"
               exit="exit"
-              className="elev-2 absolute right-0 top-11 z-40 w-72 max-w-[80vw] rounded-2xl border border-border bg-card p-3"
+              className="elev-2 absolute right-0 top-[3.25rem] z-40 w-72 max-w-[80vw] rounded-2xl border border-border bg-card p-3"
             >
             <div className="mb-2 flex items-center justify-between">
               <p className="font-display text-sm font-bold">{t('chat.meetingTopic.title')}</p>

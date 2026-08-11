@@ -227,6 +227,72 @@ class TaskOperationsTest {
     }
 
     @Test
+    fun `penalty floors xp at zero and recomputes level instead of going negative`() {
+        val overdueTask =
+            TaskItem(
+                id = 41,
+                title = "Trash",
+                assignee = "Emma",
+                collectiveCode = "ABC123",
+                dueDate = LocalDate.now().minusDays(1),
+                category = TaskCategory.OTHER,
+                xp = 60,
+            )
+        whenever(taskRepository.findAll()).thenReturn(listOf(overdueTask))
+        // Already near the bottom: a -60 penalty would have taken this to -50, which rendered as
+        // "Nv.-1" everywhere because Int division truncates toward zero.
+        whenever(memberRepository.findByNameAndCollectiveCode("Emma", "ABC123"))
+            .thenReturn(member("Emma", "emma@example.com", id = 2, xp = 10, level = 1))
+        whenever(memberRepository.findAllByCollectiveCode("ABC123")).thenReturn(
+            listOf(member("Emma", "emma@example.com", id = 2, xp = 10)),
+        )
+        whenever(memberRepository.save(any<Member>())).thenAnswer { it.arguments[0] as Member }
+        whenever(taskRepository.save(any<TaskItem>())).thenAnswer { it.arguments[0] as TaskItem }
+
+        operations.penalizeMissedTasks()
+
+        verify(memberRepository).save(
+            check {
+                assertEquals(0, it.xp)
+                assertEquals(1, it.level)
+            },
+        )
+    }
+
+    @Test
+    fun `penalty recomputes a stale level when xp drops below the level threshold`() {
+        val overdueTask =
+            TaskItem(
+                id = 42,
+                title = "Trash",
+                assignee = "Emma",
+                collectiveCode = "ABC123",
+                dueDate = LocalDate.now().minusDays(1),
+                category = TaskCategory.OTHER,
+                xp = 50,
+            )
+        whenever(taskRepository.findAll()).thenReturn(listOf(overdueTask))
+        // 210 XP is level 2; -50 drops to 160, which is level 1. The penalty path used to leave
+        // level untouched until the member's next completion happened to recompute it.
+        whenever(memberRepository.findByNameAndCollectiveCode("Emma", "ABC123"))
+            .thenReturn(member("Emma", "emma@example.com", id = 2, xp = 210, level = 2))
+        whenever(memberRepository.findAllByCollectiveCode("ABC123")).thenReturn(
+            listOf(member("Emma", "emma@example.com", id = 2, xp = 210, level = 2)),
+        )
+        whenever(memberRepository.save(any<Member>())).thenAnswer { it.arguments[0] as Member }
+        whenever(taskRepository.save(any<TaskItem>())).thenAnswer { it.arguments[0] as TaskItem }
+
+        operations.penalizeMissedTasks()
+
+        verify(memberRepository).save(
+            check {
+                assertEquals(160, it.xp)
+                assertEquals(1, it.level)
+            },
+        )
+    }
+
+    @Test
     fun `penalize missed tasks applies penalty once and notifies collective`() {
         val overdueTask =
             TaskItem(

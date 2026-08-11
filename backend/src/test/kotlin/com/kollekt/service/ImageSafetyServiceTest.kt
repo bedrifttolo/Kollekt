@@ -24,6 +24,7 @@ class ImageSafetyServiceTest {
     fun setUp() {
         gateway = mock()
         usageTracker = mock()
+        whenever(gateway.isConfigured()).thenReturn(true)
         whenever(usageTracker.tryConsumeCall(any())).thenReturn(true)
     }
 
@@ -98,6 +99,27 @@ class ImageSafetyServiceTest {
             service().validateAndModerate("photo".toByteArray(), "image/jpeg")
         }
         verify(gateway, never()).review(any())
+    }
+
+    @Test
+    fun `allows the upload when no credentials are configured, instead of breaking every upload`() {
+        whenever(gateway.isConfigured()).thenReturn(false)
+
+        assertDoesNotThrow {
+            service().validateAndModerate("photo".toByteArray(), "image/jpeg")
+        }
+        verify(gateway, never()).review(any())
+        // The call budget is for real Vision calls only — an unconfigured gateway makes none.
+        verify(usageTracker, never()).tryConsumeCall(any())
+    }
+
+    @Test
+    fun `an unconfigured gateway still enforces the type and size limits`() {
+        whenever(gateway.isConfigured()).thenReturn(false)
+
+        assertThrows<IllegalArgumentException> {
+            service().validateAndModerate("<svg></svg>".toByteArray(), "image/svg+xml")
+        }
     }
 
     @Test

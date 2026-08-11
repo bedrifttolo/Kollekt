@@ -466,6 +466,13 @@
   .bub { border-radius: var(--r-2xl); padding: .7rem 1rem; }
   .bub-tail-self { border-bottom-right-radius: var(--r-sm); }
   .bub-tail-other { border-bottom-left-radius: var(--r-sm); }
+  /* The quoted original above a reply: the same bubble shape, tightened up, so a reply reads as
+     iOS Messages draws it rather than as a bordered grey box stuck on top of the bubble. */
+  .bub-quote { border-radius: var(--r-2xl); padding: .4rem .7rem; }
+  /* Chat images must not trigger WebKit's native long-press callout (the Save/Copy/Share sheet) —
+     it hijacked the gesture, so image messages had no reply/react/pin at all on iOS while text
+     messages got the app's own overlay. */
+  .chat-media { -webkit-touch-callout: none; -webkit-user-drag: none; user-select: none; }
   /* Chat text intentionally breaks from the app's Schibsted Grotesk brand font — message content
      reads as a native iMessage-style conversation, which means the system font. -apple-system
      resolves to San Francisco in an iOS WKWebView/Safari; other platforms fall through the stack. */

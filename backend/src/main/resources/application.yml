@@ -103,10 +103,12 @@ app:
     credentials-base64: ${FCM_CREDENTIALS_BASE64:}
   moderation:
     # Every image upload (chat images, task feedback/completion photos) is checked against Google
-    # Cloud Vision SafeSearch before it's stored. Unlike the push gateways above, this fails
-    # CLOSED: a blank GOOGLE_CLOUD_VISION_API_KEY means every image upload is rejected, not
-    # silently allowed. Set APP_MODERATION_ENABLED=false only for local development if you don't
-    # want to configure a Vision API key yet — never set it false in production.
+    # Cloud Vision SafeSearch before it's stored. Once a key is set this fails CLOSED — a Vision
+    # outage rejects the upload rather than assuming it's safe. A BLANK GOOGLE_CLOUD_VISION_API_KEY
+    # means moderation was never configured on this deployment, and uploads are then accepted
+    # unchecked (loudly warned at startup and per upload) so an un-keyed environment isn't an app
+    # with permanently broken photo upload. Always set the key in production.
+    # APP_MODERATION_ENABLED=false turns the gate off entirely — local development only.
     enabled: ${APP_MODERATION_ENABLED:true}
     google-vision-api-key: ${GOOGLE_CLOUD_VISION_API_KEY:}
     # Vision API's free tier is 1,000 SafeSearch calls/month; Google's own quota UI can't enforce

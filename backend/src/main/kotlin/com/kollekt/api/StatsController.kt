@@ -132,9 +132,12 @@ class StatsController(
     fun getMemberStats(
         @RequestParam viewerName: String,
         @RequestParam targetName: String,
+        // Mirrors /leaderboard's period so the sheet reports the same numbers as the row that
+        // was tapped. Defaults to OVERALL for older clients that don't send it.
+        @RequestParam(defaultValue = "OVERALL") period: LeaderboardPeriod,
         @AuthenticationPrincipal jwt: Jwt,
     ): MemberStatsDto {
         currentMemberContext.requireTokenSubject(jwt, viewerName)
-        return statsService.getMemberStats(viewerName, targetName)
+        return statsService.getMemberStats(viewerName, targetName, period)
     }
 }

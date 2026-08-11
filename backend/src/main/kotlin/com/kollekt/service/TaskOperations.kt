@@ -3,6 +3,7 @@ package com.kollekt.service
 import com.kollekt.api.dto.CreateTaskRequest
 import com.kollekt.api.dto.TaskDto
 import com.kollekt.api.dto.TaskFeedbackDto
+import com.kollekt.domain.Member
 import com.kollekt.domain.MemberStatus
 import com.kollekt.domain.TaskCategory
 import com.kollekt.domain.TaskFeedback
@@ -319,9 +320,7 @@ class TaskOperations(
                 memberRepository.findByNameAndCollectiveCode(task.assignee, collectiveCode)
                     ?: throw IllegalArgumentException("Task assignee '${task.assignee}' not found in collective")
 
-            val updatedXp = assignee.xp + awardedXp
-            val updatedLevel = levelForXp(updatedXp)
-            memberRepository.save(assignee.copy(xp = updatedXp, level = updatedLevel))
+            memberRepository.save(applyXpDelta(assignee, awardedXp))
         }
 
         val saved =
@@ -397,9 +396,7 @@ class TaskOperations(
                 memberRepository.findByNameAndCollectiveCode(memberName, collectiveCode)
                     ?: throw IllegalArgumentException("User '$memberName' not found in collective")
 
-            val updatedXp = member.xp + awardedXp
-            val updatedLevel = levelForXp(updatedXp)
-            memberRepository.save(member.copy(xp = updatedXp, level = updatedLevel))
+            memberRepository.save(applyXpDelta(member, awardedXp))
         }
 
         val saved =
@@ -437,7 +434,7 @@ class TaskOperations(
             if (member != null && member.status == MemberStatus.ACTIVE) {
                 val penalty = calculatePenaltyXp(task)
                 if (task.penaltyXp == 0) {
-                    memberRepository.save(member.copy(xp = member.xp + penalty))
+                    memberRepository.save(applyXpDelta(member, penalty))
                     taskRepository.save(task.copy(penaltyXp = penalty))
                     realtimeUpdateService.publish(
                         collectiveCode,
@@ -470,7 +467,7 @@ class TaskOperations(
                     }
                 } else if (task.penaltyXp != penalty) {
                     val diff = penalty - task.penaltyXp
-                    memberRepository.save(member.copy(xp = member.xp + diff))
+                    memberRepository.save(applyXpDelta(member, diff))
                     taskRepository.save(task.copy(penaltyXp = penalty))
                 }
             }
@@ -495,7 +492,7 @@ class TaskOperations(
                 ?: throw IllegalArgumentException("User '$memberName' not found in collective")
         val halfXp = calculateLateCompletionXp(task.xp)
 
-        memberRepository.save(member.copy(xp = member.xp - task.penaltyXp + halfXp))
+        memberRepository.save(applyXpDelta(member, -task.penaltyXp + halfXp))
         val saved =
             taskRepository.save(
                 task.copy(
@@ -623,7 +620,29 @@ class TaskOperations(
 
     private fun calculateLateCompletionXp(baseXp: Int): Int = (baseXp / 2).coerceAtLeast(1)
 
-    private fun levelForXp(xp: Int): Int = xp / XP_PER_LEVEL + 1
+    /**
+     * Level 1 is the floor. [xp] is coerced first because Kotlin's Int division truncates toward
+     * zero, so a member whose balance had been driven negative by [penalizeMissedTasks] rendered
+     * as "Nv.-1" (-455 / 200 + 1 = -1) across the leaderboard, the member sheet and the dashboard.
+     */
+    private fun levelForXp(xp: Int): Int = xp.coerceAtLeast(0) / XP_PER_LEVEL + 1
+
+    /**
+     * The single write path for a member's XP balance. Floors at 0 so missed-task penalties can
+     * sink someone back toward level 1 but never below it, and always recomputes [Member.level]
+     * from the new balance — the penalty paths used to skip that, leaving a stale level behind
+     * until the member's next completion happened to recompute it.
+     *
+     * The floor makes a refund (see [regretMissedTask]) marginally generous for a member who was
+     * already sitting at 0 when the penalty landed, which is the intended direction to err in.
+     */
+    private fun applyXpDelta(
+        member: Member,
+        delta: Int,
+    ): Member {
+        val updatedXp = (member.xp + delta).coerceAtLeast(0)
+        return member.copy(xp = updatedXp, level = levelForXp(updatedXp))
+    }
 
     private fun calculatePenaltyXp(task: TaskItem): Int = -kotlin.math.abs(task.xp)
 

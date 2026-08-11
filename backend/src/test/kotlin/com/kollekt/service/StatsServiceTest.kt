@@ -1,6 +1,7 @@
 package com.kollekt.service
 
 import com.kollekt.api.dto.CreateCustomAchievementRequest
+import com.kollekt.api.dto.LeaderboardPeriod
 import com.kollekt.domain.CalendarEvent
 import com.kollekt.domain.CheckinResponse
 import com.kollekt.domain.Collective
@@ -386,9 +387,48 @@ class StatsServiceTest {
         val result = service.getMemberStats(viewerName = "Kasper", targetName = "Emma")
 
         assertEquals("Emma", result.name)
-        assertEquals(150, result.xp)
+        // Period XP (the base XP of tasks completed in the period), not the lifetime member.xp
+        // column of 150 — the sheet has to report the same number as the leaderboard row.
+        assertEquals(20, result.xp)
         assertEquals(1, result.tasksCompleted)
         assertEquals(1, result.skippedTasks)
+    }
+
+    @Test
+    fun `member stats agree with the leaderboard row for the same period`() {
+        whenever(
+            memberRepository.findByNameAndCollectiveCode("Emma", "ABC123"),
+        ).thenReturn(member("Emma", "emma@example.com", id = 2, xp = 150, level = 1))
+        val now = LocalDateTime.now()
+        whenever(taskRepository.findAllByCollectiveCode("ABC123")).thenReturn(
+            listOf(
+                task(id = 1, title = "Trash", assignee = "Emma", completed = true, completedAt = now, xp = 20),
+                task(id = 2, title = "Floors", assignee = "Kasper", completed = true, completedAt = now, xp = 25),
+                // Completed last year: only OVERALL and YEAR-of-that-year should see it.
+                task(id = 3, title = "Old", assignee = "Emma", completed = true, completedAt = now.minusYears(1), xp = 50),
+            ),
+        )
+        whenever(memberRepository.findAllByCollectiveCode("ABC123")).thenReturn(
+            listOf(
+                member("Kasper", "kasper@example.com", xp = 250, level = 2),
+                member("Emma", "emma@example.com", id = 2, xp = 150, level = 1),
+            ),
+        )
+
+        for (period in LeaderboardPeriod.entries) {
+            val row = service.getLeaderboard("Kasper", period).players.first { it.name == "Emma" }
+            val sheet = service.getMemberStats("Kasper", "Emma", period)
+
+            assertEquals(row.xp, sheet.xp, "xp disagrees for $period")
+            assertEquals(row.rank, sheet.rank, "rank disagrees for $period")
+            assertEquals(row.level, sheet.level, "level disagrees for $period")
+            assertEquals(row.tasksCompleted, sheet.tasksCompleted, "tasksCompleted disagrees for $period")
+            assertEquals(row.streak, sheet.streak, "streak disagrees for $period")
+        }
+
+        // And the period actually scopes things: the year-old task only counts in OVERALL.
+        assertEquals(70, service.getMemberStats("Kasper", "Emma", LeaderboardPeriod.OVERALL).xp)
+        assertEquals(20, service.getMemberStats("Kasper", "Emma", LeaderboardPeriod.MONTH).xp)
     }
 
     @Test
@@ -459,6 +499,78 @@ class StatsServiceTest {
         assertEquals(2, result.shares.first().completedTasks)
         assertEquals("Kasper", result.shares.first().name)
         assertTrue(result.balancePercent in 0..100)
+    }
+
+    @Test
+    fun `fairness credits the assignee, not whoever pressed complete`() {
+        whenever(memberRepository.findAllByCollectiveCode("ABC123")).thenReturn(
+            listOf(member("Kasper", "kasper@example.com"), member("Emma", "emma@example.com", id = 2)),
+        )
+        val now = LocalDateTime.now()
+        whenever(taskRepository.findAllByCollectiveCode("ABC123")).thenReturn(
+            listOf(
+                // Emma's chore, but Kasper happened to tick it off. The load was Emma's.
+                task(id = 1, title = "A", assignee = "Emma", completed = true, completedAt = now).copy(completedBy = "Kasper"),
+                task(id = 2, title = "B", assignee = "Emma", completed = true, completedAt = now).copy(completedBy = "Emma"),
+            ),
+        )
+
+        val result = service.getFairness("Kasper")
+
+        assertEquals(2, result.totalTasks)
+        assertEquals("Emma", result.shares.first().name)
+        assertEquals(2, result.shares.first().completedTasks)
+        assertEquals(0, result.shares.first { it.name == "Kasper" }.completedTasks)
+    }
+
+    @Test
+    fun `fairness counts a late completion in full`() {
+        whenever(memberRepository.findAllByCollectiveCode("ABC123")).thenReturn(
+            listOf(member("Kasper", "kasper@example.com"), member("Emma", "emma@example.com", id = 2)),
+        )
+        val now = LocalDateTime.now()
+        whenever(taskRepository.findAllByCollectiveCode("ABC123")).thenReturn(
+            listOf(
+                // Three weeks overdue and penalised, but done — still a full unit of work here.
+                task(id = 1, title = "A", assignee = "Emma", dueDate = LocalDate.now().minusDays(21), completed = true, completedAt = now)
+                    .copy(completedBy = "Emma", penaltyXp = 10),
+            ),
+        )
+
+        val result = service.getFairness("Kasper")
+
+        assertEquals(1, result.totalTasks)
+        assertEquals(1, result.shares.first { it.name == "Emma" }.completedTasks)
+    }
+
+    @Test
+    fun `fairness includes archived task history, which only records the assignee`() {
+        whenever(memberRepository.findAllByCollectiveCode("ABC123")).thenReturn(
+            listOf(member("Kasper", "kasper@example.com"), member("Emma", "emma@example.com", id = 2)),
+        )
+        whenever(taskRepository.findAllByCollectiveCode("ABC123")).thenReturn(emptyList())
+        whenever(taskHistoryRepository.findAllByCollectiveCode("ABC123")).thenReturn(
+            listOf(
+                TaskHistoryEntry(
+                    id = 9,
+                    collectiveCode = "ABC123",
+                    assignee = "Emma",
+                    // Archived rows can lose completedBy; the assignee is non-null, so they no
+                    // longer silently drop out of the totals.
+                    completedBy = null,
+                    completed = true,
+                    completedAt = LocalDateTime.now().minusDays(2),
+                    dueDate = LocalDate.now().minusDays(3),
+                    category = TaskCategory.CLEANING,
+                    xp = 15,
+                ),
+            ),
+        )
+
+        val result = service.getFairness("Kasper")
+
+        assertEquals(1, result.totalTasks)
+        assertEquals(1, result.shares.first { it.name == "Emma" }.completedTasks)
     }
 
     @Test

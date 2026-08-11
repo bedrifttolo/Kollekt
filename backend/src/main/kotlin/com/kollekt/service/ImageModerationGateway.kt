@@ -15,14 +15,24 @@ class ModerationUnavailableException(message: String, cause: Throwable? = null) 
 interface ImageModerationGateway {
     /** @throws ModerationUnavailableException if the provider can't be called or its response can't be parsed. */
     fun review(imageBytes: ByteArray): ModerationVerdict
+
+    /**
+     * False when the provider has no credentials configured at all. Distinguishes "this
+     * deployment never set a key" — which [ImageSafetyService] lets through, so an un-keyed
+     * environment isn't an app with permanently broken photo upload — from "the provider is
+     * configured but unreachable right now", which still fails closed.
+     */
+    fun isConfigured(): Boolean
 }
 
 /**
  * Calls Google Cloud Vision's SafeSearch Detection over its plain REST endpoint (not the
  * `google-cloud-vision` client library, which pulls in a full gRPC stack for one annotate call).
- * [apiKey] blank means the key hasn't been configured yet; [review] then throws
- * [ModerationUnavailableException] rather than silently allowing images through — moderation must
- * fail closed, unlike push notifications where a no-op send is harmless.
+ * A blank [apiKey] means this deployment never configured moderation, which [isConfigured]
+ * reports so [ImageSafetyService] can skip the check rather than reject every upload. Once a key
+ * *is* present, [review] fails closed — a Vision outage throws [ModerationUnavailableException]
+ * instead of silently allowing images through, unlike push notifications where a no-op send is
+ * harmless.
  */
 @Component
 class GoogleVisionModerationGateway(
@@ -38,6 +48,8 @@ class GoogleVisionModerationGateway(
     // actual nudity.
     private val rejectAdultAt = setOf("LIKELY", "VERY_LIKELY")
     private val rejectRacyAt = setOf("VERY_LIKELY")
+
+    override fun isConfigured(): Boolean = apiKey.isNotBlank()
 
     override fun review(imageBytes: ByteArray): ModerationVerdict {
         if (apiKey.isBlank()) {

@@ -625,6 +625,7 @@
     "closeImage": "Stäng bild",
     "sending": "Skickar …",
     "sendFailedRetry": "Inte skickat — tryck för att försöka igen",
+    "imageSendFailed": "Bilden kunde inte skickas. Försök igen.",
     "reactions": {
       "like": "Gilla",
       "love": "Älskar",
@@ -1747,6 +1748,14 @@
       "title": "Rättvis fördelning",
       "balanced": "BALANSERAT",
       "window": "Senaste {{days}} dagarna"
+    },
+    "memberStats": {
+      "xp": "XP",
+      "streak": "Svit",
+      "tasksDone": "Uppgifter",
+      "late": "För sent",
+      "skipped": "Överhoppade",
+      "achievements": "Prestationer"
     }
   },
   "kollektGame": {
