@@ -432,6 +432,38 @@ class StatsServiceTest {
     }
 
     @Test
+    fun `leaderboard XP still counts a task after it's archived and removed from the live table`() {
+        // deleteExpiredTasks archives a completed task 7 days after completion and deletes the live
+        // row (see TaskOperations) — the completion itself must not disappear from the leaderboard
+        // just because the task moved to task_history in the meantime.
+        val now = LocalDateTime.now()
+        val emma = member("Emma", "emma@example.com", id = 2, xp = 30)
+        whenever(currentMemberContext.current("Emma")).thenReturn(emma)
+        whenever(taskRepository.findAllByCollectiveCode("ABC123")).thenReturn(emptyList())
+        whenever(taskHistoryRepository.findAllByCollectiveCode("ABC123")).thenReturn(
+            listOf(
+                TaskHistoryEntry(
+                    id = 5,
+                    collectiveCode = "ABC123",
+                    assignee = "Emma",
+                    completedBy = "Emma",
+                    completed = true,
+                    completedAt = now,
+                    dueDate = now.toLocalDate().minusDays(1),
+                    category = TaskCategory.CLEANING,
+                    xp = 30,
+                ),
+            ),
+        )
+        whenever(memberRepository.findAllByCollectiveCode("ABC123")).thenReturn(listOf(emma))
+
+        val row = service.getLeaderboard("Emma").players.first { it.name == "Emma" }
+
+        assertEquals(30, row.xp)
+        assertEquals(1, row.tasksCompleted)
+    }
+
+    @Test
     fun `stats include archived task history alongside live tasks`() {
         whenever(
             memberRepository.findByNameAndCollectiveCode("Emma", "ABC123"),
