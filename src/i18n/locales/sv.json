@@ -626,6 +626,7 @@
     "sending": "Skickar …",
     "sendFailedRetry": "Inte skickat — tryck för att försöka igen",
     "imageSendFailed": "Bilden kunde inte skickas. Försök igen.",
+    "imagePermissionDenied": "Kollekt behöver tillgång till kamera eller foton för att skicka bilder. Aktivera det i Inställningar.",
     "reactions": {
       "like": "Gilla",
       "love": "Älskar",
@@ -659,12 +660,19 @@
     "pinMessage": "Fäst meddelande",
     "unpinMessage": "Lossa meddelande",
     "pinnedLabel": "Fäst · {{name}}",
+    "editMessage": "Redigera meddelande",
+    "deleteMessage": "Ta bort meddelande",
+    "messageDeleted": "Meddelande borttaget",
+    "edited": "Redigerad",
+    "editingMessage": "Redigerar meddelande",
+    "cancelEdit": "Avbryt",
     "systemThreadSubtitle": "Automatiskt meddelande",
     "systemThreadReadOnly": "Det här är ett automatiskt meddelande — svar läses inte.",
     "inbox": {
       "eyebrow": "Meddelanden",
       "title": "Chatt",
-      "noMessages": "Inga meddelanden ännu"
+      "noMessages": "Inga meddelanden ännu",
+      "messageDeleted": "Meddelande borttaget"
     },
     "meetingTopic": {
       "menuLabel": "Ämnen till husmöte",

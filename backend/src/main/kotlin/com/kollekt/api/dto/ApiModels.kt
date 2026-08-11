@@ -336,6 +336,8 @@ data class MessageDto(
     val reactions: List<ReactionDto> = emptyList(),
     val poll: PollDto? = null,
     val pinned: Boolean = false,
+    val edited: Boolean = false,
+    val deleted: Boolean = false,
 )
 
 data class PollDto(
@@ -370,6 +372,10 @@ data class CreateDirectMessageRequest(
     val replyToMessageId: Long? = null,
 )
 
+data class UpdateMessageRequest(
+    val text: String,
+)
+
 data class MeetingTopicDto(
     val id: Long,
     val title: String,
@@ -392,6 +398,7 @@ data class ChatThreadSummaryDto(
     val lastMessageSender: String? = null,
     val lastMessagePreview: String? = null,
     val lastMessageTimestamp: LocalDateTime? = null,
+    val lastMessageDeleted: Boolean = false,
 )
 
 data class UserDto(

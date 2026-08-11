@@ -443,6 +443,8 @@ export interface ChatMessage {
   reactions: ChatReaction[];
   poll?: ChatPoll | null;
   pinned?: boolean;
+  edited?: boolean;
+  deleted?: boolean;
 }
 
 /** One row in the chat inbox: the household thread, or a housemate's DM thread. */
@@ -455,6 +457,7 @@ export interface ChatThreadSummary {
   lastMessageSender: string | null;
   lastMessagePreview: string | null;
   lastMessageTimestamp: string | null;
+  lastMessageDeleted?: boolean;
 }
 
 export interface MeetingTopic {

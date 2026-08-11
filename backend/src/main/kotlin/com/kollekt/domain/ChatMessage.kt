@@ -25,4 +25,6 @@ data class ChatMessage(
     @Column(nullable = false, columnDefinition = "TEXT") val reactions: String = "{}",
     @Column(nullable = true, columnDefinition = "TEXT") val poll: String? = null,
     @Column(nullable = false) val pinned: Boolean = false,
+    @Column(nullable = false) val edited: Boolean = false,
+    @Column(nullable = false) val deleted: Boolean = false,
 )

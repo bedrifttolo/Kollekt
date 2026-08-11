@@ -9,6 +9,7 @@ import com.kollekt.api.dto.CreateMessageRequest
 import com.kollekt.api.dto.CreatePollRequest
 import com.kollekt.api.dto.MessageDto
 import com.kollekt.api.dto.RemoveReactionRequest
+import com.kollekt.api.dto.UpdateMessageRequest
 import com.kollekt.api.dto.VotePollRequest
 import com.kollekt.service.ChatOperations
 import com.kollekt.service.CurrentMemberContext
@@ -80,6 +81,19 @@ class ChatController(
         @RequestBody request: CreatePollRequest,
         @AuthenticationPrincipal jwt: Jwt,
     ): MessageDto = chatOperations.createPoll(request, jwt.subject)
+
+    @PatchMapping("/messages/{messageId}")
+    fun updateMessage(
+        @PathVariable messageId: Long,
+        @RequestBody request: UpdateMessageRequest,
+        @AuthenticationPrincipal jwt: Jwt,
+    ): MessageDto = chatOperations.updateMessage(messageId, request.text, jwt.subject)
+
+    @DeleteMapping("/messages/{messageId}")
+    fun deleteMessage(
+        @PathVariable messageId: Long,
+        @AuthenticationPrincipal jwt: Jwt,
+    ): MessageDto = chatOperations.deleteMessage(messageId, jwt.subject)
 
     @PostMapping("/messages/{messageId}/poll/vote")
     fun votePoll(

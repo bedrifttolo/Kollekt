@@ -6,7 +6,7 @@ import { api } from '../../lib/api';
 import { qk } from '../../lib/queryKeys';
 import { useUser, useRealtimeEvent } from '../../context/UserContext';
 import { getLastSeenMessageId } from '../../lib/chatSeen';
-import { patchThreadsOnDirectMessage, patchThreadsOnHouseholdMessage } from '../../lib/chatThreadSummary';
+import { patchThreadsOnDirectMessage, patchThreadsOnHouseholdMessage, patchThreadsOnMessageUpdate } from '../../lib/chatThreadSummary';
 import { formatDate, formatTime } from '../../i18n/helpers';
 import { Avatar, AvatarStack, Eyebrow } from '../../components/ui-kit';
 import { PAGE_ACCENTS } from '../../lib/pageAccent';
@@ -62,6 +62,11 @@ export default function ChatInboxPage() {
           );
         }
       }
+      if (event.type === 'MESSAGE_UPDATED' || event.type === 'MESSAGE_DELETED') {
+        queryClient.setQueryData<ChatThreadSummary[]>(qk.chatThreads(name), (prev) =>
+          patchThreadsOnMessageUpdate(prev, event.payload as ChatMessage),
+        );
+      }
     },
     () => queryClient.invalidateQueries({ queryKey: qk.chatThreads(name) }),
   );
@@ -108,7 +113,9 @@ export default function ChatInboxPage() {
                   <span className={`truncate font-display text-sm ${unread ? 'font-extrabold' : 'font-bold'}`}>{thread.displayName}</span>
                 </span>
                 <span className={`block truncate text-xs ${unread ? 'font-semibold text-foreground' : 'text-muted-foreground'}`}>
-                  {thread.lastMessagePreview || t('chat.inbox.noMessages')}
+                  {thread.lastMessageDeleted
+                    ? t('chat.inbox.messageDeleted')
+                    : thread.lastMessagePreview || t('chat.inbox.noMessages')}
                 </span>
               </span>
               {thread.lastMessageTimestamp && (

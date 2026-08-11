@@ -626,6 +626,7 @@
     "sending": "Sender …",
     "sendFailedRetry": "Ikke sendt — trykk for å prøve igjen",
     "imageSendFailed": "Bildet ble ikke sendt. Prøv igjen.",
+    "imagePermissionDenied": "Kollekt trenger tilgang til kamera eller bilder for å sende bilder. Slå det på i Innstillinger.",
     "reactions": {
       "like": "Liker",
       "love": "Elsker",
@@ -659,12 +660,19 @@
     "pinMessage": "Fest melding",
     "unpinMessage": "Løsne melding",
     "pinnedLabel": "Festet · {{name}}",
+    "editMessage": "Rediger melding",
+    "deleteMessage": "Slett melding",
+    "messageDeleted": "Melding slettet",
+    "edited": "Redigert",
+    "editingMessage": "Redigerer melding",
+    "cancelEdit": "Avbryt",
     "systemThreadSubtitle": "Automatisk varsel",
     "systemThreadReadOnly": "Dette er et automatisk varsel — svar blir ikke lest.",
     "inbox": {
       "eyebrow": "Meldinger",
       "title": "Chat",
-      "noMessages": "Ingen meldinger ennå"
+      "noMessages": "Ingen meldinger ennå",
+      "messageDeleted": "Melding slettet"
     },
     "meetingTopic": {
       "menuLabel": "Saker til husmøte",

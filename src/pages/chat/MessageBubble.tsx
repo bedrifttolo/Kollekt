@@ -107,13 +107,19 @@ export default function MessageBubble({
             onPointerCancel={onPointerUp}
             onPointerLeave={onPointerUp}
           >
-            {message.text && !message.poll && (
+            {message.deleted && (
+              <p className={`font-ios text-[15px] italic leading-relaxed ${isSelf ? 'text-white/70' : 'text-muted-foreground'}`}>
+                {t('chat.messageDeleted')}
+              </p>
+            )}
+
+            {!message.deleted && message.text && !message.poll && (
               <p className={`font-ios text-[15px] leading-relaxed ${isSelf ? 'text-white' : 'text-black dark:text-white'}`}>
                 {message.text}
               </p>
             )}
 
-            {imageSrc && (
+            {!message.deleted && imageSrc && (
               <img
                 src={imageSrc}
                 alt={imageAlt}
@@ -128,7 +134,7 @@ export default function MessageBubble({
               />
             )}
 
-            {message.poll && (
+            {!message.deleted && message.poll && (
               <div className="mt-1 space-y-2.5">
                 <p className="flex items-center gap-1.5 font-display text-base font-bold">
                   <BarChart3 className="h-4 w-4 shrink-0" />
@@ -173,11 +179,12 @@ export default function MessageBubble({
             {isLastOfGroup && message.status !== 'failed' && (
               <p className={`font-ios text-[11px] mt-1 ${isSelf ? 'text-white/70' : 'text-muted-foreground'}`}>
                 {message.status === 'sending' ? t('chat.sending') : formatTimestamp(message.timestamp)}
+                {!message.deleted && message.edited && ` · ${t('chat.edited')}`}
               </p>
             )}
           </motion.div>
 
-          {!isPreview && message.reactions.length > 0 && (
+          {!isPreview && !message.deleted && message.reactions.length > 0 && (
             <div className={`px-1 flex gap-1 flex-wrap ${isSelf ? 'justify-end' : 'justify-start'}`}>
               <AnimatePresence initial={false}>
                 {message.reactions.map((r) => {
@@ -229,7 +236,7 @@ function QuotedMessage({
   const { t } = useTranslation();
   const quoteIsSelf = target.sender === currentUserName;
   const thumbSrc = target.imageData ? `data:${target.imageMimeType};base64,${target.imageData}` : null;
-  const previewText = target.poll?.question || target.text || t('chat.imageAlt');
+  const previewText = target.deleted ? t('chat.messageDeleted') : target.poll?.question || target.text || t('chat.imageAlt');
 
   return (
     <div className={`flex w-full flex-col ${quoteIsSelf ? 'items-end' : 'items-start'}`}>

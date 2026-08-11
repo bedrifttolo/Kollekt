@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ArrowUp, Image as ImageIcon, BarChart3, Check, Copy, X, Reply, HeartHandshake, ChevronDown, WashingMachine, Film, Lock, Plus, Smile, MessageCircleHeart, Wallpaper, Pin, PinOff } from 'lucide-react';
+import { ArrowLeft, ArrowUp, Image as ImageIcon, BarChart3, Check, Copy, X, Reply, HeartHandshake, ChevronDown, WashingMachine, Film, Lock, Plus, Smile, MessageCircleHeart, Wallpaper, Pin, PinOff, Pencil, Trash2 } from 'lucide-react';
 
 type LaundryType = 'WHITES' | 'COLORS' | 'DELICATES' | 'WOOL' | 'SPORTS' | 'TOWELS';
 const LAUNDRY_TYPES: LaundryType[] = ['WHITES', 'COLORS', 'DELICATES', 'WOOL', 'SPORTS', 'TOWELS'];
@@ -219,6 +219,7 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
   const [imageError, setImageError] = useState<string | null>(null);
   const [sendingImage, setSendingImage] = useState(false);
   const [replyingToId, setReplyingToId] = useState<number | null>(null);
+  const [editingMessageId, setEditingMessageId] = useState<number | null>(null);
   const [emojiPickerForId, setEmojiPickerForId] = useState<number | null>(null);
   const [expandedImage, setExpandedImage] = useState<{ src: string; alt: string } | null>(null);
   const [loading, setLoading] = useState(
@@ -397,7 +398,11 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
   useRealtimeEvent(
     (event) => {
       if (!name) return;
-      if (['MESSAGE_CREATED', 'MESSAGE_REACTION_UPDATED', 'MESSAGE_POLL_UPDATED', 'MESSAGE_PINNED'].includes(event.type)) {
+      if (
+        ['MESSAGE_CREATED', 'MESSAGE_REACTION_UPDATED', 'MESSAGE_POLL_UPDATED', 'MESSAGE_PINNED', 'MESSAGE_UPDATED', 'MESSAGE_DELETED'].includes(
+          event.type,
+        )
+      ) {
         // The payload already carries the full message, so patch it in directly instead of
         // refetching everything. Household messages (recipient null) only matter while the
         // household thread is open; a DM message's reaction/pin update only matters while that
@@ -516,7 +521,30 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
     }
   };
 
+  /** Persists an edit to an existing message instead of sending a new one — routed here from
+   *  `sendMessage` whenever `editingMessageId` is set, so the composer's Enter key and send
+   *  button don't need their own edit-aware branch. */
+  const saveEditedMessage = async () => {
+    const id = editingMessageId;
+    const text = input.trim();
+    if (id == null || !text) return;
+    if (messageInputRef.current) messageInputRef.current.style.height = 'auto';
+    setInput('');
+    setEditingMessageId(null);
+    setMessages((prev) => prev.map((m) => (m.id === id ? { ...m, text, edited: true } : m)));
+    try {
+      const updated = await api.patch<ChatMessage>(`/chat/messages/${id}`, { text });
+      applyIncomingMessage(updated);
+    } catch {
+      fetchMessages();
+    }
+  };
+
   const sendMessage = async () => {
+    if (editingMessageId != null) {
+      await saveEditedMessage();
+      return;
+    }
     if (!input.trim()) return;
     if (messageInputRef.current) messageInputRef.current.style.height = 'auto';
     const text = input;
@@ -627,6 +655,8 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
   const startMessagePress = (messageId: number, event: React.PointerEvent<HTMLElement>) => {
     // The automated-notice thread is fully read-only — nothing to reply to or react to there.
     if (isSystemThread) return;
+    // A deleted message has nothing left to react to, copy, pin or edit.
+    if (messageById.get(messageId)?.deleted) return;
     // Buttons (poll options, retry) keep their own tap. Images deliberately do NOT bail out any
     // more: excluding them meant WebKit's native callout owned the gesture, leaving image
     // messages with no reply/react/pin at all. `longPressFiredRef` below stops the image's
@@ -663,7 +693,23 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
 
   const replyToMessage = (messageId: number) => {
     setReplyingToId(messageId);
+    setEditingMessageId(null);
     closePopover();
+  };
+
+  /** Seeds the composer with the message's own text and switches `sendMessage` (via
+   *  `editingMessageId`) into "save" mode instead of "send a new message" mode. */
+  const startEditMessage = (message: ChatMessage) => {
+    setEditingMessageId(message.id);
+    setInput(message.text);
+    setReplyingToId(null);
+    closePopover();
+    requestAnimationFrame(() => messageInputRef.current?.focus());
+  };
+
+  const cancelEditMessage = () => {
+    setEditingMessageId(null);
+    setInput('');
   };
 
   /** Tapping a quoted message scrolls back to the original and flashes it, as iOS Messages does.
@@ -707,6 +753,17 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
       fetchMessages();
     } catch {
       // Refetch anyway so the UI never keeps an optimistic pin the server rejected.
+      fetchMessages();
+    }
+  };
+
+  const deleteMessage = async (messageId: number) => {
+    closePopover();
+    void tapFeedback();
+    try {
+      const updated = await api.delete<ChatMessage>(`/chat/messages/${messageId}`);
+      applyIncomingMessage(updated);
+    } catch {
       fetchMessages();
     }
   };
@@ -792,8 +849,12 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
 
   const handlePickImage = async () => {
     if (nativeCameraAvailable()) {
-      const file = await capturePhotoFile();
-      if (file) await sendImage(file);
+      try {
+        const file = await capturePhotoFile();
+        if (file) await sendImage(file);
+      } catch (error) {
+        setImageError(getUserMessage(error, t('chat.imageSendFailed')));
+      }
     } else {
       fileInputRef.current?.click();
     }
@@ -1222,6 +1283,26 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
         )}
       </AnimatePresence>
 
+      <AnimatePresence initial={false}>
+        {editingMessageId != null && (
+          <motion.div
+            variants={collapseVariants}
+            initial="hidden"
+            animate="show"
+            exit="exit"
+            className="relative z-10 mb-2 overflow-hidden px-4 sm:px-6"
+          >
+            <div className="glass elev-1 flex items-start gap-2 overflow-hidden rounded-lg border-l-2 border-l-primary py-2 pl-2.5 pr-2">
+              <Pencil className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
+              <p className="min-w-0 flex-1 text-xs font-semibold text-foreground">{t('chat.editingMessage')}</p>
+              <button onClick={cancelEditMessage} className="pressable-tight shrink-0 rounded-full p-1 text-muted-foreground hover:text-foreground" aria-label={t('chat.cancelEdit')}>
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Input bar. safe-bottom keeps the composer clear of the home indicator now that there's no
           bottom nav reserving that strip; px-4 matches the message list's gutter so the pill lines
           up with the bubbles above it. */}
@@ -1416,9 +1497,11 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
       <AnimatePresence>
         {popoverMessage && popoverAnchor && (() => {
           const canCopy = popoverMessage.text.trim().length > 0;
-          const actionRowCount = 1 + (canCopy ? 1 : 0) + (!isDirect ? 1 : 0);
-          const placement = computePopoverPlacement(popoverAnchor, actionRowCount);
           const popoverIsSelf = popoverMessage.sender === name;
+          const canEdit = popoverIsSelf && !popoverMessage.imageData && !popoverMessage.poll;
+          const canDelete = popoverIsSelf;
+          const actionRowCount = 1 + (canCopy ? 1 : 0) + (!isDirect ? 1 : 0) + (canEdit ? 1 : 0) + (canDelete ? 1 : 0);
+          const placement = computePopoverPlacement(popoverAnchor, actionRowCount);
           return (
             <motion.div
               variants={backdropVariants}
@@ -1515,6 +1598,24 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
                       {popoverMessage.pinned
                         ? <><PinOff className="h-4 w-4 text-muted-foreground" />{t('chat.unpinMessage')}</>
                         : <><Pin className="h-4 w-4 text-muted-foreground" />{t('chat.pinMessage')}</>}
+                    </button>
+                  )}
+                  {canEdit && (
+                    <button
+                      onClick={() => startEditMessage(popoverMessage)}
+                      className="flex min-h-11 w-full items-center gap-3 px-4 text-left text-sm font-semibold hover:bg-muted/60"
+                    >
+                      <Pencil className="h-4 w-4 text-muted-foreground" />
+                      {t('chat.editMessage')}
+                    </button>
+                  )}
+                  {canDelete && (
+                    <button
+                      onClick={() => void deleteMessage(popoverMessage.id)}
+                      className="flex min-h-11 w-full items-center gap-3 px-4 text-left text-sm font-semibold text-destructive hover:bg-muted/60"
+                    >
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                      {t('chat.deleteMessage')}
                     </button>
                   )}
                 </div>

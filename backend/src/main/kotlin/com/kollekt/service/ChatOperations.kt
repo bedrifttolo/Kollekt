@@ -92,6 +92,7 @@ class ChatOperations(
                 lastMessageSender = household?.sender,
                 lastMessagePreview = household?.let(::previewOf),
                 lastMessageTimestamp = household?.timestamp,
+                lastMessageDeleted = household?.deleted ?: false,
             )
 
         val otherMembers =
@@ -134,6 +135,7 @@ class ChatOperations(
         lastMessageSender = last?.sender,
         lastMessagePreview = last?.let(::previewOf),
         lastMessageTimestamp = last?.timestamp,
+        lastMessageDeleted = last?.deleted ?: false,
     )
 
     // Household messages broadcast to the whole collective, same as before. DM messages only ever
@@ -470,6 +472,64 @@ class ChatOperations(
         return dto
     }
 
+    @Transactional
+    fun updateMessage(
+        messageId: Long,
+        text: String,
+        actorName: String,
+    ): MessageDto {
+        val message =
+            chatMessageRepository
+                .findById(messageId)
+                .orElseThrow { IllegalArgumentException("Message not found") }
+
+        val collectiveCode = collectiveAccessService.requireCollectiveCodeByMemberName(actorName)
+        require(message.collectiveCode == collectiveCode) { "Message not found" }
+        require(message.sender == actorName) { "Only the sender can edit this message" }
+        require(!message.deleted) { "Message has been deleted" }
+        require(message.imageData == null && message.poll == null) { "Only text messages can be edited" }
+
+        val normalizedText = text.trim()
+        require(normalizedText.isNotBlank()) { "Message text is required" }
+
+        val updated = chatMessageRepository.save(message.copy(text = normalizedText, edited = true))
+        val dto = updated.toDto()
+        publishMessageUpdate(collectiveCode, updated, "MESSAGE_UPDATED", dto)
+        return dto
+    }
+
+    @Transactional
+    fun deleteMessage(
+        messageId: Long,
+        actorName: String,
+    ): MessageDto {
+        val message =
+            chatMessageRepository
+                .findById(messageId)
+                .orElseThrow { IllegalArgumentException("Message not found") }
+
+        val collectiveCode = collectiveAccessService.requireCollectiveCodeByMemberName(actorName)
+        require(message.collectiveCode == collectiveCode) { "Message not found" }
+        require(message.sender == actorName) { "Only the sender can delete this message" }
+
+        val updated =
+            chatMessageRepository.save(
+                message.copy(
+                    text = "",
+                    imageData = null,
+                    imageMimeType = null,
+                    imageFileName = null,
+                    poll = null,
+                    reactions = "{}",
+                    pinned = false,
+                    deleted = true,
+                ),
+            )
+        val dto = updated.toDto()
+        publishMessageUpdate(collectiveCode, updated, "MESSAGE_DELETED", dto)
+        return dto
+    }
+
     // A system-style notice posted into the household chat (e.g. a violation report). Saved and
     // broadcast like a normal message, but without NEW_MESSAGE notifications because the caller
     // sends its own targeted notifications for the event.
@@ -596,6 +656,8 @@ class ChatOperations(
                     )
                 },
             pinned = pinned,
+            edited = edited,
+            deleted = deleted,
         )
 
     companion object {
