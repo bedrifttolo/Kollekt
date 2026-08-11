@@ -1,8 +1,8 @@
 package com.kollekt.service
 
 import com.kollekt.domain.Collective
-import com.kollekt.domain.Member
 import com.kollekt.domain.MeetingTopic
+import com.kollekt.domain.Member
 import com.kollekt.repository.CollectiveRepository
 import com.kollekt.repository.MeetingTopicRepository
 import com.kollekt.repository.MemberRepository
@@ -17,7 +17,6 @@ import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.security.access.AccessDeniedException
-import java.time.Instant
 import java.util.Optional
 
 class MeetingTopicOperationsTest {
