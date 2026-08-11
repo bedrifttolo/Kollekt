@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
-import { ArrowLeft, Eye, RotateCcw, SkipForward } from 'lucide-react';
+import { Eye, RotateCcw, SkipForward } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { GameHeader, GameScreen } from './GameScreen';
 
 type DeckId = 'chill' | 'medium' | 'spicy';
 
@@ -39,17 +40,12 @@ export default function SnusboksenGame({ players, onClose }: { players: string[]
   };
 
   return (
-    <div className="fixed inset-0 z-[60] overflow-y-auto bg-background p-5">
-      <div className="mx-auto max-w-md space-y-5">
-        <div className="flex items-center gap-3">
-          <button onClick={onClose} className="btn-ghost !p-3"><ArrowLeft className="h-5 w-5" /></button>
-          <div>
-            <p className="eyebrow">{t('social.games.catalog.snusboksen')}</p>
-            <h2 className="font-display text-2xl font-extrabold">
-              {deckId ? t(`social.games.snusboksen.deckNames.${deckId}`) : t('social.games.snusboksen.pickDeck')}
-            </h2>
-          </div>
-        </div>
+    <GameScreen>
+        <GameHeader
+          eyebrow={t('social.games.catalog.snusboksen')}
+          title={deckId ? t(`social.games.snusboksen.deckNames.${deckId}`) : t('social.games.snusboksen.pickDeck')}
+          onClose={onClose}
+        />
 
         {!deckId && (
           <div className="space-y-3">
@@ -109,7 +105,6 @@ export default function SnusboksenGame({ players, onClose }: { players: string[]
             <RotateCcw className="h-3 w-3" />{t('social.games.snusboksen.changeDeck')}
           </button>
         )}
-      </div>
-    </div>
+    </GameScreen>
   );
 }

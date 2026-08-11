@@ -6,7 +6,7 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
-import java.time.LocalDateTime
+import java.time.Instant
 
 @Entity
 @Table(name = "settlement_checkpoints")
@@ -15,5 +15,5 @@ data class SettlementCheckpoint(
     @Column(nullable = false) val collectiveCode: String,
     @Column(nullable = false) val settledBy: String,
     @Column(nullable = false) val lastExpenseId: Long,
-    @Column(nullable = false) val createdAt: LocalDateTime = LocalDateTime.now(),
+    @Column(nullable = false) val createdAt: Instant = Instant.now(),
 )

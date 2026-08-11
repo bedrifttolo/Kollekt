@@ -14,8 +14,9 @@ import com.kollekt.repository.MaintenanceTicketStatusHistoryRepository
 import com.kollekt.repository.MemberRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 
 @Service
 class MaintenanceTicketOperations(
@@ -32,7 +33,7 @@ class MaintenanceTicketOperations(
         priority: MaintenancePriority?,
     ): List<MaintenanceTicketDto> {
         val collectiveCode = collectiveAccessService.requireCollectiveCodeByMemberName(actorName)
-        val doneCutoff = LocalDateTime.now().minusDays(1)
+        val doneCutoff = Instant.now().minus(1, ChronoUnit.DAYS)
         val tickets =
             ticketRepository.findAllByCollectiveCode(collectiveCode)
                 .asSequence()
@@ -117,7 +118,7 @@ class MaintenanceTicketOperations(
                     dueDate = request.dueDate ?: ticket.dueDate,
                     costEstimate = costEstimate,
                     splitParticipants = splitParticipants,
-                    updatedAt = LocalDateTime.now(),
+                    updatedAt = Instant.now(),
                 ),
             )
         if (status != ticket.status) {

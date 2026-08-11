@@ -625,6 +625,8 @@
     "closeImage": "Luk billede",
     "sending": "Sender …",
     "sendFailedRetry": "Ikke sendt — tryk for at prøve igen",
+    "imageSendFailed": "Billedet kunne ikke sendes. Prøv igen.",
+    "imagePermissionDenied": "Kollekt skal bruge adgang til kamera eller billeder for at sende billeder. Slå det til i Indstillinger.",
     "reactions": {
       "like": "Synes godt om",
       "love": "Elsker",
@@ -658,12 +660,19 @@
     "pinMessage": "Fastgør besked",
     "unpinMessage": "Frigør besked",
     "pinnedLabel": "Fastgjort · {{name}}",
+    "editMessage": "Rediger besked",
+    "deleteMessage": "Slet besked",
+    "messageDeleted": "Besked slettet",
+    "edited": "Redigeret",
+    "editingMessage": "Redigerer besked",
+    "cancelEdit": "Annuller",
     "systemThreadSubtitle": "Automatisk besked",
     "systemThreadReadOnly": "Dette er en automatisk besked — svar bliver ikke læst.",
     "inbox": {
       "eyebrow": "Beskeder",
       "title": "Chat",
-      "noMessages": "Ingen beskeder endnu"
+      "noMessages": "Ingen beskeder endnu",
+      "messageDeleted": "Besked slettet"
     },
     "meetingTopic": {
       "menuLabel": "Emner til husmøde",
@@ -1747,6 +1756,14 @@
       "title": "Fair fordeling",
       "balanced": "BALANCERET",
       "window": "Sidste {{days}} dage"
+    },
+    "memberStats": {
+      "xp": "XP",
+      "streak": "Stime",
+      "tasksDone": "Opgaver",
+      "late": "For sent",
+      "skipped": "Sprunget over",
+      "achievements": "Præstationer"
     }
   },
   "kollektGame": {

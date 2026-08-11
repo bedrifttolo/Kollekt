@@ -23,7 +23,8 @@ import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.mock.web.MockMultipartFile
-import java.time.LocalDateTime
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 import java.util.Base64
 import java.util.Optional
 
@@ -47,6 +48,11 @@ class ChatOperationsTest {
         notificationService = mock()
         currentMemberContext = mock()
         imageSafetyService = mock()
+        // The real service returns the bytes to persist (possibly a downscaled re-encode); echo
+        // the input back so happy-path tests exercise the normal "nothing needed changing" case.
+        whenever(imageSafetyService.validateAndModerate(any(), any())).thenAnswer {
+            SafeImage(it.arguments[0] as ByteArray, it.arguments[1] as String)
+        }
         collectiveAccessService = CollectiveAccessService(currentMemberContext, collectiveRepository)
         operations =
             ChatOperations(
@@ -106,7 +112,7 @@ class ChatOperationsTest {
                     sender = "Emma",
                     collectiveCode = "ABC123",
                     text = "Reply",
-                    timestamp = LocalDateTime.now(),
+                    timestamp = Instant.now(),
                     replyToMessageId = 3,
                 ),
             ),
@@ -134,7 +140,7 @@ class ChatOperationsTest {
                     sender = "Emma",
                     collectiveCode = "ABC123",
                     text = "Original",
-                    timestamp = LocalDateTime.now(),
+                    timestamp = Instant.now(),
                 ),
             ),
         )
@@ -160,7 +166,7 @@ class ChatOperationsTest {
                     sender = "Emma",
                     collectiveCode = "ABC123",
                     text = "Hi",
-                    timestamp = LocalDateTime.now(),
+                    timestamp = Instant.now(),
                     reactions = """{"❤️":["Kasper"],"👍":["Emma"]}""",
                 ),
             ),
@@ -183,7 +189,7 @@ class ChatOperationsTest {
                     sender = "Emma",
                     collectiveCode = "ABC123",
                     text = "Poll",
-                    timestamp = LocalDateTime.now(),
+                    timestamp = Instant.now(),
                     poll =
                         """
                         {"question":"Favorite snack?","options":[
@@ -223,7 +229,7 @@ class ChatOperationsTest {
                 sender = "Emma",
                 collectiveCode = "ABC123",
                 text = "Landlord visit Friday",
-                timestamp = LocalDateTime.now(),
+                timestamp = Instant.now(),
             )
         val previouslyPinned =
             ChatMessage(
@@ -231,7 +237,7 @@ class ChatOperationsTest {
                 sender = "Ola",
                 collectiveCode = "ABC123",
                 text = "Old notice",
-                timestamp = LocalDateTime.now(),
+                timestamp = Instant.now(),
                 pinned = true,
             )
         whenever(chatMessageRepository.findById(50)).thenReturn(Optional.of(target))
@@ -254,7 +260,7 @@ class ChatOperationsTest {
                 sender = "Emma",
                 collectiveCode = "ABC123",
                 text = "Notice",
-                timestamp = LocalDateTime.now(),
+                timestamp = Instant.now(),
                 pinned = true,
             )
         whenever(chatMessageRepository.findById(51)).thenReturn(Optional.of(pinned))
@@ -284,7 +290,7 @@ class ChatOperationsTest {
     @Test
     fun `get messages returns only household messages`() {
         whenever(chatMessageRepository.findAllByCollectiveCodeAndRecipientIsNull("ABC123")).thenReturn(
-            listOf(ChatMessage(id = 1, sender = "Emma", collectiveCode = "ABC123", text = "Hi all", timestamp = LocalDateTime.now())),
+            listOf(ChatMessage(id = 1, sender = "Emma", collectiveCode = "ABC123", text = "Hi all", timestamp = Instant.now())),
         )
 
         val result = operations.getMessages("Kasper")
@@ -348,7 +354,7 @@ class ChatOperationsTest {
                     recipient = "Kasper",
                     collectiveCode = "ABC123",
                     text = "private",
-                    timestamp = LocalDateTime.now(),
+                    timestamp = Instant.now(),
                 ),
             ),
         )
@@ -380,7 +386,7 @@ class ChatOperationsTest {
                     recipient = "Kasper",
                     collectiveCode = "ABC123",
                     text = "dm",
-                    timestamp = LocalDateTime.now(),
+                    timestamp = Instant.now(),
                 ),
             ),
         )
@@ -404,7 +410,7 @@ class ChatOperationsTest {
                 sender = "Emma",
                 collectiveCode = "ABC123",
                 text = "x".repeat(80),
-                timestamp = LocalDateTime.now().minusHours(1),
+                timestamp = Instant.now().minus(1, ChronoUnit.HOURS),
             )
         whenever(chatMessageRepository.findTopByCollectiveCodeAndRecipientIsNullOrderByTimestampDesc("ABC123"))
             .thenReturn(household)
@@ -423,7 +429,7 @@ class ChatOperationsTest {
                 recipient = "Kasper",
                 collectiveCode = "ABC123",
                 text = "hey",
-                timestamp = LocalDateTime.now().minusMinutes(30),
+                timestamp = Instant.now().minus(30, ChronoUnit.MINUTES),
             )
         val systemDm =
             ChatMessage(
@@ -432,7 +438,7 @@ class ChatOperationsTest {
                 recipient = "Kasper",
                 collectiveCode = "ABC123",
                 text = "notice",
-                timestamp = LocalDateTime.now().minusMinutes(10),
+                timestamp = Instant.now().minus(10, ChronoUnit.MINUTES),
             )
         whenever(chatMessageRepository.findAllDirectMessagesInvolving("ABC123", "Kasper"))
             .thenReturn(listOf(emmaDm, systemDm))
@@ -461,7 +467,7 @@ class ChatOperationsTest {
                     sender = "Emma",
                     collectiveCode = "ABC123",
                     text = "hi",
-                    timestamp = LocalDateTime.now(),
+                    timestamp = Instant.now(),
                     reactions = """{"🔥":["Kasper"]}""",
                 ),
             ),
@@ -482,7 +488,7 @@ class ChatOperationsTest {
                     sender = "Emma",
                     collectiveCode = "ABC123",
                     text = "hi",
-                    timestamp = LocalDateTime.now(),
+                    timestamp = Instant.now(),
                     reactions = """{"❤️":["Kasper","Emma"]}""",
                 ),
             ),
@@ -532,7 +538,7 @@ class ChatOperationsTest {
                     sender = "Emma",
                     collectiveCode = "ABC123",
                     text = "Poll",
-                    timestamp = LocalDateTime.now(),
+                    timestamp = Instant.now(),
                     poll = """{"question":"Snack?","options":[{"id":0,"text":"Chips","users":[]}]}""",
                 ),
             ),
@@ -555,7 +561,7 @@ class ChatOperationsTest {
                     sender = "Emma",
                     collectiveCode = "ABC123",
                     text = "Not a poll",
-                    timestamp = LocalDateTime.now(),
+                    timestamp = Instant.now(),
                 ),
             ),
         )
@@ -577,7 +583,7 @@ class ChatOperationsTest {
                     sender = "Emma",
                     collectiveCode = "OTHER",
                     text = "elsewhere",
-                    timestamp = LocalDateTime.now(),
+                    timestamp = Instant.now(),
                 ),
             ),
         )
@@ -613,7 +619,7 @@ class ChatOperationsTest {
                     sender = "Emma",
                     collectiveCode = "ABC123",
                     text = "broken",
-                    timestamp = LocalDateTime.now(),
+                    timestamp = Instant.now(),
                     reactions = "not-json",
                     poll = "not-json",
                 ),

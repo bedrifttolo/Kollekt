@@ -71,8 +71,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.LocalTime
 
 @WebMvcTest(
@@ -349,7 +349,7 @@ class ControllerEndpointContractTest {
                     id = 3,
                     sender = "Kasper",
                     text = request.text,
-                    timestamp = LocalDateTime.parse("2026-03-04T10:15:00"),
+                    timestamp = Instant.parse("2026-03-04T10:15:00Z"),
                 ),
             )
 
@@ -377,7 +377,7 @@ class ControllerEndpointContractTest {
                 imageData = "AQID",
                 imageMimeType = "image/png",
                 imageFileName = "roommate.png",
-                timestamp = LocalDateTime.parse("2026-03-04T10:16:00"),
+                timestamp = Instant.parse("2026-03-04T10:16:00Z"),
             )
         whenever(chatOperations.createImageMessage(any(), anyOrNull(), any())).thenReturn(expected)
 
@@ -405,7 +405,7 @@ class ControllerEndpointContractTest {
                     collectiveCode = "ABC123",
                     settledBy = "Kasper",
                     lastExpenseId = 7,
-                    settledAt = LocalDateTime.parse("2026-03-04T10:00:00"),
+                    settledAt = Instant.parse("2026-03-04T10:00:00Z"),
                 ),
             )
 

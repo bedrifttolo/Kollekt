@@ -8,7 +8,7 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
-import java.time.LocalDateTime
+import java.time.Instant
 
 enum class CustomAchievementMetric {
     TASKS_COMPLETED,
@@ -34,5 +34,5 @@ data class CustomAchievement(
     @Column(nullable = false) val target: Int,
     @Enumerated(EnumType.STRING)
     @Column(nullable = true, length = 32) val taskCategory: TaskCategory? = null,
-    @Column(nullable = false) val createdAt: LocalDateTime = LocalDateTime.now(),
+    @Column(nullable = false) val createdAt: Instant = Instant.now(),
 )

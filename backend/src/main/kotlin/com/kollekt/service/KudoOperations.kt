@@ -13,8 +13,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.DayOfWeek
 import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.LocalTime
+import java.time.ZoneOffset
 import java.time.temporal.TemporalAdjusters
 
 @Service
@@ -49,8 +48,13 @@ class KudoOperations(
                 taskRepository.findByIdAndCollectiveCode(taskId, collectiveCode)
                     ?: throw IllegalArgumentException("Linked task not found")
             }
-        val today = LocalDate.now()
-        val sentToday = kudoRepository.countSentInRange(actorName, today.atStartOfDay(), today.plusDays(1).atStartOfDay())
+        val today = LocalDate.now(ZoneOffset.UTC)
+        val sentToday =
+            kudoRepository.countSentInRange(
+                actorName,
+                today.atStartOfDay(ZoneOffset.UTC).toInstant(),
+                today.plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant(),
+            )
         require(sentToday < dailyCap) { "Daily kudos limit reached" }
         val type = request.type.uppercase().takeIf { it in kudoTypes } ?: "THANK_YOU"
         val saved =
@@ -85,9 +89,9 @@ class KudoOperations(
 
     fun getWeeklySummary(actorName: String): KudosWeeklySummaryDto {
         val collectiveCode = collectiveAccessService.requireCollectiveCodeByMemberName(actorName)
-        val weekStart = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
-        val start = LocalDateTime.of(weekStart, LocalTime.MIN)
-        val end = start.plusWeeks(1)
+        val weekStart = LocalDate.now(ZoneOffset.UTC).with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+        val start = weekStart.atStartOfDay(ZoneOffset.UTC).toInstant()
+        val end = weekStart.plusWeeks(1).atStartOfDay(ZoneOffset.UTC).toInstant()
         val weekly =
             kudoRepository.findAllByCollectiveCodeOrderByCreatedAtDesc(collectiveCode)
                 .filter { it.createdAt >= start && it.createdAt < end }

@@ -34,8 +34,8 @@ import org.mockito.kotlin.never
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalDateTime
 
 class EconomyOperationsTest {
     private lateinit var memberRepository: MemberRepository
@@ -214,7 +214,7 @@ class EconomyOperationsTest {
             ),
         )
         whenever(settlementCheckpointRepository.save(any<SettlementCheckpoint>())).thenAnswer {
-            (it.arguments[0] as SettlementCheckpoint).copy(createdAt = LocalDateTime.parse("2026-03-10T12:00:00"))
+            (it.arguments[0] as SettlementCheckpoint).copy(createdAt = Instant.parse("2026-03-10T12:00:00Z"))
         }
 
         val result = operations.settleUp("Kasper")

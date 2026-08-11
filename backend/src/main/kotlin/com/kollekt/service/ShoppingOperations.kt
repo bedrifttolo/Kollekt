@@ -11,7 +11,8 @@ import com.kollekt.repository.MemberRepository
 import com.kollekt.repository.ShoppingItemRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.LocalDateTime
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 
 @Service
 class ShoppingOperations(
@@ -23,7 +24,7 @@ class ShoppingOperations(
 ) {
     fun getShoppingItems(memberName: String): List<ShoppingItemDto> {
         val collectiveCode = collectiveAccessService.requireCollectiveCodeByMemberName(memberName)
-        val boughtCutoff = LocalDateTime.now().minusDays(1)
+        val boughtCutoff = Instant.now().minus(1, ChronoUnit.DAYS)
         return shoppingItemRepository.findAllByCollectiveCode(collectiveCode)
             .filter { !(it.completed && it.completedAt != null && it.completedAt.isBefore(boughtCutoff)) }
             .map { it.toDto() }
@@ -78,7 +79,7 @@ class ShoppingOperations(
             shoppingItemRepository.save(
                 item.copy(
                     completed = nowCompleted,
-                    completedAt = if (nowCompleted) LocalDateTime.now() else null,
+                    completedAt = if (nowCompleted) Instant.now() else null,
                 ),
             )
         return updated.toDto()
@@ -114,7 +115,7 @@ class ShoppingOperations(
 
     @Transactional
     fun cleanupBoughtItems() {
-        val threshold = LocalDateTime.now().minusDays(1)
+        val threshold = Instant.now().minus(1, ChronoUnit.DAYS)
         shoppingItemRepository
             .findAll()
             .filter { it.completed && it.completedAt != null && it.completedAt.isBefore(threshold) }
@@ -132,7 +133,7 @@ class ShoppingOperations(
             shoppingItemRepository.findByIdAndCollectiveCode(itemId, collectiveCode)
                 ?: throw IllegalArgumentException("Shopping item $itemId not found")
 
-        val updated = shoppingItemRepository.save(item.copy(completed = true, completedAt = LocalDateTime.now()))
+        val updated = shoppingItemRepository.save(item.copy(completed = true, completedAt = Instant.now()))
 
         economyOperations.createExpense(
             CreateExpenseRequest(

@@ -9,7 +9,7 @@ import com.kollekt.repository.MemberRepository
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.LocalDateTime
+import java.time.Instant
 
 /** The running weekly house-meeting agenda: members propose topics, then post one to the
  *  household chat (via the normal message-send path, on the frontend) when it's time to discuss it. */
@@ -46,7 +46,7 @@ class MeetingTopicOperations(
                     collectiveCode = collective.joinCode,
                     title = normalized,
                     createdBy = actorName,
-                    createdAt = LocalDateTime.now(),
+                    createdAt = Instant.now(),
                 ),
             )
         val dto = saved.toDto()

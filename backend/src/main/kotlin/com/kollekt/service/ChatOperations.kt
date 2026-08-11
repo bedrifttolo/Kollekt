@@ -16,7 +16,7 @@ import com.kollekt.repository.MemberRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
-import java.time.LocalDateTime
+import java.time.Instant
 import java.util.Base64
 
 @Service
@@ -92,6 +92,7 @@ class ChatOperations(
                 lastMessageSender = household?.sender,
                 lastMessagePreview = household?.let(::previewOf),
                 lastMessageTimestamp = household?.timestamp,
+                lastMessageDeleted = household?.deleted ?: false,
             )
 
         val otherMembers =
@@ -134,6 +135,7 @@ class ChatOperations(
         lastMessageSender = last?.sender,
         lastMessagePreview = last?.let(::previewOf),
         lastMessageTimestamp = last?.timestamp,
+        lastMessageDeleted = last?.deleted ?: false,
     )
 
     // Household messages broadcast to the whole collective, same as before. DM messages only ever
@@ -182,7 +184,7 @@ class ChatOperations(
                     recipient = recipientMember.name,
                     text = normalizedText,
                     replyToMessageId = replyToMessageId,
-                    timestamp = LocalDateTime.now(),
+                    timestamp = Instant.now(),
                 ),
             )
 
@@ -229,7 +231,7 @@ class ChatOperations(
                     collectiveCode = collectiveCode,
                     text = normalizedText,
                     replyToMessageId = replyToMessageId,
-                    timestamp = LocalDateTime.now(),
+                    timestamp = Instant.now(),
                 ),
             )
 
@@ -246,16 +248,13 @@ class ChatOperations(
         actorName: String,
     ): MessageDto {
         require(!image.isEmpty) { "Image is required" }
-        val contentType =
-            image.contentType
-                ?.trim()
-                .orEmpty()
-                .lowercase()
-        imageSafetyService.validateAndModerate(image.bytes, contentType)
+        // The multipart Content-Type is only a hint — validateAndModerate sniffs the real format
+        // and hands back the bytes to actually store, which may be a downscaled re-encode.
+        val safe = imageSafetyService.validateAndModerate(image.bytes, image.contentType.orEmpty())
 
         val collectiveCode = collectiveAccessService.requireCollectiveCodeByMemberName(actorName)
         val normalizedCaption = caption?.trim().orEmpty()
-        val payload = Base64.getEncoder().encodeToString(image.bytes)
+        val payload = Base64.getEncoder().encodeToString(safe.bytes)
 
         val saved =
             chatMessageRepository.save(
@@ -264,9 +263,11 @@ class ChatOperations(
                     collectiveCode = collectiveCode,
                     text = normalizedCaption,
                     imageData = payload,
-                    imageMimeType = contentType,
+                    // The sniffed (and possibly re-encoded) type, not the client's claim — it's
+                    // what the app builds its `data:` URL from, so it has to match the bytes.
+                    imageMimeType = safe.mimeType,
                     imageFileName = image.originalFilename?.take(255),
-                    timestamp = LocalDateTime.now(),
+                    timestamp = Instant.now(),
                 ),
             )
 
@@ -392,7 +393,7 @@ class ChatOperations(
                     sender = actorName,
                     collectiveCode = collectiveCode,
                     text = "📊 $question",
-                    timestamp = LocalDateTime.now(),
+                    timestamp = Instant.now(),
                     poll = objectMapper.writeValueAsString(payload),
                 ),
             )
@@ -471,6 +472,64 @@ class ChatOperations(
         return dto
     }
 
+    @Transactional
+    fun updateMessage(
+        messageId: Long,
+        text: String,
+        actorName: String,
+    ): MessageDto {
+        val message =
+            chatMessageRepository
+                .findById(messageId)
+                .orElseThrow { IllegalArgumentException("Message not found") }
+
+        val collectiveCode = collectiveAccessService.requireCollectiveCodeByMemberName(actorName)
+        require(message.collectiveCode == collectiveCode) { "Message not found" }
+        require(message.sender == actorName) { "Only the sender can edit this message" }
+        require(!message.deleted) { "Message has been deleted" }
+        require(message.imageData == null && message.poll == null) { "Only text messages can be edited" }
+
+        val normalizedText = text.trim()
+        require(normalizedText.isNotBlank()) { "Message text is required" }
+
+        val updated = chatMessageRepository.save(message.copy(text = normalizedText, edited = true))
+        val dto = updated.toDto()
+        publishMessageUpdate(collectiveCode, updated, "MESSAGE_UPDATED", dto)
+        return dto
+    }
+
+    @Transactional
+    fun deleteMessage(
+        messageId: Long,
+        actorName: String,
+    ): MessageDto {
+        val message =
+            chatMessageRepository
+                .findById(messageId)
+                .orElseThrow { IllegalArgumentException("Message not found") }
+
+        val collectiveCode = collectiveAccessService.requireCollectiveCodeByMemberName(actorName)
+        require(message.collectiveCode == collectiveCode) { "Message not found" }
+        require(message.sender == actorName) { "Only the sender can delete this message" }
+
+        val updated =
+            chatMessageRepository.save(
+                message.copy(
+                    text = "",
+                    imageData = null,
+                    imageMimeType = null,
+                    imageFileName = null,
+                    poll = null,
+                    reactions = "{}",
+                    pinned = false,
+                    deleted = true,
+                ),
+            )
+        val dto = updated.toDto()
+        publishMessageUpdate(collectiveCode, updated, "MESSAGE_DELETED", dto)
+        return dto
+    }
+
     // A system-style notice posted into the household chat (e.g. a violation report). Saved and
     // broadcast like a normal message, but without NEW_MESSAGE notifications because the caller
     // sends its own targeted notifications for the event.
@@ -486,7 +545,7 @@ class ChatOperations(
                     sender = sender,
                     collectiveCode = collectiveCode,
                     text = text,
-                    timestamp = LocalDateTime.now(),
+                    timestamp = Instant.now(),
                 ),
             )
         val dto = saved.toDto()
@@ -511,7 +570,7 @@ class ChatOperations(
                     collectiveCode = collectiveCode,
                     recipient = recipient,
                     text = text,
-                    timestamp = LocalDateTime.now(),
+                    timestamp = Instant.now(),
                 ),
             )
         val dto = saved.toDto()
@@ -597,6 +656,8 @@ class ChatOperations(
                     )
                 },
             pinned = pinned,
+            edited = edited,
+            deleted = deleted,
         )
 
     companion object {

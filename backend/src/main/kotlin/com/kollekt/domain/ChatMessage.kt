@@ -6,7 +6,7 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
-import java.time.LocalDateTime
+import java.time.Instant
 
 @Entity
 @Table(name = "chat_messages")
@@ -21,8 +21,10 @@ data class ChatMessage(
     @Column(nullable = true, length = 120) val imageMimeType: String? = null,
     @Column(nullable = true, length = 255) val imageFileName: String? = null,
     @Column(nullable = true) val replyToMessageId: Long? = null,
-    @Column(nullable = false) val timestamp: LocalDateTime,
+    @Column(nullable = false) val timestamp: Instant,
     @Column(nullable = false, columnDefinition = "TEXT") val reactions: String = "{}",
     @Column(nullable = true, columnDefinition = "TEXT") val poll: String? = null,
     @Column(nullable = false) val pinned: Boolean = false,
+    @Column(nullable = false) val edited: Boolean = false,
+    @Column(nullable = false) val deleted: Boolean = false,
 )

@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
-import { ArrowLeft, Eye, RotateCcw, SkipForward } from 'lucide-react';
+import { Eye, RotateCcw, SkipForward } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { GameHeader, GameScreen } from './GameScreen';
 
 type DeckId = 'chill' | 'medium' | 'spicy';
 const DECKS: DeckId[] = ['chill', 'medium', 'spicy'];
@@ -41,21 +42,12 @@ export default function DeckGame({
   };
 
   return (
-    <div className="fixed inset-0 z-[60] overflow-y-auto bg-background p-5">
-      <div className="mx-auto max-w-md space-y-5">
-        <div className="flex items-center gap-3">
-          <button onClick={onClose} className="btn-ghost !p-3" aria-label={t('common.back')}>
-            <ArrowLeft className="h-5 w-5" />
-          </button>
-          <div>
-            <p className="eyebrow">{t(`social.games.catalog.${gameKey}`)}</p>
-            <h2 className="font-display text-2xl font-extrabold">
-              {deckId
-                ? t(`social.games.${gameKey}.deckNames.${deckId}`)
-                : t('social.games.deckGame.pickDeck')}
-            </h2>
-          </div>
-        </div>
+    <GameScreen>
+        <GameHeader
+          eyebrow={t(`social.games.catalog.${gameKey}`)}
+          title={deckId ? t(`social.games.${gameKey}.deckNames.${deckId}`) : t('social.games.deckGame.pickDeck')}
+          onClose={onClose}
+        />
 
         {!deckId && (
           <div className="space-y-3">
@@ -127,7 +119,6 @@ export default function DeckGame({
             {t('social.games.deckGame.changeDeck')}
           </button>
         )}
-      </div>
-    </div>
+    </GameScreen>
   );
 }

@@ -19,12 +19,11 @@ class TaskMaintenanceService(
     @Scheduled(cron = "0 0 8 * * *")
     fun notifyUpcomingTaskDeadlines() = taskOperations.notifyUpcomingTaskDeadlines(reminderDaysBeforeDue)
 
+    // Also where missed-task penalties are applied now — see the doc on
+    // TaskOperations.deleteExpiredTasks for why penalising and pruning are one step.
     @Scheduled(cron = "0 0 3 * * *")
     @Transactional
     fun deleteExpiredTasks() = taskOperations.deleteExpiredTasks()
-
-    @Scheduled(cron = "0 0 4 * * *")
-    fun penalizeMissedTasks() = taskOperations.penalizeMissedTasks()
 
     @Scheduled(cron = "0 0 3 * * *")
     fun cleanupBoughtShoppingItems() = shoppingOperations.cleanupBoughtItems()

@@ -33,10 +33,16 @@ import com.kollekt.repository.TaskRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.DayOfWeek
+import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalDateTime
+import java.time.ZoneOffset
 import java.time.temporal.TemporalAdjusters
 import kotlin.math.roundToInt
+
+// The server has always run in UTC, so anchoring "which day" a completedAt instant falls on to
+// UTC preserves the exact stats/streak/achievement behavior from before completedAt became an
+// Instant — this is not a per-user timezone, just a fixed reference point for day-bucketing.
+private fun Instant.toLocalDate(): LocalDate = atZone(ZoneOffset.UTC).toLocalDate()
 
 private data class AchievementDefinition(
     val key: String,
@@ -165,29 +171,35 @@ class StatsService(
         )
     }
 
+    /**
+     * The completed tasks a leaderboard period covers. Shared by [buildLeaderboard] and
+     * [getMemberStats] so a member's sheet is scoped to exactly the same set of tasks as the row
+     * they tapped — the two used to disagree because only the leaderboard was period-filtered.
+     */
+    private fun completedInPeriod(
+        allTasks: List<TaskItem>,
+        period: LeaderboardPeriod,
+    ): List<TaskItem> {
+        val now = Instant.now().atZone(ZoneOffset.UTC)
+        return when (period) {
+            LeaderboardPeriod.OVERALL -> allTasks.filter { it.completed }
+            LeaderboardPeriod.YEAR ->
+                allTasks.filter { it.completed && it.completedAt?.atZone(ZoneOffset.UTC)?.year == now.year }
+            LeaderboardPeriod.MONTH ->
+                allTasks.filter {
+                    val completedZoned = it.completedAt?.atZone(ZoneOffset.UTC) ?: return@filter false
+                    it.completed && completedZoned.year == now.year && completedZoned.month == now.month
+                }
+        }
+    }
+
     private fun buildLeaderboard(
         collective: com.kollekt.domain.Collective,
         allTasks: List<TaskItem>,
         members: List<Member>,
         period: LeaderboardPeriod,
     ): LeaderboardResponse {
-        val now = LocalDateTime.now()
-        val completedTasks =
-            when (period) {
-                LeaderboardPeriod.OVERALL -> {
-                    allTasks.filter { it.completed }
-                }
-
-                LeaderboardPeriod.YEAR -> {
-                    allTasks.filter { it.completed && it.completedAt?.year == now.year }
-                }
-
-                LeaderboardPeriod.MONTH -> {
-                    allTasks.filter {
-                        it.completed && it.completedAt?.year == now.year && it.completedAt?.month == now.month
-                    }
-                }
-            }
+        val completedTasks = completedInPeriod(allTasks, period)
 
         // Period XP is the base XP of the member's tasks completed within the selected period,
         // so Total/Year/Month rankings reflect their period. Lifetime XP stays in member.xp.
@@ -257,13 +269,14 @@ class StatsService(
     private fun computeAchievements(
         member: Member,
         collectiveCode: String,
+        preloadedTasks: List<TaskItem>? = null,
     ): List<AchievementDto> {
         val collective =
             collectiveRepository.findByJoinCode(collectiveCode)
                 ?: throw IllegalArgumentException("Collective not found")
         val enabledKeys = collective.enabledAchievementKeys.ifEmpty { DEFAULT_ENABLED_KEYS }
 
-        val memberTasks = tasksWithHistory(collectiveCode).filter { it.assignee == member.name }
+        val memberTasks = (preloadedTasks ?: tasksWithHistory(collectiveCode)).filter { it.assignee == member.name }
         val streak = computeStreak(memberTasks)
 
         val builtInAchievements =
@@ -369,34 +382,65 @@ class StatsService(
         realtimeUpdateService.publish(collectiveCode, "ACHIEVEMENT_CONFIG_UPDATED")
     }
 
+    /**
+     * The stats behind the member sheet on the Social page. Every tile except achievements is
+     * scoped to [period] and derived from the very same leaderboard build as the row that was
+     * tapped, so the sheet can no longer contradict the list above it. It used to report the
+     * lifetime `Member.xp`/`Member.level` columns instead, which the nightly missed-task penalty
+     * job drives negative — a member showing 55 XP in the list read -455 XP and "Nv.-1" here.
+     */
     fun getMemberStats(
         viewerName: String,
         targetName: String,
+        period: LeaderboardPeriod = LeaderboardPeriod.OVERALL,
     ): MemberStatsDto {
         val collectiveCode = collectiveAccessService.requireCollectiveCodeByMemberName(viewerName)
+        val collective =
+            collectiveRepository.findByJoinCode(collectiveCode)
+                ?: throw IllegalArgumentException("Collective not found")
         val target =
             memberRepository.findByNameAndCollectiveCode(targetName, collectiveCode)
                 ?: throw IllegalArgumentException("Member not found")
 
+        // One load, reused by the leaderboard and the tiles below. This used to walk
+        // tasksWithHistory three times over (here, inside getLeaderboard, inside computeAchievements).
         val allTasks = tasksWithHistory(collectiveCode)
+        val members = memberRepository.findAllByCollectiveCode(collectiveCode)
+        val leaderboard = buildLeaderboard(collective, allTasks, members, period)
+        val player = leaderboard.players.firstOrNull { it.name == targetName }
+
         val memberTasks = allTasks.filter { it.assignee == targetName }
-        val streak = computeStreak(memberTasks)
-        val tasksCompleted = memberTasks.count { it.completed }
-        val lateCompletions = memberTasks.count { it.completed && it.penaltyXp > 0 }
-        val skippedTasks = memberTasks.count { !it.completed && it.dueDate < LocalDate.now() }
+        val periodTasks = completedInPeriod(allTasks, period).filter { it.assignee == targetName }
+        // Streak is inherently "consecutive days up to today", so it stays lifetime-scoped
+        // regardless of the period tab — same value the leaderboard row shows.
+        val streak = player?.streak ?: computeStreak(memberTasks)
+        val lateCompletions = periodTasks.count { it.penaltyXp > 0 }
+        val skippedTasks =
+            when (period) {
+                LeaderboardPeriod.OVERALL -> memberTasks.count { !it.completed && it.dueDate < LocalDate.now() }
+                LeaderboardPeriod.YEAR ->
+                    memberTasks.count {
+                        !it.completed && it.dueDate < LocalDate.now() && it.dueDate.year == LocalDate.now().year
+                    }
+                LeaderboardPeriod.MONTH ->
+                    memberTasks.count {
+                        !it.completed &&
+                            it.dueDate < LocalDate.now() &&
+                            it.dueDate.year == LocalDate.now().year &&
+                            it.dueDate.month == LocalDate.now().month
+                    }
+            }
 
-        val leaderboard = getLeaderboard(viewerName)
-        val rank = leaderboard.players.firstOrNull { it.name == targetName }?.rank ?: leaderboard.players.size
-
-        val achievements = computeAchievements(target, collectiveCode)
+        // Achievements stay lifetime — they're permanent badges, not a periodic score.
+        val achievements = computeAchievements(target, collectiveCode, allTasks)
 
         return MemberStatsDto(
             name = target.name,
-            level = target.level,
-            xp = target.xp,
-            rank = rank,
+            level = player?.level ?: target.level,
+            xp = player?.xp ?: 0,
+            rank = player?.rank ?: leaderboard.players.size,
             streak = streak,
-            tasksCompleted = tasksCompleted,
+            tasksCompleted = player?.tasksCompleted ?: periodTasks.size,
             lateCompletions = lateCompletions,
             skippedTasks = skippedTasks,
             achievementsUnlocked = achievements.count { it.unlocked },
@@ -418,10 +462,18 @@ class StatsService(
                 .filter { it.status == com.kollekt.domain.MemberStatus.ACTIVE }
                 .map { it.name }
                 .sorted()
+        // Late completions count in full: the filter deliberately never looks at penaltyXp or
+        // dueDate. Doing a chore three weeks late is still doing the chore, and this card is a
+        // load-sharing snapshot, not a punctuality score — that lives in the period stats.
         val completedRecently =
             tasksWithHistory(collectiveCode)
                 .filter { it.completed && it.completedAt != null && !it.completedAt.toLocalDate().isBefore(since) }
-        val counts = activeMembers.associateWith { name -> completedRecently.count { it.completedBy == name } }
+        // Credited to the ASSIGNEE, not completedBy: whose chore it was is what "fair share"
+        // means, and it keeps this card consistent with the leaderboard, period stats,
+        // achievements and the member sheet, which all key on assignee. It also stops archived
+        // rows dropping out of the totals — TaskHistoryEntry.assignee is non-null while
+        // completedBy is nullable.
+        val counts = activeMembers.associateWith { name -> completedRecently.count { it.assignee == name } }
         val total = counts.values.sum()
 
         val shares =

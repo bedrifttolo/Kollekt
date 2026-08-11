@@ -625,6 +625,8 @@
     "closeImage": "Close image",
     "sending": "Sending…",
     "sendFailedRetry": "Not sent — tap to retry",
+    "imageSendFailed": "The image couldn't be sent. Please try again.",
+    "imagePermissionDenied": "Kollekt needs camera or photo access to send photos. Enable it in Settings.",
     "reactions": {
       "like": "Like",
       "love": "Love",
@@ -658,12 +660,19 @@
     "pinMessage": "Pin message",
     "unpinMessage": "Unpin message",
     "pinnedLabel": "Pinned · {{name}}",
+    "editMessage": "Edit message",
+    "deleteMessage": "Delete message",
+    "messageDeleted": "Message deleted",
+    "edited": "Edited",
+    "editingMessage": "Editing message",
+    "cancelEdit": "Cancel",
     "systemThreadSubtitle": "Automated notice",
     "systemThreadReadOnly": "This is an automated notice — replies aren't read.",
     "inbox": {
       "eyebrow": "Messages",
       "title": "Chat",
-      "noMessages": "No messages yet"
+      "noMessages": "No messages yet",
+      "messageDeleted": "Message deleted"
     },
     "meetingTopic": {
       "menuLabel": "House meeting topics",
@@ -1747,6 +1756,14 @@
       "title": "Fair share",
       "balanced": "BALANCED",
       "window": "Last {{days}} days"
+    },
+    "memberStats": {
+      "xp": "XP",
+      "streak": "Streak",
+      "tasksDone": "Tasks done",
+      "late": "Late",
+      "skipped": "Skipped",
+      "achievements": "Achievements"
     }
   },
   "kollektGame": {

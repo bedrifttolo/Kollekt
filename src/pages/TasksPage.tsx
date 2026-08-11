@@ -32,6 +32,7 @@ import {
 } from 'lucide-react';
 import { api } from '../lib/api';
 import { capturePhotoFile, nativeCameraAvailable } from '../lib/camera';
+import { prepareImageForUpload } from '../lib/imageUpload';
 import { useUser, useRealtimeEvent } from '../context/UserContext';
 import { tapFeedback } from '../lib/haptics';
 import { formatDate, formatDateTime, translateKey } from '../i18n/helpers';
@@ -803,26 +804,28 @@ function TasksMain() {
     }
   };
 
-  const readFeedbackFile = (file: File) => {
+  /** Downscales first: the backend rejects anything over 5 MB, and a raw phone photo clears that. */
+  const readFeedbackFile = async (file: File) => {
+    const prepared = await prepareImageForUpload(file);
     const reader = new FileReader();
     reader.onload = () => {
       setFeedbackImage({
         data: (reader.result as string).split(',')[1],
-        mimeType: file.type,
+        mimeType: prepared.type,
       });
     };
-    reader.readAsDataURL(file);
+    reader.readAsDataURL(prepared);
   };
 
   const handleFeedbackImage = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) readFeedbackFile(file);
+    if (file) void readFeedbackFile(file);
   };
 
   const pickFeedbackImage = async () => {
     if (nativeCameraAvailable()) {
       const file = await capturePhotoFile();
-      if (file) readFeedbackFile(file);
+      if (file) await readFeedbackFile(file);
     } else {
       feedbackImageRef.current?.click();
     }

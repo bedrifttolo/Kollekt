@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
-import { ArrowLeft, Dice5 } from 'lucide-react';
+import { Dice5 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { GameHeader, GameScreen } from './GameScreen';
 
 const claims = ['21', '66', '55', '44', '33', '22', '65', '64', '63', '62', '61', '54', '53', '52', '51', '43', '42', '41', '32', '31'];
 
@@ -42,9 +43,8 @@ export default function MexicanGame({ players, onClose }: { players: string[]; o
   };
 
   return (
-    <div className="fixed inset-0 z-[60] overflow-y-auto bg-background p-5">
-      <div className="mx-auto max-w-md space-y-5">
-        <div className="flex items-center gap-3"><button onClick={onClose} className="btn-ghost !p-3"><ArrowLeft className="h-5 w-5" /></button><div><p className="eyebrow">{t('social.games.catalog.mexican')}</p><h2 className="font-display text-2xl font-extrabold">{player}</h2></div></div>
+    <GameScreen>
+        <GameHeader eyebrow={t('social.games.catalog.mexican')} title={player} onClose={onClose} />
         <div className="card text-sm leading-relaxed"><p className="font-bold">{t('social.games.rules')}</p><p className="mt-2 text-muted-foreground">{t('social.games.mexican.rules')}</p></div>
         {previous && <div className="card text-center"><p className="text-sm text-muted-foreground">{t('social.games.mexican.previousClaim', { player: previous.player })}</p><p className="mt-1 font-display text-4xl font-extrabold">{previous.claim}</p></div>}
         {result && <div className="card border-primary/30 text-center font-bold">{result}</div>}
@@ -53,7 +53,6 @@ export default function MexicanGame({ players, onClose }: { players: string[]; o
         ) : (
           <div className="space-y-3">{previous && <button onClick={challenge} className="btn-ghost w-full">{t('social.games.mexican.challenge')}</button>}<button onClick={roll} className="btn-pine w-full"><Dice5 className="h-5 w-5" />{t('social.games.mexican.roll')}</button></div>
         )}
-      </div>
-    </div>
+    </GameScreen>
   );
 }

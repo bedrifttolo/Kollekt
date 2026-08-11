@@ -6,7 +6,7 @@ import { api } from '../../lib/api';
 import { qk } from '../../lib/queryKeys';
 import { useUser, useRealtimeEvent } from '../../context/UserContext';
 import { getLastSeenMessageId } from '../../lib/chatSeen';
-import { patchThreadsOnDirectMessage, patchThreadsOnHouseholdMessage } from '../../lib/chatThreadSummary';
+import { patchThreadsOnDirectMessage, patchThreadsOnHouseholdMessage, patchThreadsOnMessageUpdate } from '../../lib/chatThreadSummary';
 import { formatDate, formatTime } from '../../i18n/helpers';
 import { Avatar, AvatarStack, Eyebrow } from '../../components/ui-kit';
 import { PAGE_ACCENTS } from '../../lib/pageAccent';
@@ -62,6 +62,11 @@ export default function ChatInboxPage() {
           );
         }
       }
+      if (event.type === 'MESSAGE_UPDATED' || event.type === 'MESSAGE_DELETED') {
+        queryClient.setQueryData<ChatThreadSummary[]>(qk.chatThreads(name), (prev) =>
+          patchThreadsOnMessageUpdate(prev, event.payload as ChatMessage),
+        );
+      }
     },
     () => queryClient.invalidateQueries({ queryKey: qk.chatThreads(name) }),
   );
@@ -93,22 +98,28 @@ export default function ChatInboxPage() {
               onClick={() => openThread(thread)}
               className="flex w-full items-center gap-3 border-b border-border px-2 py-3.5 text-left transition-colors hover:bg-muted/40"
             >
-              {thread.thread === null ? (
-                <AvatarStack members={members.length > 0 ? members : [{ name: thread.displayName }]} max={1} />
-              ) : thread.isSystem ? (
-                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-muted text-muted-foreground">
-                  <Bot className="h-4 w-4" />
+              <span className="flex shrink-0 items-center gap-1.5">
+                <span className="flex w-2 justify-center">
+                  {unread && <span className="h-2 w-2 rounded-full bg-primary" aria-hidden="true" />}
                 </span>
-              ) : (
-                <Avatar name={thread.displayName} color={members.find((m) => m.name === thread.thread)?.color} />
-              )}
+                {thread.thread === null ? (
+                  <AvatarStack members={members.length > 0 ? members : [{ name: thread.displayName }]} max={1} />
+                ) : thread.isSystem ? (
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-muted text-muted-foreground">
+                    <Bot className="h-4 w-4" />
+                  </span>
+                ) : (
+                  <Avatar name={thread.displayName} color={members.find((m) => m.name === thread.thread)?.color} />
+                )}
+              </span>
               <span className="min-w-0 flex-1">
                 <span className="flex items-center gap-1.5">
-                  {unread && <span className="h-2 w-2 shrink-0 rounded-full bg-primary" aria-hidden="true" />}
                   <span className={`truncate font-display text-sm ${unread ? 'font-extrabold' : 'font-bold'}`}>{thread.displayName}</span>
                 </span>
                 <span className={`block truncate text-xs ${unread ? 'font-semibold text-foreground' : 'text-muted-foreground'}`}>
-                  {thread.lastMessagePreview || t('chat.inbox.noMessages')}
+                  {thread.lastMessageDeleted
+                    ? t('chat.inbox.messageDeleted')
+                    : thread.lastMessagePreview || t('chat.inbox.noMessages')}
                 </span>
               </span>
               {thread.lastMessageTimestamp && (

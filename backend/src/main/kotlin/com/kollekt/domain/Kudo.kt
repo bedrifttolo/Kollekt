@@ -6,7 +6,7 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
-import java.time.LocalDateTime
+import java.time.Instant
 
 @Entity
 @Table(name = "kudos")
@@ -18,5 +18,5 @@ data class Kudo(
     @Column(nullable = true) val taskId: Long? = null,
     @Column(nullable = false, length = 32) val type: String = "THANK_YOU",
     @Column(nullable = false, length = 500) val context: String,
-    @Column(nullable = false) val createdAt: LocalDateTime = LocalDateTime.now(),
+    @Column(nullable = false) val createdAt: Instant = Instant.now(),
 )

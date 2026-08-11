@@ -6,7 +6,7 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
-import java.time.LocalDateTime
+import java.time.Instant
 
 @Entity
 @Table(name = "shopping_items")
@@ -16,6 +16,6 @@ data class ShoppingItem(
     @Column(nullable = false) val addedBy: String,
     @Column(nullable = true) val collectiveCode: String? = null,
     @Column(nullable = false) val completed: Boolean = false,
-    @Column(nullable = true) val completedAt: LocalDateTime? = null,
+    @Column(nullable = true) val completedAt: Instant? = null,
     @Column(nullable = false) val staple: Boolean = false,
 )

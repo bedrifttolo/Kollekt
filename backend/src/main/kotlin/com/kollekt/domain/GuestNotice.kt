@@ -6,8 +6,8 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
+import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.LocalTime
 
 @Entity
@@ -21,7 +21,7 @@ data class GuestNotice(
     @Column(nullable = false) val startTime: LocalTime,
     @Column(nullable = false) val endTime: LocalTime,
     @Column(nullable = false) val overnight: Boolean = false,
-    @Column(nullable = false) val createdAt: LocalDateTime = LocalDateTime.now(),
+    @Column(nullable = false) val createdAt: Instant = Instant.now(),
 )
 
 @Entity

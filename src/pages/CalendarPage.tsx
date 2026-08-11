@@ -10,7 +10,7 @@ import {
   Check,
   CircleCheckBig,
   UserX,
-  MessageCircle,
+  MessageCircleHeart,
   House,
 } from "lucide-react";
 import { EVENT_TYPE_ICONS } from "../lib/categoryIcons";
@@ -334,7 +334,7 @@ export default function CalendarPage() {
 
       {checkin && (
         <div className="flex items-center gap-3 rounded-[1.1rem] border border-primary/25 bg-primary/5 p-3">
-          <MessageCircle className="h-5 w-5 shrink-0 text-primary" />
+          <MessageCircleHeart className="h-5 w-5 shrink-0 text-primary" />
           <div>
             <p className="text-sm font-bold">{t("checkin.calendarTitle")}</p>
             <p className="text-[10px] text-muted-foreground">{formatDate(checkin.weekStart)} · {t("checkin.recurring")}</p>

@@ -8,8 +8,8 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
+import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalDateTime
 
 /**
  * A compact snapshot of a task's stat-relevant facts, written right before the task
@@ -28,7 +28,7 @@ data class TaskHistoryEntry(
     @Enumerated(EnumType.STRING)
     @Column(nullable = false) val category: TaskCategory = TaskCategory.OTHER,
     @Column(nullable = false) val completed: Boolean = false,
-    @Column(nullable = true) val completedAt: LocalDateTime? = null,
+    @Column(nullable = true) val completedAt: Instant? = null,
     @Column(nullable = false) val xp: Int = 0,
     @Column(nullable = false) val penaltyXp: Int = 0,
     @Column(nullable = true, length = 128) val recurrenceRule: String? = null,
