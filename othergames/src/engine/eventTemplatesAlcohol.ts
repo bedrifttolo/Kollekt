@@ -514,7 +514,7 @@ export const ALCOHOL_CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
       en: (p) =>
         `${p.name}, you're near the top at rank #${p.stats.rank}. Give the room one smug but useful household tip. If it flops, drink 2 sips.`,
       no: (p) =>
-        `${p.name}, du ligger høyt med plass #${p.stats.rank}. Gi rommet ett småfrekt, men nyttig husholdningstips. Hvis det flopper, drikker du 2 slurker.`,
+        `${p.name}, du ligger høyt med plass #${p.stats.rank}. Gi rommet ett nyttig husholdningstips. Hvis det flopper, drikker du 2 slurker.`,
     },
   },
   {

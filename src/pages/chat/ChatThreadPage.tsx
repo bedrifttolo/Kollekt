@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
-import { ArrowLeft, ArrowUp, Image as ImageIcon, BarChart3, Check, Copy, X, Reply, HeartHandshake, ChevronDown, WashingMachine, Film, Lock, Plus, Smile, MessageCircleHeart, Wallpaper, Pin, PinOff, Pencil, Trash2 } from 'lucide-react';
+import { ArrowLeft, ArrowUp, Image as ImageIcon, BarChart3, Check, Copy, Download, X, Reply, HeartHandshake, ChevronDown, WashingMachine, Film, Lock, Plus, Smile, MessageCircleHeart, Wallpaper, Pin, PinOff, Pencil, Trash2 } from 'lucide-react';
 
 type LaundryType = 'WHITES' | 'COLORS' | 'DELICATES' | 'WOOL' | 'SPORTS' | 'TOWELS';
 const LAUNDRY_TYPES: LaundryType[] = ['WHITES', 'COLORS', 'DELICATES', 'WOOL', 'SPORTS', 'TOWELS'];
@@ -34,7 +34,7 @@ import type { LocalChatMessage } from './MessageBubble';
 
 const KUDO_TYPES: KudoType[] = ['THANK_YOU', 'CLEANEST', 'MOST_HELPFUL', 'PEACEMAKER'];
 import { AddSheet, AvatarStack, CloseButton } from '../../components/ui-kit';
-import { backdropVariants, collapseVariants, dialogVariants, popIn, pressable, springPop, useReducedMotion } from '../../lib/motion';
+import { backdropVariants, collapseVariants, dialogVariants, popIn, pressable, springPop, springSoft, useReducedMotion } from '../../lib/motion';
 import { colorForMember } from '../../lib/memberColors';
 import { PAGE_ACCENTS } from '../../lib/pageAccent';
 import { isIOS } from '../../lib/platform';
@@ -224,6 +224,11 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
   const [expandedImage, setExpandedImage] = useState<{ src: string; alt: string } | null>(null);
   const expandedImageDragY = useMotionValue(0);
   const expandedImageDragScale = useTransform(expandedImageDragY, [-250, 0, 250], [0.85, 1, 0.85]);
+  const expandedImageBackdrop = useTransform(
+    expandedImageDragY,
+    [-420, -160, 0, 160, 420],
+    ['rgba(0,0,0,.3)', 'rgba(0,0,0,.68)', 'rgba(0,0,0,.94)', 'rgba(0,0,0,.68)', 'rgba(0,0,0,.3)'],
+  );
   useEffect(() => {
     expandedImageDragY.set(0);
   }, [expandedImage?.src, expandedImageDragY]);
@@ -526,6 +531,29 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
     }
   };
 
+  // Images use the same optimistic path as text: the local preview is already visible while the
+  // resize, moderation and upload happen in the background. The local File/URL stays attached to
+  // a failed bubble so Retry can resend without asking the user to pick the photo again.
+  const deliverImage = async (tempId: number, file: File, caption: string, localImageUrl: string) => {
+    try {
+      const prepared = await prepareImageForUpload(file);
+      const form = new FormData();
+      form.append('image', prepared);
+      if (caption) form.append('caption', caption);
+      const saved = await api.postForm<ChatMessage>('/chat/images', form);
+      clientIdByServerIdRef.current.set(saved.id, tempId);
+      setMessages((prev) => prev.map((m) => (m.id === tempId ? saved : m)));
+      void fetchMessages();
+      URL.revokeObjectURL(localImageUrl);
+    } catch (error) {
+      setImageError(getUserMessage(error, t('chat.imageSendFailed')));
+      setMessages((prev) => prev.map((m) => (m.id === tempId ? { ...m, status: 'failed' } : m)));
+    } finally {
+      setSendingImage(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
   /** Persists an edit to an existing message instead of sending a new one — routed here from
    *  `sendMessage` whenever `editingMessageId` is set, so the composer's Enter key and send
    *  button don't need their own edit-aware branch. */
@@ -597,6 +625,12 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
   const retryMessage = (message: LocalChatMessage) => {
     if (message.status !== 'failed') return;
     setMessages((prev) => prev.map((m) => (m.id === message.id ? { ...m, status: 'sending' } : m)));
+    if (message.localImageFile && message.localImageUrl) {
+      setImageError(null);
+      setSendingImage(true);
+      void deliverImage(message.id, message.localImageFile, message.text, message.localImageUrl);
+      return;
+    }
     void deliverMessage(message.id, message.text, message.replyToMessageId ?? null);
   };
 
@@ -657,6 +691,16 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
     setPopoverAnchor(null);
   };
 
+  const openMessageActions = (messageId: number, element: HTMLElement) => {
+    if (isSystemThread) return;
+    const message = messageById.get(messageId);
+    if (!message || message.deleted) return;
+    const rect = element.getBoundingClientRect();
+    setPopoverAnchor({ top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right });
+    setPopoverMessageId(messageId);
+    void tapFeedback();
+  };
+
   const startMessagePress = (messageId: number, event: React.PointerEvent<HTMLElement>) => {
     // The automated-notice thread is fully read-only — nothing to reply to or react to there.
     if (isSystemThread) return;
@@ -677,10 +721,7 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
         longPressRef.current.timer = null;
         longPressFiredRef.current = true;
         // Measured now, not at press-start — the message may have scrolled during the 450ms hold.
-        const rect = bubbleEl.getBoundingClientRect();
-        setPopoverAnchor({ top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right });
-        setPopoverMessageId(messageId);
-        void tapFeedback();
+        openMessageActions(messageId, bubbleEl);
       }, 450),
       messageId,
       startX: event.clientX,
@@ -730,7 +771,19 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
 
   const copyMessage = async (message: ChatMessage) => {
     try {
-      await navigator.clipboard.writeText(message.text);
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(message.text);
+      } else {
+        const helper = document.createElement('textarea');
+        helper.value = message.text;
+        helper.setAttribute('readonly', '');
+        helper.style.position = 'fixed';
+        helper.style.opacity = '0';
+        document.body.appendChild(helper);
+        helper.select();
+        document.execCommand('copy');
+        helper.remove();
+      }
       void tapFeedback();
       setCopiedMessageId(message.id);
       window.setTimeout(() => {
@@ -738,7 +791,33 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
         closePopover();
       }, 900);
     } catch {
-      closePopover();
+      // Some WebViews expose neither async clipboard nor execCommand. Keep the menu open so the
+      // user can still use the system selection/share affordance instead of losing the action.
+    }
+  };
+
+  /** Opens the native share sheet when available; on iOS that exposes "Save Image" to Photos. */
+  const saveImageToDevice = async (image: { src: string; alt: string }) => {
+    try {
+      const response = await fetch(image.src);
+      const blob = await response.blob();
+      const extension = blob.type.split('/')[1] || 'jpg';
+      const file = new File([blob], `kollekt-image-${Date.now()}.${extension}`, { type: blob.type || 'image/jpeg' });
+      if (navigator.share && navigator.canShare?.({ files: [file] })) {
+        await navigator.share({ files: [file], title: image.alt });
+      } else {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = file.name;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(url);
+      }
+      void tapFeedback();
+    } catch {
+      // Sharing can be cancelled from the system sheet; that is not an app error.
     }
   };
 
@@ -843,13 +922,33 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
     const msg = messages.find((m) => m.id === messageId);
     const existing = msg?.reactions.find((r) => r.emoji === emoji);
     const alreadyReacted = existing?.users.includes(name);
+    const previousReactions = msg?.reactions ?? [];
+    const optimisticReactions = alreadyReacted
+      ? previousReactions
+          .map((reaction) => reaction.emoji === emoji
+            ? { ...reaction, users: reaction.users.filter((user) => user !== name) }
+            : reaction)
+          .filter((reaction) => reaction.users.length > 0)
+      : existing
+        ? previousReactions.map((reaction) => reaction.emoji === emoji
+          ? { ...reaction, users: [...reaction.users, name] }
+          : reaction)
+        : [...previousReactions, { emoji, users: [name] }];
 
-    if (alreadyReacted) {
-      await api.delete(`/chat/messages/${messageId}/reactions`, { emoji });
-    } else {
-      await api.post(`/chat/messages/${messageId}/reactions`, { emoji });
+    // Tapback should feel instant on a photo or text bubble; reconcile with the server in the
+    // background and restore the old chip if the request fails.
+    setMessages((prev) => prev.map((message) => message.id === messageId ? { ...message, reactions: optimisticReactions } : message));
+    void tapFeedback();
+    try {
+      if (alreadyReacted) {
+        await api.delete(`/chat/messages/${messageId}/reactions`, { emoji });
+      } else {
+        await api.post(`/chat/messages/${messageId}/reactions`, { emoji });
+      }
+      void fetchMessages();
+    } catch {
+      setMessages((prev) => prev.map((message) => message.id === messageId ? { ...message, reactions: previousReactions } : message));
     }
-    fetchMessages();
   };
 
   const handlePickImage = async () => {
@@ -874,24 +973,29 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
    * server's own message is surfaced instead, and the caption is only cleared once the send
    * succeeds so a retry isn't retyped from scratch.
    */
-  const sendImage = async (file: File) => {
+  const sendImage = (file: File) => {
     const caption = input.trim();
+    const localImageUrl = URL.createObjectURL(file);
+    const tempId = -Date.now();
     setImageError(null);
+    setInput('');
+    setMention(null);
+    setMessages((prev) => [...prev, {
+      id: tempId,
+      sender: name,
+      recipient: thread ?? null,
+      text: caption,
+      imageData: null,
+      imageMimeType: file.type || 'image/jpeg',
+      imageFileName: file.name,
+      timestamp: new Date().toISOString(),
+      reactions: [],
+      status: 'sending',
+      localImageUrl,
+      localImageFile: file,
+    }]);
     setSendingImage(true);
-    try {
-      const prepared = await prepareImageForUpload(file);
-      const form = new FormData();
-      form.append('image', prepared);
-      if (caption) form.append('caption', caption);
-      await api.postForm('/chat/images', form);
-      setInput('');
-      fetchMessages();
-    } catch (error) {
-      setImageError(getUserMessage(error, t('chat.imageSendFailed')));
-    } finally {
-      setSendingImage(false);
-      if (fileInputRef.current) fileInputRef.current.value = '';
-    }
+    void deliverImage(tempId, file, caption, localImageUrl);
   };
 
   const applyBackgroundFile = async (file: File) => {
@@ -1109,9 +1213,9 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
               /* Only the newest few messages animate in. The thread is refetched in full on every
                  websocket event, so animating every bubble would replay the whole conversation each
                  time someone sends one. `i` counts from the end for exactly that reason. */
-              initial={isRecent ? { opacity: 0, y: 12, scale: 0.96 } : false}
+              initial={isRecent ? { opacity: 0, y: 7, scale: 0.985 } : false}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={springPop}
+              transition={springSoft}
               data-message-id={message.id}
               /* Tight inside a run, roomy between runs — the grouping is carried by the gap. */
               className={`flex scroll-mt-24 ${isFirstOfGroup && !startsNewDay && !startsUnread ? 'mt-3' : 'mt-0.5'} ${
@@ -1137,6 +1241,7 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
                 onVotePoll={votePoll}
                 onRetry={retryMessage}
                 onToggleReaction={(messageId, emoji) => void toggleReaction(messageId, emoji)}
+                onOpenActions={openMessageActions}
                 onJumpToMessage={jumpToMessage}
               />
             </motion.div>
@@ -1458,13 +1563,19 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
             value={input}
             rows={1}
             onChange={handleInputChange}
+            onPointerDown={(event) => {
+              // Focus during the user's tap, before WebKit has a chance to defer the keyboard
+              // while the thread is re-rendering. This keeps the composer feeling native on iOS.
+              if (document.activeElement !== event.currentTarget) {
+                event.currentTarget.focus({ preventScroll: true });
+              }
+            }}
             onFocus={() => {
               setShowActionBar(false);
-              // The keyboard opening shrinks the message list's viewport (see .app-thread-screen's
-              // keyboard-open override), which otherwise leaves it looking scrolled to the middle
-              // of the thread — re-anchor to the latest message once the resize settles. 350ms
-              // matches the keyboard's own animation duration (see nativeBootstrap's assist).
-              window.setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'auto' }), 350);
+              // Re-anchor in the next paint without adding a timer to the focus path. The native
+              // keyboard resize keeps the composer docked while the list remains at the latest
+              // message.
+              window.requestAnimationFrame(() => bottomRef.current?.scrollIntoView({ behavior: 'auto' }));
             }}
             onKeyDown={(e) => {
               if (mention && mentionCandidates.length > 0) {
@@ -1475,6 +1586,8 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
               if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
             }}
             placeholder={t('chat.messagePlaceholder')}
+            inputMode="text"
+            enterKeyHint="send"
             className="font-ios min-w-36 flex-1 resize-none self-center rounded-3xl bg-muted px-4 py-2.5 text-sm leading-snug text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
           />
           {/* The send button wakes up when there is something to send: dimmed and slightly small
@@ -1496,16 +1609,15 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
 
       {/* Message action popover: the pressed message lifted out of the thread onto a blurred
           backdrop, with a scroll-across reaction strip above it and a compact action list
-          (Reply / Copy / Pin) below — the same lifted-preview shape iOS uses, and now the same for
-          text, image and poll messages. Images used to get WebKit's native callout instead, so the
-          two looked nothing alike and image messages had no actions at all. */}
+          (Reply / Copy / Pin / Edit / Delete) below — the same lifted-preview shape iOS uses, and
+          now the same for text, image and poll messages. */}
       <AnimatePresence>
         {popoverMessage && popoverAnchor && (() => {
           const canCopy = popoverMessage.text.trim().length > 0;
           const popoverIsSelf = popoverMessage.sender === name;
           const canEdit = popoverIsSelf && !popoverMessage.imageData && !popoverMessage.poll;
           const canDelete = popoverIsSelf;
-          const actionRowCount = 1 + (canCopy ? 1 : 0) + (!isDirect ? 1 : 0) + (canEdit ? 1 : 0) + (canDelete ? 1 : 0);
+          const actionRowCount = 1 + (canCopy ? 1 : 0) + (popoverMessage.imageData ? 1 : 0) + (!isDirect ? 1 : 0) + (canEdit ? 1 : 0) + (canDelete ? 1 : 0);
           const placement = computePopoverPlacement(popoverAnchor, actionRowCount);
           return (
             <motion.div
@@ -1595,6 +1707,18 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
                         : <><Copy className="h-4 w-4 text-muted-foreground" />{t('chat.copyMessage')}</>}
                     </button>
                   )}
+                  {popoverMessage.imageData && (
+                    <button
+                      onClick={() => void saveImageToDevice({
+                        src: `data:${popoverMessage.imageMimeType};base64,${popoverMessage.imageData}`,
+                        alt: popoverMessage.imageFileName ?? t('chat.imageAlt'),
+                      })}
+                      className="flex min-h-11 w-full items-center gap-3 px-4 text-left text-sm font-semibold hover:bg-muted/60"
+                    >
+                      <Download className="h-4 w-4 text-muted-foreground" />
+                      {t('chat.saveImage')}
+                    </button>
+                  )}
                   {!isDirect && (
                     <button
                       onClick={() => void togglePin(popoverMessage.id)}
@@ -1636,31 +1760,47 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 z-50 bg-black/90 flex items-center justify-center p-0"
+            className="absolute inset-0 z-50 flex items-center justify-center overflow-hidden p-0"
+            style={{ backgroundColor: expandedImageBackdrop }}
             onClick={() => setExpandedImage(null)}
-            drag="y"
-            style={{ y: expandedImageDragY, scale: expandedImageDragScale }}
-            dragConstraints={{ top: 0, bottom: 0 }}
-            dragElastic={0.7}
-            onDragEnd={(_, info) => {
-              if (Math.abs(info.offset.y) > 120 || Math.abs(info.velocity.y) > 600) {
-                setExpandedImage(null);
-              }
-            }}
           >
             <button
-              className="pressable-tight absolute top-[calc(env(safe-area-inset-top,0px)+1rem)] right-4 h-10 w-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center"
+              className="pressable-tight absolute right-4 top-[calc(env(safe-area-inset-top,0px)+1rem)] z-10 grid h-11 w-11 place-items-center rounded-full bg-white/10 hover:bg-white/20"
               onClick={() => setExpandedImage(null)}
               aria-label={t('chat.closeImage')}
             >
               <X className="h-5 w-5 text-white" />
             </button>
-            <img
-              src={expandedImage.src}
-              alt={expandedImage.alt}
-              className="h-full w-full object-contain"
-              onClick={(e) => e.stopPropagation()}
-            />
+            <button
+              className="pressable-tight absolute left-4 top-[calc(env(safe-area-inset-top,0px)+1rem)] z-10 grid h-11 w-11 place-items-center rounded-full bg-white/10 hover:bg-white/20"
+              onClick={() => void saveImageToDevice(expandedImage)}
+              aria-label={t('chat.saveImage')}
+            >
+              <Download className="h-5 w-5 text-white" />
+            </button>
+            <motion.div
+              drag="y"
+              dragConstraints={{ top: 0, bottom: 0 }}
+              dragElastic={0.82}
+              dragMomentum={false}
+              style={{ y: expandedImageDragY, scale: expandedImageDragScale }}
+              className="relative flex max-h-[90dvh] max-w-[96vw] items-center justify-center touch-pan-x"
+              onClick={(event) => event.stopPropagation()}
+              onDragEnd={(_, info) => {
+                // Snapchat closes an opened Snap on a downward swipe; upward pulls simply spring
+                // back to the full-screen viewer.
+                if (info.offset.y > 120 || info.velocity.y > 600) {
+                  setExpandedImage(null);
+                }
+              }}
+            >
+              <img
+                src={expandedImage.src}
+                alt={expandedImage.alt}
+                className="max-h-[90dvh] max-w-[96vw] select-none rounded-[1.5rem] object-contain"
+                draggable={false}
+              />
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>

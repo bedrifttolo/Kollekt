@@ -1,11 +1,16 @@
 import type { PointerEvent as ReactPointerEvent } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { BarChart3 } from 'lucide-react';
+import { BarChart3, MoreHorizontal } from 'lucide-react';
 import { popIn, pressable, springPop } from '../../lib/motion';
 import type { ChatMessage } from '../../lib/types';
 
-export type LocalChatMessage = ChatMessage & { status?: 'sending' | 'failed' };
+export type LocalChatMessage = ChatMessage & {
+  status?: 'sending' | 'failed';
+  /** Device-local preview/file used while an image upload is in flight or being retried. */
+  localImageUrl?: string;
+  localImageFile?: File;
+};
 
 interface MessageBubbleProps {
   message: LocalChatMessage;
@@ -16,7 +21,7 @@ interface MessageBubbleProps {
   isLastOfGroup: boolean;
   /** The sender's assigned colour, used for the name label and the bubble's leading edge. */
   senderColor: string;
-  /** Viewer's own member name — decides which side the quoted bubble sits on. */
+  /** Viewer's own member name — used for poll state, reactions and message metadata. */
   currentUserName: string;
   /**
    * `preview` is the clone lifted into the long-press overlay: same bubble, no interaction, no
@@ -30,6 +35,8 @@ interface MessageBubbleProps {
   onVotePoll?: (messageId: number, optionId: number) => void;
   onRetry?: (message: LocalChatMessage) => void;
   onToggleReaction?: (messageId: number, emoji: string) => void;
+  /** Opens the message action menu from the explicit actions button. */
+  onOpenActions?: (messageId: number, element: HTMLElement) => void;
   /** Scroll the quoted original back into view, the way tapping a quote does in iOS Messages. */
   onJumpToMessage?: (messageId: number) => void;
   /** The thread's own locale-aware formatter, so bubble timestamps stay in one place. */
@@ -61,12 +68,13 @@ export default function MessageBubble({
   onVotePoll,
   onRetry,
   onToggleReaction,
+  onOpenActions,
   onJumpToMessage,
   formatTimestamp,
 }: MessageBubbleProps) {
   const { t } = useTranslation();
   const isPreview = variant === 'preview';
-  const imageSrc = message.imageData ? `data:${message.imageMimeType};base64,${message.imageData}` : null;
+  const imageSrc = message.localImageUrl ?? (message.imageData ? `data:${message.imageMimeType};base64,${message.imageData}` : null);
   const imageAlt = message.imageFileName ?? t('chat.imageAlt');
 
   const bubbleTone = isSelf
@@ -74,17 +82,30 @@ export default function MessageBubble({
     : `border border-border bg-white text-black dark:bg-neutral-700 dark:text-white ${isLastOfGroup ? 'bub-tail-other' : ''}`;
 
   return (
-    <div className={`flex w-full flex-col ${isSelf ? 'items-end' : 'items-start'}`}>
+    <div className={`group flex w-full flex-col ${isSelf ? 'items-end' : 'items-start'}`}>
       {replyTarget && (
         <QuotedMessage
           target={replyTarget}
           replyIsSelf={isSelf}
-          currentUserName={currentUserName}
           onJump={isPreview ? undefined : onJumpToMessage}
         />
       )}
 
-      <div className={`flex w-full ${isSelf ? 'justify-end' : 'justify-start'}`}>
+      <div className={`flex w-full items-end gap-1 ${isSelf ? 'justify-end' : 'justify-start'}`}>
+        {!isSelf && !isPreview && !message.deleted && !message.status && onOpenActions && (
+          <button
+            type="button"
+            className="pressable-tight mb-1 shrink-0 rounded-full text-muted-foreground/70 hover:bg-muted/60 hover:text-foreground"
+            aria-label={t('chat.messageActions')}
+            onPointerDown={(event) => event.stopPropagation()}
+            onClick={(event) => {
+              event.stopPropagation();
+              onOpenActions(message.id, event.currentTarget.parentElement?.querySelector<HTMLElement>('.bub') ?? event.currentTarget);
+            }}
+          >
+            <MoreHorizontal className="h-4 w-4" />
+          </button>
+        )}
         <div className="max-w-[78%] space-y-1">
           {/* The quote above already names its author; repeating it directly underneath when the
               reply is from that same person just reads as a stutter. */}
@@ -212,62 +233,60 @@ export default function MessageBubble({
             </div>
           )}
         </div>
+        {isSelf && !isPreview && !message.deleted && !message.status && onOpenActions && (
+          <button
+            type="button"
+            className="pressable-tight mb-1 shrink-0 rounded-full text-muted-foreground/70 hover:bg-muted/60 hover:text-foreground"
+            aria-label={t('chat.messageActions')}
+            onPointerDown={(event) => event.stopPropagation()}
+            onClick={(event) => {
+              event.stopPropagation();
+              onOpenActions(message.id, event.currentTarget.parentElement?.querySelector<HTMLElement>('.bub') ?? event.currentTarget);
+            }}
+          >
+            <MoreHorizontal className="h-4 w-4" />
+          </button>
+        )}
       </div>
     </div>
   );
 }
 
 /**
- * The quoted original above a reply, as iOS Messages draws it: a smaller, faded copy of the real
- * bubble aligned to *its own* author's side (not the replier's), with a short curved connector
- * hooking down toward the reply below. Replaces the bordered grey rectangle this used to be.
+ * The quoted original above a reply, as iOS Messages draws it: a compact preview attached to the
+ * reply's side, with a sender label, clipped text and an accent edge. Keeping it on the same side
+ * as the new message makes the relationship legible without the old detached "Svarer til" card.
  */
 function QuotedMessage({
   target,
   replyIsSelf,
-  currentUserName,
   onJump,
 }: {
   target: LocalChatMessage;
   replyIsSelf: boolean;
-  currentUserName: string;
   onJump?: (messageId: number) => void;
 }) {
   const { t } = useTranslation();
-  const quoteIsSelf = target.sender === currentUserName;
   const thumbSrc = target.imageData ? `data:${target.imageMimeType};base64,${target.imageData}` : null;
   const previewText = target.deleted ? t('chat.messageDeleted') : target.poll?.question || target.text || t('chat.imageAlt');
 
   return (
-    <div className={`flex w-full flex-col ${quoteIsSelf ? 'items-end' : 'items-start'}`}>
+    <div className={`-mb-1 flex w-full ${replyIsSelf ? 'justify-end' : 'justify-start'}`}>
       <button
         type="button"
         disabled={!onJump}
         onClick={() => onJump?.(target.id)}
-        className="max-w-[70%] text-left opacity-60 disabled:opacity-60"
+        className={`max-w-[78%] rounded-t-2xl border-l-2 px-2.5 py-1.5 text-left opacity-80 transition-colors disabled:cursor-default disabled:opacity-80 ${
+          replyIsSelf ? 'border-l-white/60 bg-secondary/55 text-white' : 'border-l-primary bg-muted/90 text-foreground'
+        }`}
         aria-label={t('chat.replyingTo', { name: target.sender })}
       >
-        <span className="block truncate px-2 text-[10px] font-semibold text-muted-foreground">{target.sender}</span>
-        <span
-          className={`bub-quote mt-0.5 flex items-center gap-1.5 ${
-            quoteIsSelf ? 'bg-secondary/70 text-white' : 'border border-border bg-muted text-foreground'
-          }`}
-        >
+        <span className="block truncate text-[10px] font-bold opacity-75">{target.sender}</span>
+        <span className="flex items-center gap-1.5">
           {thumbSrc && <img src={thumbSrc} alt="" className="chat-media h-6 w-6 shrink-0 rounded-md object-cover" />}
           <span className="font-ios truncate text-[13px] leading-snug">{previewText}</span>
         </span>
       </button>
-      {/* Down-then-across hook, mirrored so it always points from the quote toward the reply. */}
-      <svg
-        viewBox="0 0 24 20"
-        aria-hidden="true"
-        className={`-mt-px h-4 w-6 shrink-0 text-muted-foreground ${
-          quoteIsSelf ? 'mr-5 scale-x-[-1] self-end' : 'ml-5 self-start'
-        } ${quoteIsSelf === replyIsSelf ? '' : 'opacity-70'}`}
-        fill="none"
-      >
-        <path d="M4 0v7a9 9 0 0 0 9 9h7" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" opacity="0.5" />
-      </svg>
     </div>
   );
 }

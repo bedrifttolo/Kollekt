@@ -545,7 +545,7 @@ export const CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
       en: (p) =>
         `${p.name}, you're near the top at rank #${p.stats.rank}. Give the room one smug but useful household tip. If it flops, lose 2 points.`,
       no: (p) =>
-        `${p.name}, du ligger høyt med plass #${p.stats.rank}. Gi rommet ett småfrekt, men nyttig husholdningstips. Hvis det flopper, mister du 2 poeng.`,
+        `${p.name}, du ligger høyt med plass #${p.stats.rank}. Gi rommet ett nyttig husholdningstips. Hvis det flopper, mister du 2 poeng.`,
     },
   },
   {

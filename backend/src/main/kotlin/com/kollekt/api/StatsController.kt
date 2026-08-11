@@ -43,7 +43,7 @@ class StatsController(
     @GetMapping("/leaderboard")
     fun getLeaderboard(
         @RequestParam memberName: String,
-        @RequestParam(defaultValue = "OVERALL") period: LeaderboardPeriod,
+        @RequestParam(defaultValue = "MONTH") period: LeaderboardPeriod,
         @AuthenticationPrincipal jwt: Jwt,
     ): LeaderboardResponse {
         currentMemberContext.requireTokenSubject(jwt, memberName)
@@ -133,8 +133,8 @@ class StatsController(
         @RequestParam viewerName: String,
         @RequestParam targetName: String,
         // Mirrors /leaderboard's period so the sheet reports the same numbers as the row that
-        // was tapped. Defaults to OVERALL for older clients that don't send it.
-        @RequestParam(defaultValue = "OVERALL") period: LeaderboardPeriod,
+        // was tapped. The monthly view is the standard social view.
+        @RequestParam(defaultValue = "MONTH") period: LeaderboardPeriod,
         @AuthenticationPrincipal jwt: Jwt,
     ): MemberStatsDto {
         currentMemberContext.requireTokenSubject(jwt, viewerName)

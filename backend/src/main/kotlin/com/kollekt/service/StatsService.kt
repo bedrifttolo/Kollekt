@@ -156,7 +156,7 @@ class StatsService(
 ) {
     fun getLeaderboard(
         memberName: String,
-        period: LeaderboardPeriod = LeaderboardPeriod.OVERALL,
+        period: LeaderboardPeriod = LeaderboardPeriod.MONTH,
     ): LeaderboardResponse {
         val collectiveCode = collectiveAccessService.requireCollectiveCodeByMemberName(memberName)
         val collective =
@@ -392,7 +392,7 @@ class StatsService(
     fun getMemberStats(
         viewerName: String,
         targetName: String,
-        period: LeaderboardPeriod = LeaderboardPeriod.OVERALL,
+        period: LeaderboardPeriod = LeaderboardPeriod.MONTH,
     ): MemberStatsDto {
         val collectiveCode = collectiveAccessService.requireCollectiveCodeByMemberName(viewerName)
         val collective =
@@ -540,9 +540,11 @@ class StatsService(
         val events = eventRepository.findAllByCollectiveCode(collectiveCode)
         val expenses = expenseRepository.findAllByCollectiveCode(collectiveCode)
         val leaderboard = buildLeaderboard(collective, allTasks, members, LeaderboardPeriod.OVERALL)
-        val rank =
-            leaderboard.players.firstOrNull { it.name == user.name }?.rank
-                ?: leaderboard.players.size
+        // The home card and the Total leaderboard must use the same row. Member.xp can also
+        // contain adjustments that are deliberately not part of the leaderboard's task score,
+        // which used to make these two screens disagree.
+        val currentPlayer = leaderboard.players.firstOrNull { it.name == user.name }
+        val rank = currentPlayer?.rank ?: leaderboard.players.size
 
         val balances = economyOperations.calculateBalancesForLoadedData(collectiveCode, expenses, members.map { it.name })
         val userBalance = balances.firstOrNull { it.name == user.name }?.amount ?: 0
@@ -617,8 +619,8 @@ class StatsService(
             DashboardResponse(
                 collectiveName = collective.name,
                 currentUserName = user.name,
-                currentUserXp = user.xp,
-                currentUserLevel = user.level,
+                currentUserXp = currentPlayer?.xp ?: 0,
+                currentUserLevel = currentPlayer?.level ?: user.level,
                 currentUserRank = rank,
                 currentUserBalance = userBalance,
                 completedTasksCount =

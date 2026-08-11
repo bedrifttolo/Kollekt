@@ -77,10 +77,18 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
       (el instanceof HTMLElement && el.isContentEditable);
     const onPointerDown = (e: PointerEvent) => {
       const active = document.activeElement;
-      if (!isField(active)) return;
       const target = e.target instanceof Node ? e.target : null;
+      const targetField = target instanceof Element ? target.closest('input, textarea, select, [contenteditable="true"]') : null;
+      // Focus from the user's pointer gesture itself. WKWebView then treats it like a native
+      // control tap, so the keyboard starts immediately across every form in the app instead of
+      // waiting for a later render/scroll pass.
+      if (targetField && isField(targetField) && targetField !== active && targetField instanceof HTMLElement) {
+        targetField.focus({ preventScroll: true });
+        return;
+      }
+      if (!isField(active)) return;
       if (target && active.contains(target)) return;
-      if (target instanceof Element && isField(target.closest('input, textarea, select, [contenteditable="true"]'))) return;
+      if (targetField && isField(targetField)) return;
       // Chat's message list scrolls independently while the composer stays focused (and the
       // keyboard stays open) — a tap/drag there shouldn't dismiss it the way tapping real chrome
       // (the header, another sheet) does.
