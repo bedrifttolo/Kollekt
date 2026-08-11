@@ -431,7 +431,7 @@ export default function CalendarPage() {
                       ? "bg-transparent"
                       : isSelected
                         ? "bg-black dark:bg-white"
-                        : "bg-[var(--tone-sage)]"
+                        : "bg-primary"
                   }`}
                 />
                 </span>

@@ -154,6 +154,7 @@ class StatsServiceTest {
 
         assertEquals("Villa", result.collectiveName)
         assertEquals("Kasper", result.currentUserName)
+        assertEquals(20, result.currentUserXp)
         assertEquals(1, result.currentUserRank)
         assertEquals(listOf("Dishes", "Floors"), result.upcomingTasks.map { it.title })
         assertEquals(listOf("Movie night"), result.upcomingEvents.map { it.title })
@@ -517,7 +518,12 @@ class StatsServiceTest {
             ),
         )
 
-        val result = service.getMemberStats(viewerName = "Kasper", targetName = "Emma")
+        val result =
+            service.getMemberStats(
+                viewerName = "Kasper",
+                targetName = "Emma",
+                period = LeaderboardPeriod.OVERALL,
+            )
 
         // One live completed task plus one archived completed task.
         assertEquals(2, result.tasksCompleted)

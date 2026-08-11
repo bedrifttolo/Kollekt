@@ -5,7 +5,8 @@ import { initializeAds } from './ads';
 
 // When the on-screen keyboard opens, the webview shrinks but inputs lower on the page
 // (task/event/expense forms) can end up hidden behind it. Re-centre whichever field
-// receives focus once the keyboard animation has settled.
+// receives focus. The focus itself must stay on the user's gesture; this only keeps the field
+// visible after the native viewport resize.
 function bindKeyboardScrollAssist(): void {
   document.addEventListener('focusin', (event) => {
     const target = event.target;
@@ -19,10 +20,10 @@ function bindKeyboardScrollAssist(): void {
     // Chat's composer keeps its own message list pinned to the newest message instead of
     // centering the input — this generic assist would fight that and double-jump the page.
     if (target.dataset.keyboardScrollAssist === 'off') return;
-    window.setTimeout(() => {
+    window.requestAnimationFrame(() => {
       if (document.activeElement !== target) return;
-      target.scrollIntoView({ block: 'center', behavior: 'smooth' });
-    }, 350);
+      target.scrollIntoView({ block: 'center', behavior: 'auto' });
+    });
   });
 }
 

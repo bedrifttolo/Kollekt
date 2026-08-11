@@ -33,7 +33,7 @@ function FactorRow({
   const isPenalty = delta < 0;
   return (
     <div className="flex items-start gap-3 rounded-2xl border border-border bg-card p-3.5">
-      <span className={`tone-tile tone-${tone} grid h-10 w-10 shrink-0 place-items-center rounded-[--r-sm]`}>{icon}</span>
+      <span className={`tone-tile tone-${tone} grid h-10 w-10 shrink-0 place-items-center rounded-full`}>{icon}</span>
       <div className="min-w-0 flex-1">
         <div className="flex items-baseline justify-between gap-2">
           <span className="text-sm font-bold">{label}</span>
@@ -190,7 +190,7 @@ export default function VibeSheet({
           {b.balancePenalty > 0 ? (
             <button onClick={() => navigate('/economy')} className="block w-full text-left">
               <div className="flex items-center gap-3 rounded-2xl border border-destructive/30 bg-destructive/5 p-3.5">
-                <span className="tone-tile tone-blush grid h-10 w-10 shrink-0 place-items-center rounded-[--r-sm]">
+                <span className="tone-tile tone-blush grid h-10 w-10 shrink-0 place-items-center rounded-full">
                   <Wallet className="h-4 w-4" />
                 </span>
                 <div className="min-w-0 flex-1">
