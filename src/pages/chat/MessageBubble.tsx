@@ -1,7 +1,7 @@
 import type { PointerEvent as ReactPointerEvent } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { BarChart3, MoreHorizontal } from 'lucide-react';
+import { BarChart3 } from 'lucide-react';
 import { popIn, pressable, springPop } from '../../lib/motion';
 import type { ChatMessage } from '../../lib/types';
 
@@ -35,8 +35,6 @@ interface MessageBubbleProps {
   onVotePoll?: (messageId: number, optionId: number) => void;
   onRetry?: (message: LocalChatMessage) => void;
   onToggleReaction?: (messageId: number, emoji: string) => void;
-  /** Opens the message action menu from the explicit actions button. */
-  onOpenActions?: (messageId: number, element: HTMLElement) => void;
   /** Scroll the quoted original back into view, the way tapping a quote does in iOS Messages. */
   onJumpToMessage?: (messageId: number) => void;
   /** The thread's own locale-aware formatter, so bubble timestamps stay in one place. */
@@ -68,7 +66,6 @@ export default function MessageBubble({
   onVotePoll,
   onRetry,
   onToggleReaction,
-  onOpenActions,
   onJumpToMessage,
   formatTimestamp,
 }: MessageBubbleProps) {
@@ -91,21 +88,7 @@ export default function MessageBubble({
         />
       )}
 
-      <div className={`flex w-full items-end gap-1 ${isSelf ? 'justify-end' : 'justify-start'}`}>
-        {!isSelf && !isPreview && !message.deleted && !message.status && onOpenActions && (
-          <button
-            type="button"
-            className="pressable-tight mb-1 shrink-0 rounded-full text-muted-foreground/70 hover:bg-muted/60 hover:text-foreground"
-            aria-label={t('chat.messageActions')}
-            onPointerDown={(event) => event.stopPropagation()}
-            onClick={(event) => {
-              event.stopPropagation();
-              onOpenActions(message.id, event.currentTarget.parentElement?.querySelector<HTMLElement>('.bub') ?? event.currentTarget);
-            }}
-          >
-            <MoreHorizontal className="h-4 w-4" />
-          </button>
-        )}
+      <div className={`flex w-full items-end ${isSelf ? 'justify-end' : 'justify-start'}`}>
         <div className="max-w-[78%] space-y-1">
           {/* The quote above already names its author; repeating it directly underneath when the
               reply is from that same person just reads as a stutter. */}
@@ -233,20 +216,6 @@ export default function MessageBubble({
             </div>
           )}
         </div>
-        {isSelf && !isPreview && !message.deleted && !message.status && onOpenActions && (
-          <button
-            type="button"
-            className="pressable-tight mb-1 shrink-0 rounded-full text-muted-foreground/70 hover:bg-muted/60 hover:text-foreground"
-            aria-label={t('chat.messageActions')}
-            onPointerDown={(event) => event.stopPropagation()}
-            onClick={(event) => {
-              event.stopPropagation();
-              onOpenActions(message.id, event.currentTarget.parentElement?.querySelector<HTMLElement>('.bub') ?? event.currentTarget);
-            }}
-          >
-            <MoreHorizontal className="h-4 w-4" />
-          </button>
-        )}
       </div>
     </div>
   );

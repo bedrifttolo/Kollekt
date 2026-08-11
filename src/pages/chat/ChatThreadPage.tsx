@@ -1241,7 +1241,6 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
                 onVotePoll={votePoll}
                 onRetry={retryMessage}
                 onToggleReaction={(messageId, emoji) => void toggleReaction(messageId, emoji)}
-                onOpenActions={openMessageActions}
                 onJumpToMessage={jumpToMessage}
               />
             </motion.div>
@@ -1572,10 +1571,11 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
             }}
             onFocus={() => {
               setShowActionBar(false);
-              // Re-anchor in the next paint without adding a timer to the focus path. The native
-              // keyboard resize keeps the composer docked while the list remains at the latest
-              // message.
-              window.requestAnimationFrame(() => bottomRef.current?.scrollIntoView({ behavior: 'auto' }));
+              // Do not call scrollIntoView here: on iOS it can scroll the page ancestor while the
+              // keyboard is animating, which makes the composer arrive a beat after the keyboard.
+              // Scrolling the chat list directly keeps the composer and native keyboard in lockstep.
+              const list = scrollContainerRef.current;
+              if (list) list.scrollTop = list.scrollHeight;
             }}
             onKeyDown={(e) => {
               if (mention && mentionCandidates.length > 0) {
