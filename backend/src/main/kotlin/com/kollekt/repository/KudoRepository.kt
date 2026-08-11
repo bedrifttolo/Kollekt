@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
-import java.time.LocalDateTime
+import java.time.Instant
 
 interface KudoRepository : JpaRepository<Kudo, Long> {
     fun findAllByCollectiveCodeOrderByCreatedAtDesc(collectiveCode: String): List<Kudo>
@@ -13,8 +13,8 @@ interface KudoRepository : JpaRepository<Kudo, Long> {
     @Query("select count(k) from Kudo k where k.sender = :sender and k.createdAt >= :start and k.createdAt < :end")
     fun countSentInRange(
         @Param("sender") sender: String,
-        @Param("start") start: LocalDateTime,
-        @Param("end") end: LocalDateTime,
+        @Param("start") start: Instant,
+        @Param("end") end: Instant,
     ): Long
 
     @Modifying

@@ -6,7 +6,7 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
-import java.time.LocalDateTime
+import java.time.Instant
 
 @Entity
 @Table(name = "invitations")
@@ -15,7 +15,7 @@ data class Invitation(
     @Column(nullable = false) val email: String,
     @Column(nullable = false) val collectiveCode: String,
     @Column(nullable = false) val invitedBy: String,
-    @Column(nullable = false) val createdAt: LocalDateTime = LocalDateTime.now(),
+    @Column(nullable = false) val createdAt: Instant = Instant.now(),
     @Column(nullable = false) val accepted: Boolean = false,
-    @Column(nullable = true) val acceptedAt: LocalDateTime? = null,
+    @Column(nullable = true) val acceptedAt: Instant? = null,
 )

@@ -6,7 +6,7 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
-import java.time.LocalDateTime
+import java.time.Instant
 
 @Entity
 @Table(name = "task_feedback")
@@ -18,5 +18,5 @@ data class TaskFeedback(
     @Column(nullable = false) val anonymous: Boolean = false,
     @Column(nullable = true) val imageData: String? = null,
     @Column(nullable = true, length = 120) val imageMimeType: String? = null,
-    @Column(nullable = false) val createdAt: LocalDateTime = LocalDateTime.now(),
+    @Column(nullable = false) val createdAt: Instant = Instant.now(),
 )

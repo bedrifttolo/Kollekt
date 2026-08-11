@@ -25,8 +25,9 @@ import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 import java.util.Optional
 
 class TaskOperationsTest {
@@ -495,13 +496,13 @@ class TaskOperationsTest {
             base.copy(
                 id = 7,
                 completed = true,
-                completedAt = LocalDateTime.now().minusDays(6),
+                completedAt = Instant.now().minus(6, ChronoUnit.DAYS),
             )
         val oldCompletedTask =
             base.copy(
                 id = 8,
                 completed = true,
-                completedAt = LocalDateTime.now().minusDays(8),
+                completedAt = Instant.now().minus(8, ChronoUnit.DAYS),
             )
         whenever(taskRepository.findAll()).thenReturn(listOf(base, recentCompletedTask, oldCompletedTask))
 
@@ -669,7 +670,7 @@ class TaskOperationsTest {
                 completed = true,
                 xpAwarded = true,
                 completedBy = "Kasper",
-                completedAt = LocalDateTime.parse("2026-04-13T10:00:00"),
+                completedAt = Instant.parse("2026-04-13T10:00:00Z"),
                 xp = 15,
             ),
         )

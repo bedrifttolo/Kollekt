@@ -70,7 +70,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirec
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.LocalTime
 import java.util.Optional
 
@@ -642,7 +641,7 @@ class AdditionalControllerCoverageTest {
                     id = 15,
                     sender = "Kasper",
                     text = "Who cooks?",
-                    timestamp = LocalDateTime.parse("2026-04-13T18:00:00"),
+                    timestamp = Instant.parse("2026-04-13T18:00:00Z"),
                 ),
             )
 
@@ -668,7 +667,7 @@ class AdditionalControllerCoverageTest {
                     id = 15,
                     sender = "Kasper",
                     text = "Vote recorded",
-                    timestamp = LocalDateTime.parse("2026-04-13T18:05:00"),
+                    timestamp = Instant.parse("2026-04-13T18:05:00Z"),
                 ),
             )
 
@@ -694,7 +693,7 @@ class AdditionalControllerCoverageTest {
                     id = 16,
                     sender = "Emma",
                     text = "Nice",
-                    timestamp = LocalDateTime.parse("2026-04-13T18:06:00"),
+                    timestamp = Instant.parse("2026-04-13T18:06:00Z"),
                 ),
             )
 
@@ -720,7 +719,7 @@ class AdditionalControllerCoverageTest {
                     id = 16,
                     sender = "Emma",
                     text = "Reaction removed",
-                    timestamp = LocalDateTime.parse("2026-04-13T18:07:00"),
+                    timestamp = Instant.parse("2026-04-13T18:07:00Z"),
                 ),
             )
 

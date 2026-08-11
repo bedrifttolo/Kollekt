@@ -6,7 +6,6 @@ import com.kollekt.domain.MemberStatus
 import com.kollekt.domain.TaskCategory
 import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.LocalTime
 
 data class TaskFeedbackDto(
@@ -16,7 +15,7 @@ data class TaskFeedbackDto(
     val anonymous: Boolean,
     val imageData: String?,
     val imageMimeType: String?,
-    val createdAt: LocalDateTime,
+    val createdAt: Instant,
 )
 
 data class GiveTaskFeedbackRequest(
@@ -119,7 +118,7 @@ data class HouseRulesDto(
     val version: Int,
     val content: String,
     val updatedBy: String?,
-    val createdAt: LocalDateTime?,
+    val createdAt: Instant?,
     val acknowledged: Boolean,
     val canEdit: Boolean,
 )
@@ -208,7 +207,7 @@ data class MaintenanceStatusHistoryDto(
     val id: Long,
     val status: com.kollekt.domain.MaintenanceStatus,
     val changedBy: String,
-    val changedAt: LocalDateTime,
+    val changedAt: Instant,
 )
 
 data class MaintenanceTicketDto(
@@ -222,8 +221,8 @@ data class MaintenanceTicketDto(
     val costEstimate: Int?,
     val splitParticipants: List<String>,
     val createdBy: String,
-    val createdAt: LocalDateTime,
-    val updatedAt: LocalDateTime,
+    val createdAt: Instant,
+    val updatedAt: Instant,
     val overdue: Boolean,
     val statusHistory: List<MaintenanceStatusHistoryDto>,
 )
@@ -243,7 +242,7 @@ data class KudoDto(
     val context: String,
     val taskId: Long?,
     val taskTitle: String?,
-    val createdAt: LocalDateTime,
+    val createdAt: Instant,
 )
 
 data class KudosRecipientSummaryDto(
@@ -332,7 +331,7 @@ data class MessageDto(
     val imageMimeType: String? = null,
     val imageFileName: String? = null,
     val replyToMessageId: Long? = null,
-    val timestamp: LocalDateTime,
+    val timestamp: Instant,
     val reactions: List<ReactionDto> = emptyList(),
     val poll: PollDto? = null,
     val pinned: Boolean = false,
@@ -380,7 +379,7 @@ data class MeetingTopicDto(
     val id: Long,
     val title: String,
     val createdBy: String,
-    val createdAt: LocalDateTime,
+    val createdAt: Instant,
     val resolved: Boolean,
 )
 
@@ -397,7 +396,7 @@ data class ChatThreadSummaryDto(
     val lastMessageId: Long? = null,
     val lastMessageSender: String? = null,
     val lastMessagePreview: String? = null,
-    val lastMessageTimestamp: LocalDateTime? = null,
+    val lastMessageTimestamp: Instant? = null,
     val lastMessageDeleted: Boolean = false,
 )
 
@@ -747,7 +746,7 @@ data class SettleUpResponse(
     val collectiveCode: String,
     val settledBy: String,
     val lastExpenseId: Long,
-    val settledAt: LocalDateTime,
+    val settledAt: Instant,
 )
 
 data class MonthlyPrizeRequest(

@@ -35,9 +35,11 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import java.time.DayOfWeek
+import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.ZoneOffset
+import java.time.temporal.ChronoUnit
 import java.time.temporal.TemporalAdjusters
 
 class StatsServiceTest {
@@ -105,7 +107,7 @@ class StatsServiceTest {
                     title = "Trash",
                     assignee = "Kasper",
                     completed = true,
-                    completedAt = LocalDateTime.now().minusDays(1),
+                    completedAt = Instant.now().minus(1, ChronoUnit.DAYS),
                     xp = 20,
                 ),
                 task(id = 2, title = "Dishes", assignee = "Emma", dueDate = LocalDate.now().plusDays(1), xp = 15),
@@ -168,7 +170,7 @@ class StatsServiceTest {
                     title = "Trash",
                     assignee = "Kasper",
                     completed = true,
-                    completedAt = LocalDateTime.now().minusDays(1),
+                    completedAt = Instant.now().minus(1, ChronoUnit.DAYS),
                     xp = 20,
                 ),
                 task(id = 2, title = "Dishes", assignee = "Emma", dueDate = LocalDate.now().plusDays(1), xp = 15),
@@ -246,10 +248,10 @@ class StatsServiceTest {
                     title = "Trash",
                     assignee = "Kasper",
                     completed = true,
-                    completedAt = LocalDateTime.now().minusDays(1),
+                    completedAt = Instant.now().minus(1, ChronoUnit.DAYS),
                     xp = 20,
                 ),
-                task(id = 2, title = "Dishes", assignee = "Kasper", completed = true, completedAt = LocalDateTime.now(), xp = 15),
+                task(id = 2, title = "Dishes", assignee = "Kasper", completed = true, completedAt = Instant.now(), xp = 15),
             ),
         )
 
@@ -273,8 +275,8 @@ class StatsServiceTest {
     fun `get achievements computes custom household achievement progress`() {
         whenever(taskRepository.findAllByCollectiveCode("ABC123")).thenReturn(
             listOf(
-                task(id = 1, title = "Trash", assignee = "Kasper", completed = true, completedAt = LocalDateTime.now()),
-                task(id = 2, title = "Dishes", assignee = "Kasper", completed = true, completedAt = LocalDateTime.now()),
+                task(id = 1, title = "Trash", assignee = "Kasper", completed = true, completedAt = Instant.now()),
+                task(id = 2, title = "Dishes", assignee = "Kasper", completed = true, completedAt = Instant.now()),
             ),
         )
         whenever(customAchievementRepository.findAllByCollectiveCodeOrderByIdAsc("ABC123")).thenReturn(
@@ -365,14 +367,21 @@ class StatsServiceTest {
         ).thenReturn(member("Emma", "emma@example.com", id = 2, xp = 150, level = 1))
         whenever(taskRepository.findAllByCollectiveCode("ABC123")).thenReturn(
             listOf(
-                task(id = 1, title = "Trash", assignee = "Emma", completed = true, completedAt = LocalDateTime.now().minusDays(1), xp = 20),
+                task(
+                    id = 1,
+                    title = "Trash",
+                    assignee = "Emma",
+                    completed = true,
+                    completedAt = Instant.now().minus(1, ChronoUnit.DAYS),
+                    xp = 20,
+                ),
                 task(id = 2, title = "Dishes", assignee = "Emma", completed = false, dueDate = LocalDate.now().minusDays(1), xp = 10),
                 task(
                     id = 3,
                     title = "Floors",
                     assignee = "Kasper",
                     completed = true,
-                    completedAt = LocalDateTime.now().minusDays(2),
+                    completedAt = Instant.now().minus(2, ChronoUnit.DAYS),
                     xp = 25,
                 ),
             ),
@@ -399,13 +408,20 @@ class StatsServiceTest {
         whenever(
             memberRepository.findByNameAndCollectiveCode("Emma", "ABC123"),
         ).thenReturn(member("Emma", "emma@example.com", id = 2, xp = 150, level = 1))
-        val now = LocalDateTime.now()
+        val now = Instant.now()
         whenever(taskRepository.findAllByCollectiveCode("ABC123")).thenReturn(
             listOf(
                 task(id = 1, title = "Trash", assignee = "Emma", completed = true, completedAt = now, xp = 20),
                 task(id = 2, title = "Floors", assignee = "Kasper", completed = true, completedAt = now, xp = 25),
                 // Completed last year: only OVERALL and YEAR-of-that-year should see it.
-                task(id = 3, title = "Old", assignee = "Emma", completed = true, completedAt = now.minusYears(1), xp = 50),
+                task(
+                    id = 3,
+                    title = "Old",
+                    assignee = "Emma",
+                    completed = true,
+                    completedAt = now.atZone(ZoneOffset.UTC).minusYears(1).toInstant(),
+                    xp = 50,
+                ),
             ),
         )
         whenever(memberRepository.findAllByCollectiveCode("ABC123")).thenReturn(
@@ -436,7 +452,7 @@ class StatsServiceTest {
         // deleteExpiredTasks archives a completed task 7 days after completion and deletes the live
         // row (see TaskOperations) — the completion itself must not disappear from the leaderboard
         // just because the task moved to task_history in the meantime.
-        val now = LocalDateTime.now()
+        val now = Instant.now()
         val emma = member("Emma", "emma@example.com", id = 2, xp = 30)
         whenever(currentMemberContext.current("Emma")).thenReturn(emma)
         whenever(taskRepository.findAllByCollectiveCode("ABC123")).thenReturn(emptyList())
@@ -449,7 +465,7 @@ class StatsServiceTest {
                     completedBy = "Emma",
                     completed = true,
                     completedAt = now,
-                    dueDate = now.toLocalDate().minusDays(1),
+                    dueDate = now.atZone(ZoneOffset.UTC).toLocalDate().minusDays(1),
                     category = TaskCategory.CLEANING,
                     xp = 30,
                 ),
@@ -470,7 +486,14 @@ class StatsServiceTest {
         ).thenReturn(member("Emma", "emma@example.com", id = 2, xp = 150, level = 1))
         whenever(taskRepository.findAllByCollectiveCode("ABC123")).thenReturn(
             listOf(
-                task(id = 1, title = "Trash", assignee = "Emma", completed = true, completedAt = LocalDateTime.now().minusDays(1), xp = 20),
+                task(
+                    id = 1,
+                    title = "Trash",
+                    assignee = "Emma",
+                    completed = true,
+                    completedAt = Instant.now().minus(1, ChronoUnit.DAYS),
+                    xp = 20,
+                ),
             ),
         )
         whenever(taskHistoryRepository.findAllByCollectiveCode("ABC123")).thenReturn(
@@ -480,7 +503,7 @@ class StatsServiceTest {
                     collectiveCode = "ABC123",
                     assignee = "Emma",
                     completed = true,
-                    completedAt = LocalDateTime.now().minusDays(30),
+                    completedAt = Instant.now().minus(30, ChronoUnit.DAYS),
                     dueDate = LocalDate.now().minusDays(31),
                     category = TaskCategory.CLEANING,
                     xp = 15,
@@ -516,7 +539,7 @@ class StatsServiceTest {
         whenever(memberRepository.findAllByCollectiveCode("ABC123")).thenReturn(
             listOf(member("Kasper", "kasper@example.com"), member("Emma", "emma@example.com", id = 2)),
         )
-        val now = LocalDateTime.now()
+        val now = Instant.now()
         whenever(taskRepository.findAllByCollectiveCode("ABC123")).thenReturn(
             listOf(
                 task(id = 1, title = "A", assignee = "Kasper", completed = true, completedAt = now).copy(completedBy = "Kasper"),
@@ -538,7 +561,7 @@ class StatsServiceTest {
         whenever(memberRepository.findAllByCollectiveCode("ABC123")).thenReturn(
             listOf(member("Kasper", "kasper@example.com"), member("Emma", "emma@example.com", id = 2)),
         )
-        val now = LocalDateTime.now()
+        val now = Instant.now()
         whenever(taskRepository.findAllByCollectiveCode("ABC123")).thenReturn(
             listOf(
                 // Emma's chore, but Kasper happened to tick it off. The load was Emma's.
@@ -560,7 +583,7 @@ class StatsServiceTest {
         whenever(memberRepository.findAllByCollectiveCode("ABC123")).thenReturn(
             listOf(member("Kasper", "kasper@example.com"), member("Emma", "emma@example.com", id = 2)),
         )
-        val now = LocalDateTime.now()
+        val now = Instant.now()
         whenever(taskRepository.findAllByCollectiveCode("ABC123")).thenReturn(
             listOf(
                 // Three weeks overdue and penalised, but done — still a full unit of work here.
@@ -591,7 +614,7 @@ class StatsServiceTest {
                     // longer silently drop out of the totals.
                     completedBy = null,
                     completed = true,
-                    completedAt = LocalDateTime.now().minusDays(2),
+                    completedAt = Instant.now().minus(2, ChronoUnit.DAYS),
                     dueDate = LocalDate.now().minusDays(3),
                     category = TaskCategory.CLEANING,
                     xp = 15,
@@ -607,7 +630,7 @@ class StatsServiceTest {
 
     @Test
     fun `weekly recap summarises tasks expenses and top contributor`() {
-        val now = LocalDateTime.now()
+        val now = Instant.now()
         whenever(taskRepository.findAllByCollectiveCode("ABC123")).thenReturn(
             listOf(
                 task(id = 1, title = "A", assignee = "Kasper", completed = true, completedAt = now).copy(completedBy = "Kasper"),
@@ -648,7 +671,7 @@ class StatsServiceTest {
         assignee: String,
         dueDate: LocalDate = LocalDate.now(),
         completed: Boolean = false,
-        completedAt: LocalDateTime? = null,
+        completedAt: Instant? = null,
         xp: Int = 10,
     ) = TaskItem(
         id = id,

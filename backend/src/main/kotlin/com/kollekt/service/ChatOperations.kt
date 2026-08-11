@@ -16,7 +16,7 @@ import com.kollekt.repository.MemberRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
-import java.time.LocalDateTime
+import java.time.Instant
 import java.util.Base64
 
 @Service
@@ -184,7 +184,7 @@ class ChatOperations(
                     recipient = recipientMember.name,
                     text = normalizedText,
                     replyToMessageId = replyToMessageId,
-                    timestamp = LocalDateTime.now(),
+                    timestamp = Instant.now(),
                 ),
             )
 
@@ -231,7 +231,7 @@ class ChatOperations(
                     collectiveCode = collectiveCode,
                     text = normalizedText,
                     replyToMessageId = replyToMessageId,
-                    timestamp = LocalDateTime.now(),
+                    timestamp = Instant.now(),
                 ),
             )
 
@@ -267,7 +267,7 @@ class ChatOperations(
                     // what the app builds its `data:` URL from, so it has to match the bytes.
                     imageMimeType = safe.mimeType,
                     imageFileName = image.originalFilename?.take(255),
-                    timestamp = LocalDateTime.now(),
+                    timestamp = Instant.now(),
                 ),
             )
 
@@ -393,7 +393,7 @@ class ChatOperations(
                     sender = actorName,
                     collectiveCode = collectiveCode,
                     text = "📊 $question",
-                    timestamp = LocalDateTime.now(),
+                    timestamp = Instant.now(),
                     poll = objectMapper.writeValueAsString(payload),
                 ),
             )
@@ -545,7 +545,7 @@ class ChatOperations(
                     sender = sender,
                     collectiveCode = collectiveCode,
                     text = text,
-                    timestamp = LocalDateTime.now(),
+                    timestamp = Instant.now(),
                 ),
             )
         val dto = saved.toDto()
@@ -570,7 +570,7 @@ class ChatOperations(
                     collectiveCode = collectiveCode,
                     recipient = recipient,
                     text = text,
-                    timestamp = LocalDateTime.now(),
+                    timestamp = Instant.now(),
                 ),
             )
         val dto = saved.toDto()

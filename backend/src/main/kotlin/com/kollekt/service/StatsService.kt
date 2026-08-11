@@ -33,10 +33,16 @@ import com.kollekt.repository.TaskRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.DayOfWeek
+import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalDateTime
+import java.time.ZoneOffset
 import java.time.temporal.TemporalAdjusters
 import kotlin.math.roundToInt
+
+// The server has always run in UTC, so anchoring "which day" a completedAt instant falls on to
+// UTC preserves the exact stats/streak/achievement behavior from before completedAt became an
+// Instant — this is not a per-user timezone, just a fixed reference point for day-bucketing.
+private fun Instant.toLocalDate(): LocalDate = atZone(ZoneOffset.UTC).toLocalDate()
 
 private data class AchievementDefinition(
     val key: String,
@@ -174,13 +180,15 @@ class StatsService(
         allTasks: List<TaskItem>,
         period: LeaderboardPeriod,
     ): List<TaskItem> {
-        val now = LocalDateTime.now()
+        val now = Instant.now().atZone(ZoneOffset.UTC)
         return when (period) {
             LeaderboardPeriod.OVERALL -> allTasks.filter { it.completed }
-            LeaderboardPeriod.YEAR -> allTasks.filter { it.completed && it.completedAt?.year == now.year }
+            LeaderboardPeriod.YEAR ->
+                allTasks.filter { it.completed && it.completedAt?.atZone(ZoneOffset.UTC)?.year == now.year }
             LeaderboardPeriod.MONTH ->
                 allTasks.filter {
-                    it.completed && it.completedAt?.year == now.year && it.completedAt?.month == now.month
+                    val completedZoned = it.completedAt?.atZone(ZoneOffset.UTC) ?: return@filter false
+                    it.completed && completedZoned.year == now.year && completedZoned.month == now.month
                 }
         }
     }

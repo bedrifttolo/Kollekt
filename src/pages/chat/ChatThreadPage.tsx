@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
 import { ArrowLeft, ArrowUp, Image as ImageIcon, BarChart3, Check, Copy, X, Reply, HeartHandshake, ChevronDown, WashingMachine, Film, Lock, Plus, Smile, MessageCircleHeart, Wallpaper, Pin, PinOff, Pencil, Trash2 } from 'lucide-react';
 
 type LaundryType = 'WHITES' | 'COLORS' | 'DELICATES' | 'WOOL' | 'SPORTS' | 'TOWELS';
@@ -222,6 +222,11 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
   const [editingMessageId, setEditingMessageId] = useState<number | null>(null);
   const [emojiPickerForId, setEmojiPickerForId] = useState<number | null>(null);
   const [expandedImage, setExpandedImage] = useState<{ src: string; alt: string } | null>(null);
+  const expandedImageDragY = useMotionValue(0);
+  const expandedImageDragScale = useTransform(expandedImageDragY, [-250, 0, 250], [0.85, 1, 0.85]);
+  useEffect(() => {
+    expandedImageDragY.set(0);
+  }, [expandedImage?.src, expandedImageDragY]);
   const [loading, setLoading] = useState(
     () => !sharedQueryClient.getQueryData(threadCacheKey(currentUser?.name ?? '')),
   );
@@ -1633,9 +1638,18 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
             exit={{ opacity: 0 }}
             className="absolute inset-0 z-50 bg-black/90 flex items-center justify-center p-0"
             onClick={() => setExpandedImage(null)}
+            drag="y"
+            style={{ y: expandedImageDragY, scale: expandedImageDragScale }}
+            dragConstraints={{ top: 0, bottom: 0 }}
+            dragElastic={0.7}
+            onDragEnd={(_, info) => {
+              if (Math.abs(info.offset.y) > 120 || Math.abs(info.velocity.y) > 600) {
+                setExpandedImage(null);
+              }
+            }}
           >
             <button
-              className="pressable-tight absolute top-4 right-4 h-10 w-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center"
+              className="pressable-tight absolute top-[calc(env(safe-area-inset-top,0px)+1rem)] right-4 h-10 w-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center"
               onClick={() => setExpandedImage(null)}
               aria-label={t('chat.closeImage')}
             >

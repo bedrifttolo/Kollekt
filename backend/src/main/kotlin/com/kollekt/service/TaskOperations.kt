@@ -17,8 +17,8 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.nio.charset.StandardCharsets.UTF_8
 import java.time.DayOfWeek
+import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import java.util.UUID
 
@@ -92,7 +92,7 @@ class TaskOperations(
      */
     @Transactional
     fun deleteExpiredTasks() {
-        val completedCutoff = LocalDateTime.now().minusDays(GRACE_DAYS)
+        val completedCutoff = Instant.now().minus(GRACE_DAYS, ChronoUnit.DAYS)
         val dueDateCutoff = LocalDate.now().minusDays(GRACE_DAYS)
         val allTasks = taskRepository.findAll()
 
@@ -407,7 +407,7 @@ class TaskOperations(
                         completed = true,
                         xpAwarded = true,
                         completedBy = memberName,
-                        completedAt = LocalDateTime.now(),
+                        completedAt = Instant.now(),
                         completionImageData = safeCompletionImage?.data ?: task.completionImageData,
                         completionImageMime = safeCompletionImage?.mimeType ?: task.completionImageMime,
                     ),
@@ -481,7 +481,7 @@ class TaskOperations(
                 task.copy(
                     completed = true,
                     completedBy = memberName,
-                    completedAt = LocalDateTime.now(),
+                    completedAt = Instant.now(),
                     xpAwarded = (memberName == task.assignee),
                 ),
             )
@@ -531,7 +531,7 @@ class TaskOperations(
                 task.copy(
                     completed = true,
                     completedBy = memberName,
-                    completedAt = LocalDateTime.now(),
+                    completedAt = Instant.now(),
                     penaltyXp = 0,
                     xpAwarded = true,
                 ),

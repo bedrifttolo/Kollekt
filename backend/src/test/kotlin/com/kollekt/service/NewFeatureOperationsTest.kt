@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test
 import org.mockito.kotlin.*
 import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.LocalTime
 import java.util.Optional
 
@@ -151,7 +150,7 @@ class NewFeatureOperationsTest {
         whenever(members.findByNameAndCollectiveCode("Alex", "HOME")).thenReturn(member(1, "Alex"))
         whenever(members.findAllByCollectiveCode("HOME")).thenReturn(listOf(member(1, "Alex"), member(2, "Bea")))
         whenever(chat.postHouseholdNotice(eq("HOME"), eq("Alex"), any())).thenReturn(
-            MessageDto(id = 55, sender = "Alex", text = "Quiet please", timestamp = LocalDateTime.now()),
+            MessageDto(id = 55, sender = "Alex", text = "Quiet please", timestamp = Instant.now()),
         )
 
         // Whole household: notifies every active member except the reporter.

@@ -21,8 +21,9 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 
 class ShoppingOperationsTest {
     private lateinit var shoppingItemRepository: ShoppingItemRepository
@@ -114,7 +115,7 @@ class ShoppingOperationsTest {
                 addedBy = "Emma",
                 collectiveCode = "ABC123",
                 completed = true,
-                completedAt = LocalDateTime.now(),
+                completedAt = Instant.now(),
             ),
         )
         whenever(shoppingItemRepository.save(any<ShoppingItem>())).thenAnswer { it.arguments[0] as ShoppingItem }
@@ -156,7 +157,7 @@ class ShoppingOperationsTest {
                 addedBy = "Kasper",
                 collectiveCode = "ABC123",
                 completed = true,
-                completedAt = LocalDateTime.now().minusDays(2),
+                completedAt = Instant.now().minus(2, ChronoUnit.DAYS),
             )
         val recent =
             ShoppingItem(
@@ -165,7 +166,7 @@ class ShoppingOperationsTest {
                 addedBy = "Kasper",
                 collectiveCode = "ABC123",
                 completed = true,
-                completedAt = LocalDateTime.now(),
+                completedAt = Instant.now(),
             )
         val incomplete = ShoppingItem(id = 3, item = "Eggs", addedBy = "Kasper", collectiveCode = "ABC123", completed = false)
         whenever(shoppingItemRepository.findAll()).thenReturn(listOf(old, recent, incomplete))

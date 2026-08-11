@@ -8,8 +8,8 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
+import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalDateTime
 
 enum class MaintenancePriority { LOW, MEDIUM, HIGH, URGENT }
 
@@ -29,8 +29,8 @@ data class MaintenanceTicket(
     @Column(nullable = true) val costEstimate: Int? = null,
     @Column(name = "split_participants", nullable = true, columnDefinition = "TEXT") val splitParticipants: String? = null,
     @Column(nullable = false) val createdBy: String,
-    @Column(nullable = false) val createdAt: LocalDateTime = LocalDateTime.now(),
-    @Column(nullable = false) val updatedAt: LocalDateTime = LocalDateTime.now(),
+    @Column(nullable = false) val createdAt: Instant = Instant.now(),
+    @Column(nullable = false) val updatedAt: Instant = Instant.now(),
 )
 
 @Entity
@@ -40,5 +40,5 @@ data class MaintenanceTicketStatusHistory(
     @Column(nullable = false) val ticketId: Long,
     @Enumerated(EnumType.STRING) @Column(nullable = false) val status: MaintenanceStatus,
     @Column(nullable = false) val changedBy: String,
-    @Column(nullable = false) val changedAt: LocalDateTime = LocalDateTime.now(),
+    @Column(nullable = false) val changedAt: Instant = Instant.now(),
 )
