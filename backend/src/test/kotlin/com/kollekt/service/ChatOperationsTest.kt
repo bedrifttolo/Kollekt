@@ -632,6 +632,191 @@ class ChatOperationsTest {
         assertNull(result.poll)
     }
 
+    @Test
+    fun `update message trims text, marks it edited and publishes the update`() {
+        whenever(chatMessageRepository.findById(100)).thenReturn(
+            Optional.of(
+                ChatMessage(
+                    id = 100,
+                    sender = "Kasper",
+                    collectiveCode = "ABC123",
+                    text = "Original",
+                    timestamp = Instant.now(),
+                ),
+            ),
+        )
+        whenever(chatMessageRepository.save(any<ChatMessage>())).thenAnswer { it.arguments[0] as ChatMessage }
+
+        val result = operations.updateMessage(100, "  Corrected text  ", "Kasper")
+
+        assertEquals("Corrected text", result.text)
+        assertTrue(result.edited)
+        verify(realtimeUpdateService).publish("ABC123", "MESSAGE_UPDATED", result)
+    }
+
+    @Test
+    fun `update message rejects an editor who is not the sender`() {
+        whenever(chatMessageRepository.findById(101)).thenReturn(
+            Optional.of(
+                ChatMessage(
+                    id = 101,
+                    sender = "Emma",
+                    collectiveCode = "ABC123",
+                    text = "Original",
+                    timestamp = Instant.now(),
+                ),
+            ),
+        )
+
+        val error =
+            assertThrows(IllegalArgumentException::class.java) {
+                operations.updateMessage(101, "Hacked", "Kasper")
+            }
+
+        assertEquals("Only the sender can edit this message", error.message)
+        verify(chatMessageRepository, never()).save(any<ChatMessage>())
+    }
+
+    @Test
+    fun `update message rejects editing an already deleted message`() {
+        whenever(chatMessageRepository.findById(102)).thenReturn(
+            Optional.of(
+                ChatMessage(
+                    id = 102,
+                    sender = "Kasper",
+                    collectiveCode = "ABC123",
+                    text = "",
+                    timestamp = Instant.now(),
+                    deleted = true,
+                ),
+            ),
+        )
+
+        val error =
+            assertThrows(IllegalArgumentException::class.java) {
+                operations.updateMessage(102, "Bring it back", "Kasper")
+            }
+
+        assertEquals("Message has been deleted", error.message)
+    }
+
+    @Test
+    fun `update message rejects image and poll messages`() {
+        whenever(chatMessageRepository.findById(103)).thenReturn(
+            Optional.of(
+                ChatMessage(
+                    id = 103,
+                    sender = "Kasper",
+                    collectiveCode = "ABC123",
+                    text = "Photo",
+                    timestamp = Instant.now(),
+                    imageData = "abc",
+                ),
+            ),
+        )
+
+        val error =
+            assertThrows(IllegalArgumentException::class.java) {
+                operations.updateMessage(103, "New caption", "Kasper")
+            }
+
+        assertEquals("Only text messages can be edited", error.message)
+    }
+
+    @Test
+    fun `update message rejects blank text`() {
+        whenever(chatMessageRepository.findById(104)).thenReturn(
+            Optional.of(
+                ChatMessage(
+                    id = 104,
+                    sender = "Kasper",
+                    collectiveCode = "ABC123",
+                    text = "Original",
+                    timestamp = Instant.now(),
+                ),
+            ),
+        )
+
+        assertThrows(IllegalArgumentException::class.java) {
+            operations.updateMessage(104, "   ", "Kasper")
+        }
+    }
+
+    @Test
+    fun `delete message clears content and image and poll and marks it deleted`() {
+        whenever(chatMessageRepository.findById(105)).thenReturn(
+            Optional.of(
+                ChatMessage(
+                    id = 105,
+                    sender = "Kasper",
+                    collectiveCode = "ABC123",
+                    text = "Secret",
+                    timestamp = Instant.now(),
+                    imageData = "abc",
+                    imageMimeType = "image/png",
+                    imageFileName = "abc.png",
+                    reactions = """{"🔥":["Emma"]}""",
+                    pinned = true,
+                ),
+            ),
+        )
+        whenever(chatMessageRepository.save(any<ChatMessage>())).thenAnswer { it.arguments[0] as ChatMessage }
+
+        val result = operations.deleteMessage(105, "Kasper")
+
+        assertEquals("", result.text)
+        assertTrue(result.deleted)
+        assertNull(result.imageData)
+        assertFalse(result.pinned)
+        assertTrue(result.reactions.isEmpty())
+        verify(realtimeUpdateService).publish("ABC123", "MESSAGE_DELETED", result)
+    }
+
+    @Test
+    fun `delete message rejects a deleter who is not the sender`() {
+        whenever(chatMessageRepository.findById(106)).thenReturn(
+            Optional.of(
+                ChatMessage(
+                    id = 106,
+                    sender = "Emma",
+                    collectiveCode = "ABC123",
+                    text = "Not yours",
+                    timestamp = Instant.now(),
+                ),
+            ),
+        )
+
+        val error =
+            assertThrows(IllegalArgumentException::class.java) {
+                operations.deleteMessage(106, "Kasper")
+            }
+
+        assertEquals("Only the sender can delete this message", error.message)
+        verify(chatMessageRepository, never()).save(any<ChatMessage>())
+    }
+
+    @Test
+    fun `delete message rejects a message from another collective`() {
+        whenever(chatMessageRepository.findById(107)).thenReturn(
+            Optional.of(
+                ChatMessage(
+                    id = 107,
+                    sender = "Kasper",
+                    collectiveCode = "OTHER",
+                    text = "Elsewhere",
+                    timestamp = Instant.now(),
+                ),
+            ),
+        )
+
+        val error =
+            assertThrows(IllegalArgumentException::class.java) {
+                operations.deleteMessage(107, "Kasper")
+            }
+
+        assertEquals("Message not found", error.message)
+    }
+
     private fun member(
         name: String,
         email: String,
