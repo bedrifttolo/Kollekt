@@ -53,6 +53,10 @@ class TaskOperationsTest {
         taskHistoryRepository = mock()
         currentMemberContext = mock()
         imageSafetyService = mock()
+        // See ChatOperationsTest: the real service hands back the payload to persist.
+        whenever(imageSafetyService.validateAndModerateBase64(any(), any())).thenAnswer {
+            SafeImageBase64(it.arguments[0] as String, it.arguments[1] as String)
+        }
         collectiveAccessService = CollectiveAccessService(currentMemberContext, collectiveRepository)
         operations =
             TaskOperations(

@@ -2,8 +2,22 @@
 const MAX_EDGE = 1600;
 /** JPEG quality for the re-encode. High enough that a chat photo still looks sharp full-screen. */
 const JPEG_QUALITY = 0.82;
-/** Below this, re-encoding is pure loss — ship the original bytes instead. */
+/** Below this, re-encoding a well-typed image is pure loss — ship the original bytes instead. */
 const SKIP_BELOW_BYTES = 600 * 1024;
+
+/**
+ * What the backend will accept. A file whose type isn't here gets re-encoded to JPEG no matter how
+ * small it is, because the alternative is a 400 the user can't do anything about — pickers and
+ * Capacitor report types inconsistently, and an empty `File.type` is common.
+ */
+const SERVER_ALLOWED_TYPES = new Set([
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'image/heic',
+  'image/heif',
+  'image/gif',
+]);
 
 /**
  * Downscales and re-encodes a photo before it is uploaded.
@@ -20,9 +34,12 @@ const SKIP_BELOW_BYTES = 600 * 1024;
  */
 export async function prepareImageForUpload(file: File): Promise<File> {
   // GIFs are the one format worth shipping untouched: canvas would flatten an animation to its
-  // first frame, and they're allowed through moderation as-is.
+  // first frame, and the server accepts them as-is.
   if (file.type === 'image/gif') return file;
-  if (file.size <= SKIP_BELOW_BYTES) return file;
+
+  const typeIsAccepted = SERVER_ALLOWED_TYPES.has(file.type);
+  // Small *and* already an accepted type: nothing to gain from a round-trip through canvas.
+  if (typeIsAccepted && file.size <= SKIP_BELOW_BYTES) return file;
 
   try {
     const bitmap = await loadBitmap(file);
@@ -39,7 +56,10 @@ export async function prepareImageForUpload(file: File): Promise<File> {
     if ('close' in bitmap) bitmap.close();
 
     const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/jpeg', JPEG_QUALITY));
-    if (!blob || blob.size >= file.size) return file;
+    if (!blob) return file;
+    // A bigger result is only worth keeping when the original's type would have been rejected
+    // outright — otherwise shipping the smaller original is strictly better.
+    if (blob.size >= file.size && typeIsAccepted) return file;
 
     return new File([blob], replaceExtension(file.name, 'jpg'), { type: 'image/jpeg' });
   } catch {

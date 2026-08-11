@@ -190,9 +190,9 @@ class TaskOperations(
             taskRepository.findByIdAndCollectiveCodeForUpdate(taskId, collectiveCode)
                 ?: throw IllegalArgumentException("Task $taskId not found")
 
-        if (imageData != null) {
-            imageSafetyService.validateAndModerateBase64(imageData, imageMimeType.orEmpty())
-        }
+        // Returns the bytes to actually store: an oversized photo is downscaled rather than
+        // rejected, and the MIME type comes from the file's own header, not the client's claim.
+        val safeImage = imageData?.let { imageSafetyService.validateAndModerateBase64(it, imageMimeType.orEmpty()) }
 
         taskFeedbackRepository.save(
             TaskFeedback(
@@ -200,8 +200,8 @@ class TaskOperations(
                 author = memberName,
                 message = message,
                 anonymous = anonymous,
-                imageData = imageData,
-                imageMimeType = imageMimeType,
+                imageData = safeImage?.data,
+                imageMimeType = safeImage?.mimeType,
             ),
         )
 
@@ -308,9 +308,8 @@ class TaskOperations(
             taskRepository.findByIdAndCollectiveCodeForUpdate(taskId, collectiveCode)
                 ?: throw IllegalArgumentException("Task $taskId not found")
 
-        if (completionImageData != null) {
-            imageSafetyService.validateAndModerateBase64(completionImageData, completionImageMime.orEmpty())
-        }
+        val safeCompletionImage =
+            completionImageData?.let { imageSafetyService.validateAndModerateBase64(it, completionImageMime.orEmpty()) }
 
         val completionXp = calculateCompletionAwardXp(task)
         val awardedXp = if (!task.completed && !task.xpAwarded) completionXp else 0
@@ -331,8 +330,8 @@ class TaskOperations(
                         xpAwarded = true,
                         completedBy = memberName,
                         completedAt = LocalDateTime.now(),
-                        completionImageData = completionImageData ?: task.completionImageData,
-                        completionImageMime = completionImageMime ?: task.completionImageMime,
+                        completionImageData = safeCompletionImage?.data ?: task.completionImageData,
+                        completionImageMime = safeCompletionImage?.mimeType ?: task.completionImageMime,
                     ),
                 )
             } else {

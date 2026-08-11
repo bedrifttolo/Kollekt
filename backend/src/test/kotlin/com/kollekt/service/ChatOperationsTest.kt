@@ -47,6 +47,11 @@ class ChatOperationsTest {
         notificationService = mock()
         currentMemberContext = mock()
         imageSafetyService = mock()
+        // The real service returns the bytes to persist (possibly a downscaled re-encode); echo
+        // the input back so happy-path tests exercise the normal "nothing needed changing" case.
+        whenever(imageSafetyService.validateAndModerate(any(), any())).thenAnswer {
+            SafeImage(it.arguments[0] as ByteArray, it.arguments[1] as String)
+        }
         collectiveAccessService = CollectiveAccessService(currentMemberContext, collectiveRepository)
         operations =
             ChatOperations(

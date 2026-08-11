@@ -246,16 +246,13 @@ class ChatOperations(
         actorName: String,
     ): MessageDto {
         require(!image.isEmpty) { "Image is required" }
-        val contentType =
-            image.contentType
-                ?.trim()
-                .orEmpty()
-                .lowercase()
-        imageSafetyService.validateAndModerate(image.bytes, contentType)
+        // The multipart Content-Type is only a hint — validateAndModerate sniffs the real format
+        // and hands back the bytes to actually store, which may be a downscaled re-encode.
+        val safe = imageSafetyService.validateAndModerate(image.bytes, image.contentType.orEmpty())
 
         val collectiveCode = collectiveAccessService.requireCollectiveCodeByMemberName(actorName)
         val normalizedCaption = caption?.trim().orEmpty()
-        val payload = Base64.getEncoder().encodeToString(image.bytes)
+        val payload = Base64.getEncoder().encodeToString(safe.bytes)
 
         val saved =
             chatMessageRepository.save(
@@ -264,7 +261,9 @@ class ChatOperations(
                     collectiveCode = collectiveCode,
                     text = normalizedCaption,
                     imageData = payload,
-                    imageMimeType = contentType,
+                    // The sniffed (and possibly re-encoded) type, not the client's claim — it's
+                    // what the app builds its `data:` URL from, so it has to match the bytes.
+                    imageMimeType = safe.mimeType,
                     imageFileName = image.originalFilename?.take(255),
                     timestamp = LocalDateTime.now(),
                 ),
