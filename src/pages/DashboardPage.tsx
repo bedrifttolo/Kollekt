@@ -191,7 +191,12 @@ export default function DashboardPage() {
     );
   }
 
-  const xpLabel = `${data.currentUserXp % XP_PER_LEVEL}/${XP_PER_LEVEL} XP`;
+  // A balance can legitimately be negative — missed chores cost XP — but progress *toward the next
+  // level* can't be. `xp % XP_PER_LEVEL` is negative for a negative balance, which drew the ring
+  // backwards and labelled it "-55/200 XP"; someone in the red is simply 0% of the way to level 2.
+  // The raw balance still shows honestly in the XP stat tile below.
+  const xpTowardNextLevel = Math.max(0, data.currentUserXp) % XP_PER_LEVEL;
+  const xpLabel = `${xpTowardNextLevel}/${XP_PER_LEVEL} XP`;
 
   const hour = new Date().getHours();
   const greetingKey =
@@ -236,7 +241,7 @@ export default function DashboardPage() {
           {/* The level ring replaces a flat XP bar. It reads as a gauge you are filling rather than
               a line that happens to be partly coloured, and it animates, which the bar never did. */}
           <ProgressRing
-            value={(data.currentUserXp % XP_PER_LEVEL) / XP_PER_LEVEL * 100}
+            value={(xpTowardNextLevel / XP_PER_LEVEL) * 100}
             size={64}
             thickness={7}
             color="var(--hero-positive)"

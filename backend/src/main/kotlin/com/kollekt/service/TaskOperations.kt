@@ -35,6 +35,14 @@ class TaskOperations(
 ) {
     private companion object {
         const val XP_PER_LEVEL = 200
+
+        /**
+         * How long a task survives past its relevant date before it's pruned: a completed task
+         * this long after being done, or an uncompleted one this long after its due date. For an
+         * uncompleted task this doubles as the grace window to finish it late (at half XP, via
+         * [calculateCompletionAwardXp]) before it expires and the full penalty lands instead.
+         */
+        const val GRACE_DAYS = 7L
     }
 
     // Arbitrary Monday used as the zero point for the weekly task rotation. Only week-to-week
@@ -67,27 +75,97 @@ class TaskOperations(
         }
     }
 
+    /**
+     * Prunes tasks that have run their course, in both senses: a completed task [GRACE_DAYS] after
+     * it was done, and an *un*completed one [GRACE_DAYS] after it was due — at which point the
+     * chore is definitively not getting done and its XP penalty lands.
+     *
+     * Missed tasks used to be penalised the first night after their due date and then never
+     * removed at all, so the board accumulated overdue rows indefinitely while members took the
+     * hit before they'd really run out of time. Charging at expiry instead makes the grace window
+     * a genuine second chance: finish inside it and [calculateCompletionAwardXp] still pays out
+     * (halved for being late), with no penalty ever applied.
+     *
+     * The penalty is applied here rather than in its own scheduled job so it cannot race the
+     * delete — the two ran an hour apart, and charging after the row was gone would silently drop
+     * the penalty entirely.
+     */
     @Transactional
     fun deleteExpiredTasks() {
-        val completedCutoff = LocalDateTime.now().minusDays(7)
-        val fallbackDueDateCutoff = LocalDate.now().minusDays(7)
-        val expiredTasks =
-            taskRepository
-                .findAll()
-                .filter {
-                    it.completed &&
-                        (
-                            it.completedAt?.isBefore(completedCutoff)
-                                ?: it.dueDate.isBefore(fallbackDueDateCutoff)
-                        )
-                }
+        val completedCutoff = LocalDateTime.now().minusDays(GRACE_DAYS)
+        val dueDateCutoff = LocalDate.now().minusDays(GRACE_DAYS)
+        val allTasks = taskRepository.findAll()
 
+        val expiredCompleted =
+            allTasks.filter {
+                it.completed &&
+                    (
+                        it.completedAt?.isBefore(completedCutoff)
+                            ?: it.dueDate.isBefore(dueDateCutoff)
+                    )
+            }
+        val expiredMissed = allTasks.filter { !it.completed && it.dueDate.isBefore(dueDateCutoff) }
+
+        val penalised = expiredMissed.map { penaliseOnExpiry(it) }
+
+        val expiredTasks = expiredCompleted + penalised
         if (expiredTasks.isNotEmpty()) {
             // Archive stat-relevant facts before pruning the row so XP, achievements and
             // fairness keep their history. Member.xp already holds lifetime XP and is untouched.
             taskHistoryRepository.saveAll(expiredTasks.map { it.toHistoryEntry() })
             taskRepository.deleteAll(expiredTasks)
         }
+    }
+
+    /**
+     * Charges the assignee for a task that expired unfinished, and tells the household. Returns the
+     * task with its penalty recorded so the archived history keeps it.
+     *
+     * Skips the charge when [TaskItem.penaltyXp] is already set: tasks penalised under the old
+     * overdue+1-day rule are still sitting in the database, and they must not be billed twice.
+     */
+    private fun penaliseOnExpiry(task: TaskItem): TaskItem {
+        val collectiveCode = task.collectiveCode ?: ""
+        val member = memberRepository.findByNameAndCollectiveCode(task.assignee, collectiveCode)
+        if (member == null || member.status != MemberStatus.ACTIVE || task.penaltyXp != 0) return task
+
+        val penalty = calculatePenaltyXp(task)
+        memberRepository.save(applyXpDelta(member, penalty))
+
+        realtimeUpdateService.publish(
+            collectiveCode,
+            "TASK_PENALTY_APPLIED",
+            mapOf(
+                "assignee" to task.assignee,
+                "taskId" to task.id,
+                "title" to task.title,
+                "dueDate" to task.dueDate.toString(),
+                "penaltyXp" to penalty,
+                // The row is about to be deleted, so there is nothing left to complete late.
+                "lateApprovalAvailable" to false,
+            ),
+        )
+        // Reuses TASK_OVERDUE rather than a new type: its copy ("Your task '{{title}}' is overdue!
+        // A penalty has been applied.") already says exactly this, and it's already registered in
+        // ALL_NOTIFICATION_TYPES, PushNotificationCopy and the frontend's notification-type list.
+        notificationService.createParameterizedNotification(
+            userName = task.assignee,
+            type = "TASK_OVERDUE",
+            params = mapOf("title" to task.title),
+        )
+        val activeMembers =
+            memberRepository
+                .findAllByCollectiveCode(collectiveCode)
+                .filter { it.status == MemberStatus.ACTIVE && it.name != task.assignee }
+                .map { it.name }
+        if (activeMembers.isNotEmpty()) {
+            notificationService.createParameterizedGroupNotification(
+                userNames = activeMembers,
+                type = "TASK_OVERDUE_GROUP",
+                params = mapOf("title" to task.title, "assignee" to task.assignee),
+            )
+        }
+        return task.copy(penaltyXp = penalty)
     }
 
     private fun TaskItem.toHistoryEntry() =
@@ -419,60 +497,16 @@ class TaskOperations(
         return dto
     }
 
-    @Transactional
-    fun penalizeMissedTasks() {
-        val today = LocalDate.now()
-        val overdueTasks =
-            taskRepository
-                .findAll()
-                .filter { !it.completed && it.dueDate.isBefore(today) }
-
-        for (task in overdueTasks) {
-            val collectiveCode = task.collectiveCode ?: ""
-            val member = memberRepository.findByNameAndCollectiveCode(task.assignee, collectiveCode)
-            if (member != null && member.status == MemberStatus.ACTIVE) {
-                val penalty = calculatePenaltyXp(task)
-                if (task.penaltyXp == 0) {
-                    memberRepository.save(applyXpDelta(member, penalty))
-                    taskRepository.save(task.copy(penaltyXp = penalty))
-                    realtimeUpdateService.publish(
-                        collectiveCode,
-                        "TASK_PENALTY_APPLIED",
-                        mapOf(
-                            "assignee" to task.assignee,
-                            "taskId" to task.id,
-                            "title" to task.title,
-                            "dueDate" to task.dueDate.toString(),
-                            "penaltyXp" to penalty,
-                            "lateApprovalAvailable" to true,
-                        ),
-                    )
-                    notificationService.createParameterizedNotification(
-                        userName = task.assignee,
-                        type = "TASK_OVERDUE",
-                        params = mapOf("title" to task.title),
-                    )
-                    val activeMembers =
-                        memberRepository
-                            .findAllByCollectiveCode(collectiveCode)
-                            .filter { it.status == MemberStatus.ACTIVE && it.name != task.assignee }
-                            .map { it.name }
-                    if (activeMembers.isNotEmpty()) {
-                        notificationService.createParameterizedGroupNotification(
-                            userNames = activeMembers,
-                            type = "TASK_OVERDUE_GROUP",
-                            params = mapOf("title" to task.title, "assignee" to task.assignee),
-                        )
-                    }
-                } else if (task.penaltyXp != penalty) {
-                    val diff = penalty - task.penaltyXp
-                    memberRepository.save(applyXpDelta(member, diff))
-                    taskRepository.save(task.copy(penaltyXp = penalty))
-                }
-            }
-        }
-    }
-
+    /**
+     * Completes a task that already carries a penalty, refunding it and awarding half XP instead.
+     *
+     * This is now reachable only for tasks penalised under the old rule — before [deleteExpiredTasks]
+     * started charging at expiry instead of the night after the due date, a live task could carry a
+     * nonzero [TaskItem.penaltyXp] while still sitting on the board waiting to be completed. New
+     * penalties are applied in [penaliseOnExpiry], in the same transaction the task is archived and
+     * removed in, so a live task can no longer have a penalty to regret going forward. Left in place
+     * rather than removed so members with a pre-existing penalised task can still clear it.
+     */
     @Transactional
     fun regretMissedTask(
         taskId: Long,
@@ -620,26 +654,31 @@ class TaskOperations(
     private fun calculateLateCompletionXp(baseXp: Int): Int = (baseXp / 2).coerceAtLeast(1)
 
     /**
-     * Level 1 is the floor. [xp] is coerced first because Kotlin's Int division truncates toward
-     * zero, so a member whose balance had been driven negative by [penalizeMissedTasks] rendered
-     * as "Nv.-1" (-455 / 200 + 1 = -1) across the leaderboard, the member sheet and the dashboard.
+     * Level 1 is the floor — a negative *level* is meaningless as a label, even though a negative
+     * *balance* is the intended consequence of a missed-task penalty (see [penaliseOnExpiry]).
+     * [xp] is coerced first because Kotlin's Int division truncates toward zero, so a member with a
+     * negative balance rendered as "Nv.-1" (-455 / 200 + 1 = -1) across the leaderboard, the member
+     * sheet and the dashboard.
      */
     private fun levelForXp(xp: Int): Int = xp.coerceAtLeast(0) / XP_PER_LEVEL + 1
 
     /**
-     * The single write path for a member's XP balance. Floors at 0 so missed-task penalties can
-     * sink someone back toward level 1 but never below it, and always recomputes [Member.level]
-     * from the new balance — the penalty paths used to skip that, leaving a stale level behind
-     * until the member's next completion happened to recompute it.
+     * The single write path for a member's XP balance.
      *
-     * The floor makes a refund (see [regretMissedTask]) marginally generous for a member who was
-     * already sitting at 0 when the penalty landed, which is the intended direction to err in.
+     * The balance is deliberately allowed to go negative: missed chores are meant to cost you, and
+     * a member deep in the red should read that way rather than being quietly reset to zero. Only
+     * [Member.level] is floored (at 1, by [levelForXp]) — a negative *level* is meaningless as a
+     * label, while a negative *balance* is the whole point of the penalty.
+     *
+     * Recomputing the level on every write is the actual fix here: the penalty paths adjusted xp
+     * without touching level at all, so a member's level drifted out of sync with their balance
+     * until their next completion happened to recompute it.
      */
     private fun applyXpDelta(
         member: Member,
         delta: Int,
     ): Member {
-        val updatedXp = (member.xp + delta).coerceAtLeast(0)
+        val updatedXp = member.xp + delta
         return member.copy(xp = updatedXp, level = levelForXp(updatedXp))
     }
 

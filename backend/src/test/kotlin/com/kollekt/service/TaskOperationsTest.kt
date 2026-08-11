@@ -231,19 +231,21 @@ class TaskOperationsTest {
     }
 
     @Test
-    fun `penalty floors xp at zero and recomputes level instead of going negative`() {
-        val overdueTask =
+    fun `expiry penalises a missed task, takes xp negative, and never takes level below 1`() {
+        val expiredTask =
             TaskItem(
                 id = 41,
                 title = "Trash",
                 assignee = "Emma",
                 collectiveCode = "ABC123",
-                dueDate = LocalDate.now().minusDays(1),
+                // Overdue well past GRACE_DAYS (7): expired, not merely late.
+                dueDate = LocalDate.now().minusDays(10),
                 category = TaskCategory.OTHER,
                 xp = 60,
             )
-        whenever(taskRepository.findAll()).thenReturn(listOf(overdueTask))
-        // Already near the bottom: a -60 penalty would have taken this to -50, which rendered as
+        whenever(taskRepository.findAll()).thenReturn(listOf(expiredTask))
+        // Already near the bottom: the -60 penalty takes the balance to -50, which is intended —
+        // missing chores is meant to cost you. Only the level is floored; -50 used to render as
         // "Nv.-1" everywhere because Int division truncates toward zero.
         whenever(memberRepository.findByNameAndCollectiveCode("Emma", "ABC123"))
             .thenReturn(member("Emma", "emma@example.com", id = 2, xp = 10, level = 1))
@@ -251,42 +253,43 @@ class TaskOperationsTest {
             listOf(member("Emma", "emma@example.com", id = 2, xp = 10)),
         )
         whenever(memberRepository.save(any<Member>())).thenAnswer { it.arguments[0] as Member }
-        whenever(taskRepository.save(any<TaskItem>())).thenAnswer { it.arguments[0] as TaskItem }
 
-        operations.penalizeMissedTasks()
+        operations.deleteExpiredTasks()
 
         verify(memberRepository).save(
             check {
-                assertEquals(0, it.xp)
+                assertEquals(-50, it.xp)
                 assertEquals(1, it.level)
             },
         )
+        verify(taskHistoryRepository).saveAll(
+            check<List<TaskHistoryEntry>> { entries -> assertEquals(-60, entries.single().penaltyXp) },
+        )
+        verify(taskRepository).deleteAll(listOf(expiredTask.copy(penaltyXp = -60)))
     }
 
     @Test
-    fun `penalty recomputes a stale level when xp drops below the level threshold`() {
-        val overdueTask =
+    fun `expiry recomputes a stale level when xp drops below the level threshold`() {
+        val expiredTask =
             TaskItem(
                 id = 42,
                 title = "Trash",
                 assignee = "Emma",
                 collectiveCode = "ABC123",
-                dueDate = LocalDate.now().minusDays(1),
+                dueDate = LocalDate.now().minusDays(10),
                 category = TaskCategory.OTHER,
                 xp = 50,
             )
-        whenever(taskRepository.findAll()).thenReturn(listOf(overdueTask))
-        // 210 XP is level 2; -50 drops to 160, which is level 1. The penalty path used to leave
-        // level untouched until the member's next completion happened to recompute it.
+        whenever(taskRepository.findAll()).thenReturn(listOf(expiredTask))
+        // 210 XP is level 2; -50 drops to 160, which is level 1.
         whenever(memberRepository.findByNameAndCollectiveCode("Emma", "ABC123"))
             .thenReturn(member("Emma", "emma@example.com", id = 2, xp = 210, level = 2))
         whenever(memberRepository.findAllByCollectiveCode("ABC123")).thenReturn(
             listOf(member("Emma", "emma@example.com", id = 2, xp = 210, level = 2)),
         )
         whenever(memberRepository.save(any<Member>())).thenAnswer { it.arguments[0] as Member }
-        whenever(taskRepository.save(any<TaskItem>())).thenAnswer { it.arguments[0] as TaskItem }
 
-        operations.penalizeMissedTasks()
+        operations.deleteExpiredTasks()
 
         verify(memberRepository).save(
             check {
@@ -297,18 +300,18 @@ class TaskOperationsTest {
     }
 
     @Test
-    fun `penalize missed tasks applies penalty once and notifies collective`() {
-        val overdueTask =
+    fun `expiry applies penalty once, notifies the collective, and archives the task`() {
+        val expiredTask =
             TaskItem(
                 id = 4,
                 title = "Trash",
                 assignee = "Emma",
                 collectiveCode = "ABC123",
-                dueDate = LocalDate.now().minusDays(1),
+                dueDate = LocalDate.now().minusDays(10),
                 category = TaskCategory.OTHER,
                 xp = 10,
             )
-        whenever(taskRepository.findAll()).thenReturn(listOf(overdueTask))
+        whenever(taskRepository.findAll()).thenReturn(listOf(expiredTask))
         whenever(memberRepository.findByNameAndCollectiveCode("Emma", "ABC123"))
             .thenReturn(member("Emma", "emma@example.com", id = 2, xp = 40))
         whenever(memberRepository.findAllByCollectiveCode("ABC123")).thenReturn(
@@ -319,19 +322,13 @@ class TaskOperationsTest {
             ),
         )
         whenever(memberRepository.save(any<Member>())).thenAnswer { it.arguments[0] as Member }
-        whenever(taskRepository.save(any<TaskItem>())).thenAnswer { it.arguments[0] as TaskItem }
 
-        operations.penalizeMissedTasks()
+        operations.deleteExpiredTasks()
 
         verify(memberRepository).save(
             org.mockito.kotlin.check {
                 assertEquals("Emma", it.name)
                 assertEquals(30, it.xp)
-            },
-        )
-        verify(taskRepository).save(
-            org.mockito.kotlin.check {
-                assertEquals(-10, it.penaltyXp)
             },
         )
         verify(notificationService).createParameterizedNotification(
@@ -345,6 +342,52 @@ class TaskOperationsTest {
             params = mapOf("title" to "Trash", "assignee" to "Emma"),
         )
         verify(realtimeUpdateService).publish(eq("ABC123"), eq("TASK_PENALTY_APPLIED"), any())
+        verify(taskRepository).deleteAll(listOf(expiredTask.copy(penaltyXp = -10)))
+    }
+
+    @Test
+    fun `expiry does not re-penalise a task that was already charged under the old rule`() {
+        // Tasks penalised the night after their due date (before this fix) can still be sitting in
+        // the database with a nonzero penaltyXp. They must not be billed twice on their way out.
+        val alreadyPenalised =
+            TaskItem(
+                id = 43,
+                title = "Trash",
+                assignee = "Emma",
+                collectiveCode = "ABC123",
+                dueDate = LocalDate.now().minusDays(10),
+                category = TaskCategory.OTHER,
+                xp = 10,
+                penaltyXp = -10,
+            )
+        whenever(taskRepository.findAll()).thenReturn(listOf(alreadyPenalised))
+        whenever(memberRepository.findByNameAndCollectiveCode("Emma", "ABC123"))
+            .thenReturn(member("Emma", "emma@example.com", id = 2, xp = 30))
+
+        operations.deleteExpiredTasks()
+
+        verify(memberRepository, org.mockito.kotlin.never()).save(any<Member>())
+        verify(taskRepository).deleteAll(listOf(alreadyPenalised))
+    }
+
+    @Test
+    fun `an uncompleted task within the grace window is neither penalised nor removed`() {
+        val recentlyOverdue =
+            TaskItem(
+                id = 44,
+                title = "Trash",
+                assignee = "Emma",
+                collectiveCode = "ABC123",
+                dueDate = LocalDate.now().minusDays(3),
+                category = TaskCategory.OTHER,
+                xp = 10,
+            )
+        whenever(taskRepository.findAll()).thenReturn(listOf(recentlyOverdue))
+
+        operations.deleteExpiredTasks()
+
+        verify(memberRepository, org.mockito.kotlin.never()).save(any<Member>())
+        verify(taskRepository, org.mockito.kotlin.never()).deleteAll(any<List<TaskItem>>())
     }
 
     @Test
@@ -437,28 +480,30 @@ class TaskOperationsTest {
 
     @Test
     fun `delete expired tasks archives and removes completed tasks older than seven days only`() {
-        val oldIncompleteTask =
+        val base =
             TaskItem(
                 id = 6,
                 title = "Trash",
                 assignee = "Kasper",
                 collectiveCode = "ABC123",
-                dueDate = LocalDate.now().minusDays(30),
+                // Within the grace window as an uncompleted task, so it's left alone here — its own
+                // penalty/expiry behaviour is covered separately, below.
+                dueDate = LocalDate.now().minusDays(3),
                 category = TaskCategory.OTHER,
             )
         val recentCompletedTask =
-            oldIncompleteTask.copy(
+            base.copy(
                 id = 7,
                 completed = true,
                 completedAt = LocalDateTime.now().minusDays(6),
             )
         val oldCompletedTask =
-            oldIncompleteTask.copy(
+            base.copy(
                 id = 8,
                 completed = true,
                 completedAt = LocalDateTime.now().minusDays(8),
             )
-        whenever(taskRepository.findAll()).thenReturn(listOf(oldIncompleteTask, recentCompletedTask, oldCompletedTask))
+        whenever(taskRepository.findAll()).thenReturn(listOf(base, recentCompletedTask, oldCompletedTask))
 
         operations.deleteExpiredTasks()
 
@@ -677,38 +722,6 @@ class TaskOperationsTest {
             params = mapOf("title" to "Bathroom"),
         )
         verify(realtimeUpdateService).publish("ABC123", "TASK_COMPLETED_LATE", result)
-    }
-
-    @Test
-    fun `penalize missed tasks updates existing penalty difference`() {
-        val overdueTask =
-            TaskItem(
-                id = 18,
-                title = "Trash",
-                assignee = "Emma",
-                collectiveCode = "ABC123",
-                dueDate = LocalDate.now().minusDays(1),
-                category = TaskCategory.OTHER,
-                xp = 10,
-                penaltyXp = -20,
-            )
-        whenever(taskRepository.findAll()).thenReturn(listOf(overdueTask))
-        whenever(memberRepository.findByNameAndCollectiveCode("Emma", "ABC123"))
-            .thenReturn(member("Emma", "emma@example.com", id = 2, xp = 40))
-
-        operations.penalizeMissedTasks()
-
-        verify(memberRepository).save(
-            check {
-                assertEquals("Emma", it.name)
-                assertEquals(50, it.xp)
-            },
-        )
-        verify(taskRepository).save(
-            check {
-                assertEquals(-10, it.penaltyXp)
-            },
-        )
     }
 
     @Test

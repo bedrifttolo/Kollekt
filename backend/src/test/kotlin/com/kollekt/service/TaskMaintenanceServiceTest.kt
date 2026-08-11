@@ -33,16 +33,11 @@ class TaskMaintenanceServiceTest {
 
     @Test
     fun `delete expired tasks delegates to task operations`() {
+        // This is also where missed-task penalties are applied now (see TaskOperations.
+        // deleteExpiredTasks) — there's no separate penalizeMissedTasks call to verify any more.
         service.deleteExpiredTasks()
 
         verify(taskOperations).deleteExpiredTasks()
-    }
-
-    @Test
-    fun `penalize missed tasks delegates to task operations`() {
-        service.penalizeMissedTasks()
-
-        verify(taskOperations).penalizeMissedTasks()
     }
 
     @Test
