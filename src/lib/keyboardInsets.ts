@@ -73,10 +73,13 @@ export function initKeyboardInsets(): void {
   document.documentElement.style.setProperty('--keyboard-anim-ease', IOS_KEYBOARD_EASE);
 
   if (Capacitor.isNativePlatform()) {
-    // Android only: MainActivity has no windowSoftInputMode, so it gets the platform default
-    // (adjustResize) and the system already shrinks the WebView in step with the IME — 100dvh and
-    // the safe-area utilities track it for free. Publishing an inset there as well would move
-    // bottom-docked chrome twice as far as the keyboard actually travels.
+    // Android only: the WebView is already shrunk for the IME, so 100dvh and the safe-area
+    // utilities track it for free and publishing an inset here as well would move bottom-docked
+    // chrome twice as far as the keyboard travels. Note it is NOT windowSoftInputMode that does
+    // this — android/variables.gradle targets SDK 36, and from API 35 edge-to-edge is enforced and
+    // adjustResize ignored. What shrinks it is Capacitor's own SystemBars.initWindowInsetsListener
+    // (@capacitor/android), which pads the WebView's parent by imeInsets.bottom while the IME is
+    // visible; its `insetsHandling` config defaults to "css" and this app never overrides it.
     if (!isIOS()) return;
     void Keyboard.addListener('keyboardWillShow', (info) => {
       applyInset(Math.round(info.keyboardHeight), IOS_KEYBOARD_DURATION_MS);

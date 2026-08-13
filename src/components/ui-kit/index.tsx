@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import type { ButtonHTMLAttributes, CSSProperties, FocusEvent, InputHTMLAttributes, ReactNode } from 'react';
+import type { ButtonHTMLAttributes, CSSProperties, InputHTMLAttributes, ReactNode } from 'react';
 import { AnimatePresence, motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { MoreHorizontal, Plus, X } from 'lucide-react';
 import { cn } from '../ui/utils';
@@ -157,18 +157,13 @@ export function Eyebrow({ children, accent }: { children: ReactNode; accent?: Ac
   return <p className={cn('eyebrow', accent && `tone-${accent}`)}>{children}</p>;
 }
 
+// Deliberately does NOT scroll its own focused field above the keyboard, though it used to: that
+// pass waited 300ms and then smooth-scrolled, so it landed long after bindKeyboardScrollAssist
+// (src/lib/nativeBootstrap.ts) had already put the field where it belonged, and the two together
+// read as the field being shoved around twice. Keyboard avoidance now has exactly one owner.
 export function AddSheet({ title, onClose, children, className }: { title: string; onClose: () => void; children: ReactNode; className?: string }) {
-  // Keep the focused field visible above the on-screen keyboard, which otherwise covers the
-  // lower inputs of the sheet. Runs after the keyboard's ~250ms show animation settles.
-  const scrollFocusedIntoView = (event: FocusEvent<HTMLDivElement>) => {
-    const target = event.target;
-    if (target instanceof HTMLElement && target.matches('input, textarea, select')) {
-      window.setTimeout(() => target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
-    }
-  };
   return (
     <motion.div
-      onFocusCapture={scrollFocusedIntoView}
       initial={{ opacity: 0, y: -8, scale: 0.99 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={springSoft}

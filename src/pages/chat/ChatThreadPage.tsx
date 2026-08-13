@@ -1317,7 +1317,10 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
                 <option value="">{t('kudos.generalHelp')}</option>
                 {householdTasks.map((task) => <option key={task.id} value={task.id}>{task.title}</option>)}
               </select>
-              <input value={kudosContext} onChange={(event) => setKudosContext(event.target.value)} maxLength={500} placeholder={t('kudos.contextPlaceholder')} className="w-full rounded-lg bg-muted/50 px-3 py-2 text-xs" />
+              {/* Same opt-out as the composer below: these forms sit in the thread's flex column,
+                  which already reflows above the keyboard, so the generic centre-the-field assist
+                  would only fight the message list's own pinning. */}
+              <input data-keyboard-scroll-assist="off" value={kudosContext} onChange={(event) => setKudosContext(event.target.value)} maxLength={500} placeholder={t('kudos.contextPlaceholder')} className="w-full rounded-lg bg-muted/50 px-3 py-2 text-xs" />
               <button onClick={() => void sendKudos()} disabled={!kudosReceiver} className="w-full rounded-lg bg-ink py-2 text-xs font-bold text-ink-foreground disabled:opacity-50">{t('kudos.send')}</button>
               <p className="text-[9px] text-muted-foreground">{t('kudos.privateNote')}</p>
             </AddSheet>
@@ -1378,11 +1381,12 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
         {showPollForm && (
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="relative z-10 overflow-hidden">
             <AddSheet title={t('chat.createPoll')} onClose={() => setShowPollForm(false)} className="mb-2 p-3">
-              <input value={pollQuestion} onChange={(e) => setPollQuestion(e.target.value)}
+              {/* data-keyboard-scroll-assist="off" for the same reason as the kudos field above. */}
+              <input data-keyboard-scroll-assist="off" value={pollQuestion} onChange={(e) => setPollQuestion(e.target.value)}
                 placeholder={t('chat.pollQuestionPlaceholder')}
                 className="w-full bg-muted/50 rounded-lg px-3 py-1.5 text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" />
               {pollOptions.map((opt, i) => (
-                <input key={i} value={opt}
+                <input key={i} data-keyboard-scroll-assist="off" value={opt}
                   onChange={(e) => setPollOptions((prev) => prev.map((o, j) => j === i ? e.target.value : o))}
                   placeholder={t('chat.pollOption', { index: i + 1 })}
                   className="w-full bg-muted/50 rounded-lg px-3 py-1.5 text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" />
