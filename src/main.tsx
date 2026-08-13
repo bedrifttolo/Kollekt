@@ -10,9 +10,15 @@ import { ThemeProvider } from './context/ThemeContext';
 import { queryClient } from './lib/queryClient';
 import { warmUpBackend } from './lib/api';
 import { initPurchases } from './lib/purchases';
+import { initKeyboardInsets } from './lib/keyboardInsets';
 
 // Open the connection before anything renders, so the first request is not the one that pays for it.
 warmUpBackend();
+
+// Armed before the first paint, not on the deferred native-shell pass below: the keyboard can be
+// summoned by the very first tap on the login screen, and a listener attached late would miss the
+// keyboardWillShow that opens it — leaving that one field docked behind the keyboard.
+initKeyboardInsets();
 
 // Persist the query cache to localStorage (persisted across app launches in the iOS/Android
 // WebView too). On reopen the last-known data renders instantly, then refreshes in the

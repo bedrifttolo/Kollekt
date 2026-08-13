@@ -106,6 +106,15 @@
   --app-nav-h: 5.75rem;
   --app-main-pt: 0.5rem;
 
+  /* On-screen keyboard geometry, written to <html> by src/lib/keyboardInsets.ts the instant the
+     keyboard starts animating (the native webview no longer resizes itself — see the Keyboard
+     block in capacitor.config.ts). Every bottom-docked surface reads these instead of guessing,
+     so the composer, sheets and games overlays ride the keyboard rather than trailing it. The
+     duration is overwritten per event; the fallbacks here keep the web build inert. */
+  --keyboard-inset: 0px;
+  --keyboard-anim-duration: 0ms;
+  --keyboard-anim-ease: ease;
+
   /* Radius scale. Component classes below pick from these instead of each declaring its own
      value — that drift is what forced the `card !rounded-2xl` style overrides across the pages. */
   --r-sm: 0.875rem;
@@ -289,7 +298,16 @@
   .gradient-warm { background: linear-gradient(135deg, var(--secondary), #e99a5c); }
   .text-gradient { color: var(--primary); background: none; }
   .glow-primary, .glow-accent { box-shadow: var(--shadow); }
-  .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
+  /* Clears whatever is actually occupying the bottom of the screen: the home indicator normally,
+     the on-screen keyboard while it is up (it covers the home indicator, so this is a max(), not a
+     sum). Every bottom-docked surface in the app already wears this class — the chat composer, the
+     Sheet panel, the full-screen game overlays, the login/create-household screens — so
+     lifting them all in lockstep with the keyboard is this one declaration. The transition runs on
+     the keyboard's own duration and curve, started in the same frame UIKit starts the keyboard. */
+  .safe-bottom {
+    padding-bottom: max(env(safe-area-inset-bottom, 0px), var(--keyboard-inset, 0px));
+    transition: padding-bottom var(--keyboard-anim-duration, 0ms) var(--keyboard-anim-ease, ease);
+  }
   .safe-top { padding-top: env(safe-area-inset-top, 0px); }
   .safe-content-bottom { padding-bottom: calc(6.75rem + env(safe-area-inset-bottom, 0px)); }
   .app-viewport { min-height: 100vh; min-height: 100dvh; }
@@ -302,25 +320,35 @@
     height: calc(100vh - var(--app-header-h) - var(--app-main-pt) - var(--app-nav-h) - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
     height: calc(100dvh - var(--app-header-h) - var(--app-main-pt) - var(--app-nav-h) - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
     margin-bottom: calc(-6.25rem - env(safe-area-inset-bottom, 0px));
+    /* Only ever animates the keyboard-open swap below; nothing else changes this height. */
+    transition: height var(--keyboard-anim-duration, 0ms) var(--keyboard-anim-ease, ease);
   }
   /* Full-viewport chat thread screen (household or a DM) — rendered outside AppLayout entirely
      (see ChatThreadLayout), so there's no header or bottom nav to subtract or cancel a margin
      against, unlike .app-screen above. Chat's own header bleeds up to the true
      top of the screen and pads itself (see .safe-top on its header div), the same way AppHeader
-     does for every other page's .app-screen. 100dvh already tracks the keyboard-resized webview,
-     so — unlike .app-screen — no separate keyboard-open override is needed here. */
+     does for every other page's .app-screen. It stays a full 100dvh even while the keyboard is up:
+     the composer's own .safe-bottom padding is what grows, which squeezes the flex-1 message list
+     between the header and the keyboard — so the header never moves and the composer lands exactly
+     on the keyboard's top edge. Hence no keyboard-open override here, unlike .app-screen. */
   .app-thread-screen {
     height: 100vh;
     height: 100dvh;
   }
   /* When the on-screen keyboard is up, the bottom nav is hidden, so pages reclaim the space
-     it (and its reserved padding) used to occupy — inputs dock flush above the keyboard. */
+     it (and its reserved padding) used to occupy — inputs dock flush above the keyboard.
+     The keyboard itself is subtracted via --keyboard-inset because the webview no longer resizes
+     for it, so 100dvh stays the full screen. The class flips on focus (before the keyboard) and
+     off on blur (as it starts leaving), while the inset eases in and out with the keyboard: the
+     nav's space is therefore reclaimed instantly and released instantly, and only the keyboard's
+     own share of the height animates — the same way content is revealed from under a departing
+     keyboard in native apps. */
   html.keyboard-open .app-bottom-nav { display: none; }
   html.keyboard-open .safe-content-bottom { padding-bottom: 0; }
   html.keyboard-open .app-screen { margin-bottom: 0; }
   html.keyboard-open .app-screen {
-    height: calc(100vh - var(--app-header-h) - var(--app-main-pt) - env(safe-area-inset-top, 0px));
-    height: calc(100dvh - var(--app-header-h) - var(--app-main-pt) - env(safe-area-inset-top, 0px));
+    height: calc(100vh - var(--app-header-h) - var(--app-main-pt) - env(safe-area-inset-top, 0px) - var(--keyboard-inset, 0px));
+    height: calc(100dvh - var(--app-header-h) - var(--app-main-pt) - env(safe-area-inset-top, 0px) - var(--keyboard-inset, 0px));
   }
   /* Scroll-aware dock: hidden on scroll-down, back on scroll-up (see useScrollDirection). Skipped
      while the keyboard is already forcing it hidden via the rule above. */

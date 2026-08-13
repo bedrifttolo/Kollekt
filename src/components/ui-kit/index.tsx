@@ -465,7 +465,10 @@ export function Sheet({
             // ends outside) from being read as a backdrop dismissal.
             onClick={(event) => event.stopPropagation()}
             className={cn(
-              'elev-3 max-h-[88vh] w-full max-w-xl overflow-y-auto overscroll-contain rounded-2xl border border-border bg-card p-4 safe-bottom',
+              // safe-bottom grows to the keyboard's height while it is up (see globals.css), which
+              // lifts the panel's content clear of it; the cap has to give that padding room or a
+              // tall sheet would grow past the top of the screen instead of shrinking.
+              'elev-3 max-h-[calc(88dvh_-_var(--keyboard-inset,0px))] w-full max-w-xl overflow-y-auto overscroll-contain rounded-2xl border border-border bg-card p-4 safe-bottom',
               className,
             )}
           >

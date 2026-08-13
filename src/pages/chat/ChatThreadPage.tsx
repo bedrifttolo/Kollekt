@@ -18,6 +18,7 @@ import { queryClient as sharedQueryClient } from '../../lib/queryClient';
 import { capturePhotoFile, nativeCameraAvailable } from '../../lib/camera';
 import { clearChatBackground, getChatBackground, pickChatBackgroundFile, saveChatBackground } from '../../lib/chatBackground';
 import { getLastSeenMessageId, setLastSeenMessageId } from '../../lib/chatSeen';
+import { keyboardHeight, onKeyboardInset } from '../../lib/keyboardInsets';
 import { decorateMessages, newestMessageId } from '../../lib/chatThread';
 import { CHAT_SYSTEM_SENDER } from '../../lib/chatThreadSummary';
 import { useUser, useRealtimeEvent } from '../../context/UserContext';
@@ -153,7 +154,11 @@ function computePopoverPlacement(anchor: PopoverAnchor, actionRowCount: number) 
   const actionsHeight = actionRowCount * rowHeight + cardPadding;
   // The preview is a clone of the pressed bubble, so its height is the anchor's height. Capped
   // because a very tall image message would otherwise push the action list off screen.
-  const previewHeight = Math.min(anchor.bottom - anchor.top, window.innerHeight * 0.45);
+  // The webview is not resized for the on-screen keyboard (see src/lib/keyboardInsets.ts), so
+  // window.innerHeight is the whole screen even while the keyboard covers the bottom of it —
+  // subtract the keyboard to get the space this menu can actually occupy.
+  const usableHeight = window.innerHeight - keyboardHeight();
+  const previewHeight = Math.min(anchor.bottom - anchor.top, usableHeight * 0.45);
   const totalHeight = reactionStripHeight + gap + previewHeight + gap + actionsHeight;
 
   // Rough clearance for the header above and the composer/safe-area below — exact heights vary
@@ -161,7 +166,7 @@ function computePopoverPlacement(anchor: PopoverAnchor, actionRowCount: number) 
   // generous rather than pixel-exact.
   const headerClearance = 84;
   const composerClearance = 96;
-  const maxTop = Math.max(headerClearance, window.innerHeight - composerClearance - totalHeight);
+  const maxTop = Math.max(headerClearance, usableHeight - composerClearance - totalHeight);
 
   // Anchored so the preview sits where the real bubble was — the message appears to lift in place
   // rather than the menu appearing somewhere else on screen.
@@ -477,6 +482,32 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
     bottomRef.current?.scrollIntoView({ behavior: instantScrollRef.current ? 'auto' : 'smooth' });
     instantScrollRef.current = false;
   }, [messages]);
+
+  // The composer's bottom padding grows into the keyboard's space over the keyboard's own
+  // animation (see .safe-bottom in globals.css), which shrinks this list frame by frame. A
+  // scroller sitting at the bottom does not stay there when its height changes — scrollTop is left
+  // where it was while its maximum grows — so the newest message would sink behind the composer as
+  // it rises. Re-pinning every frame for the length of the animation makes the whole transcript
+  // ride up with the keyboard, which is the half of the iMessage feel that isn't just timing.
+  // Skipped when the reader has scrolled up into history, so they keep their place.
+  useEffect(() => {
+    return onKeyboardInset(({ durationMs }) => {
+      const list = scrollContainerRef.current;
+      if (!list) return;
+      // Measured here rather than read off nearBottomRef: that ref is only refreshed by the
+      // scroll event, which has not fired yet for the jump-to-bottom the composer's own onFocus
+      // just did — so it would still say "scrolled up" on the very tap that opens the keyboard.
+      if (list.scrollHeight - list.scrollTop - list.clientHeight >= 150) return;
+      const until = performance.now() + durationMs + 60;
+      const pin = () => {
+        const el = scrollContainerRef.current;
+        if (!el) return;
+        el.scrollTop = el.scrollHeight;
+        if (performance.now() < until) window.requestAnimationFrame(pin);
+      };
+      window.requestAnimationFrame(pin);
+    });
+  }, []);
 
   useEffect(() => {
     hasMountedRef.current = true;
@@ -1570,10 +1601,13 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
               }
             }}
             onFocus={() => {
-              setShowActionBar(false);
+              // Guarded: an unconditional setState here re-rendered the whole thread on the exact
+              // frame the keyboard starts animating, which is the frame that can least afford it.
+              if (showActionBar) setShowActionBar(false);
               // Do not call scrollIntoView here: on iOS it can scroll the page ancestor while the
               // keyboard is animating, which makes the composer arrive a beat after the keyboard.
-              // Scrolling the chat list directly keeps the composer and native keyboard in lockstep.
+              // Scrolling the chat list directly keeps the composer and native keyboard in lockstep;
+              // the keyboard-inset effect above then holds it there for the rest of the animation.
               const list = scrollContainerRef.current;
               if (list) list.scrollTop = list.scrollHeight;
             }}

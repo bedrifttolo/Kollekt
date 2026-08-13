@@ -7,10 +7,12 @@ const config: CapacitorConfig = {
   webDir: 'dist',
   plugins: {
     Keyboard: {
-      // The web layer already owns its layout via html.keyboard-open (AppLayout), so let the
-      // native shell resize the web view rather than shifting the whole window — otherwise the
-      // chat header slides off the top when the keyboard opens.
-      resize: KeyboardResize.Native,
+      // The web layer owns keyboard layout end to end (src/lib/keyboardInsets.ts publishes
+      // --keyboard-inset from keyboardWillShow; globals.css consumes it). The native resize modes
+      // are all worse here: `native` defers its webview setFrame until keyboardAnimationDuration
+      // + 0.2s and then applies it unanimated, so the composer arrives ~450ms after the keyboard,
+      // and `body`/`ionic` shift the whole window so the chat header slides off the top.
+      resize: KeyboardResize.None,
     },
     SplashScreen: {
       launchShowDuration: 0,
