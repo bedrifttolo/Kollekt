@@ -7,6 +7,8 @@
   "appUpdate": {
     "title": "Update available",
     "body": "A newer version of Kollekt is ready. Update now for the latest fixes and features.",
+    "titleRequired": "Update required",
+    "bodyRequired": "This version of Kollekt is no longer supported. Update to keep using the app.",
     "wait": "Wait",
     "update": "Update"
   },

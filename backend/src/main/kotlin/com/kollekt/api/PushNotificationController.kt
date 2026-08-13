@@ -22,6 +22,8 @@ class PushNotificationController(
     data class DeviceTokenRequest(
         val token: String,
         val platform: String,
+        // Absent from clients older than the build that introduced it — that absence is the signal.
+        val appVersion: String? = null,
     )
 
     @PostMapping("/device-token")
@@ -31,13 +33,25 @@ class PushNotificationController(
         @AuthenticationPrincipal jwt: Jwt,
     ) {
         require(request.token.isNotBlank() && request.platform.isNotBlank())
+        // Read-modify-write rather than constructing a fresh entity: re-registration happens on
+        // every session restore, and rebuilding the row would reset appUpdatePushSentAt to null on
+        // every app launch — turning the one-shot update broadcast into a repeat blast. That field
+        // is deliberately absent from the copy below so it survives.
+        val existing = pushDeviceTokenRepository.findById(request.token).orElse(null)
         pushDeviceTokenRepository.save(
-            PushDeviceToken(
-                token = request.token,
+            existing?.copy(
                 memberName = jwt.subject,
                 platform = request.platform,
+                appVersion = request.appVersion,
                 updatedAt = Instant.now(),
-            ),
+            )
+                ?: PushDeviceToken(
+                    token = request.token,
+                    memberName = jwt.subject,
+                    platform = request.platform,
+                    updatedAt = Instant.now(),
+                    appVersion = request.appVersion,
+                ),
         )
     }
 

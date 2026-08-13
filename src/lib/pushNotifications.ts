@@ -8,6 +8,16 @@ import { api } from './api';
 let registeredToken: string | null = null;
 let listenersBound = false;
 
+async function installedAppVersion(): Promise<string | undefined> {
+  try {
+    const { App } = await import('@capacitor/app');
+    return (await App.getInfo()).version;
+  } catch {
+    // Plugin unavailable; registering without the version is better than not registering.
+    return undefined;
+  }
+}
+
 export async function registerPushNotifications(): Promise<void> {
   if (!Capacitor.isNativePlatform()) return;
   try {
@@ -23,11 +33,16 @@ export async function registerPushNotifications(): Promise<void> {
       listenersBound = true;
       await PushNotifications.addListener('registration', (token) => {
         registeredToken = token.value;
-        void api
-          .post('/push/device-token', {
-            token: token.value,
-            platform: Capacitor.getPlatform(),
-          })
+        // The installed version rides along so the backend can tell stale installs apart later.
+        // Resolving it must never cost us the token itself, so a failure falls back to omitting it.
+        void installedAppVersion()
+          .then((appVersion) =>
+            api.post('/push/device-token', {
+              token: token.value,
+              platform: Capacitor.getPlatform(),
+              appVersion,
+            }),
+          )
           .catch(() => {
             // Token save is best-effort; the next login re-registers and tries again.
           });

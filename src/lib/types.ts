@@ -517,4 +517,11 @@ export interface Promotion {
 export interface AppVersionInfo {
   latestIosVersion: string;
   iosStoreUrl: string;
+  // Optional because a client can outlive the backend it talks to: reading `undefined` and
+  // defaulting to "not forced" is survivable, whereas passing it to compareVersions would throw
+  // inside the overlay's catch and silently disable the update check entirely.
+  minIosVersion?: string;
+  latestAndroidVersion?: string;
+  androidStoreUrl?: string;
+  minAndroidVersion?: string;
 }

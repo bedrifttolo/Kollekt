@@ -9,6 +9,10 @@ import org.springframework.data.repository.query.Param
 interface PushDeviceTokenRepository : JpaRepository<PushDeviceToken, String> {
     fun findByMemberName(memberName: String): List<PushDeviceToken>
 
+    // Candidates for the one-shot app-update broadcast: every device on this platform that has not
+    // already been told.
+    fun findByPlatformAndAppUpdatePushSentAtIsNull(platform: String): List<PushDeviceToken>
+
     // No collective_code column here; a bare name match is the accepted, pre-existing scoping
     // level for this table (see findByMemberName above) — same residual cross-household risk.
     @Modifying

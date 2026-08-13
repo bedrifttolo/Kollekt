@@ -769,4 +769,9 @@ data class RemoveReactionRequest(
 data class AppVersionInfoDto(
     val latestIosVersion: String,
     val iosStoreUrl: String,
+    // Below this, the update prompt becomes non-dismissable. "0" means nothing is forced.
+    val minIosVersion: String,
+    val latestAndroidVersion: String,
+    val androidStoreUrl: String,
+    val minAndroidVersion: String,
 )

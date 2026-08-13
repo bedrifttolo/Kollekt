@@ -79,6 +79,26 @@ app:
     # doesn't have it yet.
     latest-ios: ${APP_VERSION_LATEST_IOS:1.1}
     ios-store-url: ${APP_VERSION_IOS_STORE_URL:https://apps.apple.com/no/app/kollekt/id6788522377?l=nb}
+    # Hard floor: below this, the overlay drops its "Wait" button and the app can't be used until
+    # the user updates. `0` is inert — nothing is ever forced until this is deliberately raised.
+    #
+    # Be clear-eyed about what this can and cannot do: it is only enforced by builds that contain
+    # the overlay code that reads it. Setting it to 1.2 does nothing to a 1.0 or 1.1 install, for
+    # exactly the reason those users never saw the 1.1 update prompt — their bundle predates the
+    # code. Its first real use is blocking 1.2 once 1.3 ships. Insurance against the next stranded
+    # cohort, not a fix for the last one.
+    min-ios: ${APP_VERSION_MIN_IOS:0}
+    # Android equivalents. Both floors default to `0`, which makes the overlay provably unreachable
+    # on Android (any real version compares greater) until the Play listing is live and these are
+    # set — the same "flip an env var, no code deploy" lever iOS has. The store URL still gets a
+    # real default so a tap can never land on a broken link.
+    latest-android: ${APP_VERSION_LATEST_ANDROID:0}
+    android-store-url: ${APP_VERSION_ANDROID_STORE_URL:https://play.google.com/store/apps/details?id=no.kollekt.app}
+    min-android: ${APP_VERSION_MIN_ANDROID:0}
+  admin:
+    # Second factor for /api/admin/* (which also requires a normal authenticated JWT). Unset means
+    # those endpoints 404 outright.
+    token: ${APP_ADMIN_TOKEN:}
   google:
     client-id: ${GOOGLE_CLIENT_ID:}
     client-secret: ${GOOGLE_CLIENT_SECRET:}

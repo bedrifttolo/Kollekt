@@ -17,4 +17,9 @@ data class PushDeviceToken(
     @Column(name = "member_name", nullable = false) val memberName: String = "",
     @Column(name = "platform", nullable = false) val platform: String = "",
     @Column(name = "updated_at", nullable = false) val updatedAt: Instant = Instant.EPOCH,
+    // Null means the client is older than the build that started reporting its version.
+    @Column(name = "app_version") val appVersion: String? = null,
+    // Set once the one-shot "new version is out" push has gone to this device; the presence of a
+    // stamp is what makes that broadcast non-repeatable.
+    @Column(name = "app_update_push_sent_at") val appUpdatePushSentAt: Instant? = null,
 )

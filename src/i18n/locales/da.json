@@ -7,6 +7,8 @@
   "appUpdate": {
     "title": "Opdatering tilgængelig",
     "body": "En nyere version af Kollekt er klar. Opdater nu for de nyeste rettelser og funktioner.",
+    "titleRequired": "Opdatering påkrævet",
+    "bodyRequired": "Denne version af Kollekt understøttes ikke længere. Opdater for at fortsætte med at bruge appen.",
     "wait": "Vent",
     "update": "Opdater"
   },

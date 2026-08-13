@@ -37,6 +37,9 @@ object PushNotificationCopy {
                     "GUEST_QUIET_HOURS_OVERLAP" to "Quiet-hour guest reminders",
                     "QUIET_HOURS_VIOLATION" to "Quiet-hours violation reports",
                     "HOUSE_RULE_VIOLATION" to "House-rule violation reports",
+                    // Deliberately absent from ALL_NOTIFICATION_TYPES — see APP_UPDATE_AVAILABLE
+                    // in BODIES below.
+                    "APP_UPDATE_AVAILABLE" to "New Kollekt version",
                 ),
             "no" to
                 mapOf(
@@ -64,6 +67,7 @@ object PushNotificationCopy {
                     "GUEST_QUIET_HOURS_OVERLAP" to "Påminnelser om stilletid",
                     "QUIET_HOURS_VIOLATION" to "Meldinger om brudd på stilletid",
                     "HOUSE_RULE_VIOLATION" to "Meldinger om brudd på husregler",
+                    "APP_UPDATE_AVAILABLE" to "Ny versjon av Kollekt",
                 ),
             "sv" to
                 mapOf(
@@ -91,6 +95,7 @@ object PushNotificationCopy {
                     "GUEST_QUIET_HOURS_OVERLAP" to "Påminnelser om tyst tid",
                     "QUIET_HOURS_VIOLATION" to "Anmälningar om tyst tid",
                     "HOUSE_RULE_VIOLATION" to "Anmälningar om husregler",
+                    "APP_UPDATE_AVAILABLE" to "Ny version av Kollekt",
                 ),
             "da" to
                 mapOf(
@@ -118,6 +123,7 @@ object PushNotificationCopy {
                     "GUEST_QUIET_HOURS_OVERLAP" to "Påmindelser om stilleperioden",
                     "QUIET_HOURS_VIOLATION" to "Anmeldelser om stilletid",
                     "HOUSE_RULE_VIOLATION" to "Anmeldelser om husregler",
+                    "APP_UPDATE_AVAILABLE" to "Ny version af Kollekt",
                 ),
         )
 
@@ -148,6 +154,14 @@ object PushNotificationCopy {
                     "GUEST_QUIET_HOURS_OVERLAP" to "{{guest}}'s visit overlaps quiet hours from {{start}}.",
                     "QUIET_HOURS_VIOLATION" to "⚠️ {{reporter}} reported a quiet-hours violation.",
                     "HOUSE_RULE_VIOLATION" to "⚠️ {{reporter}} reported a house-rule violation.",
+                    // Not in ALL_NOTIFICATION_TYPES on purpose: that list drives the user-facing
+                    // notification-preference toggles, and this is the one message a user stuck on
+                    // a broken old build must not be able to opt out of. [AppUpdatePushService]
+                    // calls the gateways directly, so the preference gate is never consulted.
+                    // Worded to stay true for someone already on the newest version, because the
+                    // broadcast cannot tell who is stale.
+                    "APP_UPDATE_AVAILABLE" to
+                        "Kollekt {{version}} is out. Open {{store}} to make sure you have the newest version.",
                 ),
             "no" to
                 mapOf(
@@ -174,6 +188,8 @@ object PushNotificationCopy {
                     "GUEST_QUIET_HOURS_OVERLAP" to "Besøket til {{guest}} overlapper stilletiden fra {{start}}.",
                     "QUIET_HOURS_VIOLATION" to "⚠️ {{reporter}} meldte om brudd på stilletid.",
                     "HOUSE_RULE_VIOLATION" to "⚠️ {{reporter}} meldte om brudd på husreglene.",
+                    "APP_UPDATE_AVAILABLE" to
+                        "Kollekt {{version}} er ute. Åpne {{store}} for å sjekke at du har den nyeste versjonen.",
                 ),
             "sv" to
                 mapOf(
@@ -200,6 +216,8 @@ object PushNotificationCopy {
                     "GUEST_QUIET_HOURS_OVERLAP" to "{{guest}}s besök överlappar tyst tid från {{start}}.",
                     "QUIET_HOURS_VIOLATION" to "⚠️ {{reporter}} anmälde en överträdelse av tyst tid.",
                     "HOUSE_RULE_VIOLATION" to "⚠️ {{reporter}} anmälde en överträdelse av husreglerna.",
+                    "APP_UPDATE_AVAILABLE" to
+                        "Kollekt {{version}} är ute. Öppna {{store}} för att se till att du har den senaste versionen.",
                 ),
             "da" to
                 mapOf(
@@ -226,6 +244,8 @@ object PushNotificationCopy {
                     "GUEST_QUIET_HOURS_OVERLAP" to "{{guest}}s besøg overlapper stilleperioden fra {{start}}.",
                     "QUIET_HOURS_VIOLATION" to "⚠️ {{reporter}} anmeldte en overtrædelse af stilletiden.",
                     "HOUSE_RULE_VIOLATION" to "⚠️ {{reporter}} anmeldte en overtrædelse af husreglerne.",
+                    "APP_UPDATE_AVAILABLE" to
+                        "Kollekt {{version}} er ude. Åbn {{store}} for at sikre, at du har den nyeste version.",
                 ),
         )
 
