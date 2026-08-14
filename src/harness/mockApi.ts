@@ -223,7 +223,9 @@ async function get<T>(url: string): Promise<T> {
     return {
       windowDays: 30,
       totalTasks: 11,
-      balancePercent: 82,
+      // What StatsService.getFairness actually returns for a 5/4/2 split across three members —
+      // a fixture that doesn't agree with the real formula makes the card impossible to eyeball.
+      balancePercent: 77,
       // `completedTasks` is the field MemberShareDto actually sends — this fixture used to say
       // `taskCount`, which typed as `unknown` on the way out and so silently fed 0 to every
       // consumer that reads it.

@@ -37,6 +37,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
 import java.time.temporal.TemporalAdjusters
+import kotlin.math.abs
 import kotlin.math.roundToInt
 
 // The server has always run in UTC, so anchoring "which day" a completedAt instant falls on to
@@ -476,18 +477,46 @@ class StatsService(
         val counts = activeMembers.associateWith { name -> completedRecently.count { it.assignee == name } }
         val total = counts.values.sum()
 
+        // Raw ratios, kept unrounded: the score below is computed from these, and the rounded
+        // percentages are for display only. Deriving the score from the rounded values cost up to
+        // half a point for free.
+        val rawShares = activeMembers.associateWith { name -> if (total == 0) 0.0 else counts.getValue(name) * 100.0 / total }
+
         val shares =
             activeMembers.map { name ->
-                val count = counts.getValue(name)
                 com.kollekt.api.dto.MemberShareDto(
                     name = name,
-                    completedTasks = count,
-                    sharePercent = if (total == 0) 0 else (count * 100.0 / total).roundToInt(),
+                    completedTasks = counts.getValue(name),
+                    sharePercent = rawShares.getValue(name).roundToInt(),
                 )
             }
+
+        /**
+         * How far the split sits from an even one, as a share of how far it *could* be — 100 when
+         * everyone carries the same load, 0 when one person does every chore, for any household size.
+         *
+         * The two things this replaced were both broken as a score. `100 - (maxShare - evenShare)`
+         * measured the deviation against a 100-point range the household could never traverse: the
+         * floor is `100/N`, so in a two-person home one person doing literally everything scored 50,
+         * not 0, and the card's own "needs attention" colour band was unreachable. And reading only
+         * the largest share made every 4-person split with a 40% top-scorer identical, so a house
+         * where two people carry the other two (40/40/10/10) read exactly like a fine one
+         * (40/20/20/20).
+         *
+         * Summing every member's deviation fixes both. The worst case — one person at 100, everyone
+         * else at 0 — always totals `2 * (100 - evenShare)`, which is what normalises the scale to a
+         * real 0-100 no matter how many people live there.
+         */
         val evenShare = if (activeMembers.isEmpty()) 0.0 else 100.0 / activeMembers.size
-        val maxShare = shares.maxOfOrNull { it.sharePercent }?.toDouble() ?: evenShare
-        val balancePercent = if (total == 0) 100 else (100 - (maxShare - evenShare)).roundToInt().coerceIn(0, 100)
+        val balancePercent =
+            if (total == 0 || activeMembers.size < 2) {
+                // Nothing done yet, or nobody to share with: there is no imbalance to report, and
+                // the worst-case denominator would be zero for a single member.
+                100
+            } else {
+                val deviation = rawShares.values.sumOf { abs(it - evenShare) }
+                (100 - 100 * deviation / (2 * (100 - evenShare))).roundToInt().coerceIn(0, 100)
+            }
 
         return com.kollekt.api.dto.FairnessDto(
             windowDays = windowDays.toInt(),

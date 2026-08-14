@@ -559,7 +559,108 @@ class StatsServiceTest {
         assertEquals(3, result.totalTasks)
         assertEquals(2, result.shares.first().completedTasks)
         assertEquals("Kasper", result.shares.first().name)
-        assertTrue(result.balancePercent in 0..100)
+        // 67/33 against an even 50/50: each is 16.7 off, and the worst a pair can be is 50 off
+        // each, so the split is a third of the way to maximally unfair.
+        assertEquals(67, result.balancePercent)
+    }
+
+    /**
+     * The balance score's scale, pinned. These are the cases the old
+     * `100 - (maxShare - evenShare)` formula got wrong: its floor was 100/N rather than 0, so a
+     * two-person household where one person did every chore scored 50, and it read only the largest
+     * share, so distributions that are nothing alike scored identically.
+     */
+    @Test
+    fun `fairness scores an even split 100 and a one-sided one 0, whatever the household size`() {
+        val now = Instant.now()
+
+        whenever(memberRepository.findAllByCollectiveCode("ABC123")).thenReturn(
+            listOf(member("Kasper", "kasper@example.com"), member("Emma", "emma@example.com", id = 2)),
+        )
+        whenever(taskRepository.findAllByCollectiveCode("ABC123")).thenReturn(
+            listOf(
+                task(id = 1, title = "A", assignee = "Kasper", completed = true, completedAt = now),
+                task(id = 2, title = "B", assignee = "Emma", completed = true, completedAt = now),
+            ),
+        )
+        assertEquals(100, service.getFairness("Kasper").balancePercent, "an even split is perfectly balanced")
+
+        // Same two people, Kasper doing all of it. The old formula bottomed out at 50 here.
+        whenever(taskRepository.findAllByCollectiveCode("ABC123")).thenReturn(
+            listOf(
+                task(id = 1, title = "A", assignee = "Kasper", completed = true, completedAt = now),
+                task(id = 2, title = "B", assignee = "Kasper", completed = true, completedAt = now),
+            ),
+        )
+        assertEquals(0, service.getFairness("Kasper").balancePercent, "one person carrying a pair is maximally unfair")
+
+        // And the floor is still 0 with four people, where the old formula bottomed out at 25.
+        whenever(memberRepository.findAllByCollectiveCode("ABC123")).thenReturn(
+            listOf(
+                member("Kasper", "kasper@example.com"),
+                member("Emma", "emma@example.com", id = 2),
+                member("Ida", "ida@example.com", id = 3),
+                member("Noah", "noah@example.com", id = 4),
+            ),
+        )
+        assertEquals(0, service.getFairness("Kasper").balancePercent, "the scale does not shift with household size")
+    }
+
+    @Test
+    fun `fairness tells apart splits that share a top contributor`() {
+        val now = Instant.now()
+        whenever(memberRepository.findAllByCollectiveCode("ABC123")).thenReturn(
+            listOf(
+                member("Kasper", "kasper@example.com"),
+                member("Emma", "emma@example.com", id = 2),
+                member("Ida", "ida@example.com", id = 3),
+                member("Noah", "noah@example.com", id = 4),
+            ),
+        )
+        fun tasksFor(vararg perMember: Pair<String, Int>) =
+            perMember
+                .flatMap { (who, count) -> List(count) { who } }
+                .mapIndexed { index, who -> task(id = index + 1L, title = "T$index", assignee = who, completed = true, completedAt = now) }
+
+        // Two carrying two: 40/40/10/10.
+        whenever(taskRepository.findAllByCollectiveCode("ABC123"))
+            .thenReturn(tasksFor("Kasper" to 4, "Emma" to 4, "Ida" to 1, "Noah" to 1))
+        val twoCarrying = service.getFairness("Kasper").balancePercent
+
+        // One doing a bit more than their share: 40/20/20/20. Same 40% top contributor.
+        whenever(taskRepository.findAllByCollectiveCode("ABC123"))
+            .thenReturn(tasksFor("Kasper" to 4, "Emma" to 2, "Ida" to 2, "Noah" to 2))
+        val oneAhead = service.getFairness("Kasper").balancePercent
+
+        assertEquals(60, twoCarrying)
+        assertEquals(80, oneAhead)
+        assertTrue(twoCarrying < oneAhead, "a house where half the people coast is less balanced")
+    }
+
+    @Test
+    fun `fairness reports a balanced household when nothing has been completed yet`() {
+        whenever(memberRepository.findAllByCollectiveCode("ABC123")).thenReturn(
+            listOf(member("Kasper", "kasper@example.com"), member("Emma", "emma@example.com", id = 2)),
+        )
+        whenever(taskRepository.findAllByCollectiveCode("ABC123")).thenReturn(emptyList())
+
+        val result = service.getFairness("Kasper")
+
+        assertEquals(0, result.totalTasks)
+        assertEquals(100, result.balancePercent)
+    }
+
+    /** A lone member has nobody to be unfair to, and is also the case that divides by zero. */
+    @Test
+    fun `fairness handles a single-member household`() {
+        whenever(memberRepository.findAllByCollectiveCode("ABC123")).thenReturn(listOf(member("Kasper", "kasper@example.com")))
+        whenever(taskRepository.findAllByCollectiveCode("ABC123")).thenReturn(
+            listOf(task(id = 1, title = "A", assignee = "Kasper", completed = true, completedAt = Instant.now())),
+        )
+
+        val result = service.getFairness("Kasper")
+
+        assertEquals(100, result.balancePercent)
     }
 
     @Test

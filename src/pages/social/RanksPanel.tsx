@@ -474,6 +474,10 @@ export default function RanksPanel() {
                 spilled over the stroke, and BALANCERET/BALANSERAT are a character longer. Only the
                 number goes inside, where it can't overflow whatever the locale. */}
             <div className="flex shrink-0 flex-col items-center gap-1.5">
+              {/* These bands only mean anything because `balancePercent` spans a real 0-100 (see
+                  StatsService.getFairness). Under the old formula the floor was 100/N, so blush was
+                  unreachable in a two-person household — the warning colour could never fire in the
+                  household where a lopsided split is most obvious. */}
               <ProgressRing
                 value={fairness.balancePercent}
                 size={92}
