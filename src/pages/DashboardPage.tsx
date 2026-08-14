@@ -183,9 +183,9 @@ export default function DashboardPage() {
 
   if (isPending || !data) {
     return (
-      <div className="space-y-4 pt-4 animate-pulse">
+      <div className="space-y-4 pt-3 animate-pulse">
         {[...Array(4)].map((_, i) => (
-          <div key={i} className="glass rounded-2xl h-24" />
+          <div key={i} className="skeleton rounded-2xl h-24" />
         ))}
       </div>
     );
@@ -216,11 +216,11 @@ export default function DashboardPage() {
   const promptKey = `dashboard.prompts.${dailyIndex(6)}`;
 
   return (
-    <motion.div variants={listContainer} initial={false} animate="show" className="space-y-5 pt-3 pb-6">
+    <motion.div variants={listContainer} initial={false} animate="show" className="space-y-4 pt-3">
       {/* Welcome */}
       <motion.div variants={listItem}>
         <Eyebrow>{translate('dashboard.today')}</Eyebrow>
-        <h2 className="display-lg mt-2">
+        <h2 className="display-md mt-2">
           {translate(greetingKey, { name: currentUser?.name })}{' '}
           <Leaf className="mark inline h-8 w-8 align-baseline" strokeWidth={2.5} />
         </h2>
@@ -270,7 +270,7 @@ export default function DashboardPage() {
             <div key={s.label} className="stat-tile text-center">
               <s.icon className="mx-auto mb-1 h-3.5 w-3.5" style={{ color: `var(--tone-${s.tone})` }} />
               <CountUp value={s.value} format={s.format} className="block font-display text-base font-bold" />
-              <p className="text-[10px] text-ink-foreground/70">{s.label}</p>
+              <p className="text-[11px] text-ink-foreground/70">{s.label}</p>
             </div>
           ))}
         </div>
@@ -293,7 +293,7 @@ export default function DashboardPage() {
       </motion.button>
 
       {checkin && (
-        <motion.div variants={listItem} className="card !p-0">
+        <motion.div variants={listItem} className="card card-flush">
           <button
             onClick={() => setCheckinExpanded((v) => !v)}
             className="flex w-full items-center gap-3 p-4 text-left"
@@ -324,8 +324,8 @@ export default function DashboardPage() {
                         {translate('checkin.mood')}
                         <input className="mood-slider mt-2 w-full accent-primary" type="range" min="1" max="5" value={mood} onChange={(event) => setMood(Number(event.target.value))} />
                       </label>
-                      <input value={issue} onChange={(event) => setIssue(event.target.value)} placeholder={translate('checkin.issue')} className="w-full min-h-[var(--ctl-lg)] rounded-xl border border-border bg-background px-3 py-2 text-sm" />
-                      <input value={improvement} onChange={(event) => setImprovement(event.target.value)} placeholder={translate('checkin.improvement')} className="w-full min-h-[var(--ctl-lg)] rounded-xl border border-border bg-background px-3 py-2 text-sm" />
+                      <input value={issue} onChange={(event) => setIssue(event.target.value)} placeholder={translate('checkin.issue')} className="input" />
+                      <input value={improvement} onChange={(event) => setImprovement(event.target.value)} placeholder={translate('checkin.improvement')} className="input" />
                       <label className="flex items-center gap-2 text-xs text-muted-foreground">
                         <input type="checkbox" checked={anonymous} onChange={(event) => setAnonymous(event.target.checked)} />
                         {translate('checkin.anonymous')}
@@ -367,7 +367,7 @@ export default function DashboardPage() {
               icon={<CategoryIcon className="h-5 w-5" />}
               title={task.title}
               subtitle={`${task.assignee} · ${formatDate(task.dueDate)}`}
-              trailing={<span className="shrink-0 rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-bold text-primary">+{task.xp} XP</span>}
+              trailing={<span className="shrink-0 rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-bold text-primary">+{task.xp} XP</span>}
               onClick={() => navigate('/tasks')}
             />
           );
@@ -425,7 +425,7 @@ export default function DashboardPage() {
             icon={<Calendar className="h-5 w-5" />}
             title={e.title}
             subtitle={`${formatDate(e.date)}${e.time ? ` · ${formatTime(e.time)}` : ''}`}
-            trailing={<span className="shrink-0 rounded-full bg-muted px-2.5 py-1 text-[10px] font-bold text-muted-foreground">{translateKey('common.eventTypes', e.type)}</span>}
+            trailing={<span className="shrink-0 rounded-full bg-muted px-2.5 py-1 text-[11px] font-bold text-muted-foreground">{translateKey('common.eventTypes', e.type)}</span>}
             onClick={() => navigate('/calendar')}
           />
         ))}

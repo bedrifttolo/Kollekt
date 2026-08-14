@@ -389,6 +389,7 @@
     "assigneeLabel": "Tildelt til",
     "dueDateLabel": "Frist",
     "fairSuggestion": "Tip: {{name}} har færrest åbne opgaver",
+    "fairSuggestionShare": "Tip: {{name}} har lavet mindst de sidste {{days}} dage",
     "categoryLabel": "Opgavetype",
     "recurrenceLabel": "Gentages",
     "xpReward": "XP-belønning",
@@ -574,6 +575,8 @@
     "subscribeTitle": "Føj til telefonens kalender",
     "subscribeSubtitle": "Abonnér med iPhone- eller Android-kalenderen på husstandens feed",
     "subscribeButton": "Abonnér",
+    "subscribeCopy": "Kopiér",
+    "subscribeManualHint": "Hvis Abonnér siger at valideringen mislykkedes, kopiér linket og indsæt det i Kalender > Tilføj abonnementskalender.",
     "subscribeUrlLabel": "Link til kalenderabonnement",
     "newEvent": "Ny begivenhed",
     "addModes": {
@@ -656,7 +659,9 @@
     "background": {
       "label": "Baggrund",
       "change": "Skift baggrund",
-      "remove": "Fjern baggrund"
+      "remove": "Fjern baggrund",
+      "changeShared": "Skift baggrunden for alle i denne chat",
+      "removeShared": "Fjern baggrunden for alle i denne chat"
     },
     "today": "I dag",
     "yesterday": "I går",
@@ -697,6 +702,18 @@
     "yourBalance": "Din saldo",
     "owe": "Du skylder {{name}} {{amount}}",
     "othersOweYou": "Andre skylder dig penge",
+    "breakdown": {
+      "open": "Se hvem der skylder hvem",
+      "title": "Hvem skylder hvem",
+      "subtitle": "Din saldo, per bofælle",
+      "youOwe": "Du skylder",
+      "owesYou": "Skylder dig",
+      "tapToSettle": "Tryk for at gøre op",
+      "theirMove": "Venter på at de betaler",
+      "note": "Hvert beløb er det, I to skylder hinanden efter alt, der allerede er gjort op.",
+      "settledTitle": "Ingen skylder nogen",
+      "settledBody": "Al gæld i kollektivet er gjort op. Tilføj en udgift, så fyldes det her op igen."
+    },
     "allSettled": "Alt er gjort op!",
     "payAmount": "Betal {{amount}}",
     "payAmountTo": "Gør op med {{name}} - {{amount}}",
@@ -718,6 +735,7 @@
     "pantTrackerSummary": "{{bottles}} flasker • {{current}} / {{goal}} mål",
     "pantTrackerEmpty": "Følg panten mod jeres mål",
     "balances": "Saldi",
+    "yourStandings": "Dig og hver bofælle",
     "settled": "Gjort op",
     "expenseHistory": "Udgiftshistorik",
     "splitCount": "Delt på {{count}}",

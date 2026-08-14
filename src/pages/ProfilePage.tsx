@@ -52,7 +52,7 @@ import type {
 } from "../lib/types";
 import { useTheme, ACCENT_PACKS } from "../context/ThemeContext";
 import { applyAppIcon } from "../lib/appIcon";
-import { Eyebrow, Field } from "../components/ui-kit";
+import { Eyebrow, Field, Sheet, Textarea } from "../components/ui-kit";
 import LanguageSwitcher from "../components/LanguageSwitcher";
 import { MEMBER_COLORS, colorForMember } from "../lib/memberColors";
 import { usePremiumEntitlement } from "../lib/purchases";
@@ -595,7 +595,7 @@ export default function ProfilePage() {
     wasLoadingRef.current = true;
     return (
       <div className="space-y-3 pt-4 animate-pulse">
-        {[...Array(4)].map((_, i) => <div key={i} className="glass rounded-2xl h-24" />)}
+        {[...Array(4)].map((_, i) => <div key={i} className="skeleton rounded-2xl h-24" />)}
       </div>
     );
   }
@@ -608,11 +608,11 @@ export default function ProfilePage() {
     <motion.div
       initial={justFinishedLoading ? { opacity: 0, y: 12 } : false}
       animate={{ opacity: 1, y: 0 }}
-      className="space-y-4 pt-4 pb-8"
+      className="space-y-4 pt-3"
     >
       <button
         onClick={() => navigate(-1)}
-        className="-ml-1 inline-flex items-center gap-1 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+        className="-ml-2 inline-flex min-h-11 items-center gap-1 px-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
         aria-label={t("common.back")}
       >
         <ArrowLeft className="h-5 w-5" />
@@ -692,7 +692,7 @@ export default function ProfilePage() {
         </div>
 
         <div className="mt-4" aria-label={t("profile.status.title")}>
-          <p className="mb-2 text-[10px] font-bold uppercase tracking-[.12em] text-muted-foreground">
+          <p className="mb-2 text-[11px] font-bold uppercase tracking-[.12em] text-muted-foreground">
             {t("profile.status.title")}
           </p>
           <div className="grid grid-cols-2 gap-1 rounded-xl bg-muted/40 p-1">
@@ -711,21 +711,21 @@ export default function ProfilePage() {
                     <span className={`inline-block h-2 w-2 shrink-0 rounded-full ${status.dotClass}`} />
                     {translateKey("common.memberStatus", status.value)}
                   </span>
-                  <span className="mt-1 block text-[10px] leading-snug">
+                  <span className="mt-1 block text-[11px] leading-snug">
                     {t(`profile.status.${status.value.toLowerCase()}Description`)}
                   </span>
                 </button>
               );
             })}
           </div>
-          {statusSaving && <p className="mt-2 text-[10px] text-muted-foreground">{t("profile.status.saving")}</p>}
+          {statusSaving && <p className="mt-2 text-[11px] text-muted-foreground">{t("profile.status.saving")}</p>}
         </div>
 
         <div className="mt-4">
-          <p className="text-[10px] font-bold uppercase tracking-[.12em] text-muted-foreground mb-2">
+          <p className="text-[11px] font-bold uppercase tracking-[.12em] text-muted-foreground mb-2">
             {t("profile.avatarColor")}
           </p>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-3">
             {MEMBER_COLORS.map((swatch) => {
               const active = colorForMember(name, currentUser?.color) === swatch;
               const takenByOther = householdMembers.some((member) => member.name !== name && member.color === swatch);
@@ -749,7 +749,7 @@ export default function ProfilePage() {
         {currentUser?.collectiveCode && (
           <div className="mt-4 flex items-center justify-between bg-muted/30 rounded-xl px-3 py-2">
             <div>
-              <p className="text-[10px] text-muted-foreground">
+              <p className="text-[11px] text-muted-foreground">
                 {t("profile.householdCode")}
               </p>
               <p className="font-display font-bold text-sm tracking-widest">
@@ -774,7 +774,7 @@ export default function ProfilePage() {
         {homeDetails && (
           <div className="mt-4 flex items-center justify-between bg-muted/30 rounded-xl px-3 py-2">
             <div className="min-w-0">
-              <p className="text-[10px] text-muted-foreground">{t("profile.homeDetails.title")}</p>
+              <p className="text-[11px] text-muted-foreground">{t("profile.homeDetails.title")}</p>
               <p className="truncate font-display font-bold text-sm">{homeDetails.name}</p>
               {homeDetails.address && <p className="truncate text-xs text-muted-foreground">{homeDetails.address}</p>}
             </div>
@@ -794,31 +794,31 @@ export default function ProfilePage() {
       </div>
 
       {myStats && (
-        <div className="glass rounded-2xl p-4">
+        <div className="glass rounded-xl p-4">
           <div className="grid grid-cols-3 gap-2">
             <div className="bg-background/30 rounded-lg p-2.5 text-center">
               <p className="font-display font-bold text-base">{myStats.xp}</p>
-              <p className="text-[9px] text-muted-foreground mt-0.5">{t("profile.stats.xp")}</p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">{t("profile.stats.xp")}</p>
             </div>
             <div className="bg-background/30 rounded-lg p-2.5 text-center">
               <p className="font-display font-bold text-base">#{myStats.rank}</p>
-              <p className="text-[9px] text-muted-foreground mt-0.5">{t("profile.stats.rank")}</p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">{t("profile.stats.rank")}</p>
             </div>
             <div className="bg-background/30 rounded-lg p-2.5 text-center">
               <p className="font-display font-bold text-base">{myStats.level}</p>
-              <p className="text-[9px] text-muted-foreground mt-0.5">{t("profile.stats.level")}</p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">{t("profile.stats.level")}</p>
             </div>
             <div className="bg-background/30 rounded-lg p-2.5 text-center">
               <p className="font-display font-bold text-base">{myStats.tasksCompleted}</p>
-              <p className="text-[9px] text-muted-foreground mt-0.5">{t("profile.stats.tasksDone")}</p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">{t("profile.stats.tasksDone")}</p>
             </div>
             <div className="bg-background/30 rounded-lg p-2.5 text-center">
               <p className="font-display font-bold text-base">{myStats.streak}d</p>
-              <p className="text-[9px] text-muted-foreground mt-0.5">{t("profile.stats.streak")}</p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">{t("profile.stats.streak")}</p>
             </div>
             <div className="bg-background/30 rounded-lg p-2.5 text-center">
               <p className="font-display font-bold text-base">{achievementsUnlocked}/{achievementsTotal}</p>
-              <p className="text-[9px] text-muted-foreground mt-0.5">{t("profile.stats.achievements")}</p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">{t("profile.stats.achievements")}</p>
             </div>
           </div>
         </div>
@@ -826,7 +826,7 @@ export default function ProfilePage() {
 
       <div className="card flex items-center gap-3">
         <Sparkles className="h-6 w-6 shrink-0 text-primary" />
-        <div className="flex-1">
+        <div className="min-w-0 flex-1">
           <p className="text-sm font-semibold">{t("kudos.profileBadge")}</p>
           <p className="text-xs text-muted-foreground">{t("kudos.receivedTotal", { count: receivedKudos })}</p>
         </div>
@@ -864,7 +864,7 @@ export default function ProfilePage() {
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-sm font-semibold">{t("profile.houseRules.title")}</p>
-              <p className="text-[10px] text-muted-foreground">
+              <p className="text-[11px] text-muted-foreground">
                 {houseRules.version > 0 ? t("profile.houseRules.version", { version: houseRules.version }) : t("profile.houseRules.empty")}
               </p>
             </div>
@@ -874,7 +874,7 @@ export default function ProfilePage() {
                   setRulesDraft(houseRules.content);
                   setShowRulesEditor(true);
                 }}
-                className="rounded-full border border-border px-3 py-1.5 text-xs font-bold"
+                className="btn-sm border border-border"
               >
                 {houseRules.version > 0 ? t("profile.houseRules.edit") : t("profile.houseRules.create")}
               </button>
@@ -922,7 +922,7 @@ export default function ProfilePage() {
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-sm font-semibold">{t("quietHours.title")}</p>
-              <p className="text-[10px] text-muted-foreground">
+              <p className="text-[11px] text-muted-foreground">
                 {quietHours.enabled ? t("quietHours.window", { start: quietHours.startTime, end: quietHours.endTime }) : t("quietHours.disabled")}
               </p>
             </div>
@@ -932,7 +932,7 @@ export default function ProfilePage() {
                   setQuietHoursBackup(quietHours);
                   setEditingQuietHours(true);
                 }}
-                className="rounded-full border border-border px-3 py-1.5 text-xs font-bold"
+                className="btn-sm border border-border"
               >
                 {t("quietHours.edit")}
               </button>
@@ -940,8 +940,9 @@ export default function ProfilePage() {
           </div>
           {quietHours.canEdit && editingQuietHours && (
             <div className="space-y-2">
-              <label className="flex items-center gap-2 text-sm">
+              <label className="flex min-h-11 items-center gap-2.5 text-sm">
                 <input
+                  className="h-5 w-5 shrink-0 accent-primary"
                   type="checkbox"
                   checked={quietHours.enabled}
                   onChange={(event) => setQuietHours({ ...quietHours, enabled: event.target.checked })}
@@ -979,7 +980,7 @@ export default function ProfilePage() {
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-sm font-semibold">{t("profile.violations.title")}</p>
-              <p className="text-[10px] text-muted-foreground">{t("profile.violations.subtitle")}</p>
+              <p className="text-[11px] text-muted-foreground">{t("profile.violations.subtitle")}</p>
             </div>
           </div>
           <div className="seg !p-1" role="group" aria-label={t("profile.violations.title")}>
@@ -1015,8 +1016,9 @@ export default function ProfilePage() {
             rows={2}
             className="w-full min-h-[var(--ctl-lg)] rounded-xl border border-border bg-background px-3 py-2 text-sm"
           />
-          <label className="flex items-center gap-2 text-xs text-muted-foreground">
+          <label className="flex min-h-11 items-center gap-2.5 text-sm text-muted-foreground">
             <input
+              className="h-5 w-5 shrink-0 accent-primary"
               type="checkbox"
               checked={violationAnonymous}
               onChange={(event) => setViolationAnonymous(event.target.checked)}
@@ -1033,17 +1035,17 @@ export default function ProfilePage() {
         </div>
       )}
 
-      <div className="glass rounded-2xl p-4 flex items-center gap-3">
+      <div className="glass rounded-xl p-4 flex items-center gap-3">
         <div className="h-9 w-9 rounded-xl bg-accent/20 flex items-center justify-center shrink-0">
           <Globe2 className="h-4 w-4 text-accent" />
         </div>
-        <div className="flex-1">
+        <div className="min-w-0 flex-1">
           <p className="text-sm font-semibold">{t("profile.language")}</p>
         </div>
         <LanguageSwitcher />
       </div>
 
-      <div className="glass rounded-2xl p-4 flex items-center gap-3">
+      <div className="glass rounded-xl p-4 flex items-center gap-3">
         <div className="h-9 w-9 rounded-xl bg-secondary/25 flex items-center justify-center shrink-0">
           {theme === "system" ? (
             <Smartphone className="h-4 w-4" />
@@ -1053,16 +1055,16 @@ export default function ProfilePage() {
             <Moon className="h-4 w-4 text-secondary" />
           )}
         </div>
-        <div className="flex-1">
+        <div className="min-w-0 flex-1">
           <p className="text-sm font-semibold">{t("profile.appearance.title")}</p>
-          <p className="text-[10px] text-muted-foreground">{t(`profile.appearance.${theme}`)}</p>
+          <p className="text-[11px] text-muted-foreground">{t(`profile.appearance.${theme}`)}</p>
         </div>
         <div className="seg !p-1" role="group" aria-label={t("profile.appearance.toggle")}>
           {(["system", "light", "dark"] as const).map((option) => (
             <button
               key={option}
               onClick={() => setTheme(option)}
-              className={`px-2 py-1.5 rounded-lg text-[9px] font-bold ${theme === option ? "bg-ink text-ink-foreground" : "text-muted-foreground"}`}
+              className={`px-2 rounded-lg text-xs font-bold ${theme === option ? "bg-ink text-ink-foreground" : "text-muted-foreground"}`}
             >
               {t(`profile.appearance.${option}Label`)}
             </button>
@@ -1070,15 +1072,15 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      <div className="glass rounded-2xl p-4 flex items-center gap-3">
+      <div className="glass rounded-xl p-4 flex items-center gap-3">
         <div className="h-9 w-9 rounded-xl bg-primary/20 dark:bg-accent/20 flex items-center justify-center shrink-0">
           <Palette className="h-4 w-4 text-primary dark:text-accent" />
         </div>
-        <div className="flex-1">
+        <div className="min-w-0 flex-1">
           <p className="text-sm font-semibold">{t("profile.accentTheme.title")}</p>
-          <p className="text-[10px] text-muted-foreground">{t("profile.accentTheme.subtitle")}</p>
+          <p className="text-[11px] text-muted-foreground">{t("profile.accentTheme.subtitle")}</p>
         </div>
-        <div className="flex items-center gap-2" role="group" aria-label={t("profile.accentTheme.title")}>
+        <div className="flex items-center gap-3" role="group" aria-label={t("profile.accentTheme.title")}>
           {ACCENT_PACKS.map((pack) => {
             const locked = pack.id !== "teal" && !premiumUnlocked;
             const selected = accent === pack.id;
@@ -1092,7 +1094,7 @@ export default function ProfilePage() {
                 }}
                 aria-label={t(`profile.accentTheme.${pack.id}`)}
                 aria-pressed={selected}
-                className={`relative h-8 w-8 rounded-full border border-border grid place-items-center ${selected ? "ring-2 ring-offset-2 ring-offset-card ring-ink" : ""}`}
+                className={`pressable-tight relative h-8 w-8 rounded-full border border-border grid place-items-center ${selected ? "ring-2 ring-offset-2 ring-offset-card ring-ink" : ""}`}
                 style={{ backgroundColor: pack.swatch }}
               >
                 {locked && <Lock className="h-3 w-3 text-white/90" />}
@@ -1109,11 +1111,11 @@ export default function ProfilePage() {
         <div className="h-9 w-9 rounded-xl bg-primary/20 dark:bg-accent/20 flex items-center justify-center shrink-0">
           <Bell className="h-4 w-4 text-primary dark:text-accent" />
         </div>
-        <div className="flex-1 text-left">
+        <div className="min-w-0 flex-1 text-left">
           <p className="text-sm font-semibold">
             {t("profile.notificationPreferences.title")}
           </p>
-          <p className="text-[10px] text-muted-foreground">
+          <p className="text-[11px] text-muted-foreground">
             {t("profile.notificationPreferences.subtitle")}
           </p>
         </div>
@@ -1128,11 +1130,11 @@ export default function ProfilePage() {
           <div className="h-9 w-9 rounded-xl bg-primary/20 dark:bg-accent/20 flex items-center justify-center shrink-0">
             <Wallet className="h-4 w-4 text-primary dark:text-accent" />
           </div>
-          <div className="flex-1 text-left">
+          <div className="min-w-0 flex-1 text-left">
             <p className="text-sm font-semibold">
               {t("profile.paymentMethods.title")}
             </p>
-            <p className="text-[10px] text-muted-foreground">
+            <p className="text-[11px] text-muted-foreground">
               {t("profile.paymentMethods.subtitle")}
             </p>
           </div>
@@ -1212,8 +1214,8 @@ export default function ProfilePage() {
                     className="w-full bg-muted/50 rounded-xl px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary resize-none"
                   />
                 </label>
-                <p className="text-[10px] text-muted-foreground">{t("profile.paymentMethods.hint")}</p>
-                <p className="text-[10px] font-medium text-destructive">{t("profile.paymentMethods.securityHint")}</p>
+                <p className="text-[11px] text-muted-foreground">{t("profile.paymentMethods.hint")}</p>
+                <p className="text-[11px] font-medium text-destructive">{t("profile.paymentMethods.securityHint")}</p>
                 <button
                   onClick={() => void handleSavePayment()}
                   disabled={paymentSaving}
@@ -1236,11 +1238,11 @@ export default function ProfilePage() {
           <div className="h-9 w-9 rounded-xl bg-accent/20 flex items-center justify-center shrink-0">
             <Mail className="h-4 w-4 text-accent" />
           </div>
-          <div className="flex-1 text-left">
+          <div className="min-w-0 flex-1 text-left">
             <p className="text-sm font-semibold">
               {t("profile.inviteRoommates.title")}
             </p>
-            <p className="text-[10px] text-muted-foreground">
+            <p className="text-[11px] text-muted-foreground">
               {t("profile.inviteRoommates.subtitle")}
             </p>
           </div>
@@ -1285,7 +1287,7 @@ export default function ProfilePage() {
         </AnimatePresence>
       </div>
 
-      <div className="glass rounded-2xl p-4 space-y-2">
+      <div className="glass rounded-xl p-4 space-y-2">
         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
           {t("profile.account")}
         </p>
@@ -1295,9 +1297,9 @@ export default function ProfilePage() {
           className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-muted/40 transition-colors"
         >
           <Gem className="h-4 w-4 text-muted-foreground" />
-          <div className="text-left flex-1">
+          <div className="min-w-0 text-left flex-1">
             <p className="text-sm font-medium">{t("social.games.premium")}</p>
-            <p className="text-[10px] text-muted-foreground">
+            <p className="text-[11px] text-muted-foreground">
               {premiumUnlocked ? t("profile.premiumUnlockedSubtitle") : t("social.games.paywall.body")}
             </p>
           </div>
@@ -1327,7 +1329,7 @@ export default function ProfilePage() {
           <ArrowRightLeft className="h-4 w-4 text-muted-foreground" />
           <div className="text-left">
             <p className="text-sm font-medium">{leaving ? t("profile.loading.leaving") : t("profile.leaveHousehold")}</p>
-            <p className="text-[10px] text-muted-foreground">
+            <p className="text-[11px] text-muted-foreground">
               {t("profile.leaveHouseholdSubtitle")}
             </p>
           </div>
@@ -1343,7 +1345,7 @@ export default function ProfilePage() {
             <p className="text-sm font-medium text-destructive">
               {t("profile.deleteAccount")}
             </p>
-            <p className="text-[10px] text-muted-foreground">
+            <p className="text-[11px] text-muted-foreground">
               {t("profile.deleteAccountSubtitle")}
             </p>
           </div>
@@ -1352,86 +1354,54 @@ export default function ProfilePage() {
 
       <p className="pt-1 pb-2 text-center text-xs text-muted-foreground/70">{t("common.credits")}</p>
 
-      <AnimatePresence>
-        {showRulesEditor && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4"
-            onClick={() => setShowRulesEditor(false)}
-          >
-            <motion.div
-              initial={{ y: 24 }}
-              animate={{ y: 0 }}
-              exit={{ y: 24 }}
-              className="w-full max-w-lg max-h-[85vh] overflow-y-auto rounded-[1.5rem] bg-background p-5"
-              onClick={(event) => event.stopPropagation()}
-            >
-              <div className="flex items-center justify-between">
-                <h3 className="font-display text-xl font-bold">{t("profile.houseRules.editorTitle")}</h3>
-                <button onClick={() => setShowRulesEditor(false)} aria-label={t("common.close")} className="pressable-tight grid h-9 w-9 place-items-center rounded-full bg-muted">
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-              <textarea
-                value={rulesDraft}
-                onChange={(event) => setRulesDraft(event.target.value)}
-                rows={10}
-                className="mt-4 w-full resize-none rounded-xl border border-border bg-card p-3 text-sm"
-                placeholder={t("profile.houseRules.placeholder")}
-              />
-              <button onClick={() => void saveHouseRules()} disabled={!rulesDraft.trim() || rulesSaving} className="mt-3 w-full rounded-xl bg-ink py-2.5 text-sm font-bold text-ink-foreground disabled:opacity-50">
-                {rulesSaving ? t("profile.loading.saving") : t("profile.houseRules.publish")}
-              </button>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <Sheet
+        open={showRulesEditor}
+        onClose={() => setShowRulesEditor(false)}
+        placement="center"
+        size="lg"
+        title={t("profile.houseRules.editorTitle")}
+        footer={
+          <button onClick={() => void saveHouseRules()} disabled={!rulesDraft.trim() || rulesSaving} className="btn-pine w-full disabled:opacity-50">
+            {rulesSaving ? t("profile.loading.saving") : t("profile.houseRules.publish")}
+          </button>
+        }
+      >
+        <Textarea
+          value={rulesDraft}
+          onChange={(event) => setRulesDraft(event.target.value)}
+          rows={10}
+          className="resize-none"
+          placeholder={t("profile.houseRules.placeholder")}
+        />
+      </Sheet>
 
-      <AnimatePresence>
-        {showHomeEditor && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4"
-            onClick={() => setShowHomeEditor(false)}
-          >
-            <motion.div
-              initial={{ y: 24 }}
-              animate={{ y: 0 }}
-              exit={{ y: 24 }}
-              className="w-full max-w-lg max-h-[85vh] overflow-y-auto rounded-[1.5rem] bg-background p-5"
-              onClick={(event) => event.stopPropagation()}
-            >
-              <div className="flex items-center justify-between">
-                <h3 className="font-display text-xl font-bold">{t("profile.homeDetails.editorTitle")}</h3>
-                <button onClick={() => setShowHomeEditor(false)} aria-label={t("common.close")} className="pressable-tight grid h-9 w-9 place-items-center rounded-full bg-muted">
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-              <div className="mt-4 space-y-3">
-                <Field
-                  label={t("profile.homeDetails.nameLabel")}
-                  value={homeNameDraft}
-                  onChange={(event) => setHomeNameDraft(event.target.value)}
-                  maxLength={80}
-                />
-                <Field
-                  label={t("profile.homeDetails.addressLabel")}
-                  value={homeAddressDraft}
-                  onChange={(event) => setHomeAddressDraft(event.target.value)}
-                  maxLength={200}
-                />
-              </div>
-              <button onClick={() => void saveHomeDetails()} disabled={!homeNameDraft.trim() || homeSaving} className="mt-4 w-full rounded-xl bg-ink py-2.5 text-sm font-bold text-ink-foreground disabled:opacity-50">
-                {homeSaving ? t("profile.loading.saving") : t("profile.homeDetails.save")}
-              </button>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <Sheet
+        open={showHomeEditor}
+        onClose={() => setShowHomeEditor(false)}
+        placement="center"
+        size="lg"
+        title={t("profile.homeDetails.editorTitle")}
+        footer={
+          <button onClick={() => void saveHomeDetails()} disabled={!homeNameDraft.trim() || homeSaving} className="btn-pine w-full disabled:opacity-50">
+            {homeSaving ? t("profile.loading.saving") : t("profile.homeDetails.save")}
+          </button>
+        }
+      >
+        <div className="space-y-3">
+          <Field
+            label={t("profile.homeDetails.nameLabel")}
+            value={homeNameDraft}
+            onChange={(event) => setHomeNameDraft(event.target.value)}
+            maxLength={80}
+          />
+          <Field
+            label={t("profile.homeDetails.addressLabel")}
+            value={homeAddressDraft}
+            onChange={(event) => setHomeAddressDraft(event.target.value)}
+            maxLength={200}
+          />
+        </div>
+      </Sheet>
 
       {showPremiumPaywall && <SubscriptionPaywall onClose={() => setShowPremiumPaywall(false)} />}
     </motion.div>

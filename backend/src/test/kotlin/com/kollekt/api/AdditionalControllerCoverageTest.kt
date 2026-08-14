@@ -29,6 +29,7 @@ import com.kollekt.domain.TaskCategory
 import com.kollekt.repository.PushDeviceTokenRepository
 import com.kollekt.service.AccountOperations
 import com.kollekt.service.CalendarFeedService
+import com.kollekt.service.ChatBackgroundService
 import com.kollekt.service.ChatOperations
 import com.kollekt.service.CollectiveOperations
 import com.kollekt.service.CurrentMemberContext
@@ -99,6 +100,8 @@ class AdditionalControllerCoverageTest {
     @MockitoBean lateinit var socialAuthService: SocialAuthService
 
     @MockitoBean lateinit var chatOperations: ChatOperations
+
+    @MockitoBean lateinit var chatBackgroundService: ChatBackgroundService
 
     @MockitoBean lateinit var collectiveOperations: CollectiveOperations
 

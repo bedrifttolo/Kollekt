@@ -389,6 +389,7 @@
     "assigneeLabel": "Tilldelad till",
     "dueDateLabel": "Förfallodatum",
     "fairSuggestion": "Tips: {{name}} har minst antal öppna uppgifter",
+    "fairSuggestionShare": "Tips: {{name}} har gjort minst de senaste {{days}} dagarna",
     "categoryLabel": "Uppgiftstyp",
     "recurrenceLabel": "Upprepas",
     "xpReward": "XP-belöning",
@@ -574,6 +575,8 @@
     "subscribeTitle": "Lägg till i telefonens kalender",
     "subscribeSubtitle": "Prenumerera med iPhone- eller Android-kalendern på hushållets flöde",
     "subscribeButton": "Prenumerera",
+    "subscribeCopy": "Kopiera",
+    "subscribeManualHint": "Om Prenumerera säger att valideringen misslyckades, kopiera länken och klistra in den i Kalender > Lägg till prenumererad kalender.",
     "subscribeUrlLabel": "Länk för kalenderprenumeration",
     "newEvent": "Ny händelse",
     "addModes": {
@@ -656,7 +659,9 @@
     "background": {
       "label": "Bakgrund",
       "change": "Byt bakgrund",
-      "remove": "Ta bort bakgrund"
+      "remove": "Ta bort bakgrund",
+      "changeShared": "Ändra bakgrunden för alla i den här chatten",
+      "removeShared": "Ta bort bakgrunden för alla i den här chatten"
     },
     "today": "I dag",
     "yesterday": "I går",
@@ -697,6 +702,18 @@
     "yourBalance": "Ditt saldo",
     "owe": "Du är skyldig {{name}} {{amount}}",
     "othersOweYou": "Andra är skyldiga dig pengar",
+    "breakdown": {
+      "open": "Se vem som är skyldig vem",
+      "title": "Vem är skyldig vem",
+      "subtitle": "Ditt saldo, per rumskamrat",
+      "youOwe": "Du är skyldig",
+      "owesYou": "Skyldig dig",
+      "tapToSettle": "Tryck för att göra upp",
+      "theirMove": "Väntar på att de betalar",
+      "note": "Varje belopp är vad ni två är skyldiga varandra efter allt som redan är uppgjort.",
+      "settledTitle": "Ingen är skyldig någon",
+      "settledBody": "All skuld i kollektivet är uppgjord. Lägg till en utgift så fylls det här på igen."
+    },
     "allSettled": "Allt är uppgjort!",
     "payAmount": "Betala {{amount}}",
     "payAmountTo": "Gör upp med {{name}} - {{amount}}",
@@ -718,6 +735,7 @@
     "pantTrackerSummary": "{{bottles}} flaskor • {{current}} / {{goal}} mål",
     "pantTrackerEmpty": "Följ panten mot ert mål",
     "balances": "Saldon",
+    "yourStandings": "Du och varje rumskamrat",
     "settled": "Uppgjort",
     "expenseHistory": "Utgiftshistorik",
     "splitCount": "Delad på {{count}}",

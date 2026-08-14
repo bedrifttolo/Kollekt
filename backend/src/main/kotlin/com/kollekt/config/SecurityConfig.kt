@@ -65,7 +65,13 @@ class SecurityConfig(
                         "/api/onboarding/refresh",
                         "/api/google-calendar/callback",
                     ).permitAll()
+                // HEAD as well as GET: calendar clients (Apple's CalendarAgent among them) probe a
+                // subscription URL with HEAD before they will accept it. Spring MVC answers HEAD
+                // from the @GetMapping automatically, but Spring Security runs first and a
+                // GET-only matcher made that probe 401 — so the feed validated as unreachable even
+                // though fetching it worked.
                 it.requestMatchers(HttpMethod.GET, "/api/calendar-feed/**").permitAll()
+                it.requestMatchers(HttpMethod.HEAD, "/api/calendar-feed/**").permitAll()
                 it.requestMatchers(HttpMethod.GET, "/api/health").permitAll()
                 it.requestMatchers(HttpMethod.GET, "/api/app-version").permitAll()
                 it.requestMatchers("/ws/**").permitAll()

@@ -178,7 +178,7 @@ export default function CreateHouseholdPage() {
   };
 
   return (
-    <div className="app-viewport bg-background flex flex-col px-6 safe-top safe-bottom">
+    <div className="app-viewport bg-background flex flex-col px-4 safe-top safe-bottom">
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
@@ -293,7 +293,7 @@ export default function CreateHouseholdPage() {
                             inputMode="numeric"
                             value={room.minutes}
                             onChange={(e) => updateRoom(room.id, { minutes: e.target.value.replace(/\D/g, '').slice(0, 3) })}
-                            className="w-12 rounded-md border border-border bg-background px-1.5 py-0.5 text-center text-sm font-bold tabular-nums text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                            className="input input-sm w-14 px-1 text-center font-bold tabular-nums"
                             aria-label={t('createHousehold.minLabel')}
                           />
                           <span>{t('createHousehold.minutesShort')}</span>
@@ -345,7 +345,7 @@ export default function CreateHouseholdPage() {
                   <button
                     type="button"
                     onClick={addRoom}
-                    className="flex w-full items-center justify-center gap-2 rounded-[1.15rem] border border-dashed border-border py-3.5 text-sm font-bold text-muted-foreground"
+                    className="btn w-full border border-dashed border-border text-muted-foreground"
                   >
                     <Plus className="h-4 w-4" /> {t('createHousehold.addRoom')}
                   </button>
@@ -353,7 +353,7 @@ export default function CreateHouseholdPage() {
               )}
             </div>
 
-            <div className="flex items-start gap-3 rounded-[1.15rem] bg-primary/10 p-3.5 text-sm text-muted-foreground">
+            <div className="flex items-start gap-3 rounded-md bg-primary/10 p-3.5 text-sm text-muted-foreground">
               <RefreshCw className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
               <p>
                 {t('createHousehold.rotationNotePrefix')}
@@ -394,7 +394,7 @@ export default function CreateHouseholdPage() {
               ))}
             </div>
 
-            <div className="rounded-[1.15rem] bg-primary/10 p-3.5 text-center text-sm text-muted-foreground">
+            <div className="rounded-md bg-primary/10 p-3.5 text-center text-sm text-muted-foreground">
               {t('createHousehold.joinNote')}
             </div>
 

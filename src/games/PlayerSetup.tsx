@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Check, Plus, Users, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { IconButton } from '../components/ui-kit';
 
 interface PlayerSetupProps {
   gameTitle: string;
@@ -54,9 +55,7 @@ export default function PlayerSetup({
           </p>
           <h2 className="font-display text-xl font-extrabold">{gameTitle}</h2>
         </div>
-        <button onClick={onClose} className="grid h-11 w-11 place-items-center rounded-full border border-border bg-card" aria-label={t('common.cancel')}>
-          <X className="h-4 w-4" />
-        </button>
+        <IconButton onClick={onClose} label={t('common.cancel')} icon={<X className="h-4 w-4" />} />
       </div>
 
       <div className="flex-1 space-y-6 overflow-y-auto px-5 py-5">

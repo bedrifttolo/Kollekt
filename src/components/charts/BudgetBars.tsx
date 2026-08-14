@@ -4,10 +4,11 @@ import { useTranslation } from 'react-i18next';
 import { Check, Pencil } from 'lucide-react';
 import { formatCurrency, translateKey } from '../../i18n/helpers';
 import { categoryColor, categoryWash, EXPENSE_CATEGORY_ICONS } from '../../lib/expenseCategories';
-import { listContainer, listItem, springSoft } from '../../lib/motion';
+import { listContainer, listItem } from '../../lib/motion';
 import { tapFeedback } from '../../lib/haptics';
 import type { ExpenseCategory } from '../../lib/expenseStats';
 import type { Budget } from '../../lib/types';
+import { ProgressBar } from '../ui-kit';
 
 /**
  * Self-set monthly spending caps, one bar per category — the household's own limit rather than a
@@ -95,15 +96,14 @@ export default function BudgetBars({
                 </div>
                 {hasLimit ? (
                   <div className="mt-1.5 flex items-center gap-2">
-                    <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
-                      <motion.div
-                        className="h-full rounded-full"
-                        style={{ background: barColor }}
-                        initial={{ width: 0 }}
-                        animate={{ width: `${Math.min(100, Math.max(spent > 0 ? 2 : 0, percent))}%` }}
-                        transition={springSoft}
-                      />
-                    </div>
+                    <ProgressBar
+                      size="sm"
+                      className="flex-1"
+                      value={percent}
+                      minWidth={spent > 0 ? 2 : 0}
+                      animate
+                      fillStyle={{ background: barColor }}
+                    />
                     {isOver && (
                       <span className="shrink-0 text-[11px] font-bold text-destructive">
                         {t('economy.budgets.over', { amount: formatCurrency(spent - budget.monthlyLimit) })}
@@ -111,7 +111,7 @@ export default function BudgetBars({
                     )}
                   </div>
                 ) : (
-                  <div className="mt-1.5 h-1.5 rounded-full bg-muted" />
+                  <ProgressBar size="sm" value={0} className="mt-1.5" />
                 )}
               </div>
               <Pencil className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
@@ -131,7 +131,7 @@ export default function BudgetBars({
                       onChange={(e) => setDraft(e.target.value)}
                       onKeyDown={(e) => e.key === 'Enter' && void save(category)}
                       placeholder={t('economy.budgets.limitPlaceholder')}
-                      className="w-full flex-1 rounded-lg bg-muted/50 px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                      className="input input-sm flex-1"
                     />
                     <button
                       onClick={() => void save(category)}

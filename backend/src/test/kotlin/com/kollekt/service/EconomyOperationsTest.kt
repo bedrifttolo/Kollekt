@@ -618,6 +618,104 @@ class EconomyOperationsTest {
         assertEquals(1000, result.pantSummary.goalAmount)
     }
 
+    /**
+     * Regression: a settled pair must be settled from *both* sides. The bilateral debt used to be
+     * clamped at zero before the settlement rows were applied, so the paid-off direction read the
+     * settlement as fresh debt and the card showed a 0 kr balance next to a live "settle up" button.
+     */
+    @Test
+    fun `settling a pair leaves no debt in either direction`() {
+        whenever(expenseRepository.findAllByCollectiveCode("ABC123")).thenReturn(
+            listOf(
+                Expense(
+                    id = 1,
+                    description = "Pizza",
+                    amount = 200,
+                    paidBy = "Kasper",
+                    collectiveCode = "ABC123",
+                    category = "Food",
+                    date = LocalDate.parse("2026-03-01"),
+                    participantNames = setOf("Kasper", "Emma"),
+                ),
+            ),
+        )
+        whenever(memberRepository.findAllByCollectiveCode("ABC123")).thenReturn(
+            listOf(member("Kasper", "kasper@example.com"), member("Emma", "emma@example.com", id = 2)),
+        )
+        whenever(settlementCheckpointRepository.findTopByCollectiveCodeOrderByIdDesc("ABC123")).thenReturn(null)
+        whenever(settlementCheckpointRepository.findTopByCollectiveCodeAndSettledByOrderByIdDesc(any(), any())).thenReturn(null)
+        // Emma paid off her 100 share to Kasper.
+        whenever(personalSettlementRepository.findAllByCollectiveCode("ABC123")).thenReturn(
+            listOf(
+                PersonalSettlement(
+                    id = 1,
+                    collectiveCode = "ABC123",
+                    paidBy = "Emma",
+                    paidTo = "Kasper",
+                    amount = 100,
+                ),
+            ),
+        )
+        whenever(collectiveRepository.findByJoinCode("ABC123"))
+            .thenReturn(Collective(id = 1, name = "TestCo", joinCode = "ABC123", ownerMemberId = 1, pantGoal = 1000))
+        whenever(pantEntryRepository.findAllByCollectiveCode("ABC123")).thenReturn(emptyList())
+
+        val emma = operations.getEconomySummary("Emma")
+        assertTrue(emma.payOptions.isEmpty(), "Emma has paid Kasper, so she owes nobody")
+        assertTrue(emma.owedToYou.isEmpty(), "Paying Kasper must not turn into Kasper owing Emma")
+
+        val kasper = operations.getEconomySummary("Kasper")
+        assertTrue(kasper.payOptions.isEmpty(), "Being paid must not turn into Kasper owing Emma")
+        assertTrue(kasper.owedToYou.isEmpty(), "Emma has already paid Kasper in full")
+    }
+
+    /** The other half of the same identity: an overpayment flips the pair, it does not double it. */
+    @Test
+    fun `overpaying a pair flips the debt instead of stacking on both sides`() {
+        whenever(expenseRepository.findAllByCollectiveCode("ABC123")).thenReturn(
+            listOf(
+                Expense(
+                    id = 1,
+                    description = "Pizza",
+                    amount = 200,
+                    paidBy = "Kasper",
+                    collectiveCode = "ABC123",
+                    category = "Food",
+                    date = LocalDate.parse("2026-03-01"),
+                    participantNames = setOf("Kasper", "Emma"),
+                ),
+            ),
+        )
+        whenever(memberRepository.findAllByCollectiveCode("ABC123")).thenReturn(
+            listOf(member("Kasper", "kasper@example.com"), member("Emma", "emma@example.com", id = 2)),
+        )
+        whenever(settlementCheckpointRepository.findTopByCollectiveCodeOrderByIdDesc("ABC123")).thenReturn(null)
+        whenever(settlementCheckpointRepository.findTopByCollectiveCodeAndSettledByOrderByIdDesc(any(), any())).thenReturn(null)
+        // Emma owed 100 but transferred 150.
+        whenever(personalSettlementRepository.findAllByCollectiveCode("ABC123")).thenReturn(
+            listOf(
+                PersonalSettlement(
+                    id = 1,
+                    collectiveCode = "ABC123",
+                    paidBy = "Emma",
+                    paidTo = "Kasper",
+                    amount = 150,
+                ),
+            ),
+        )
+        whenever(collectiveRepository.findByJoinCode("ABC123"))
+            .thenReturn(Collective(id = 1, name = "TestCo", joinCode = "ABC123", ownerMemberId = 1, pantGoal = 1000))
+        whenever(pantEntryRepository.findAllByCollectiveCode("ABC123")).thenReturn(emptyList())
+
+        val emma = operations.getEconomySummary("Emma")
+        assertTrue(emma.payOptions.isEmpty())
+        assertEquals(listOf("Kasper" to 50), emma.owedToYou.map { it.name to it.amount })
+
+        val kasper = operations.getEconomySummary("Kasper")
+        assertEquals(listOf("Emma" to 50), kasper.payOptions.map { it.name to it.amount })
+        assertTrue(kasper.owedToYou.isEmpty())
+    }
+
     @Test
     fun `create expense success path persists with all members when no participants specified`() {
         whenever(memberRepository.findAllByCollectiveCode("ABC123")).thenReturn(

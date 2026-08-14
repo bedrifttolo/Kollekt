@@ -47,8 +47,12 @@ export default function LanguageSwitcher({ className }: { className?: string }) 
             aria-pressed={isActive}
             aria-label={t(`languages.${language}`)}
             title={t(`languages.${language}`)}
+            // A real 44px-tall target rather than a .pressable-tight one: four of these sit 4px
+            // apart, and grown hit areas that close would overlap, with the last in DOM order
+            // swallowing taps meant for its neighbour. 40px wide keeps the whole strip at ~180px,
+            // which still fits the Profile row beside its label.
             className={cn(
-              'shrink-0 rounded-lg px-2 py-1 text-[10px] font-semibold transition-colors sm:px-2.5 sm:text-[11px]',
+              'flex min-h-11 min-w-10 shrink-0 items-center justify-center rounded-lg px-2 text-[11px] font-semibold transition-colors',
               isActive ? 'gradient-primary text-ink-foreground' : 'text-muted-foreground',
             )}
           >

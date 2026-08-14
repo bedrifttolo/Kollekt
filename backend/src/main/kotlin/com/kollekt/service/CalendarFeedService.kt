@@ -81,7 +81,7 @@ class CalendarFeedService(
         event.description?.takeIf { it.isNotBlank() }?.let {
             appendLine(builder, "DESCRIPTION:${escape(it)}")
         }
-        appendLine(builder, "ORGANIZER;CN=${escape(event.organizer)}:mailto:noreply@kollekt.app")
+        appendLine(builder, "ORGANIZER;CN=${paramValue(event.organizer)}:mailto:noreply@kollekt.app")
         appendLine(builder, "END:VEVENT")
     }
 
@@ -92,20 +92,67 @@ class CalendarFeedService(
             .replace(",", "\\,")
             .replace("\n", "\\n")
 
-    /** Appends a content line with CRLF endings, folding lines longer than 75 octets (RFC 5545). */
+    /**
+     * A *parameter* value (`CN=…`), which follows different rules from a property value: RFC 5545
+     * gives no backslash escapes for parameters, so the old `escape()` here emitted `CN=Ada\, Lovelace`
+     * — not valid, and enough for a strict parser to reject the event. `,`, `;` and `:` are legal
+     * only inside a quoted string, and a `"` cannot be represented at all, so it is dropped.
+     */
+    private fun paramValue(value: String): String {
+        val cleaned = value.replace("\"", "").replace("\n", " ")
+        return if (cleaned.any { it == ',' || it == ';' || it == ':' }) "\"$cleaned\"" else cleaned
+    }
+
+    /**
+     * Appends a content line with CRLF endings, folding lines longer than 75 octets (RFC 5545).
+     *
+     * Octets, not characters: this used to cut at 75 *chars*, so a Norwegian title full of æ/ø/å
+     * (two bytes each in UTF-8) produced lines up to 150 bytes long. Splitting is still done on
+     * whole characters, since a fold in the middle of a multi-byte sequence would corrupt it.
+     */
     private fun appendLine(
         builder: StringBuilder,
         line: String,
     ) {
-        var remaining = line
+        var index = 0
         var first = true
-        while (remaining.isNotEmpty()) {
+        while (index < line.length) {
             val limit = if (first) 75 else 74
-            val chunk = remaining.take(limit)
+            var octets = 0
+            var end = index
+            while (end < line.length) {
+                val width = utf8Width(line, end)
+                if (octets + width > limit) break
+                octets += width
+                end += charCount(line, end)
+            }
+            // A single character wider than the limit can never fit; emit it anyway rather than
+            // spinning forever on a zero-length chunk.
+            if (end == index) end = index + charCount(line, index)
             if (!first) builder.append(' ')
-            builder.append(chunk).append("\r\n")
-            remaining = remaining.drop(limit)
+            builder.append(line, index, end).append("\r\n")
+            index = end
             first = false
+        }
+    }
+
+    /** Chars consumed by the code point at [at] — 2 for a surrogate pair (emoji), 1 otherwise. */
+    private fun charCount(
+        line: String,
+        at: Int,
+    ): Int = if (Character.isHighSurrogate(line[at]) && at + 1 < line.length) 2 else 1
+
+    /** UTF-8 byte width of the code point at [at]. */
+    private fun utf8Width(
+        line: String,
+        at: Int,
+    ): Int {
+        val code = line.codePointAt(at)
+        return when {
+            code < 0x80 -> 1
+            code < 0x800 -> 2
+            code < 0x10000 -> 3
+            else -> 4
         }
     }
 

@@ -1,9 +1,9 @@
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { CheckSquare, Zap, CalendarPlus, Receipt, MessageCircleHeart, Wallet, X, ChevronRight } from 'lucide-react';
+import { CheckSquare, Zap, CalendarPlus, Receipt, MessageCircleHeart, Wallet, ChevronRight } from 'lucide-react';
 import { formatCurrency } from '../i18n/helpers';
-import { VibeRing } from './ui-kit';
+import { Sheet, VibeRing } from './ui-kit';
 import { springSoft } from '../lib/motion';
 import type { VibeBreakdown } from '../lib/types';
 import type { Tone } from '../lib/tones';
@@ -60,10 +60,14 @@ function FactorRow({
 }
 
 export default function VibeSheet({
+  open,
   score,
   breakdown,
   onClose,
 }: {
+  /** Sheet owns its own enter/exit animation, so this is passed through rather than gated by a
+   *  wrapping AnimatePresence the way it used to be. */
+  open: boolean;
   score: number;
   breakdown: VibeBreakdown;
   onClose: () => void;
@@ -77,35 +81,21 @@ export default function VibeSheet({
   const togethernessRemaining = Math.max(0, b.togethernessBonusCap - b.expensesLoggedThisWeek);
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[60] flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4"
-      onClick={onClose}
-    >
-      <motion.div
-        initial={{ y: 40, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        exit={{ y: 40, opacity: 0 }}
-        className="glass max-h-[85vh] w-full max-w-md space-y-4 overflow-y-auto rounded-t-3xl p-5 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] sm:rounded-3xl sm:pb-5"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-center gap-3">
+    <Sheet
+      open={open}
+      onClose={onClose}
+      size="md"
+      title={
+        <div className="flex min-w-0 flex-1 items-center gap-3">
           <VibeRing score={score} />
           <div className="min-w-0 flex-1">
             <p className="font-display text-lg font-extrabold">{t('dashboard.vibeSheet.title')}</p>
             <p className="text-xs text-muted-foreground">{t('dashboard.vibeSheet.subtitle', { score })}</p>
           </div>
-          <button
-            onClick={onClose}
-            aria-label={t('common.cancel')}
-            className="grid h-11 w-11 shrink-0 place-items-center rounded-full"
-          >
-            <X className="h-4 w-4 text-muted-foreground" />
-          </button>
         </div>
-
+      }
+    >
+      <div className="space-y-4">
         <p className="text-[11px] font-semibold uppercase tracking-[.1em] text-muted-foreground">
           {t('dashboard.vibeSheet.base', { base: b.base })}
         </p>
@@ -218,8 +208,8 @@ export default function VibeSheet({
             />
           )}
         </div>
-      </motion.div>
-    </motion.div>
+      </div>
+    </Sheet>
   );
 }
 
@@ -234,9 +224,5 @@ export function VibeSheetPortal({
   breakdown: VibeBreakdown;
   onClose: () => void;
 }) {
-  return (
-    <AnimatePresence>
-      {open && <VibeSheet score={score} breakdown={breakdown} onClose={onClose} />}
-    </AnimatePresence>
-  );
+  return <VibeSheet open={open} score={score} breakdown={breakdown} onClose={onClose} />;
 }

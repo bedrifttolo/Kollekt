@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
@@ -16,7 +16,7 @@ import { prepareImageForUpload } from '../../lib/imageUpload';
 import { qk } from '../../lib/queryKeys';
 import { queryClient as sharedQueryClient } from '../../lib/queryClient';
 import { capturePhotoFile, nativeCameraAvailable } from '../../lib/camera';
-import { clearChatBackground, getChatBackground, pickChatBackgroundFile, saveChatBackground } from '../../lib/chatBackground';
+import { clearChatBackground, fetchChatBackground, getCachedChatBackground, pickChatBackgroundFile, saveChatBackground } from '../../lib/chatBackground';
 import { getLastSeenMessageId, setLastSeenMessageId } from '../../lib/chatSeen';
 import { keyboardHeight, onKeyboardInset } from '../../lib/keyboardInsets';
 import { decorateMessages, newestMessageId } from '../../lib/chatThread';
@@ -137,42 +137,73 @@ interface PopoverAnchor {
   right: number;
 }
 
+/** Reserved for the reaction strip above the lifted preview: `h-10` buttons + `py-2` + borders.
+ *  Only used for the first-frame estimate — `clampPopoverTop` re-derives from the real DOM. */
+const REACTION_STRIP_HEIGHT = 58;
+const POPOVER_GAP = 8;
+
+/** The vertical band the popover is allowed to occupy, measured from the chrome that actually
+ *  bounds it rather than from hardcoded numbers: the thread header (which carries `safe-top` and
+ *  may or may not be showing its check-in card) and the composer (whose own `.safe-bottom` padding
+ *  already tracks `--keyboard-inset`, so its `top` sits on the keyboard's edge — which is why the
+ *  keyboard is not subtracted a second time here). The fallbacks cover the read-only system thread,
+ *  which renders a notice instead of a composer. */
+function popoverBounds() {
+  const header = document.querySelector('[data-chat-header]')?.getBoundingClientRect();
+  const composer = document.querySelector('[data-chat-composer]')?.getBoundingClientRect();
+  return {
+    minTop: (header ? header.bottom : 84) + POPOVER_GAP,
+    bottomLimit: (composer ? composer.top : window.innerHeight - keyboardHeight() - 96) - POPOVER_GAP,
+  };
+}
+
 /** Where to put the message action popover so it always fits on screen: hugs the bubble's own
  *  side (own messages hug the right edge, others the left, matching iOS), prefers sitting above
- *  the bubble, and falls back below it when there isn't enough headroom under the header.
- *  `estimatedHeight` is exact, not a guess — every row in the popover is a fixed 44px (`min-h-11`). */
+ *  the bubble, and falls back below it when there isn't enough headroom under the header. */
 function computePopoverPlacement(anchor: PopoverAnchor, actionRowCount: number) {
-  const margin = 16;
-  // The column spans the same content width as the message list (which is the viewport minus its
-  // px-4 gutters), so the lifted preview lands at the width the real bubble already had.
-  const width = window.innerWidth - margin * 2;
+  // The anchor is the whole message row (see `startMessagePress`), which already spans the message
+  // list's content width — so the lifted preview lands at exactly the width the real message had,
+  // on any viewport, including the `max-w-xl` desktop column the old `innerWidth - 32` ignored.
+  const left = anchor.left;
+  const width = anchor.right - anchor.left;
 
-  const reactionStripHeight = 52;
-  const gap = 8;
-  const rowHeight = 44;
-  const cardPadding = 8;
-  const actionsHeight = actionRowCount * rowHeight + cardPadding;
-  // The preview is a clone of the pressed bubble, so its height is the anchor's height. Capped
-  // because a very tall image message would otherwise push the action list off screen.
-  // The webview is not resized for the on-screen keyboard (see src/lib/keyboardInsets.ts), so
-  // window.innerHeight is the whole screen even while the keyboard covers the bottom of it —
-  // subtract the keyboard to get the space this menu can actually occupy.
-  const usableHeight = window.innerHeight - keyboardHeight();
-  const previewHeight = Math.min(anchor.bottom - anchor.top, usableHeight * 0.45);
-  const totalHeight = reactionStripHeight + gap + previewHeight + gap + actionsHeight;
+  // How tall the lifted preview may be before it scrolls inside itself. This is a cap the preview
+  // only hits when it genuinely is that tall — NOT a clamp to the anchor's height. Clamping to the
+  // anchor is what used to slice the bubble: the preview re-renders the message as first+last of
+  // its group, so it grows a sender name, a timestamp and (for replies) the quoted chip that the
+  // measured row did not necessarily have.
+  //
+  // The second term is what makes the menu fit on a short screen: whatever the reaction strip and
+  // the action list do not need. Without it a six-row menu on an SE-sized screen simply ran off the
+  // bottom, because 45% of the viewport plus the rest is more than the band between header and
+  // composer. The preview is the only part that can afford to scroll — the actions cannot.
+  const actionsHeight = actionRowCount * 44 + 8;
+  const { minTop, bottomLimit } = popoverBounds();
+  const previewCap = Math.max(
+    64,
+    Math.min(
+      Math.round(window.innerHeight * 0.45),
+      // 12 = the clip box's own py-1.5, which is the room the 3% lift grows into.
+      bottomLimit - minTop - REACTION_STRIP_HEIGHT - POPOVER_GAP * 2 - actionsHeight - 12,
+    ),
+  );
 
-  // Rough clearance for the header above and the composer/safe-area below — exact heights vary
-  // (composer grows with text, header collapses its check-in card), so these are deliberately
-  // generous rather than pixel-exact.
-  const headerClearance = 84;
-  const composerClearance = 96;
-  const maxTop = Math.max(headerClearance, usableHeight - composerClearance - totalHeight);
+  const estimatedHeight =
+    REACTION_STRIP_HEIGHT + POPOVER_GAP + Math.min(anchor.bottom - anchor.top, previewCap) + POPOVER_GAP + actionsHeight;
 
-  // Anchored so the preview sits where the real bubble was — the message appears to lift in place
-  // rather than the menu appearing somewhere else on screen.
-  const top = Math.min(maxTop, Math.max(headerClearance, anchor.top - reactionStripHeight - gap));
+  // Anchored so the preview sits where the real message was — it appears to lift in place rather
+  // than the menu appearing somewhere else on screen. Corrected against the column's true height
+  // by `clampPopoverTop` in a layout effect, before this ever paints.
+  const top = clampPopoverTop(anchor, estimatedHeight);
 
-  return { top, left: margin, width, previewHeight };
+  return { top, left, width, previewCap };
+}
+
+/** Keeps the popover column inside `popoverBounds()`, preferring to sit right above the message. */
+function clampPopoverTop(anchor: PopoverAnchor, height: number) {
+  const { minTop, bottomLimit } = popoverBounds();
+  const maxTop = Math.max(minTop, bottomLimit - height);
+  return Math.min(maxTop, Math.max(minTop, anchor.top - REACTION_STRIP_HEIGHT - POPOVER_GAP));
 }
 
 interface ChatThreadPageProps {
@@ -217,6 +248,9 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
   const [pollOptions, setPollOptions] = useState(['', '']);
   const [popoverMessageId, setPopoverMessageId] = useState<number | null>(null);
   const [popoverAnchor, setPopoverAnchor] = useState<PopoverAnchor | null>(null);
+  const popoverColumnRef = useRef<HTMLDivElement>(null);
+  /** The popover's `top` re-derived from its rendered height; null until it has been measured. */
+  const [popoverTop, setPopoverTop] = useState<number | null>(null);
   const [copiedMessageId, setCopiedMessageId] = useState<number | null>(null);
   /** Briefly ringed after jumping to it from a reply quote, so the eye lands on the right bubble. */
   const [highlightedMessageId, setHighlightedMessageId] = useState<number | null>(null);
@@ -254,9 +288,12 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
   // so the "NY" divider stays anchored while the user reads, instead of disappearing as soon as
   // we park the cursor at the newest message.
   const [seenCursor, setSeenCursor] = useState<number | null>(null);
-  // Device-local chat wallpaper. Seeded synchronously so it paints with the first frame instead
-  // of flashing the plain background first.
-  const [background, setBackground] = useState<string | null>(() => getChatBackground(currentUser?.name ?? ''));
+  // The thread's shared wallpaper. Server-owned — everyone in the thread sees the same one — but
+  // seeded from the device's last-seen copy so it paints with the first frame instead of flashing
+  // the plain background while the fetch lands.
+  const [background, setBackground] = useState<string | null>(() =>
+    getCachedChatBackground(currentUser?.name ?? '', thread),
+  );
 
   // Show whole averages as "5", fractional ones as "4.3".
   const formatMood = (value?: number | null) =>
@@ -410,6 +447,19 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [name, thread]);
 
+  // The initial state ran before the session restored and only had the device's cached copy, so
+  // re-read the cache once the member name is known and then reconcile against the server, which
+  // is what makes a housemate's change show up here.
+  const refreshBackground = async () => {
+    if (!name) return;
+    setBackground(getCachedChatBackground(name, thread));
+    try {
+      setBackground(await fetchChatBackground(name, thread));
+    } catch {
+      // Offline or the request failed — keep showing the cached wallpaper rather than blanking it.
+    }
+  };
+
   useRealtimeEvent(
     (event) => {
       if (!name) return;
@@ -435,6 +485,16 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
         const other = dm.sender === name ? dm.recipient : dm.sender;
         if (other && other === thread) applyIncomingMessage(dm);
       }
+      if (event.type === 'CHAT_BACKGROUND_UPDATED') {
+        // The payload carries the thread's participants (empty for the household thread) rather
+        // than the server's opaque thread key, so this page can tell whether the change was to the
+        // thread it has open without reimplementing the key format.
+        const { participants = [] } = (event.payload ?? {}) as { participants?: string[] };
+        const isThisThread = thread === null
+          ? participants.length === 0
+          : participants.includes(name) && participants.includes(thread);
+        if (isThisThread) void refreshBackground();
+      }
       if (event.type === 'CHECKIN_UPDATED') {
         queryClient.invalidateQueries({ queryKey: qk.checkin(name) });
         queryClient.invalidateQueries({ queryKey: ['checkin', 'summary', name] });
@@ -455,10 +515,11 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
     },
   );
 
-  // The initial state ran before the session restored, so pick the wallpaper up once the member
-  // name is known (and swap it when a different member signs in on this device).
   useEffect(() => {
-    setBackground(getChatBackground(name));
+    void refreshBackground();
+    // `thread` is fixed for this mount (see the route keying above), so member identity is the
+    // only thing that can change under us here.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [name]);
 
   // Tracks how close to the bottom the reader currently is, so an incoming message only pulls
@@ -720,12 +781,50 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
   const closePopover = () => {
     setPopoverMessageId(null);
     setPopoverAnchor(null);
+    setPopoverTop(null);
   };
+
+  /** Re-places the popover once it has actually rendered. `computePopoverPlacement` can only
+   *  estimate the column's height (the preview is a live MessageBubble whose content — quote chip,
+   *  sender name, wrapped text, image — the placement math cannot know), and when that estimate ran
+   *  short the action list slid under the composer or the keyboard. Measuring the real box and
+   *  re-clamping in a layout effect fixes it before the browser paints, so there is no jump. */
+  const repositionPopover = useCallback(() => {
+    const column = popoverColumnRef.current;
+    if (!popoverAnchor || !column) return;
+    // offsetHeight, not getBoundingClientRect(): the entrance variant is mid-`scale(0.94)` on the
+    // first pass and a bounding rect would report 94% of the real height.
+    const height = column.offsetHeight;
+    setPopoverTop((current) => {
+      const next = clampPopoverTop(popoverAnchor, height);
+      // Sub-pixel churn would otherwise re-render on every measure.
+      return current != null && Math.abs(current - next) < 0.5 ? current : next;
+    });
+  }, [popoverAnchor]);
+
+  useLayoutEffect(() => { repositionPopover(); }, [popoverMessageId, repositionPopover]);
+
+  /** Opening the menu dismisses the keyboard (see `openMessageActions`), but the composer rides it
+   *  down over the platform's own animation, so the band this menu may occupy is still the small
+   *  keyboard-up one at the moment it first lays out. Re-place it once the composer has landed. */
+  useEffect(() => {
+    if (popoverMessageId == null) return;
+    let timer = 0;
+    const unsubscribe = onKeyboardInset(({ durationMs }) => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(repositionPopover, durationMs + 30);
+    });
+    return () => { window.clearTimeout(timer); unsubscribe(); };
+  }, [popoverMessageId, repositionPopover]);
 
   const openMessageActions = (messageId: number, element: HTMLElement) => {
     if (isSystemThread) return;
     const message = messageById.get(messageId);
     if (!message || message.deleted) return;
+    // Give the keyboard back, the way iOS does when a message's context menu takes over the screen.
+    // It is not just tidiness: with the keyboard up there are only ~330pt between the header and the
+    // composer on a 844pt phone, and a six-row menu does not fit in that. Any typed draft is kept.
+    messageInputRef.current?.blur();
     const rect = element.getBoundingClientRect();
     setPopoverAnchor({ top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right });
     setPopoverMessageId(messageId);
@@ -746,7 +845,11 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
     clearLongPress();
     // Captured now (not re-derived from the event later, which isn't safe once the handler
     // returns) so the popover can measure its on-screen position when the timer actually fires.
-    const bubbleEl = event.currentTarget as HTMLElement;
+    // The handlers sit on the bubble (so the reactions row and quote chip keep their own taps), but
+    // the popover is anchored to the whole message ROW — the bubble alone excludes the sender name,
+    // the quoted-reply chip and the reactions, all of which the lifted preview does render.
+    const bubbleEl = (event.currentTarget as HTMLElement).closest<HTMLElement>('[data-message-id]')
+      ?? (event.currentTarget as HTMLElement);
     longPressRef.current = {
       timer: window.setTimeout(() => {
         longPressRef.current.timer = null;
@@ -772,6 +875,9 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
     setReplyingToId(messageId);
     setEditingMessageId(null);
     closePopover();
+    // Opening the menu dismissed the keyboard; a reply is the one action that wants it straight
+    // back, so hand it over rather than making the user tap the composer again. Same as edit.
+    requestAnimationFrame(() => messageInputRef.current?.focus());
   };
 
   /** Seeds the composer with the message's own text and switches `sendMessage` (via
@@ -1030,7 +1136,10 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
   };
 
   const applyBackgroundFile = async (file: File) => {
-    const saved = await saveChatBackground(name, file);
+    // Everyone in the thread gets this wallpaper — the server publishes the change and their open
+    // threads refetch. A null result means the upload was rejected (moderation, bad format), in
+    // which case the thread keeps the wallpaper it already had.
+    const saved = await saveChatBackground(name, thread, file);
     if (saved) setBackground(saved);
     if (backgroundInputRef.current) backgroundInputRef.current.value = '';
   };
@@ -1045,23 +1154,23 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
   };
 
   const handleClearBackground = () => {
-    clearChatBackground(name);
     setBackground(null);
+    void clearChatBackground(name, thread);
   };
 
   if (loading) {
     wasLoadingRef.current = true;
     return (
       <div className="app-thread-screen relative flex flex-col">
-        <div className="-mx-4 -mt-2 h-[3.75rem] animate-pulse border-b border-border bg-muted/20 sm:-mx-6" />
+        <div className="skeleton h-[3.75rem] animate-pulse rounded-none border-b border-border" />
         <div className="min-h-0 flex-1 space-y-3 px-4 py-4 sm:px-6">
           {[70, 45, 60, 35].map((width, i) => (
             <div key={i} className={`flex ${i % 2 ? 'justify-end' : 'justify-start'}`}>
-              <div className="h-9 animate-pulse rounded-3xl bg-muted/20" style={{ width: `${width}%` }} />
+              <div className="h-9 skeleton animate-pulse rounded-2xl" style={{ width: `${width}%` }} />
             </div>
           ))}
         </div>
-        <div className="h-12 animate-pulse rounded-full bg-muted/20" />
+        <div className="h-12 skeleton animate-pulse rounded-full" />
       </div>
     );
   }
@@ -1079,6 +1188,7 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
       )}
 
       <div
+        data-chat-header
         className={`relative z-20 safe-top -mt-2 border-b border-border ${
           background ? 'glass' : `tone-tile tone-${PAGE_ACCENTS['/chat']}`
         }`}
@@ -1140,7 +1250,7 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
                     <MessageCircleHeart className="h-4 w-4 shrink-0" />
                     {t('checkin.summaryTitle')}
                   </h3>
-                  <p className="text-[10px] text-muted-foreground">{t('checkin.progress', { count: checkinSummary.responseCount, total: checkinSummary.memberCount })}</p>
+                  <p className="text-[11px] text-muted-foreground">{t('checkin.progress', { count: checkinSummary.responseCount, total: checkinSummary.memberCount })}</p>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
                   <span className="text-xs font-bold text-primary">{t('checkin.averageMood', { mood: formatMood(checkinSummary.averageMood) })}</span>
@@ -1186,7 +1296,7 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
             >
               <Pin className="h-4 w-4 shrink-0 text-muted-foreground" />
               <span className="min-w-0 flex-1">
-                <span className="block text-[10px] font-bold uppercase tracking-[.1em] text-muted-foreground">
+                <span className="block text-[11px] font-bold uppercase tracking-[.1em] text-muted-foreground">
                   {t('chat.pinnedLabel', { name: pinnedMessage.sender })}
                 </span>
                 <span className="block truncate text-sm font-semibold">
@@ -1228,14 +1338,14 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
             <div key={clientIdByServerIdRef.current.get(message.id) ?? message.id}>
               {startsNewDay && (
                 <div className="flex justify-center py-3">
-                  <span className="rounded-full bg-foreground/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[.1em] text-muted-foreground backdrop-blur-sm">
+                  <span className="rounded-full bg-foreground/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[.1em] text-muted-foreground backdrop-blur-sm">
                     {formatDayDivider(message.timestamp)}
                   </span>
                 </div>
               )}
               {startsUnread && (
                 <div className="flex justify-center py-3">
-                  <span className="rounded-full bg-foreground px-3 py-1 text-[10px] font-extrabold uppercase tracking-[.14em] text-background">
+                  <span className="rounded-full bg-foreground px-3 py-1 text-[11px] font-extrabold uppercase tracking-[.14em] text-background">
                     {t('chat.newDivider')}
                   </span>
                 </div>
@@ -1283,7 +1393,7 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
       </div>
 
       {isSystemThread ? (
-        <div className="safe-bottom relative z-10 -mx-4 px-4 pb-2 sm:-mx-6 sm:px-6">
+        <div className="safe-bottom relative z-10 px-4 pb-2 sm:px-6">
           <p className="rounded-2xl border border-border bg-muted/40 px-4 py-3 text-center text-xs text-muted-foreground">
             {t('chat.systemThreadReadOnly')}
           </p>
@@ -1300,7 +1410,7 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
                 {memberNames.filter((member) => member !== name).map((member) => <option key={member} value={member}>{member}</option>)}
               </select>
               <div>
-                <p className="mb-1 text-[10px] font-semibold text-muted-foreground">{t('kudos.typeLabel')}</p>
+                <p className="mb-1 text-[11px] font-semibold text-muted-foreground">{t('kudos.typeLabel')}</p>
                 <div className="flex flex-wrap gap-1.5">
                   {KUDO_TYPES.map((type) => (
                     <button
@@ -1322,7 +1432,7 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
                   would only fight the message list's own pinning. */}
               <input data-keyboard-scroll-assist="off" value={kudosContext} onChange={(event) => setKudosContext(event.target.value)} maxLength={500} placeholder={t('kudos.contextPlaceholder')} className="w-full rounded-lg bg-muted/50 px-3 py-2 text-xs" />
               <button onClick={() => void sendKudos()} disabled={!kudosReceiver} className="w-full rounded-lg bg-ink py-2 text-xs font-bold text-ink-foreground disabled:opacity-50">{t('kudos.send')}</button>
-              <p className="text-[9px] text-muted-foreground">{t('kudos.privateNote')}</p>
+              <p className="text-[11px] text-muted-foreground">{t('kudos.privateNote')}</p>
             </AddSheet>
           </motion.div>
         )}
@@ -1353,25 +1463,25 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
         {showLaundryForm && (
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="relative z-10 overflow-hidden">
             <AddSheet title={t('laundry.title')} onClose={() => setShowLaundryForm(false)} className="mb-2 p-3">
-              <p className="text-[10px] font-semibold text-muted-foreground">{t('laundry.typeLabel')}</p>
-              <div className="flex flex-wrap gap-1.5">
+              <p className="text-[11px] font-semibold text-muted-foreground">{t('laundry.typeLabel')}</p>
+              <div className="flex flex-wrap gap-3">
                 {LAUNDRY_TYPES.map((type) => (
                   <button key={type} onClick={() => setLaundryType(type)}
-                    className={`rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors ${laundryType === type ? 'bg-ink text-ink-foreground' : 'bg-muted/60 text-muted-foreground'}`}>
+                    className={`btn-sm font-medium transition-colors ${laundryType === type ? 'bg-ink text-ink-foreground' : 'bg-muted/60 text-muted-foreground'}`}>
                     {t(`laundry.types.${type}`)}
                   </button>
                 ))}
               </div>
-              <p className="text-[10px] font-semibold text-muted-foreground">{t('laundry.tempLabel')}</p>
-              <div className="flex flex-wrap gap-1.5">
+              <p className="text-[11px] font-semibold text-muted-foreground">{t('laundry.tempLabel')}</p>
+              <div className="flex flex-wrap gap-3">
                 {LAUNDRY_TEMPS.map((temp) => (
                   <button key={temp} onClick={() => setLaundryTemp(temp)}
-                    className={`rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors ${laundryTemp === temp ? 'bg-ink text-ink-foreground' : 'bg-muted/60 text-muted-foreground'}`}>
+                    className={`btn-sm font-medium transition-colors ${laundryTemp === temp ? 'bg-ink text-ink-foreground' : 'bg-muted/60 text-muted-foreground'}`}>
                     {temp}°C
                   </button>
                 ))}
               </div>
-              <button onClick={() => void sendLaundry()} className="w-full rounded-lg bg-ink py-2 text-xs font-bold text-ink-foreground">{t('laundry.send')}</button>
+              <button onClick={() => void sendLaundry()} className="btn-pine w-full">{t('laundry.send')}</button>
             </AddSheet>
           </motion.div>
         )}
@@ -1392,10 +1502,10 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
                   className="w-full bg-muted/50 rounded-lg px-3 py-1.5 text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" />
               ))}
               <div className="flex gap-2">
-                <button onClick={() => setPollOptions((p) => [...p, ''])} className="text-[10px] text-primary font-medium">
+                <button onClick={() => setPollOptions((p) => [...p, ''])} className="pressable-tight text-xs text-primary font-medium">
                   {t('chat.addOption')}
                 </button>
-                <button onClick={sendPoll} className="ml-auto px-3 py-1 rounded-lg gradient-primary text-[10px] font-semibold text-ink-foreground">
+                <button onClick={sendPoll} className="btn-sm !rounded-lg ml-auto gradient-primary font-semibold text-ink-foreground">
                   {t('chat.sendPoll')}
                 </button>
               </div>
@@ -1487,7 +1597,7 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
               aria-label={t('chat.sendImage')}
             >
               <ImageIcon className="h-5 w-5 text-muted-foreground" />
-              <span className="text-[9px] font-medium text-muted-foreground">
+              <span className="text-[11px] font-medium text-muted-foreground">
                 {sendingImage ? t('chat.sending') : t('chat.sendImage')}
               </span>
             </button>
@@ -1502,24 +1612,24 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
               aria-label={t('chat.sendGif')}
             >
               {isUnlocked ? <Film className="h-5 w-5 text-muted-foreground" /> : <Lock className="h-5 w-5 text-muted-foreground" />}
-              <span className="text-[9px] font-medium text-muted-foreground">GIF</span>
+              <span className="text-[11px] font-medium text-muted-foreground">GIF</span>
             </button>
             {!isDirect && (
               <button onMouseDown={(e) => e.preventDefault()} onClick={() => { setShowPollForm((v) => !v); setShowActionBar(false); }} className="flex min-h-11 shrink-0 flex-col items-center gap-1 rounded-xl px-3 py-2 hover:bg-muted/60" aria-label={t('chat.togglePollForm')}>
                 <BarChart3 className="h-5 w-5 text-muted-foreground" />
-                <span className="text-[9px] font-medium text-muted-foreground">{t('chat.createPoll')}</span>
+                <span className="text-[11px] font-medium text-muted-foreground">{t('chat.createPoll')}</span>
               </button>
             )}
             {!isDirect && (
               <button onMouseDown={(e) => e.preventDefault()} onClick={() => { setShowLaundryForm((v) => !v); setShowActionBar(false); }} className="flex min-h-11 shrink-0 flex-col items-center gap-1 rounded-xl px-3 py-2 hover:bg-muted/60" aria-label={t('laundry.title')}>
                 <WashingMachine className="h-5 w-5 text-accent" />
-                <span className="text-[9px] font-medium text-muted-foreground">{t('laundry.title')}</span>
+                <span className="text-[11px] font-medium text-muted-foreground">{t('laundry.title')}</span>
               </button>
             )}
             {!isDirect && (
               <button onMouseDown={(e) => e.preventDefault()} onClick={() => { setShowKudosForm((v) => !v); setShowActionBar(false); }} className="flex min-h-11 shrink-0 flex-col items-center gap-1 rounded-xl px-3 py-2 hover:bg-muted/60" aria-label={t('kudos.sendTitle')}>
                 <HeartHandshake className="h-5 w-5 text-primary" />
-                <span className="text-[9px] font-medium text-muted-foreground">{t('kudos.sendTitle')}</span>
+                <span className="text-[11px] font-medium text-muted-foreground">{t('kudos.sendTitle')}</span>
               </button>
             )}
             <button
@@ -1530,20 +1640,20 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
                 void handleChangeBackground();
               }}
               className="flex min-h-11 shrink-0 flex-col items-center gap-1 rounded-xl px-3 py-2 hover:bg-muted/60"
-              aria-label={t('chat.background.change')}
+              aria-label={t('chat.background.changeShared')}
             >
               {isUnlocked ? <Wallpaper className="h-5 w-5 text-muted-foreground" /> : <Lock className="h-5 w-5 text-muted-foreground" />}
-              <span className="text-[9px] font-medium text-muted-foreground">{t('chat.background.label')}</span>
+              <span className="text-[11px] font-medium text-muted-foreground">{t('chat.background.label')}</span>
             </button>
             {background && (
               <button
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => { setShowActionBar(false); handleClearBackground(); }}
                 className="flex min-h-11 shrink-0 flex-col items-center gap-1 rounded-xl px-3 py-2 hover:bg-muted/60"
-                aria-label={t('chat.background.remove')}
+                aria-label={t('chat.background.removeShared')}
               >
                 <X className="h-5 w-5 text-muted-foreground" />
-                <span className="text-[9px] font-medium text-muted-foreground">{t('chat.background.remove')}</span>
+                <span className="text-[11px] font-medium text-muted-foreground">{t('chat.background.remove')}</span>
               </button>
             )}
           </motion.div>
@@ -1626,7 +1736,7 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
             placeholder={t('chat.messagePlaceholder')}
             inputMode="text"
             enterKeyHint="send"
-            className="font-ios min-w-36 flex-1 resize-none self-center rounded-3xl bg-muted px-4 py-2.5 text-sm leading-snug text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+            className="font-ios input input-sm min-w-36 flex-1 resize-none self-center rounded-full bg-muted leading-snug"
           />
           {/* The send button wakes up when there is something to send: dimmed and slightly small
               while the composer is empty, full size and full colour the moment you type. */}
@@ -1671,8 +1781,9 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
                 initial="hidden"
                 animate="show"
                 exit="exit"
+                ref={popoverColumnRef}
                 className={`flex flex-col ${popoverIsSelf ? 'items-end' : 'items-start'}`}
-                style={{ position: 'fixed', top: placement.top, left: placement.left, width: placement.width }}
+                style={{ position: 'fixed', top: popoverTop ?? placement.top, left: placement.left, width: placement.width }}
                 onClick={(event) => event.stopPropagation()}
               >
                 <div className="elev-3 mb-2 flex max-w-full gap-1 overflow-x-auto rounded-full border border-border bg-card/95 px-2 py-2 backdrop-blur scrollbar-none">
@@ -1705,27 +1816,42 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
                 {/* drop-shadow (not elev-3/box-shadow) so the lift follows the bubble's own
                     rounded shape — a shadow on this full-width wrapper painted a phantom
                     rectangle across the empty half of the row. */}
-                <motion.div
-                  initial={{ scale: 1 }}
-                  animate={{ scale: 1.03 }}
-                  transition={springPop}
-                  className="mb-2 w-full origin-center overflow-y-auto drop-shadow-2xl"
-                  style={{ maxHeight: placement.previewHeight }}
+                {/* Clipping and scaling are deliberately on two different elements, and the
+                    max-height is a cap rather than the pressed bubble's own height. It used to be
+                    both at once, on one element, clamped to `anchor.bottom - anchor.top` — i.e. to
+                    the `.bub`, while the preview also renders a sender name, a forced timestamp and
+                    (for replies) the quoted chip that lives outside that bubble. Measured in the
+                    harness, that sliced 20px off a plain message and 62px off a reply. */}
+                {/* The padding is the room the 3% growth (and the shadow) expands into — it has to
+                    be on the clipping box, not inside the scaled one: the scaled element is as wide
+                    as its container, so its own padding cannot stop it from outgrowing it. The
+                    negative margin gives that padding back, so the preview still lines up with the
+                    real message rather than sitting 8px inboard of it. */}
+                <div
+                  className="-mx-2 mb-2 w-[calc(100%+1rem)] overflow-y-auto px-2 py-1.5 scrollbar-none"
+                  style={{ maxHeight: placement.previewCap }}
                 >
-                  <MessageBubble
-                    message={popoverMessage}
-                    replyTarget={
-                      popoverMessage.replyToMessageId != null ? messageById.get(popoverMessage.replyToMessageId) : undefined
-                    }
-                    isSelf={popoverIsSelf}
-                    isFirstOfGroup
-                    isLastOfGroup
-                    senderColor={colorForMember(popoverMessage.sender, memberColorMap.get(popoverMessage.sender))}
-                    currentUserName={name}
-                    formatTimestamp={formatMessageTimestamp}
-                    variant="preview"
-                  />
-                </motion.div>
+                  <motion.div
+                    initial={{ scale: 1 }}
+                    animate={{ scale: 1.03 }}
+                    transition={springPop}
+                    className="origin-center drop-shadow-2xl"
+                  >
+                    <MessageBubble
+                      message={popoverMessage}
+                      replyTarget={
+                        popoverMessage.replyToMessageId != null ? messageById.get(popoverMessage.replyToMessageId) : undefined
+                      }
+                      isSelf={popoverIsSelf}
+                      isFirstOfGroup
+                      isLastOfGroup
+                      senderColor={colorForMember(popoverMessage.sender, memberColorMap.get(popoverMessage.sender))}
+                      currentUserName={name}
+                      formatTimestamp={formatMessageTimestamp}
+                      variant="preview"
+                    />
+                  </motion.div>
+                </div>
 
                 <div className="elev-3 w-full max-w-[280px] divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card">
                   <button
@@ -1798,31 +1924,44 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 z-50 flex items-center justify-center overflow-hidden p-0"
-            style={{ backgroundColor: expandedImageBackdrop }}
+            /* A column, not a centred box: the safe areas and the button row are subtracted as real
+               layout, so what is left over IS the photo's box. The old version centred the image in
+               the whole screen and capped it at a guessed 90dvh — which left ~42pt of slack against
+               a 47-59pt notch inset, so the top of a portrait photo sat under the status bar with
+               the buttons floating on top of the picture. */
+            className="absolute inset-0 z-50 flex flex-col overflow-hidden"
+            style={{
+              backgroundColor: expandedImageBackdrop,
+              paddingTop: 'env(safe-area-inset-top, 0px)',
+              paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+            }}
             onClick={() => setExpandedImage(null)}
           >
-            <button
-              className="pressable-tight absolute right-4 top-[calc(env(safe-area-inset-top,0px)+1rem)] z-10 grid h-11 w-11 place-items-center rounded-full bg-white/10 hover:bg-white/20"
-              onClick={() => setExpandedImage(null)}
-              aria-label={t('chat.closeImage')}
-            >
-              <X className="h-5 w-5 text-white" />
-            </button>
-            <button
-              className="pressable-tight absolute left-4 top-[calc(env(safe-area-inset-top,0px)+1rem)] z-10 grid h-11 w-11 place-items-center rounded-full bg-white/10 hover:bg-white/20"
-              onClick={() => void saveImageToDevice(expandedImage)}
-              aria-label={t('chat.saveImage')}
-            >
-              <Download className="h-5 w-5 text-white" />
-            </button>
+            <div className="relative z-10 flex h-14 shrink-0 items-center justify-between px-4">
+              <button
+                className="pressable-tight grid h-11 w-11 place-items-center rounded-full bg-white/10 hover:bg-white/20"
+                onClick={() => void saveImageToDevice(expandedImage)}
+                aria-label={t('chat.saveImage')}
+              >
+                <Download className="h-5 w-5 text-white" />
+              </button>
+              <button
+                className="pressable-tight grid h-11 w-11 place-items-center rounded-full bg-white/10 hover:bg-white/20"
+                onClick={() => setExpandedImage(null)}
+                aria-label={t('chat.closeImage')}
+              >
+                <X className="h-5 w-5 text-white" />
+              </button>
+            </div>
             <motion.div
               drag="y"
               dragConstraints={{ top: 0, bottom: 0 }}
               dragElastic={0.82}
               dragMomentum={false}
               style={{ y: expandedImageDragY, scale: expandedImageDragScale }}
-              className="relative flex max-h-[90dvh] max-w-[96vw] items-center justify-center touch-pan-x"
+              /* min-h-0 is load-bearing: without it this flex item refuses to shrink below its
+                 content and the photo overflows the screen again. */
+              className="relative flex min-h-0 flex-1 items-center justify-center px-2 pb-2 touch-pan-x"
               onClick={(event) => event.stopPropagation()}
               onDragEnd={(_, info) => {
                 // Snapchat closes an opened Snap on a downward swipe; upward pulls simply spring
@@ -1835,7 +1974,7 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
               <img
                 src={expandedImage.src}
                 alt={expandedImage.alt}
-                className="max-h-[90dvh] max-w-[96vw] select-none rounded-[1.5rem] object-contain"
+                className="max-h-full max-w-full select-none rounded-[1.5rem] object-contain"
                 draggable={false}
               />
             </motion.div>

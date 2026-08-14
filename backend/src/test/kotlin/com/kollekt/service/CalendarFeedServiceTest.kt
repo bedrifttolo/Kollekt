@@ -105,6 +105,51 @@ class CalendarFeedServiceTest {
         assertTrue(summaryLines.all { it.removeSuffix("\r").length <= 75 })
     }
 
+    @Test
+    fun `folding counts octets so multi-byte titles stay within the 75-byte limit`() {
+        whenever(collectiveAccessService.requireCollectiveCodeByMemberName("Kasper")).thenReturn("ABC123")
+        val token = service.feedPathForMember("Kasper").substringAfterLast('/')
+        // Two bytes per character in UTF-8: folding by character would emit ~150-byte lines.
+        whenever(eventRepository.findAllByCollectiveCode("ABC123"))
+            .thenReturn(listOf(event(id = 1, title = "æ".repeat(120))))
+
+        val feed = service.buildFeed("ABC123", token)
+        val lines = feed.lines().map { it.removeSuffix("\r") }.filter { it.isNotEmpty() }
+
+        assertTrue(lines.all { it.toByteArray(Charsets.UTF_8).size <= 75 }, "a folded line exceeded 75 octets")
+        // Nothing was dropped or corrupted on the way through the folder.
+        assertEquals(120, unfold(feed).substringAfter("SUMMARY:").substringBefore("\r\n").count { it == 'æ' })
+    }
+
+    @Test
+    fun `organizer names needing escapes are quoted rather than backslash-escaped`() {
+        whenever(collectiveAccessService.requireCollectiveCodeByMemberName("Kasper")).thenReturn("ABC123")
+        val token = service.feedPathForMember("Kasper").substringAfterLast('/')
+        whenever(eventRepository.findAllByCollectiveCode("ABC123"))
+            .thenReturn(listOf(event(id = 1, title = "Dinner")))
+
+        val feed = unfold(service.buildFeed("ABC123", token))
+
+        // RFC 5545 has no backslash escapes for parameter values; `,` is legal only when quoted.
+        assertTrue(feed.contains("ORGANIZER;CN=\"Kasper, Owner\":mailto:noreply@kollekt.app"))
+        assertFalse(feed.contains("CN=Kasper\\,"))
+    }
+
+    @Test
+    fun `organizer names needing no escapes are left unquoted`() {
+        whenever(collectiveAccessService.requireCollectiveCodeByMemberName("Kasper")).thenReturn("ABC123")
+        val token = service.feedPathForMember("Kasper").substringAfterLast('/')
+        whenever(eventRepository.findAllByCollectiveCode("ABC123"))
+            .thenReturn(listOf(event(id = 1, title = "Dinner", organizer = "Kasper Nyman")))
+
+        val feed = unfold(service.buildFeed("ABC123", token))
+
+        assertTrue(feed.contains("ORGANIZER;CN=Kasper Nyman:mailto:noreply@kollekt.app"))
+    }
+
+    /** Reverses RFC 5545 folding, so assertions can be written against whole logical lines. */
+    private fun unfold(feed: String) = feed.replace("\r\n ", "")
+
     private fun event(
         id: Long,
         title: String,
@@ -112,6 +157,7 @@ class CalendarFeedServiceTest {
         time: LocalTime = LocalTime.parse("12:00"),
         endTime: LocalTime? = null,
         description: String? = null,
+        organizer: String = "Kasper, Owner",
     ) = CalendarEvent(
         id = id,
         title = title,
@@ -120,7 +166,7 @@ class CalendarFeedServiceTest {
         time = time,
         endTime = endTime,
         type = EventType.OTHER,
-        organizer = "Kasper, Owner",
+        organizer = organizer,
         attendees = 2,
         description = description,
     )

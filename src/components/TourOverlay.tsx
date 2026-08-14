@@ -104,8 +104,10 @@ export default function TourOverlay({ steps, storageKey }: { steps: TourStep[]; 
         </p>
         <p className="font-display text-lg font-extrabold mb-1">{t(step.titleKey)}</p>
         <p className="text-sm text-muted-foreground mb-3">{t(step.bodyKey)}</p>
-        <div className="flex items-center justify-center gap-2">
-          <button onClick={finish} className="px-3 py-2 text-sm font-medium text-muted-foreground">
+        <div className="flex items-center justify-center gap-3">
+          {/* Matches the primary's height (--ctl-lg, from .btn-lemon) so the pair sits on one
+              baseline; it stays quiet through having no fill, not through being smaller. */}
+          <button onClick={finish} className="min-h-[var(--ctl-lg)] px-4 text-sm font-medium text-muted-foreground">
             {t('tour.skip')}
           </button>
           <button onClick={next} className="btn-lemon px-5 py-2 text-sm font-semibold">

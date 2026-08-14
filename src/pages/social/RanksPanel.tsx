@@ -268,17 +268,17 @@ export default function RanksPanel() {
   if (loading || !data) {
     wasLoadingRef.current = true;
     return (
-      <div className="space-y-5">
+      <div className="space-y-4">
         <div className="flex items-end justify-center gap-3 pt-10">
-          <div className="h-32 w-full animate-pulse rounded-t-3xl bg-muted/20" />
-          <div className="h-44 w-full animate-pulse rounded-t-3xl bg-muted/20" />
-          <div className="h-24 w-full animate-pulse rounded-t-3xl bg-muted/20" />
+          <div className="podium-bar h-32 w-full skeleton animate-pulse" />
+          <div className="podium-bar h-44 w-full skeleton animate-pulse" />
+          <div className="podium-bar h-24 w-full skeleton animate-pulse" />
         </div>
-        <div className="h-20 animate-pulse rounded-2xl bg-muted/20" />
-        <div className="mx-auto h-10 w-48 animate-pulse rounded-full bg-muted/20" />
+        <div className="h-20 skeleton animate-pulse rounded-2xl" />
+        <div className="mx-auto h-10 w-48 skeleton animate-pulse rounded-full" />
         <div className="space-y-2">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-16 animate-pulse rounded-2xl bg-muted/20" />
+            <div key={i} className="h-16 skeleton animate-pulse rounded-2xl" />
           ))}
         </div>
       </div>
@@ -292,7 +292,7 @@ export default function RanksPanel() {
   const ps = data.periodStats;
 
   return (
-    <motion.div initial={justFinishedLoading ? { opacity: 0 } : false} animate={{ opacity: 1 }} className="space-y-5">
+    <motion.div initial={justFinishedLoading ? { opacity: 0 } : false} animate={{ opacity: 1 }} className="space-y-4">
       {/* Podium */}
       {podiumOrder.length >= 2 && (
         <div className="flex items-end justify-center gap-3 pt-12">
@@ -318,10 +318,10 @@ export default function RanksPanel() {
                 animate={{ scaleY: 1 }}
                 transition={{ ...springSoft, delay: justFinishedLoading ? 0.1 + i * 0.08 : 0 }}
                 style={{ originY: 1 }}
-                className={`${barHeight[user.rank] ?? 'h-28'} w-full rounded-t-3xl ${barTone[user.rank] ?? 'bg-muted'} flex flex-col items-center justify-end pb-4 pt-8`}
+                className={`${barHeight[user.rank] ?? 'h-28'} podium-bar w-full ${barTone[user.rank] ?? 'bg-muted'} flex flex-col items-center justify-end pb-4 pt-8`}
               >
                 <CountUp value={user.xp} className="font-display text-2xl font-extrabold" />
-                <p className="mt-1 text-[10px] font-bold uppercase tracking-wide">
+                <p className="mt-1 text-[11px] font-bold uppercase tracking-wide">
                   {user.name} · {t('leaderboard.levelShort', { level: user.level })}
                 </p>
               </motion.div>
@@ -332,7 +332,7 @@ export default function RanksPanel() {
 
       {/* Monthly prize — tinted with the page's own accent (butter) rather than the generic
           secondary purple, so it reads as part of Social rather than a foreign color. */}
-      <div className={`tone-${PAGE_ACCENTS['/social']} tone-wash tone-edge flex items-start gap-3 rounded-[1.35rem] border p-4`}>
+      <div className={`tone-${PAGE_ACCENTS['/social']} tone-wash tone-edge flex items-start gap-3 rounded-lg border p-4`}>
         <Gift className="h-6 w-6 shrink-0 text-muted-foreground" />
         <div className="min-w-0 flex-1">
           {showPrize ? (
@@ -341,7 +341,7 @@ export default function RanksPanel() {
                 value={prize}
                 onChange={(e) => setPrize(e.target.value)}
                 placeholder={t('leaderboard.monthlyPrizePlaceholder')}
-                className="w-full min-h-[var(--ctl-lg)] rounded-lg bg-card px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                className="input"
               />
               <div className="flex gap-2">
                 <button onClick={handleSetPrize} className="btn-pine min-h-11 flex-1 rounded-lg px-4 py-2 text-sm">
@@ -390,23 +390,23 @@ export default function RanksPanel() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: justFinishedLoading ? i * 0.05 : 0 }}
             onClick={() => handleOpenMemberStats(user.name)}
-            className={`card !p-4 flex w-full items-center gap-3 text-left ${user.name === name ? 'ring-1 ring-primary/30' : ''}`}
+            className={`card flex w-full items-center gap-3 text-left ${user.name === name ? 'ring-1 ring-primary/30' : ''}`}
           >
             <div className="w-6 text-center font-display font-bold text-sm text-muted-foreground">#{user.rank}</div>
             <Avatar name={user.name} color={colorByName.get(user.name)} />
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-1">
                 <p className="text-sm font-medium">{user.name}</p>
-                <span className="text-[10px] text-muted-foreground">{t('leaderboard.levelShort', { level: user.level })}</span>
+                <span className="text-[11px] text-muted-foreground">{t('leaderboard.levelShort', { level: user.level })}</span>
               </div>
-              <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
+              <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
                 <span>{t('leaderboard.tasksCompleted', { count: user.tasksCompleted })}</span>
                 <span className="flex items-center gap-0.5"><Flame className="h-2.5 w-2.5 text-secondary" />{t('leaderboard.streak', { count: user.streak })}</span>
               </div>
             </div>
             <div className="text-right">
               <p className="font-display font-bold text-sm">{user.xp}</p>
-              <p className="text-[9px] text-muted-foreground">XP</p>
+              <p className="text-[11px] text-muted-foreground">XP</p>
             </div>
           </motion.button>
         ))}
@@ -469,19 +469,23 @@ export default function RanksPanel() {
             </span>
           </div>
           <div className="flex items-center gap-4">
-            <ProgressRing
-              value={fairness.balancePercent}
-              size={92}
-              thickness={10}
-              color={fairness.balancePercent >= 75 ? 'var(--tone-mint)' : fairness.balancePercent >= 50 ? 'var(--tone-butter)' : 'var(--tone-blush)'}
-            >
-              <div>
-                <CountUp value={fairness.balancePercent} className="font-display text-xl font-extrabold" />
-                <span className="block text-[8px] font-bold tracking-[.14em] text-muted-foreground">
-                  {t('leaderboard.fairness.balanced')}
-                </span>
-              </div>
-            </ProgressRing>
+            {/* The label sits *under* the ring, not inside it. A 92px ring leaves ~72px of usable
+                width and the word doesn't fit in any of the four languages — "BALANSERT" already
+                spilled over the stroke, and BALANCERET/BALANSERAT are a character longer. Only the
+                number goes inside, where it can't overflow whatever the locale. */}
+            <div className="flex shrink-0 flex-col items-center gap-1.5">
+              <ProgressRing
+                value={fairness.balancePercent}
+                size={92}
+                thickness={10}
+                color={fairness.balancePercent >= 75 ? 'var(--tone-mint)' : fairness.balancePercent >= 50 ? 'var(--tone-butter)' : 'var(--tone-blush)'}
+              >
+                <CountUp value={fairness.balancePercent} className="font-display text-2xl font-extrabold" />
+              </ProgressRing>
+              <span className="max-w-[92px] text-center text-[10px] font-bold uppercase leading-tight tracking-[.1em] text-muted-foreground">
+                {t('leaderboard.fairness.balanced')}
+              </span>
+            </div>
             <ul className="min-w-0 flex-1 space-y-1.5">
               {fairness.shares.map((share) => (
                 <li key={share.name} className="flex items-center gap-2">
@@ -527,7 +531,7 @@ export default function RanksPanel() {
               <motion.div
                 key={clientKeyByServerKeyRef.current.get(a.key) ?? a.key}
                 variants={listItem}
-                className={`card !p-3 ${a.unlocked ? `tone-${toneByKey(a.key)} tone-wash tone-edge` : 'opacity-60'}`}
+                className={`card card-sm ${a.unlocked ? `tone-${toneByKey(a.key)} tone-wash tone-edge` : 'opacity-60'}`}
               >
                 <div className="flex items-center gap-3">
                   {hasProgress ? (
@@ -546,11 +550,11 @@ export default function RanksPanel() {
                   )}
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-bold">{t(`leaderboard.achievementKeys.${a.key}.title`, { defaultValue: a.title })}</p>
-                    <p className="text-[10px] text-muted-foreground">{t(`leaderboard.achievementKeys.${a.key}.description`, { defaultValue: a.description })}</p>
+                    <p className="text-[11px] text-muted-foreground">{t(`leaderboard.achievementKeys.${a.key}.description`, { defaultValue: a.description })}</p>
                     {hasProgress && !a.unlocked && (
-                      <p className="mt-1 text-[10px] font-bold tabular-nums text-muted-foreground">{a.progress}/{a.total}</p>
+                      <p className="mt-1 text-[11px] font-bold tabular-nums text-muted-foreground">{a.progress}/{a.total}</p>
                     )}
-                    {a.custom && <p className="mt-1 text-[9px] font-bold uppercase tracking-wide text-primary">{t('leaderboard.custom.houseGoal')}</p>}
+                    {a.custom && <p className="mt-1 text-[11px] font-bold uppercase tracking-wide text-primary">{t('leaderboard.custom.houseGoal')}</p>}
                   </div>
                 </div>
               </motion.div>
@@ -570,13 +574,13 @@ export default function RanksPanel() {
               <Avatar name={selectedMember} color={colorByName.get(selectedMember)} className="h-10 w-10" />
               <div>
                 <p className="font-semibold">{selectedMember}</p>
-                {memberStats && <p className="text-[10px] text-muted-foreground">{t('leaderboard.levelShort', { level: memberStats.level })} · #{memberStats.rank}</p>}
+                {memberStats && <p className="text-[11px] text-muted-foreground">{t('leaderboard.levelShort', { level: memberStats.level })} · #{memberStats.rank}</p>}
               </div>
             </div>
           ) : null
         }
       >
-        {memberStatsLoading && <div className="grid grid-cols-3 gap-2 animate-pulse">{[...Array(6)].map((_, i) => <div key={i} className="h-14 bg-muted/30 rounded-lg" />)}</div>}
+        {memberStatsLoading && <div className="grid grid-cols-3 gap-2 animate-pulse">{[...Array(6)].map((_, i) => <div key={i} className="skeleton h-14 rounded-lg" />)}</div>}
         {memberStats && !memberStatsLoading && (
           <div className="grid grid-cols-3 gap-2">
             {[
@@ -589,7 +593,7 @@ export default function RanksPanel() {
             ].map((s) => (
               <div key={s.label} className="min-h-14 rounded-lg bg-background/30 p-2.5 text-center">
                 <p className="font-display font-bold text-sm">{s.value}</p>
-                <p className="text-[9px] text-muted-foreground mt-0.5">{s.label}</p>
+                <p className="text-[11px] text-muted-foreground mt-0.5">{s.label}</p>
               </div>
             ))}
           </div>
@@ -603,20 +607,20 @@ export default function RanksPanel() {
         title={
           <div>
             <p className="font-semibold">{t('leaderboard.manageAchievements')}</p>
-            <p className="text-[10px] text-muted-foreground">{t('leaderboard.manageAchievementsSubtitle')}</p>
+            <p className="text-[11px] text-muted-foreground">{t('leaderboard.manageAchievementsSubtitle')}</p>
           </div>
         }
       >
-                {catalogLoading && <div className="space-y-2 animate-pulse">{[...Array(5)].map((_, i) => <div key={i} className="h-12 bg-muted/30 rounded-lg" />)}</div>}
+                {catalogLoading && <div className="space-y-2 animate-pulse">{[...Array(5)].map((_, i) => <div key={i} className="skeleton h-12 rounded-lg" />)}</div>}
                 {!catalogLoading && (
-                  <div className="space-y-5">
+                  <div className="space-y-4">
                     <div>
                       <p className={`eyebrow tone-${PAGE_ACCENTS['/social']} mb-2`}>{t('leaderboard.custom.builtIn')}</p>
                       {catalog.map((item) => (
                         <button key={item.key} onClick={() => handleToggleAchievement(item.key, !item.enabled)} className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-muted/30 transition-colors">
                           <div className="text-left">
                             <p className="text-sm font-medium">{t(`leaderboard.achievementKeys.${item.key}.title`, { defaultValue: item.title })}</p>
-                            <p className="text-[10px] text-muted-foreground">{t(`leaderboard.achievementKeys.${item.key}.description`, { defaultValue: item.description })}</p>
+                            <p className="text-[11px] text-muted-foreground">{t(`leaderboard.achievementKeys.${item.key}.description`, { defaultValue: item.description })}</p>
                           </div>
                           <div className={`h-5 w-9 rounded-full transition-colors flex items-center px-0.5 shrink-0 ml-3 ${item.enabled ? 'bg-primary' : 'bg-muted'}`}>
                             <div className={`h-4 w-4 rounded-full bg-white shadow transition-transform ${item.enabled ? 'translate-x-4' : 'translate-x-0'}`} />
@@ -630,7 +634,7 @@ export default function RanksPanel() {
                       <div className="space-y-2">
                         {achievements.filter((item) => item.custom).map((item) => (
                           <div key={item.key} className="flex items-center gap-3 rounded-xl bg-background/30 px-3 py-2.5">
-                            <div className="min-w-0 flex-1"><p className="text-sm font-medium">{item.title}</p><p className="text-[10px] text-muted-foreground">{item.description}</p></div>
+                            <div className="min-w-0 flex-1"><p className="text-sm font-medium">{item.title}</p><p className="text-[11px] text-muted-foreground">{item.description}</p></div>
 	                            <OverflowMenu
 	                              label={t('common.actions')}
 	                              actions={[
@@ -651,11 +655,11 @@ export default function RanksPanel() {
                     </div>
 
                     <div className="space-y-3 rounded-2xl bg-background/30 p-3">
-                      <div><p className="font-semibold">{t('leaderboard.custom.create')}</p><p className="text-[10px] text-muted-foreground">{t('leaderboard.custom.createHint')}</p></div>
+                      <div><p className="font-semibold">{t('leaderboard.custom.create')}</p><p className="text-[11px] text-muted-foreground">{t('leaderboard.custom.createHint')}</p></div>
                       <input className="field w-full" maxLength={80} value={customTitle} onChange={(event) => setCustomTitle(event.target.value)} placeholder={t('leaderboard.custom.title')} />
                       <textarea className="field min-h-20 w-full resize-none" maxLength={240} value={customDescription} onChange={(event) => setCustomDescription(event.target.value)} placeholder={t('leaderboard.custom.description')} />
                       <div>
-                        <p className="mb-1.5 text-[10px] font-semibold text-muted-foreground">{t('leaderboard.custom.iconLabel')}</p>
+                        <p className="mb-1.5 text-[11px] font-semibold text-muted-foreground">{t('leaderboard.custom.iconLabel')}</p>
                         <div className="flex flex-wrap gap-1.5">
                           {CUSTOM_ICON_CHOICES.map((key) => {
                             const Icon = iconFor(key);

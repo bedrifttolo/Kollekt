@@ -2,9 +2,10 @@ import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { formatCurrency, translateKey } from '../../i18n/helpers';
 import { categoryColor, categoryWash, EXPENSE_CATEGORY_ICONS } from '../../lib/expenseCategories';
-import { listContainer, listItem, springSoft } from '../../lib/motion';
+import { listContainer, listItem } from '../../lib/motion';
 import { tapFeedback } from '../../lib/haptics';
 import type { CategoryTotal, ExpenseCategory } from '../../lib/expenseStats';
+import { ProgressBar } from '../ui-kit';
 
 /**
  * Where a month's money went, as ranked horizontal bars — and the legend for CategoryDonut above it.
@@ -79,15 +80,14 @@ export default function CategoryBars({
                   <span className="shrink-0 text-sm font-bold tabular-nums">{formatCurrency(entry.total)}</span>
                 </div>
                 <div className="mt-1.5 flex items-center gap-2">
-                  <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
-                    <motion.div
-                      className="h-full rounded-full"
-                      style={{ background: categoryColor(entry.category) }}
-                      initial={{ width: 0 }}
-                      animate={{ width: `${Math.max(2, (entry.total / largest) * 100)}%` }}
-                      transition={springSoft}
-                    />
-                  </div>
+                  <ProgressBar
+                    size="sm"
+                    className="flex-1"
+                    value={(entry.total / largest) * 100}
+                    minWidth={2}
+                    animate
+                    fillStyle={{ background: categoryColor(entry.category) }}
+                  />
                   <span className="w-9 shrink-0 text-right text-[11px] font-semibold tabular-nums text-muted-foreground">
                     {Math.round(entry.percent)}%
                   </span>

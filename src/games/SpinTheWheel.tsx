@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Plus, RotateCw, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { tapFeedback } from '../lib/haptics';
+import { IconButton } from '../components/ui-kit';
 
 const SEGMENT_COLORS = ['#1f563f', '#efc64b', '#7fa7c9', '#b84d6d', '#356d53', '#e99a5c'];
 
@@ -60,9 +61,7 @@ export default function SpinTheWheel({ members, onClose }: { members: string[]; 
     <div className="fixed inset-0 z-[60] flex flex-col bg-background safe-top safe-bottom">
       <div className="flex items-center justify-between px-5 py-4">
         <h2 className="font-display text-xl font-extrabold">{t('social.games.catalog.spinTheWheel')}</h2>
-        <button onClick={onClose} className="grid h-11 w-11 place-items-center rounded-full bg-card border border-border" aria-label={t('common.cancel')}>
-          <X className="h-4 w-4" />
-        </button>
+        <IconButton onClick={onClose} label={t('common.cancel')} icon={<X className="h-4 w-4" />} />
       </div>
 
       <div className="flex flex-1 flex-col items-center justify-center gap-6 px-6">
@@ -110,12 +109,15 @@ export default function SpinTheWheel({ members, onClose }: { members: string[]; 
       </div>
 
       <div className="px-5 pb-4 space-y-2">
-        <div className="flex flex-wrap gap-2">
+        {/* gap-3: .btn-sm grows a 44px hit area around each 32px chip, and at gap-2 those areas
+            overlapped so one chip could swallow the tap meant for its neighbour. */}
+        <div className="flex flex-wrap gap-3">
           {options.map((name) => (
             <button
               key={name}
               onClick={() => removeOption(name)}
-              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-sm font-medium"
+              aria-label={t('social.games.spinTheWheel.remove', { name, defaultValue: `Remove ${name}` })}
+              className="btn-sm border border-border bg-card font-medium"
             >
               {name}
               <X className="h-3 w-3 text-muted-foreground" />

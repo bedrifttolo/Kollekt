@@ -144,9 +144,9 @@ export default function PantTrackerPage() {
   if (loading || !pantSummary) {
     wasLoadingRef.current = true;
     return (
-      <div className="space-y-4 pt-4 animate-pulse">
-        <div className="glass rounded-2xl h-48" />
-        <div className="glass rounded-2xl h-32" />
+      <div className="space-y-4 pt-3 animate-pulse">
+        <div className="skeleton rounded-2xl h-48" />
+        <div className="skeleton rounded-2xl h-32" />
       </div>
     );
   }
@@ -165,7 +165,7 @@ export default function PantTrackerPage() {
     <motion.div
       initial={false}
       animate={{ opacity: 1, y: 0 }}
-      className="space-y-5 pt-4"
+      className="space-y-4 pt-3"
     >
       <div className="flex items-center gap-3">
         <button
@@ -185,10 +185,10 @@ export default function PantTrackerPage() {
       </div>
 
       {/* Counter */}
-      <div className="househero text-center">
+      <div className="househero hero-ink text-center">
         <Recycle className="h-8 w-8 text-secondary mx-auto mb-2" />
         <p className="font-display text-5xl font-bold">{totalBottles}</p>
-        <p className="text-sm text-white/70 mt-1">
+        <p className="mt-1 text-sm text-ink-foreground/70">
           {t('pant.bottlesCollected')}
         </p>
 
@@ -202,20 +202,20 @@ export default function PantTrackerPage() {
                 if (e.key === "Enter") void handleEditTotal();
                 if (e.key === "Escape") setEditingTotal(false);
               }}
-              className="w-28 rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-sm text-center text-white placeholder:text-white/60 focus:outline-none focus:ring-1 focus:ring-secondary"
+              className="input input-sm w-28 border-white/20 bg-white/10 text-center text-white placeholder:text-white/60 focus:ring-1 focus:ring-secondary"
               autoFocus
             />
             <button
               onClick={() => void handleEditTotal()}
-              className="h-11 w-11 rounded-lg gradient-primary flex items-center justify-center shrink-0"
+              className="h-11 w-11 rounded-lg bg-card text-primary flex items-center justify-center shrink-0"
             >
-              <Check className="h-3.5 w-3.5 text-primary-foreground" />
+              <Check className="h-4 w-4" />
             </button>
             <button
               onClick={() => setEditingTotal(false)}
-              className="h-11 w-11 rounded-lg glass flex items-center justify-center shrink-0"
+              className="h-11 w-11 rounded-lg bg-ink-foreground/15 text-ink-foreground flex items-center justify-center shrink-0"
             >
-              <X className="h-3.5 w-3.5 text-muted-foreground" />
+              <X className="h-4 w-4" />
             </button>
           </div>
         ) : (
@@ -225,14 +225,14 @@ export default function PantTrackerPage() {
             </p>
             <button
               onClick={() => { setEditTotalValue(String(earned)); setEditingTotal(true); }}
-              className="h-11 w-11 rounded-md glass flex items-center justify-center"
+              className="h-11 w-11 rounded-lg bg-ink-foreground/15 text-ink-foreground flex items-center justify-center"
             >
-              <Edit3 className="h-3 w-3 text-muted-foreground" />
+              <Edit3 className="h-4 w-4" />
             </button>
           </div>
         )}
 
-        <p className="text-xs text-white/70 mt-0.5">{t('pant.earnedSoFar')}</p>
+        <p className="mt-0.5 text-xs text-ink-foreground/70">{t('pant.earnedSoFar')}</p>
 
         <div className="flex items-center justify-center gap-2 mt-4">
           <input
@@ -241,29 +241,29 @@ export default function PantTrackerPage() {
             onChange={(e) => setAddAmount(e.target.value)}
             placeholder={t('pant.customAmount')}
             onKeyDown={(e) => e.key === "Enter" && void handleAdd()}
-            className="w-36 rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-sm text-center text-white placeholder:text-white/60 focus:outline-none focus:ring-1 focus:ring-secondary"
+            className="input input-sm w-36 border-white/20 bg-white/10 text-center text-white placeholder:text-white/60 focus:ring-1 focus:ring-secondary"
           />
           <button
             onClick={() => void handleAdd()}
-            className="h-11 w-11 rounded-xl gradient-primary flex items-center justify-center shrink-0"
+            className="h-11 w-11 rounded-lg bg-card text-primary flex items-center justify-center shrink-0"
             aria-label={t('pant.addAmount')}
           >
-            <Plus className="h-4 w-4 text-primary-foreground" />
+            <Plus className="h-4 w-4" />
           </button>
         </div>
       </div>
 
       {/* Goal */}
-      <div className="glass rounded-2xl p-4 glow-accent">
+      <div className="glass rounded-xl p-4 glow-accent">
         <div className="flex items-center gap-2 mb-3">
           <Target className="h-4 w-4 text-accent" />
-          <p className="text-sm font-semibold flex-1">{t("pant.savingGoal")}</p>
+          <p className="min-w-0 text-sm font-semibold flex-1">{t("pant.savingGoal")}</p>
           {!editingGoal && (
             <button
               onClick={() => { setEditGoalValue(String(goal)); setEditingGoal(true); }}
-              className="h-11 w-11 rounded-md glass flex items-center justify-center"
+              className="h-11 w-11 rounded-lg bg-ink-foreground/15 text-ink-foreground flex items-center justify-center"
             >
-              <Edit3 className="h-3 w-3 text-muted-foreground" />
+              <Edit3 className="h-4 w-4" />
             </button>
           )}
         </div>
@@ -277,20 +277,20 @@ export default function PantTrackerPage() {
                 if (e.key === "Enter") void handleEditGoal();
                 if (e.key === "Escape") setEditingGoal(false);
               }}
-              className="flex-1 bg-muted/50 rounded-lg px-3 py-1.5 text-sm text-center placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+              className="input input-sm flex-1 text-center"
               autoFocus
             />
             <button
               onClick={() => void handleEditGoal()}
-              className="h-11 w-11 rounded-lg gradient-primary flex items-center justify-center shrink-0"
+              className="h-11 w-11 rounded-lg bg-card text-primary flex items-center justify-center shrink-0"
             >
-              <Check className="h-3.5 w-3.5 text-primary-foreground" />
+              <Check className="h-4 w-4" />
             </button>
             <button
               onClick={() => setEditingGoal(false)}
-              className="h-11 w-11 rounded-lg glass flex items-center justify-center shrink-0"
+              className="h-11 w-11 rounded-lg bg-ink-foreground/15 text-ink-foreground flex items-center justify-center shrink-0"
             >
-              <X className="h-3.5 w-3.5 text-muted-foreground" />
+              <X className="h-4 w-4" />
             </button>
           </div>
         ) : (
@@ -306,7 +306,7 @@ export default function PantTrackerPage() {
           <ProgressRing value={progress} size={104} thickness={11} color="var(--tone-mint)">
             <div>
               <CountUp value={Math.round(progress)} className="font-display text-2xl font-extrabold" />
-              <span className="block text-[9px] font-bold tracking-[.14em] text-muted-foreground">%</span>
+              <span className="block text-[11px] font-bold tracking-[.14em] text-muted-foreground">%</span>
             </div>
           </ProgressRing>
           <div className="min-w-0 flex-1 space-y-1">
@@ -359,7 +359,7 @@ export default function PantTrackerPage() {
                         count: entry.bottles,
                       })}
                     </p>
-                    <p className="text-[10px] text-muted-foreground">
+                    <p className="text-[11px] text-muted-foreground">
                       {formatDate(entry.date)}
                     </p>
                   </div>
@@ -409,7 +409,7 @@ export default function PantTrackerPage() {
                 <AnimatePresence>
                   {editingEntryId === entry.id && (
                     <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
-                      <div className="glass rounded-xl p-3 mt-1 space-y-2">
+                      <div className="glass rounded-lg p-3 mt-1 space-y-2">
                         <p className="text-xs font-semibold text-muted-foreground">{t("pant.editEntry")}</p>
                         <input
                           type="number"
@@ -417,7 +417,7 @@ export default function PantTrackerPage() {
                           onChange={(e) => setEditBottles(e.target.value)}
                           onKeyDown={(e) => { if (e.key === "Enter") void handleSaveEntry(); if (e.key === "Escape") setEditingEntryId(null); }}
                           placeholder={t("pant.bottlesPlaceholder")}
-                          className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                          className="input"
                           autoFocus
                         />
                         <div className="flex gap-2">

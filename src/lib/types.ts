@@ -219,6 +219,9 @@ export interface EconomySummary {
   balances: Balance[];
   pantSummary: PantSummary;
   payOptions: PayOption[];
+  /** Creditor-side mirror of `payOptions` — housemates who still owe you. Optional so the balance
+   *  breakdown degrades to its "you owe" half against a backend that predates the field. */
+  owedToYou?: Balance[];
 }
 
 /** One category's self-set monthly cap. `monthlyLimit: 0` means the household never set one —
@@ -428,6 +431,19 @@ export interface Notification {
 }
 
 export type NotificationPreferences = Record<string, boolean>;
+
+/**
+ * The wallpaper behind one chat thread, shared by everyone in it. Every field is null when the
+ * thread has no wallpaper — that is a normal state, not an error.
+ */
+export interface ChatBackground {
+  /** A ready-to-render `data:` URL, or null when the thread has no wallpaper. */
+  imageUrl: string | null;
+  setBy: string | null;
+  updatedAt: string | null;
+  /** null for the household thread; the other participant for a direct thread. */
+  otherName: string | null;
+}
 
 export interface ChatMessage {
   id: number;

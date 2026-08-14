@@ -53,7 +53,7 @@ export default function SnusboksenGame({ players, onClose }: { players: string[]
               <button
                 key={id}
                 onClick={() => restart(id)}
-                className="card !p-4 w-full text-left"
+                className="card w-full text-left"
               >
                 <p className="font-display text-lg font-extrabold">{t(`social.games.snusboksen.deckNames.${id}`)}</p>
                 <p className="mt-1 text-sm text-muted-foreground">{t(`social.games.snusboksen.deckDescriptions.${id}`)}</p>

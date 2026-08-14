@@ -10,7 +10,7 @@ import { queryClient as sharedQueryClient } from '../lib/queryClient';
 import { useUser, useRealtimeEvent } from '../context/UserContext';
 import { formatCurrency, formatDate, translateKey } from '../i18n/helpers';
 import type { AppUser, Budget, EconomySummary, Expense, PaymentHandles, PayOption } from '../lib/types';
-import { Avatar, CountUp, EmptyState, Eyebrow, Fab, IconButton, OverflowMenu, ProgressRing } from '../components/ui-kit';
+import { Avatar, CountUp, EmptyState, Eyebrow, Fab, IconButton, OverflowMenu, ProgressRing, Sheet } from '../components/ui-kit';
 import { PAGE_ACCENTS } from '../lib/pageAccent';
 import { listContainer, listItem, pressableSubtle, useReducedMotion } from '../lib/motion';
 import { celebrate } from '../lib/celebrate';
@@ -88,6 +88,9 @@ export default function EconomyPage() {
   );
   const [selectedCreditorName, setSelectedCreditorName] = useState('');
   const [showPaySheet, setShowPaySheet] = useState(false);
+  // Per-person breakdown behind the headline balance: a single net number hides whether you owe
+  // one housemate a lot or three of them a little.
+  const [showBalanceSheet, setShowBalanceSheet] = useState(false);
   const [copiedValue, setCopiedValue] = useState<string | null>(null);
   const [payOpenFailed, setPayOpenFailed] = useState<string | null>(null);
   // True from the moment we hand off to a payment app until the user answers the confirmation
@@ -328,7 +331,7 @@ export default function EconomyPage() {
 
   if (loading || !summary || !stats || budgetsPending) {
     wasLoadingRef.current = true;
-    return <div className="space-y-3 pt-4 animate-pulse">{[...Array(4)].map((_, i) => <div key={i} className="glass rounded-2xl h-20" />)}</div>;
+    return <div className="space-y-4 pt-3 animate-pulse">{[...Array(4)].map((_, i) => <div key={i} className="skeleton rounded-2xl h-20" />)}</div>;
   }
   // Tracks whether this render followed a real loading state, so the per-item entrance
   // animations below only replay right after a genuine cold load — a warm revisit (loading
@@ -336,9 +339,6 @@ export default function EconomyPage() {
   const justFinishedLoading = wasLoadingRef.current && !reducedMotion;
   wasLoadingRef.current = false;
 
-  const myBalance = summary.balances.find((b) => b.name === name);
-  const oweAmount = myBalance && myBalance.amount < 0 ? Math.abs(myBalance.amount) : 0;
-  const getAmount = myBalance && myBalance.amount > 0 ? myBalance.amount : 0;
   // Guarded against a zero goal, which the API allows and which would otherwise divide to Infinity.
   const pantPercent = summary.pantSummary && summary.pantSummary.goalAmount > 0
     ? Math.min(100, (summary.pantSummary.currentAmount / summary.pantSummary.goalAmount) * 100)
@@ -347,9 +347,52 @@ export default function EconomyPage() {
   const fallbackCreditor = summary.balances.find((b) => b.amount > 0 && b.name !== name);
   const selectedPayOption = payOptions.find((option) => option.name === selectedCreditorName) ?? payOptions[0];
   const hasPayOptions = payOptions.length > 0;
+  // `owedToYou` is the creditor-side mirror the backend computes from the same pairwise model as
+  // `payOptions`. Older backends omit it entirely, which is what `pairwiseKnown` distinguishes —
+  // an empty list means "nobody owes you", `undefined` means "this backend can't say".
+  const owedToYou = summary.owedToYou ?? [];
+  const pairwiseKnown = summary.owedToYou !== undefined;
+  const totalYouOwe = payOptions.reduce((sum, option) => sum + option.amount, 0);
+  const totalOwedToYou = owedToYou.reduce((sum, entry) => sum + entry.amount, 0);
+
+  /**
+   * One model for the whole screen: the pairwise one, which is what settle-up actually acts on.
+   *
+   * `summary.balances` is the other model — each member's net standing across the whole household.
+   * The two disagree whenever a pair has overpaid, because the pairwise side floors each pair at
+   * zero (see netBilateralOwed) while the household net lets the excess carry. That let the card
+   * read "+5 kr" while the breakdown under it listed 86 kr of debts, which is the kind of
+   * disagreement that makes people stop trusting the number. Everything below — headline, per-
+   * person grid, breakdown sheet — is now derived from the pairwise lists, and falls back to the
+   * household nets only against a backend too old to send `owedToYou`.
+   */
+  const myBalance = summary.balances.find((b) => b.name === name);
+  const netBalance = pairwiseKnown ? totalOwedToYou - totalYouOwe : (myBalance?.amount ?? 0);
+  const oweAmount = netBalance < 0 ? Math.abs(netBalance) : 0;
+  const getAmount = netBalance > 0 ? netBalance : 0;
+
+  /**
+   * Your standing with each housemate, same pairwise numbers the breakdown sheet lists. The roster
+   * is the union of all three lists rather than `balances` alone, so anyone who appears only as a
+   * debtor or only as a creditor still gets a tile instead of being silently dropped.
+   */
+  const standings = pairwiseKnown
+    ? [...new Set([
+        ...summary.balances.map((b) => b.name),
+        ...payOptions.map((o) => o.name),
+        ...owedToYou.map((e) => e.name),
+      ])]
+        .filter((member) => member !== name)
+        .map((member) => ({
+          name: member,
+          amount: (owedToYou.find((e) => e.name === member)?.amount ?? 0)
+            - (payOptions.find((o) => o.name === member)?.amount ?? 0),
+        }))
+        .sort((a, b) => b.amount - a.amount)
+    : summary.balances;
 
   return (
-    <motion.div initial={false} animate={{ opacity: 1 }} className="space-y-5 pt-4">
+    <motion.div initial={false} animate={{ opacity: 1 }} className="space-y-4 pt-3">
       <div>
         <Eyebrow accent={PAGE_ACCENTS['/economy']}>{t('economy.eyebrow')}</Eyebrow>
         <h2 className="mt-2 display-md">{t('economy.titleLineOne')} <span className="mark">{t('economy.titleLineTwo')}</span></h2>
@@ -357,31 +400,42 @@ export default function EconomyPage() {
 
       {/* Balance card */}
       <div className="wallet hero-ink">
-        <p className="text-xs font-bold uppercase tracking-[.16em] text-ink-foreground/65 mb-1">{t('economy.yourBalance')}</p>
-        {/* Amount colours come from the hero palette, not the page palette: `text-foreground` and
-            `text-primary` are both the hero's own colour in the light theme, which made a settled
-            balance disappear into the card. A zero balance just inherits the hero foreground. */}
-        <p className={`font-display text-4xl font-extrabold tracking-tight ${oweAmount > 0 ? 'hero-amount-negative' : getAmount > 0 ? 'hero-amount-positive' : ''}`}>
-          {oweAmount > 0 && '- '}
-          {getAmount > 0 && '+ '}
-          <CountUp value={oweAmount > 0 ? oweAmount : getAmount} format={formatCurrency} />
-        </p>
-        <p className="mt-1 flex items-center gap-1.5 text-xs text-ink-foreground/70">
-          {hasPayOptions && selectedPayOption ? t('economy.owe', { name: selectedPayOption.name, amount: formatCurrency(selectedPayOption.amount) })
-          : oweAmount > 0 && fallbackCreditor ? t('economy.owe', { name: fallbackCreditor.name, amount: formatCurrency(oweAmount) })
-          : getAmount > 0 ? t('economy.othersOweYou')
-          : <>
-              <CircleCheckBig className="h-3.5 w-3.5 shrink-0" />
-              {t('economy.allSettled')}
-            </>}
-        </p>
+        {/* The headline half of the card is the breakdown's entry point. Only this region is the
+            button — the creditor picker and pay button below are their own controls and must not
+            end up nested inside it. */}
+        <button
+          type="button"
+          onClick={() => setShowBalanceSheet(true)}
+          className="block w-full text-left"
+          aria-label={t('economy.breakdown.open')}
+        >
+          <p className="text-xs font-bold uppercase tracking-[.16em] text-ink-foreground/65 mb-1">{t('economy.yourBalance')}</p>
+          {/* Amount colours come from the hero palette, not the page palette: `text-foreground` and
+              `text-primary` are both the hero's own colour in the light theme, which made a settled
+              balance disappear into the card. A zero balance just inherits the hero foreground. */}
+          <p className={`font-display text-4xl font-extrabold tracking-tight ${oweAmount > 0 ? 'hero-amount-negative' : getAmount > 0 ? 'hero-amount-positive' : ''}`}>
+            {oweAmount > 0 && '- '}
+            {getAmount > 0 && '+ '}
+            <CountUp value={oweAmount > 0 ? oweAmount : getAmount} format={formatCurrency} />
+          </p>
+          <p className="mt-1 flex items-center gap-1.5 text-xs text-ink-foreground/70">
+            {hasPayOptions && selectedPayOption ? t('economy.owe', { name: selectedPayOption.name, amount: formatCurrency(selectedPayOption.amount) })
+            : oweAmount > 0 && fallbackCreditor ? t('economy.owe', { name: fallbackCreditor.name, amount: formatCurrency(oweAmount) })
+            : getAmount > 0 ? t('economy.othersOweYou')
+            : <>
+                <CircleCheckBig className="h-3.5 w-3.5 shrink-0" />
+                {t('economy.allSettled')}
+              </>}
+            <ChevronRight className="h-3.5 w-3.5 shrink-0 opacity-70" />
+          </p>
+        </button>
         {hasPayOptions && selectedPayOption && (
           <div className="mt-4 space-y-2.5">
             {payOptions.length > 1 && (
               <select
                 value={selectedPayOption.name}
                 onChange={(e) => setSelectedCreditorName(e.target.value)}
-                className="w-full min-h-[var(--ctl-lg)] rounded-xl border border-ink-foreground/20 bg-ink-foreground/10 px-3 py-2.5 text-sm font-medium focus:outline-none focus:ring-1 focus:ring-secondary"
+                className="input border-ink-foreground/20 bg-ink-foreground/10 font-medium focus:ring-1 focus:ring-secondary"
                 aria-label={t('economy.payPersonLabel')}
               >
                 {payOptions.map((option) => (
@@ -401,36 +455,111 @@ export default function EconomyPage() {
         )}
       </div>
 
-      {/* Pay sheet — deep-links to the creditor's payment apps; Kollekt never moves money */}
-      <AnimatePresence>
-        {showPaySheet && selectedPayOption && (
-          <motion.div
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4"
-            onClick={() => setShowPaySheet(false)}
-          >
-            <motion.div
-              initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 40, opacity: 0 }}
-              className="glass w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 space-y-3 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] sm:pb-5"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-semibold">
-                    {awaitingReturn
-                      ? t('economy.pay.didYouPay', { name: selectedPayOption.name })
-                      : t('economy.pay.title', { name: selectedPayOption.name })}
-                  </p>
-                  <p className="text-xs text-muted-foreground">{t('economy.pay.subtitle', { amount: formatCurrency(selectedPayOption.amount) })}</p>
-                </div>
-                <button
-                  onClick={() => setShowPaySheet(false)}
-                  aria-label={t('common.cancel')}
-                  className="grid h-11 w-11 shrink-0 place-items-center rounded-full"
-                >
-                  <X className="h-4 w-4 text-muted-foreground" />
-                </button>
+      {/* Balance breakdown — who the headline number is actually made of, per housemate */}
+      <Sheet
+        open={showBalanceSheet}
+        onClose={() => setShowBalanceSheet(false)}
+        size="md"
+        title={
+          <div className="min-w-0">
+            <p className="text-sm font-semibold">{t('economy.breakdown.title')}</p>
+            <p className="text-xs text-muted-foreground">{t('economy.breakdown.subtitle')}</p>
+          </div>
+        }
+      >
+        <div className="space-y-4">
+          {payOptions.length === 0 && owedToYou.length === 0 && (
+            <EmptyState
+              tone="mint"
+              icon={<CircleCheckBig className="h-6 w-6" />}
+              title={t('economy.breakdown.settledTitle')}
+              body={t('economy.breakdown.settledBody')}
+            />
+          )}
+
+          {payOptions.length > 0 && (
+            <div>
+              <div className="mb-2 flex items-baseline justify-between gap-2">
+                <h4 className="text-xs font-bold uppercase tracking-[.14em] text-muted-foreground">{t('economy.breakdown.youOwe')}</h4>
+                <span className="text-xs font-semibold text-destructive">{formatCurrency(totalYouOwe)}</span>
               </div>
+              <div className="space-y-2">
+                {payOptions.map((option) => (
+                  <button
+                    key={option.name}
+                    type="button"
+                    // Straight into the existing pay flow for that person, so the breakdown is a
+                    // way to act and not just a read-out.
+                    onClick={() => {
+                      setSelectedCreditorName(option.name);
+                      setShowBalanceSheet(false);
+                      setShowPaySheet(true);
+                    }}
+                    className="tone-blush tone-wash tone-edge elev-1 flex w-full items-center gap-3 rounded-xl border p-3 text-left"
+                  >
+                    <Avatar name={option.name} className="h-9 w-9 text-sm" />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium">{option.name}</p>
+                      <p className="text-[11px] text-muted-foreground">{t('economy.breakdown.tapToSettle')}</p>
+                    </div>
+                    <span className="shrink-0 text-sm font-bold text-destructive">- {formatCurrency(option.amount)}</span>
+                    <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {owedToYou.length > 0 && (
+            <div>
+              <div className="mb-2 flex items-baseline justify-between gap-2">
+                <h4 className="text-xs font-bold uppercase tracking-[.14em] text-muted-foreground">{t('economy.breakdown.owesYou')}</h4>
+                <span className="text-xs font-semibold text-primary">{formatCurrency(totalOwedToYou)}</span>
+              </div>
+              <div className="space-y-2">
+                {owedToYou.map((entry) => (
+                  <div
+                    key={entry.name}
+                    className="tone-mint tone-wash tone-edge elev-1 flex items-center gap-3 rounded-xl border p-3"
+                  >
+                    <Avatar name={entry.name} className="h-9 w-9 text-sm" />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium">{entry.name}</p>
+                      <p className="text-[11px] text-muted-foreground">{t('economy.breakdown.theirMove')}</p>
+                    </div>
+                    <span className="shrink-0 text-sm font-bold text-primary">+ {formatCurrency(entry.amount)}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {(payOptions.length > 0 || owedToYou.length > 0) && (
+            <p className="text-[11px] leading-relaxed text-muted-foreground">{t('economy.breakdown.note')}</p>
+          )}
+        </div>
+      </Sheet>
+
+      {/* Pay sheet — deep-links to the creditor's payment apps; Kollekt never moves money */}
+      <Sheet
+        open={showPaySheet && Boolean(selectedPayOption)}
+        onClose={() => setShowPaySheet(false)}
+        size="md"
+        title={
+          selectedPayOption ? (
+            <div className="min-w-0">
+              <p className="text-sm font-semibold">
+                {awaitingReturn
+                  ? t('economy.pay.didYouPay', { name: selectedPayOption.name })
+                  : t('economy.pay.title', { name: selectedPayOption.name })}
+              </p>
+              <p className="text-xs text-muted-foreground">{t('economy.pay.subtitle', { amount: formatCurrency(selectedPayOption.amount) })}</p>
+            </div>
+          ) : undefined
+        }
+      >
+        {selectedPayOption && (
+          <div className="space-y-3">
 
               {!awaitingReturn && (<div className="space-y-2">
                 {!hasAnyMethod(selectedPayOption.handles) && (
@@ -442,7 +571,7 @@ export default function EconomyPage() {
                   const label = PROVIDER_LABELS[m.provider];
                   const display = label.includes('.') ? t(label) : label;
                   return (
-                    <div key={m.provider} className="glass rounded-xl p-3 space-y-2">
+                    <div key={m.provider} className="glass rounded-lg p-3 space-y-2">
                       <div className="flex items-center gap-3">
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-semibold">{display}</p>
@@ -458,7 +587,10 @@ export default function EconomyPage() {
                         {m.url && (
                           <button
                             onClick={() => void handleOpenPayment(m)}
-                            className="rounded-lg gradient-primary px-3 py-2 text-xs font-semibold text-ink-foreground flex items-center gap-1.5 shrink-0"
+                            // A real 44px target rather than .btn-sm's grown one: its neighbour is
+                            // already a .pressable-tight 36px button, and two grown hit areas 12px
+                            // apart would overlap over the gap between them.
+                            className="rounded-lg gradient-primary px-3 min-h-11 text-xs font-semibold text-ink-foreground flex items-center gap-1.5 shrink-0"
                           >
                             <ExternalLink className="h-3.5 w-3.5" /> {t('economy.pay.open')}
                           </button>
@@ -472,7 +604,7 @@ export default function EconomyPage() {
                 })}
               </div>)}
 
-              {!awaitingReturn && <p className="text-[10px] text-muted-foreground">{t('economy.pay.disclaimer')}</p>}
+              {!awaitingReturn && <p className="text-[11px] text-muted-foreground">{t('economy.pay.disclaimer')}</p>}
 
               <button
                 onClick={() => void handleMarkSettled()}
@@ -490,10 +622,9 @@ export default function EconomyPage() {
                   {t('economy.pay.notYet')}
                 </button>
               )}
-            </motion.div>
-          </motion.div>
+          </div>
         )}
-      </AnimatePresence>
+      </Sheet>
 
       {!showAdd && <Fab onClick={() => setShowAdd(true)} label={t('economy.newExpense')} />}
 
@@ -504,11 +635,11 @@ export default function EconomyPage() {
             <div className="glass rounded-xl p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <p className="text-sm font-semibold">{t('economy.newExpense')}</p>
-                <button onClick={() => setShowAdd(false)} aria-label={t('common.cancel')} className="grid h-11 w-11 shrink-0 place-items-center rounded-full"><X className="h-4 w-4 text-muted-foreground" /></button>
+                <IconButton onClick={() => setShowAdd(false)} label={t('common.cancel')} variant="bare" icon={<X className="h-4 w-4" />} />
               </div>
-              <label className="block space-y-1"><span className="text-xs font-semibold text-muted-foreground">{t('economy.descriptionLabel')}</span><input value={newTitle} onChange={(e) => setNewTitle(e.target.value)} placeholder={t('economy.expenseTitlePlaceholder')} autoFocus className="w-full min-h-[var(--ctl-lg)] bg-muted/50 rounded-lg px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" /></label>
-              <label className="block space-y-1"><span className="text-xs font-semibold text-muted-foreground">{t('economy.amountLabel')}</span><input type="number" min="1" step="1" inputMode="decimal" value={newAmount} onChange={(e) => setNewAmount(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && canAddExpense && void handleAddExpense()} placeholder={t('economy.expenseAmountPlaceholder')} className="w-full min-h-[var(--ctl-lg)] bg-muted/50 rounded-lg px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" /></label>
-              <label className="block space-y-1"><span className="text-xs font-semibold text-muted-foreground">{t('economy.categoryLabel')}</span><select value={newCategory} onChange={(e) => setNewCategory(e.target.value)} className="w-full min-h-[var(--ctl-lg)] bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary">{EXPENSE_CATEGORIES.map((c) => <option key={c} value={c}>{translateKey('common.expenseCategories', c)}</option>)}</select></label>
+              <label className="block space-y-1"><span className="text-xs font-semibold text-muted-foreground">{t('economy.descriptionLabel')}</span><input value={newTitle} onChange={(e) => setNewTitle(e.target.value)} placeholder={t('economy.expenseTitlePlaceholder')} autoFocus className="input" /></label>
+              <label className="block space-y-1"><span className="text-xs font-semibold text-muted-foreground">{t('economy.amountLabel')}</span><input type="number" min="1" step="1" inputMode="decimal" value={newAmount} onChange={(e) => setNewAmount(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && canAddExpense && void handleAddExpense()} placeholder={t('economy.expenseAmountPlaceholder')} className="input" /></label>
+              <label className="block space-y-1"><span className="text-xs font-semibold text-muted-foreground">{t('economy.categoryLabel')}</span><select value={newCategory} onChange={(e) => setNewCategory(e.target.value)} className="input">{EXPENSE_CATEGORIES.map((c) => <option key={c} value={c}>{translateKey('common.expenseCategories', c)}</option>)}</select></label>
               {members.length > 0 && (
                 <div>
                   <p className="text-xs text-muted-foreground mb-1.5 flex items-center gap-1"><Users className="h-3 w-3" /> {t('economy.splitWith')}</p>
@@ -522,10 +653,10 @@ export default function EconomyPage() {
                       </button>
                     ))}
                   </div>
-                  <p className="mt-1.5 text-[10px] text-muted-foreground">{t('economy.splitSummary', { count: newSplit.length })}</p>
+                  <p className="mt-1.5 text-[11px] text-muted-foreground">{t('economy.splitSummary', { count: newSplit.length })}</p>
                 </div>
               )}
-              <label className="block space-y-1"><span className="text-xs font-semibold text-muted-foreground">{t('economy.deadlineDateLabel')}</span><input type="date" value={newDeadline} onChange={(e) => setNewDeadline(e.target.value)} className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" /></label>
+              <label className="block space-y-1"><span className="text-xs font-semibold text-muted-foreground">{t('economy.deadlineDateLabel')}</span><input type="date" value={newDeadline} onChange={(e) => setNewDeadline(e.target.value)} className="input text-muted-foreground" /></label>
               <button onClick={handleAddExpense} disabled={!canAddExpense} className="w-full gradient-primary rounded-lg py-2 text-sm font-semibold text-ink-foreground disabled:opacity-50">
                 {t('economy.addExpense')}
               </button>
@@ -627,7 +758,7 @@ export default function EconomyPage() {
         <ProgressRing value={pantPercent} size={54} thickness={7} color="var(--tone-mint)" trackColor="var(--surface-3)">
           <Recycle className="h-5 w-5 text-foreground" />
         </ProgressRing>
-        <div className="flex-1 text-left">
+        <div className="min-w-0 flex-1 text-left">
           <p className="text-sm font-bold">{t('economy.pantTracker')}</p>
           <p className="text-xs text-muted-foreground">
             {summary.pantSummary
@@ -642,11 +773,13 @@ export default function EconomyPage() {
         <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
       </motion.button>
 
-      {/* Balances */}
+      {/* Your standing with each housemate — same pairwise model as the breakdown sheet */}
       <div>
-        <h3 className="mb-2 text-sm font-semibold text-muted-foreground">{t('economy.balances')}</h3>
+        <h3 className="mb-2 text-sm font-semibold text-muted-foreground">
+          {pairwiseKnown ? t('economy.yourStandings') : t('economy.balances')}
+        </h3>
         <motion.div variants={listContainer} initial={justFinishedLoading ? "hidden" : false} animate="show" className="grid grid-cols-2 gap-2">
-          {summary.balances.map((b) => (
+          {standings.map((b) => (
             <motion.div
               key={b.name}
               variants={listItem}
@@ -678,7 +811,7 @@ export default function EconomyPage() {
         <div className="flex items-center justify-between mb-2">
           <h3 className="text-sm font-semibold text-muted-foreground">{t('economy.expenseHistory')}</h3>
           {summary.expenses.length > 2 && (
-            <button onClick={() => setShowAllExpenses((v) => !v)} className="text-xs text-primary dark:text-white font-medium">
+            <button onClick={() => setShowAllExpenses((v) => !v)} className="pressable-tight px-1 text-xs text-primary dark:text-white font-medium">
               {showAllExpenses ? t('common.showLess') : t('common.seeAll')}
             </button>
           )}
@@ -701,11 +834,11 @@ export default function EconomyPage() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium truncate">{e.description}</p>
-                  <p className="text-[10px] text-muted-foreground">
+                  <p className="text-[11px] text-muted-foreground">
                     {e.paidBy} • {formatDate(e.date)} • <span className="text-accent">{translateKey('common.expenseCategories', e.category, e.category)}</span> • {t('economy.splitCount', { count: e.participantNames.length })}
                   </p>
                   {e.deadlineDate && (
-                    <p className="text-[10px] text-destructive font-medium mt-0.5">
+                    <p className="text-[11px] text-destructive font-medium mt-0.5">
                       {t('economy.deadlineBadge', { date: formatDate(e.deadlineDate) })}
                     </p>
                   )}
@@ -756,16 +889,16 @@ export default function EconomyPage() {
               <AnimatePresence>
                 {editingExpenseId === e.id && (
                   <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
-                    <div className="glass rounded-xl p-3 mt-1 space-y-2">
+                    <div className="glass rounded-lg p-3 mt-1 space-y-2">
                       <p className="text-xs font-semibold text-muted-foreground">{t('economy.editExpense')}</p>
                       <input value={editTitle} onChange={(e) => setEditTitle(e.target.value)}
                         placeholder={t('economy.expenseTitlePlaceholder')}
-                        className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" />
+                        className="input" />
                       <input type="number" value={editAmount} onChange={(ev) => setEditAmount(ev.target.value)}
                         placeholder={t('economy.expenseAmountPlaceholder')}
-                        className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" />
+                        className="input" />
                       <select value={editCategory} onChange={(ev) => setEditCategory(ev.target.value)}
-                        className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary">
+                        className="input">
                         {EXPENSE_CATEGORIES.map((c) => <option key={c} value={c}>{translateKey('common.expenseCategories', c)}</option>)}
                       </select>
                       <div className="flex gap-2">

@@ -2,6 +2,14 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <!--
+      Must match index.html. Without it, Chrome's mobile emulation has no width hint and falls back
+      to the legacy 980px layout viewport — so the harness laid out at 980px while reporting on a
+      "390px phone". Every `position: fixed` surface got room it does not have on a device, and every
+      `sm:` variant (min-width 640px) evaluated as active. That is how a bottom-nav overflow reached
+      TestFlight. viewport-fit=cover is also required for env(safe-area-inset-*) to be non-zero.
+    -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0" />
     <title>harness</title>
   </head>
   <body>

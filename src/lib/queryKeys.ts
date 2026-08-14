@@ -13,6 +13,8 @@ export const qk = {
   chat: (memberName?: string) => ['chat', memberName] as const,
   chatDirect: (memberName?: string, otherName?: string) => ['chat', 'direct', memberName, otherName] as const,
   chatThreads: (memberName?: string) => ['chat', 'threads', memberName] as const,
+  chatBackground: (memberName?: string, otherName?: string | null) =>
+    ['chat', 'background', memberName, otherName ?? null] as const,
   meetingTopics: (memberName?: string) => ['chat', 'meetingTopics', memberName] as const,
   tasksList: (memberName?: string) => ['tasks', 'list', memberName] as const,
   profile: (memberName?: string) => ['profile', memberName] as const,

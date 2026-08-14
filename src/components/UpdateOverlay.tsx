@@ -106,11 +106,11 @@ export default function UpdateOverlay() {
           <p className="text-sm text-muted-foreground mb-5">
             {t(prompt.forced ? 'appUpdate.bodyRequired' : 'appUpdate.body')}
           </p>
-          <div className="flex items-center justify-center gap-2">
+          <div className="flex items-center justify-center gap-3">
             {/* No way out when forced: the backdrop has no click handler and iOS has no hardware
                 back button, so omitting this button is enough to make the dialog non-dismissable. */}
             {!prompt.forced && (
-              <button onClick={wait} className="px-4 py-2 text-sm font-medium text-muted-foreground">
+              <button onClick={wait} className="min-h-[var(--ctl-lg)] px-4 text-sm font-medium text-muted-foreground">
                 {t('appUpdate.wait')}
               </button>
             )}

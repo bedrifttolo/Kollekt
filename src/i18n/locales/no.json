@@ -389,6 +389,7 @@
     "assigneeLabel": "Tildelt til",
     "dueDateLabel": "Frist",
     "fairSuggestion": "Tips: {{name}} har færrest åpne oppgaver",
+    "fairSuggestionShare": "Tips: {{name}} har gjort minst de siste {{days}} dagene",
     "categoryLabel": "Oppgavetype",
     "recurrenceLabel": "Gjentas",
     "xpReward": "XP-belønning",
@@ -574,6 +575,8 @@
     "subscribeTitle": "Legg til i telefonens kalender",
     "subscribeSubtitle": "Abonner med iPhone- eller Android-kalenderen på husstandens feed",
     "subscribeButton": "Abonner",
+    "subscribeCopy": "Kopier",
+    "subscribeManualHint": "Hvis Abonner sier at valideringen mislyktes, kopier denne lenken og lim den inn i Kalender > Legg til abonnementskalender.",
     "subscribeUrlLabel": "Kalenderabonnement-lenke",
     "newEvent": "Ny hendelse",
     "addModes": {
@@ -656,7 +659,9 @@
     "background": {
       "label": "Bakgrunn",
       "change": "Bytt bakgrunn",
-      "remove": "Fjern bakgrunn"
+      "remove": "Fjern bakgrunn",
+      "changeShared": "Endre bakgrunnen for alle i denne chatten",
+      "removeShared": "Fjern bakgrunnen for alle i denne chatten"
     },
     "today": "I dag",
     "yesterday": "I går",
@@ -697,6 +702,18 @@
     "yourBalance": "Saldoen din",
     "owe": "Du skylder {{name}} {{amount}}",
     "othersOweYou": "Andre skylder deg penger",
+    "breakdown": {
+      "open": "Se hvem som skylder hvem",
+      "title": "Hvem skylder hvem",
+      "subtitle": "Saldoen din, per romkamerat",
+      "youOwe": "Du skylder",
+      "owesYou": "Skylder deg",
+      "tapToSettle": "Trykk for å gjøre opp",
+      "theirMove": "Venter på at de betaler",
+      "note": "Hvert beløp er det dere to skylder hverandre etter alt som allerede er gjort opp.",
+      "settledTitle": "Ingen skylder noen",
+      "settledBody": "All gjeld i kollektivet er gjort opp. Legg til en utgift, så fylles dette opp igjen."
+    },
     "allSettled": "Alt er gjort opp!",
     "payAmount": "Betal {{amount}}",
     "payAmountTo": "Gjør opp med {{name}} - {{amount}}",
@@ -718,6 +735,7 @@
     "pantTrackerSummary": "{{bottles}} flasker • {{current}} / {{goal}} mål",
     "pantTrackerEmpty": "Følg med på pant mot målet deres",
     "balances": "Saldoer",
+    "yourStandings": "Deg og hver romkamerat",
     "settled": "Gjort opp",
     "expenseHistory": "Utgiftshistorikk",
     "splitCount": "Delt på {{count}}",

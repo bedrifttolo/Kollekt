@@ -129,7 +129,9 @@ export default function MessageBubble({
                 alt={imageAlt}
                 /* chat-media suppresses WebKit's own long-press callout, which used to hijack
                    every image and leave them with no reply/react/pin at all. */
-                className={`chat-media mt-1 max-h-56 rounded-xl object-cover ${isPreview ? '' : 'cursor-zoom-in'}`}
+                /* contain, not cover: a portrait photo was centre-cropped in the thread, so the
+                   preview showed a slice of the picture before you ever opened it. */
+                className={`chat-media mt-1 max-h-56 max-w-full rounded-xl object-contain ${isPreview ? '' : 'cursor-zoom-in'}`}
                 onClick={(event) => {
                   if (isPreview) return;
                   event.stopPropagation();
@@ -175,7 +177,9 @@ export default function MessageBubble({
                   event.stopPropagation();
                   onRetry?.(message);
                 }}
-                className="mt-1 text-[9px] font-semibold text-destructive underline decoration-dotted"
+                // The recovery affordance for a failed send — the one control in the thread you
+                // actually need to hit. It was 9px with no hit area.
+                className="pressable-tight mt-1 text-xs font-semibold text-destructive underline decoration-dotted"
               >
                 {t('chat.sendFailedRetry')}
               </button>
@@ -250,9 +254,9 @@ function QuotedMessage({
         }`}
         aria-label={t('chat.replyingTo', { name: target.sender })}
       >
-        <span className="block truncate text-[10px] font-bold opacity-75">{target.sender}</span>
+        <span className="block truncate text-[11px] font-bold opacity-75">{target.sender}</span>
         <span className="flex items-center gap-1.5">
-          {thumbSrc && <img src={thumbSrc} alt="" className="chat-media h-6 w-6 shrink-0 rounded-md object-cover" />}
+          {thumbSrc && <img src={thumbSrc} alt="" className="chat-media h-6 w-6 shrink-0 rounded-xs object-cover" />}
           <span className="font-ios truncate text-[13px] leading-snug">{previewText}</span>
         </span>
       </button>

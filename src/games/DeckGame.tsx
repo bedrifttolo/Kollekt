@@ -55,7 +55,7 @@ export default function DeckGame({
               <button
                 key={id}
                 onClick={() => restart(id)}
-                className="card !p-4 w-full text-left"
+                className="card w-full text-left"
               >
                 <p className="font-display text-lg font-extrabold">
                   {t(`social.games.${gameKey}.deckNames.${id}`)}

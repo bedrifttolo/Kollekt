@@ -10,10 +10,10 @@ export default function SocialPage() {
   const [tab, setTab] = useState<'ranks' | 'games'>('ranks');
 
   return (
-    <div className="space-y-5 pt-3 pb-6">
+    <div className="space-y-4 pt-3">
       <div>
         <Eyebrow accent={PAGE_ACCENTS['/social']}>{t('social.eyebrow')}</Eyebrow>
-        <h2 className="mt-2 display-lg">
+        <h2 className="mt-2 display-md">
           {t('social.title')}
         </h2>
       </div>

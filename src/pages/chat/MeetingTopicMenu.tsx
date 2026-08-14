@@ -7,6 +7,7 @@ import { api } from '../../lib/api';
 import { qk } from '../../lib/queryKeys';
 import { useRealtimeEvent } from '../../context/UserContext';
 import { backdropVariants, collapseVariants } from '../../lib/motion';
+import { IconButton } from '../../components/ui-kit';
 import type { AppUser, MeetingTopic } from '../../lib/types';
 
 interface MeetingTopicMenuProps {
@@ -92,33 +93,43 @@ export default function MeetingTopicMenu({ currentUser, onPostTopic }: MeetingTo
             >
             <div className="mb-2 flex items-center justify-between">
               <p className="font-display text-sm font-bold">{t('chat.meetingTopic.title')}</p>
-              <button onClick={() => setOpen(false)} aria-label={t('common.close')} className="text-muted-foreground">
-                <X className="h-4 w-4" />
-              </button>
+              <IconButton
+                onClick={() => setOpen(false)}
+                label={t('common.close')}
+                variant="bare"
+                size="sm"
+                icon={<X className="h-4 w-4" />}
+              />
             </div>
             {topics.length === 0 && <p className="mb-2 text-xs text-muted-foreground">{t('chat.meetingTopic.empty')}</p>}
             <div className="max-h-48 space-y-1.5 overflow-y-auto">
               {topics.map((topic) => (
-                <div key={topic.id} className="flex items-center gap-1.5 rounded-xl bg-muted/40 px-2.5 py-1.5">
+                // gap-3, not gap-1.5: both trailing buttons grow an invisible 44px hit area, and at
+                // 6px apart those areas overlapped — the resolve button was swallowing taps aimed at
+                // send. 32px boxes 12px apart put the two hit areas exactly edge to edge.
+                <div key={topic.id} className="flex items-center gap-3 rounded-xl bg-muted/40 px-2.5 py-1.5">
                   <span className="min-w-0 flex-1 truncate text-xs font-semibold">{topic.title}</span>
-                  <button
+                  <IconButton
                     onClick={() => postTopic(topic)}
-                    aria-label={t('chat.meetingTopic.postToChat')}
-                    className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-ink text-ink-foreground"
-                  >
-                    <Send className="h-3 w-3" />
-                  </button>
-                  <button
+                    label={t('chat.meetingTopic.postToChat')}
+                    size="sm"
+                    // 'bare' rather than 'solid': solid brings a border + card fill that would
+                    // fight the ink fill this button needs.
+                    variant="bare"
+                    className="bg-ink text-ink-foreground"
+                    icon={<Send className="h-3.5 w-3.5" />}
+                  />
+                  <IconButton
                     onClick={() => void resolveTopic(topic.id)}
-                    aria-label={t('chat.meetingTopic.resolve')}
-                    className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-muted text-muted-foreground"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
+                    label={t('chat.meetingTopic.resolve')}
+                    variant="muted"
+                    size="sm"
+                    icon={<X className="h-3.5 w-3.5" />}
+                  />
                 </div>
               ))}
             </div>
-            <div className="mt-2 flex gap-1.5">
+            <div className="mt-2 flex gap-2">
               <input
                 value={newTitle}
                 onChange={(e) => setNewTitle(e.target.value)}
@@ -135,7 +146,7 @@ export default function MeetingTopicMenu({ currentUser, onPostTopic }: MeetingTo
                 onClick={() => void addTopic()}
                 disabled={!newTitle.trim()}
                 aria-label={t('chat.meetingTopic.add')}
-                className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-ink text-ink-foreground disabled:opacity-50"
+                className="pressable-tight grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-ink text-ink-foreground disabled:opacity-50"
               >
                 <Plus className="h-4 w-4" />
               </button>

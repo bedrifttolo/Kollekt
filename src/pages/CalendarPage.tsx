@@ -30,7 +30,7 @@ import {
   translateKey,
 } from "../i18n/helpers";
 import type { CalendarEvent, EventType, GuestNotice, HouseCheckin } from "../lib/types";
-import { AddSheet, EmptyState, Eyebrow, Fab, OverflowMenu } from "../components/ui-kit";
+import { AddSheet, EmptyState, Eyebrow, Fab, OverflowMenu, Sheet } from "../components/ui-kit";
 import { PAGE_ACCENTS } from "../lib/pageAccent";
 import { pressable, springSoft } from "../lib/motion";
 import { selectionFeedback } from "../lib/haptics";
@@ -146,6 +146,15 @@ export default function CalendarPage() {
       return `${API_BASE}${r.path}`;
     },
   });
+
+  const [feedCopied, setFeedCopied] = useState(false);
+  const copyFeedUrl = async () => {
+    try {
+      await navigator.clipboard.writeText(feedUrl);
+      setFeedCopied(true);
+      setTimeout(() => setFeedCopied(false), 1500);
+    } catch {}
+  };
 
   useRealtimeEvent(
     (event) => {
@@ -297,19 +306,19 @@ export default function CalendarPage() {
   if (loading) {
     wasLoadingRef.current = true;
     return (
-      <div className="space-y-4 pt-2">
+      <div className="space-y-4 pt-3">
         <div className="space-y-2">
-          <div className="h-3 w-20 animate-pulse rounded-full bg-muted/30" />
-          <div className="h-7 w-36 animate-pulse rounded-lg bg-muted/30" />
+          <div className="h-3 w-20 skeleton animate-pulse rounded-full" />
+          <div className="h-7 w-36 skeleton animate-pulse rounded-lg" />
         </div>
         <div className="flex gap-2">
           {[...Array(7)].map((_, i) => (
-            <div key={i} className="h-16 flex-1 animate-pulse rounded-2xl bg-muted/20" />
+            <div key={i} className="h-16 flex-1 skeleton animate-pulse rounded-2xl" />
           ))}
         </div>
         <div className="space-y-3">
           {[...Array(3)].map((_, i) => (
-            <div key={i} className="h-20 animate-pulse rounded-[--r-lg] bg-muted/20" />
+            <div key={i} className="h-20 skeleton animate-pulse rounded-lg" />
           ))}
         </div>
       </div>
@@ -322,22 +331,22 @@ export default function CalendarPage() {
     <motion.div
       initial={justFinishedLoading ? { opacity: 0 } : false}
       animate={{ opacity: 1 }}
-      className="space-y-4 pt-2"
+      className="space-y-4 pt-3"
     >
       {/* Header */}
       <div>
         <Eyebrow accent={PAGE_ACCENTS['/calendar']}>{t("calendar.eyebrow")}</Eyebrow>
-        <h2 className="mt-2 display-sm">
+        <h2 className="mt-2 display-md">
           {t("calendar.title")}
         </h2>
       </div>
 
       {checkin && (
-        <div className="flex items-center gap-3 rounded-[1.1rem] border border-primary/25 bg-primary/5 p-3">
+        <div className="flex items-center gap-3 rounded-md border border-primary/25 bg-primary/5 p-3">
           <MessageCircleHeart className="h-5 w-5 shrink-0 text-primary" />
           <div>
             <p className="text-sm font-bold">{t("checkin.calendarTitle")}</p>
-            <p className="text-[10px] text-muted-foreground">{formatDate(checkin.weekStart)} · {t("checkin.recurring")}</p>
+            <p className="text-[11px] text-muted-foreground">{formatDate(checkin.weekStart)} · {t("checkin.recurring")}</p>
           </div>
         </div>
       )}
@@ -405,7 +414,7 @@ export default function CalendarPage() {
                     context actually exist, consistently across engines. */}
                 <span className={`relative z-10 flex flex-col items-center gap-1 ${isSelected ? 'text-black dark:text-white' : ''}`}>
                 <span
-                  className={`text-[10px] font-bold uppercase tracking-[.04em] ${
+                  className={`text-[11px] font-bold uppercase tracking-[.04em] ${
                     isSelected ? "text-black/70 dark:text-white/70" : "text-muted-foreground"
                   }`}
                 >
@@ -443,21 +452,43 @@ export default function CalendarPage() {
 
       {/* One tap subscribes the phone's own calendar (iOS/Android) to the household feed, read-only. */}
       {feedUrl && (
-        <a
-          href={feedUrl.replace(/^https?:\/\//, "webcal://")}
-          className="flex items-center gap-3 rounded-[1.1rem] border border-border bg-card p-2.5 transition-colors hover:bg-muted/30"
-        >
-          <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-primary/15">
-            <CalendarPlus className="h-4 w-4 text-primary" />
+        <div className="rounded-md border border-border bg-card">
+          <a
+            href={feedUrl.replace(/^https?:\/\//, "webcal://")}
+            className="flex items-center gap-3 p-2.5 transition-colors hover:bg-muted/30"
+          >
+            <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-primary/15">
+              <CalendarPlus className="h-4 w-4 text-primary" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-medium">{t("calendar.subscribeTitle")}</p>
+              <p className="text-[11px] leading-snug text-muted-foreground">{t("calendar.subscribeSubtitle")}</p>
+            </div>
+            <span className="shrink-0 rounded-lg gradient-primary px-3 py-1.5 text-xs font-semibold text-ink-foreground">
+              {t("calendar.subscribeButton")}
+            </span>
+          </a>
+          {/* `webcal://` resolves to plain http, which our host 301s to https — and Apple's
+              subscription check does not always survive that hop. The https URL always works when
+              pasted into Calendar > Add Subscribed Calendar, so keep it one tap away. */}
+          <div className="border-t border-border p-2.5">
+            <button
+              type="button"
+              onClick={() => void copyFeedUrl()}
+              className="flex min-h-11 w-full items-center gap-2 text-left"
+            >
+              <code className="min-w-0 flex-1 truncate rounded-lg bg-muted/50 px-2 py-1.5 text-[11px] text-muted-foreground">
+                {feedUrl}
+              </code>
+              <span className="shrink-0 rounded-lg border border-border px-2.5 py-1.5 text-xs font-semibold">
+                {feedCopied ? <Check className="h-3.5 w-3.5 text-primary" /> : t("calendar.subscribeCopy")}
+              </span>
+            </button>
+            <p className="mt-1.5 text-[11px] leading-snug text-muted-foreground">
+              {t("calendar.subscribeManualHint")}
+            </p>
           </div>
-          <div className="min-w-0 flex-1">
-            <p className="text-sm font-medium">{t("calendar.subscribeTitle")}</p>
-            <p className="text-[10px] leading-snug text-muted-foreground">{t("calendar.subscribeSubtitle")}</p>
-          </div>
-          <span className="shrink-0 rounded-lg gradient-primary px-3 py-1.5 text-xs font-semibold text-ink-foreground">
-            {t("calendar.subscribeButton")}
-          </span>
-        </a>
+        </div>
       )}
 
       {/* Events for selected day */}
@@ -477,9 +508,13 @@ export default function CalendarPage() {
               className="overflow-hidden"
             >
               <AddSheet title={t("calendar.newEvent")} onClose={() => setShowAdd(false)}>
-                <div className="grid grid-cols-2 gap-1 rounded-xl bg-muted/40 p-1">
+                {/* .seg carries the track fill, padding and radius, and its `.seg button` rule in
+                    globals.css floors each option at 44px — this was a hand-rolled copy of that
+                    control whose options came out ~32px tall. grid-cols-2 overrides .seg's flex so
+                    the two options stay equal width. */}
+                <div className="seg grid grid-cols-2">
                   {(["event", "guest"] as const).map((mode) => (
-                    <button key={mode} onClick={() => setAddMode(mode)} className={`rounded-lg py-2 text-xs font-bold ${addMode === mode ? "bg-card text-primary shadow-sm" : "text-muted-foreground"}`}>
+                    <button key={mode} onClick={() => setAddMode(mode)} className={`rounded-lg text-xs font-bold ${addMode === mode ? "bg-card text-primary shadow-sm" : "text-muted-foreground"}`}>
                       {t(`calendar.addModes.${mode}`)}
                     </button>
                   ))}
@@ -488,30 +523,30 @@ export default function CalendarPage() {
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
                   placeholder={t(addMode === "guest" ? "calendar.guestNamePlaceholder" : "calendar.eventTitlePlaceholder")}
-                  className="w-full min-h-[var(--ctl-lg)] bg-muted/50 rounded-lg px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                  className="input"
                   onKeyDown={(e) => e.key === "Enter" && handleAdd()}
                 />
                 <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                   <div className="min-w-0 space-y-1">
-                    <p className="text-[10px] text-muted-foreground">
+                    <p className="text-[11px] text-muted-foreground">
                       {t("calendar.startTime")}
                     </p>
                     <input
                       type="time"
                       value={newTime}
                       onChange={(e) => setNewTime(e.target.value)}
-                      className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                      className="input"
                     />
                   </div>
                   <div className="min-w-0 space-y-1">
-                    <p className="text-[10px] text-muted-foreground">
+                    <p className="text-[11px] text-muted-foreground">
                       {t("calendar.endTimeOptional")}
                     </p>
                     <input
                       type="time"
                       value={newEndTime}
                       onChange={(e) => setNewEndTime(e.target.value)}
-                      className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                      className="input"
                     />
                   </div>
                 </div>
@@ -528,7 +563,7 @@ export default function CalendarPage() {
                     <button
                       key={eventType}
                       onClick={() => setNewType(eventType)}
-                      className={`flex min-h-11 min-w-0 items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-[10px] font-medium transition-all ${newType === eventType ? "gradient-primary text-ink-foreground" : "glass text-muted-foreground"}`}
+                      className={`flex min-h-11 min-w-0 items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-xs font-medium transition-all ${newType === eventType ? "gradient-primary text-ink-foreground" : "glass text-muted-foreground"}`}
                     >
                       <TypeIcon className="h-3.5 w-3.5 shrink-0" />
                       <span className="truncate">{translateKey("common.eventTypes", eventType)}</span>
@@ -538,7 +573,7 @@ export default function CalendarPage() {
                 </div>}
                 <button
                   onClick={handleAdd}
-                  className="w-full gradient-primary rounded-lg py-2 text-sm font-semibold text-ink-foreground"
+                  className="btn-pine w-full"
                 >
                   {t(addMode === "guest" ? "calendar.addGuestNotice" : "calendar.addEvent")}
                 </button>
@@ -563,8 +598,8 @@ export default function CalendarPage() {
             <div className="min-w-0 flex-1">
               <h4 className="text-[15px] font-bold">{t("calendar.guestVisit", { guest: notice.guestName })}</h4>
               <p className="text-xs text-muted-foreground">{formatTime(notice.startTime)}–{formatTime(notice.endTime)} · {notice.createdBy}</p>
-              {notice.overnight && <span className="text-[10px] font-bold text-primary">{t("calendar.guestOvernight")}</span>}
-              {notice.overlapsQuietHours && <p className="text-[10px] font-bold text-secondary-foreground">{t("calendar.quietHoursOverlap")}</p>}
+              {notice.overnight && <span className="text-[11px] font-bold text-primary">{t("calendar.guestOvernight")}</span>}
+              {notice.overlapsQuietHours && <p className="text-[11px] font-bold text-secondary-foreground">{t("calendar.quietHoursOverlap")}</p>}
             </div>
           </div>
         ))}
@@ -584,7 +619,7 @@ export default function CalendarPage() {
               <strong className="font-display text-lg leading-none">
                 {formatTime(e.time)}
               </strong>
-              <span className="mt-2 text-[9px] font-bold uppercase tracking-[.06em] text-muted-foreground">
+              <span className="mt-2 text-[11px] font-bold uppercase tracking-[.06em] text-muted-foreground">
                 {translateKey("common.eventTypes", e.type)}
               </span>
             </div>
@@ -675,62 +710,46 @@ export default function CalendarPage() {
         ))}
 
         {/* Edit modal */}
-        <AnimatePresence>
+        <Sheet
+          open={Boolean(editingEvent)}
+          onClose={() => setEditingEvent(null)}
+          size="md"
+          title={t("calendar.editEvent")}
+          footer={
+            <button onClick={handleEditSave} className="btn-pine w-full">
+              {t("calendar.saveChanges")}
+            </button>
+          }
+        >
           {editingEvent && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-[60] flex items-end justify-center bg-black/50 px-4 pb-[calc(env(safe-area-inset-bottom)+1.5rem)]"
-              onClick={(ev) => {
-                if (ev.target === ev.currentTarget) setEditingEvent(null);
-              }}
-            >
-              <motion.div
-                initial={{ y: 40, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                exit={{ y: 40, opacity: 0 }}
-                className="w-full max-w-md glass rounded-2xl p-5 space-y-4"
-              >
-                <div className="flex items-center justify-between">
-                  <p className="text-sm font-semibold">
-                    {t("calendar.editEvent")}
-                  </p>
-                  <button
-                    onClick={() => setEditingEvent(null)}
-                    aria-label={t("common.cancel")}
-                    className="grid h-11 w-11 shrink-0 place-items-center rounded-full"
-                  >
-                    <X className="h-4 w-4 text-muted-foreground" />
-                  </button>
-                </div>
+            <div className="space-y-4">
                 <input
                   value={editTitle}
                   onChange={(ev) => setEditTitle(ev.target.value)}
                   placeholder={t("calendar.eventTitlePlaceholder")}
-                  className="w-full min-h-[var(--ctl-lg)] bg-muted/50 rounded-lg px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                  className="input"
                 />
                 <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                   <div className="min-w-0 space-y-1">
-                    <p className="text-[10px] text-muted-foreground">
+                    <p className="text-[11px] text-muted-foreground">
                       {t("calendar.startTime")}
                     </p>
                     <input
                       type="time"
                       value={editTime}
                       onChange={(ev) => setEditTime(ev.target.value)}
-                      className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                      className="input"
                     />
                   </div>
                   <div className="min-w-0 space-y-1">
-                    <p className="text-[10px] text-muted-foreground">
+                    <p className="text-[11px] text-muted-foreground">
                       {t("calendar.endTimeOptional")}
                     </p>
                     <input
                       type="time"
                       value={editEndTime}
                       onChange={(ev) => setEditEndTime(ev.target.value)}
-                      className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                      className="input"
                     />
                   </div>
                 </div>
@@ -741,7 +760,7 @@ export default function CalendarPage() {
                     <button
                       key={eventType}
                       onClick={() => setEditType(eventType)}
-                      className={`flex min-h-11 min-w-0 items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-[10px] font-medium transition-all ${editType === eventType ? "gradient-primary text-ink-foreground" : "glass text-muted-foreground"}`}
+                      className={`flex min-h-11 min-w-0 items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-xs font-medium transition-all ${editType === eventType ? "gradient-primary text-ink-foreground" : "glass text-muted-foreground"}`}
                     >
                       <TypeIcon className="h-3.5 w-3.5 shrink-0" />
                       <span className="truncate">{translateKey("common.eventTypes", eventType)}</span>
@@ -749,16 +768,9 @@ export default function CalendarPage() {
                     );
                   })}
                 </div>
-                <button
-                  onClick={handleEditSave}
-                  className="w-full gradient-primary rounded-lg py-2 text-sm font-semibold text-ink-foreground"
-                >
-                  {t("calendar.saveChanges")}
-                </button>
-              </motion.div>
-            </motion.div>
+            </div>
           )}
-        </AnimatePresence>
+        </Sheet>
       </div>
       {!showAdd && <Fab onClick={() => setShowAdd(true)} label={t("calendar.newEvent")} />}
     </motion.div>

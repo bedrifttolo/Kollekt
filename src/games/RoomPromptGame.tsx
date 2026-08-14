@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { api } from '../lib/api';
 import { useUser } from '../context/UserContext';
 import type { PartyGameRoom } from '../lib/types';
+import { IconButton } from '../components/ui-kit';
 
 const CATEGORIES = [
   'HOT_TAKES',
@@ -80,7 +81,7 @@ export default function RoomPromptGame({ onClose }: { onClose: () => void }) {
             <p className="eyebrow">{t('social.games.promptRelay.eyebrow')}</p>
             <h2 className="mt-1 font-display text-2xl font-extrabold">{t('social.games.catalog.promptRelay')}</h2>
           </div>
-          <button onClick={onClose} className="grid h-11 w-11 place-items-center rounded-full border border-border bg-card" aria-label={t('common.cancel')}><X className="h-4 w-4" /></button>
+          <IconButton onClick={onClose} label={t('common.cancel')} icon={<X className="h-4 w-4" />} />
         </div>
         <div className="flex flex-1 flex-col justify-center gap-4 px-5">
           <div className="househero">
@@ -124,7 +125,7 @@ export default function RoomPromptGame({ onClose }: { onClose: () => void }) {
             {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}{room.code}
           </button>
         </div>
-        <button onClick={onClose} className="grid h-11 w-11 place-items-center rounded-full border border-border bg-card" aria-label={t('common.cancel')}><X className="h-4 w-4" /></button>
+        <IconButton onClick={onClose} label={t('common.cancel')} icon={<X className="h-4 w-4" />} />
       </div>
 
       <div className="flex-1 overflow-y-auto px-5 py-5">
@@ -136,7 +137,7 @@ export default function RoomPromptGame({ onClose }: { onClose: () => void }) {
                 {room.participants.map((participant) => (
                   <div key={participant.name} className="flex items-center gap-3 rounded-xl bg-muted/40 px-3 py-2">
                     <span className="grid h-9 w-9 place-items-center rounded-full bg-primary font-bold text-primary-foreground">{participant.name[0]?.toUpperCase()}</span>
-                    <div className="min-w-0 flex-1"><p className="truncate text-sm font-semibold">{participant.name}{participant.name === room.hostName ? ` · ${t('social.games.promptRelay.host')}` : ''}</p><p className="text-[10px] text-muted-foreground">{t('social.games.promptRelay.questionCount', { count: participant.questionCount })}</p></div>
+                    <div className="min-w-0 flex-1"><p className="truncate text-sm font-semibold">{participant.name}{participant.name === room.hostName ? ` · ${t('social.games.promptRelay.host')}` : ''}</p><p className="text-[11px] text-muted-foreground">{t('social.games.promptRelay.questionCount', { count: participant.questionCount })}</p></div>
                     <span className={`pill ${participant.ready ? 'pill-pine' : 'pill-lemon'}`}>{t(participant.ready ? 'social.games.promptRelay.done' : 'social.games.promptRelay.writing')}</span>
                   </div>
                 ))}
@@ -147,9 +148,9 @@ export default function RoomPromptGame({ onClose }: { onClose: () => void }) {
               <section>
                 <h3 className="font-display text-xl font-bold">{t('social.games.promptRelay.writeTitle')}</h3>
                 <p className="mt-1 text-xs text-muted-foreground">{t('social.games.promptRelay.writeHint')}</p>
-                <div className="mt-3 rounded-3xl border border-border bg-card p-3">
+                <div className="mt-3 rounded-xl border border-border bg-card p-3">
                   <label className="block">
-                    <span className="text-[10px] font-bold uppercase tracking-[.12em] text-muted-foreground">{t('social.games.promptRelay.categoryLabel')}</span>
+                    <span className="text-[11px] font-bold uppercase tracking-[.12em] text-muted-foreground">{t('social.games.promptRelay.categoryLabel')}</span>
                     <select
                       value={category}
                       onChange={(event) => setCategory(event.target.value as (typeof CATEGORIES)[number])}
@@ -161,7 +162,7 @@ export default function RoomPromptGame({ onClose }: { onClose: () => void }) {
                     </select>
                   </label>
                   <div className="mt-3 rounded-2xl bg-muted/40 px-4 py-3">
-                    <p className="text-[10px] font-bold uppercase tracking-[.12em] text-muted-foreground">{t('social.games.promptRelay.selectedCategory')}</p>
+                    <p className="text-[11px] font-bold uppercase tracking-[.12em] text-muted-foreground">{t('social.games.promptRelay.selectedCategory')}</p>
                     <p className="mt-1 text-sm font-bold">{t(`social.games.promptRelay.categories.${category}.title`)}</p>
                     <p className="mt-1 text-xs leading-snug text-muted-foreground">{t(`social.games.promptRelay.categories.${category}.example`)}</p>
                   </div>
@@ -176,7 +177,7 @@ export default function RoomPromptGame({ onClose }: { onClose: () => void }) {
                 <h3 className="font-display text-lg font-bold">{t('social.games.promptRelay.yourQuestions')}</h3>
                 <div className="mt-2 space-y-2">
                   {room.myQuestions.map((question) => (
-                    <div key={question.id} className="card !rounded-2xl !p-3 flex items-center gap-3"><Clipboard className="h-4 w-4 shrink-0 text-foreground" /><div className="min-w-0 flex-1"><p className="text-[10px] font-bold uppercase tracking-[.12em] text-muted-foreground">{t(`social.games.promptRelay.categories.${question.category}.title`)}</p><p className="text-sm">{question.prompt}</p></div>{!me?.ready && <button onClick={() => void run(() => api.delete<PartyGameRoom>(`/party-game/rooms/${room.code}/questions/${question.id}`))} aria-label={t('common.cancel')}><Trash2 className="h-4 w-4 shrink-0 text-destructive" /></button>}</div>
+                    <div key={question.id} className="card card-sm flex items-center gap-3"><Clipboard className="h-4 w-4 shrink-0 text-foreground" /><div className="min-w-0 flex-1"><p className="text-[11px] font-bold uppercase tracking-[.12em] text-muted-foreground">{t(`social.games.promptRelay.categories.${question.category}.title`)}</p><p className="text-sm">{question.prompt}</p></div>{!me?.ready && <button onClick={() => void run(() => api.delete<PartyGameRoom>(`/party-game/rooms/${room.code}/questions/${question.id}`))} aria-label={t('common.cancel')} className="pressable-tight grid shrink-0 place-items-center"><Trash2 className="h-4 w-4 shrink-0 text-destructive" /></button>}</div>
                   ))}
                 </div>
               </section>

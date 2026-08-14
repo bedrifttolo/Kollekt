@@ -1,14 +1,177 @@
 import { useEffect, useRef, useState } from 'react';
-import type { ButtonHTMLAttributes, CSSProperties, InputHTMLAttributes, ReactNode } from 'react';
+import type { ButtonHTMLAttributes, CSSProperties, InputHTMLAttributes, ReactNode, TextareaHTMLAttributes } from 'react';
 import { AnimatePresence, motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { MoreHorizontal, Plus, X } from 'lucide-react';
 import { cn } from '../ui/utils';
 import brandmarkSrc from '../../assets/brandmark.png';
 import { colorForMember } from '../../lib/memberColors';
-import { backdropVariants, pressable, sheetVariants, springPop, springSoft } from '../../lib/motion';
+import { backdropVariants, dialogVariants, pressable, sheetVariants, springPop, springSoft } from '../../lib/motion';
 import { tapFeedback } from '../../lib/haptics';
 import type { Tone } from '../../lib/tones';
 import type { Accent } from '../../lib/pageAccent';
+
+/**
+ * The app's button.
+ *
+ * There was no such component: 255 raw <button> elements each restated their own height, padding,
+ * radius and weight, so "the primary action" was `min-h-12` on one screen, `min-h-11` on the next,
+ * `py-4` on a third and `.btn-pine` (56px) in the games. The three fills already existed as CSS
+ * classes and are unchanged — this only settles *size*, and does it in one place.
+ *
+ *   size="lg"  56px — a full-width primary action: Save, Continue, Sign in, Confirm. The default,
+ *                     because the CTA is what a button usually is here.
+ *   size="md"  44px — a normal action sharing a row with other content.
+ *   size="sm"  32px visible / 44px to a thumb — row-level actions (accept, decline, edit) where a
+ *                     44px pill would break the row's density. See .btn-sm in globals.css.
+ *
+ * `full` rather than a bare `w-full` className so the layout intent is legible at the call site and
+ * the base rule in globals.css (button.w-full) keeps applying.
+ */
+export function Button({
+  variant = 'solid',
+  size = 'lg',
+  full = false,
+  loading = false,
+  icon,
+  haptic = true,
+  className,
+  children,
+  disabled,
+  onClick,
+  type = 'button',
+  ...props
+}: Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'onAnimationStart' | 'onDragStart' | 'onDragEnd' | 'onDrag'> & {
+  variant?: 'solid' | 'secondary' | 'ghost' | 'danger';
+  size?: 'sm' | 'md' | 'lg';
+  full?: boolean;
+  loading?: boolean;
+  icon?: ReactNode;
+  haptic?: boolean;
+}) {
+  const variants = {
+    solid: 'btn-pine',
+    secondary: 'btn-lemon',
+    ghost: 'btn-ghost',
+    danger: 'btn-ghost text-destructive',
+  } as const;
+  const sizes = { sm: 'btn-sm', md: 'btn-md', lg: '' } as const;
+
+  return (
+    <motion.button
+      type={type}
+      disabled={disabled || loading}
+      onClick={(event) => {
+        if (haptic) void tapFeedback();
+        onClick?.(event);
+      }}
+      {...pressable}
+      className={cn(
+        variants[variant],
+        sizes[size],
+        full && 'w-full',
+        'disabled:opacity-50',
+        className,
+      )}
+      {...props}
+    >
+      {loading ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" /> : icon}
+      {children}
+    </motion.button>
+  );
+}
+
+/**
+ * The app's text input. `.input` in globals.css carries the sizing; this exists so a call site can
+ * say `<TextInput />` instead of restating eight utility classes and getting one of them wrong —
+ * 47 of the 84 inputs in the app had no height at all and rendered ~36px.
+ *
+ * size="sm" (44px) is for inline controls in a popover or the chat composer. Everything on a form
+ * should stay at the default 56px so fields line up with each other and with the submit button.
+ */
+// `size` is Omit'd from the native attributes first: <input size> is a number (character width),
+// which would intersect with the union below to `never` and make the prop unusable.
+export function TextInput({ size = 'md', invalid, className, ...props }: Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> & { size?: 'sm' | 'md'; invalid?: boolean }) {
+  return (
+    <input
+      aria-invalid={invalid || undefined}
+      className={cn('input', size === 'sm' && 'input-sm', className)}
+      {...props}
+    />
+  );
+}
+
+export function Textarea({ rows = 3, invalid, className, ...props }: TextareaHTMLAttributes<HTMLTextAreaElement> & { invalid?: boolean }) {
+  return (
+    <textarea
+      rows={rows}
+      aria-invalid={invalid || undefined}
+      className={cn('input', className)}
+      {...props}
+    />
+  );
+}
+
+/**
+ * A loading placeholder. Size it to the content it stands in for — a skeleton that doesn't match
+ * what replaces it produces exactly the layout jump it was meant to prevent.
+ */
+export function Skeleton({ className }: { className?: string }) {
+  return <div className={cn('skeleton animate-pulse', className)} />;
+}
+
+/**
+ * A list row: leading glyph, title (+ optional subtitle or progress bar), trailing value.
+ *
+ * This shape was independently reimplemented in CategoryBars, BudgetBars and half a dozen page
+ * sections, each with its own row height, icon size and bar thickness. Renders a <button> when
+ * `onClick` is given — floored to 44px — and a plain <div> otherwise, so a static row and a tappable
+ * one are never the same element with a different feel.
+ */
+export function ListRow({
+  icon,
+  title,
+  subtitle,
+  trailing,
+  progress,
+  progressColor,
+  onClick,
+  className,
+}: {
+  icon?: ReactNode;
+  title: ReactNode;
+  subtitle?: ReactNode;
+  trailing?: ReactNode;
+  /** 0-100. Renders a thin bar under the title block. */
+  progress?: number;
+  progressColor?: string;
+  onClick?: () => void;
+  className?: string;
+}) {
+  const interactive = Boolean(onClick);
+  const Tag = interactive ? 'button' : 'div';
+  return (
+    <Tag
+      {...(interactive ? { type: 'button' as const, onClick: () => { void tapFeedback(); onClick?.(); } } : {})}
+      className={cn(
+        'flex min-h-11 w-full items-center gap-3 rounded-lg p-1.5 text-left transition-colors',
+        interactive && 'hover:bg-muted/40',
+        className,
+      )}
+    >
+      {icon && <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full">{icon}</span>}
+      <span className="min-w-0 flex-1">
+        <span className="flex items-center gap-2">
+          <span className="min-w-0 flex-1 truncate text-sm font-semibold">{title}</span>
+          {trailing && <span className="shrink-0 text-sm font-bold tabular-nums">{trailing}</span>}
+        </span>
+        {subtitle && <span className="mt-0.5 block truncate text-xs text-muted-foreground">{subtitle}</span>}
+        {progress !== undefined && (
+          <ProgressBar value={progress} size="sm" className="mt-1.5" fillClassName={progressColor ? undefined : 'bg-secondary'} fillStyle={progressColor ? { backgroundColor: progressColor } : undefined} />
+        )}
+      </span>
+    </Tag>
+  );
+}
 
 export function Field({ label, className, ...props }: InputHTMLAttributes<HTMLInputElement> & { label: string }) {
   return (
@@ -115,7 +278,7 @@ export function VibeRing({ score }: { score: number }) {
     <ProgressRing value={value} size={84} thickness={9} color="var(--secondary)">
       <div>
         <CountUp value={value} className="font-display text-xl font-extrabold" />
-        <span className="mt-1 block text-[8px] font-bold tracking-[.14em] text-muted-foreground">VIBE</span>
+        <span className="mt-1 block text-[11px] font-bold tracking-[.14em] text-muted-foreground">VIBE</span>
       </div>
     </ProgressRing>
   );
@@ -190,6 +353,7 @@ export function IconButton({
   label,
   icon,
   variant = 'solid',
+  size = 'md',
   haptic = true,
   className,
   onClick,
@@ -198,6 +362,13 @@ export function IconButton({
   label: string;
   icon: ReactNode;
   variant?: 'solid' | 'bare' | 'muted' | 'danger';
+  /**
+   * 'md' is a real 44px button. 'sm' draws a 32px one and grows an invisible 44px hit area instead —
+   * the migration path for the h-7/h-8/h-9 icon buttons scattered through Profile, Tasks and the
+   * chat menus, which cannot be inflated to 44px without wrecking the rows they sit in. Two adjacent
+   * 'sm' buttons need >=12px of gap or their hit areas overlap.
+   */
+  size?: 'sm' | 'md';
   haptic?: boolean;
 }) {
   const variants = {
@@ -217,7 +388,8 @@ export function IconButton({
       }}
       {...pressable}
       className={cn(
-        'pressable grid shrink-0 place-items-center rounded-full transition-colors',
+        'grid shrink-0 place-items-center rounded-full transition-colors',
+        size === 'sm' ? 'pressable-tight h-8 w-8' : 'pressable',
         variants[variant],
         className,
       )}
@@ -265,20 +437,63 @@ export function ChipRemoveButton({ onClick, label, className }: { onClick: () =>
   );
 }
 
-export function Avatar({ name, color, className }: { name: string; color?: string | null; className?: string }) {
-  return <span style={{ backgroundColor: colorForMember(name, color) }} className={cn('grid h-9 w-9 shrink-0 place-items-center rounded-full font-bold text-white', className)}>{name[0]?.toUpperCase()}</span>;
+/**
+ * `md` (36px) is the inline avatar that sits in a dense list row or a header. `lg` (48px) is the
+ * conversation-list avatar: iOS Messages and every list a user compares this screen against use a
+ * 48-52px avatar as the thing that sets the row's height.
+ */
+export type AvatarSize = 'md' | 'lg';
+
+// `md` deliberately sets no font size — it has always inherited the row's, and callers rely on that.
+const AVATAR_SIZES: Record<AvatarSize, string> = {
+  md: 'h-9 w-9',
+  lg: 'h-12 w-12 text-lg',
+};
+
+export function Avatar({
+  name,
+  color,
+  size = 'md',
+  className,
+}: {
+  name: string;
+  color?: string | null;
+  size?: AvatarSize;
+  className?: string;
+}) {
+  return (
+    <span
+      style={{ backgroundColor: colorForMember(name, color) }}
+      className={cn('grid shrink-0 place-items-center rounded-full font-bold leading-none text-white', AVATAR_SIZES[size], className)}
+    >
+      {name[0]?.toUpperCase()}
+    </span>
+  );
 }
 
-export function AvatarStack({ members, max = 4 }: { members: Array<{ name: string; color?: string | null }>; max?: number }) {
+export function AvatarStack({
+  members,
+  max = 4,
+  size = 'md',
+}: {
+  members: Array<{ name: string; color?: string | null }>;
+  max?: number;
+  size?: AvatarSize;
+}) {
   const shown = members.slice(0, max);
   const extra = members.length - shown.length;
   return (
     <div className="flex -space-x-2">
       {shown.map((member) => (
-        <Avatar key={member.name} name={member.name} color={member.color} className="border-2 border-card" />
+        <Avatar key={member.name} name={member.name} color={member.color} size={size} className="border-2 border-card" />
       ))}
       {extra > 0 && (
-        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border-2 border-card bg-secondary text-xs font-bold text-secondary-foreground">
+        <span
+          className={cn(
+            'grid shrink-0 place-items-center rounded-full border-2 border-card bg-secondary font-bold leading-none text-secondary-foreground',
+            size === 'lg' ? 'h-12 w-12 text-sm' : 'h-9 w-9 text-xs',
+          )}
+        >
           +{extra}
         </span>
       )}
@@ -286,8 +501,47 @@ export function AvatarStack({ members, max = 4 }: { members: Array<{ name: strin
   );
 }
 
-export function ProgressBar({ value, className, fillClassName = 'bg-secondary' }: { value: number; className?: string; fillClassName?: string }) {
-  return <div className={cn('h-2 overflow-hidden rounded-full bg-muted', className)}><div className={cn('h-full rounded-full transition-[width]', fillClassName)} style={{ width: `${Math.max(0, Math.min(100, value))}%` }} /></div>;
+/**
+ * `size="sm"` (6px) is the bar that belongs inside a dense list row — the charts each had their own
+ * h-1.5 copy of this; `size="md"` (8px) is the standalone meter.
+ */
+export function ProgressBar({
+  value,
+  size = 'md',
+  className,
+  fillClassName = 'bg-secondary',
+  fillStyle,
+  animate = false,
+  minWidth = 0,
+}: {
+  value: number;
+  size?: 'sm' | 'md';
+  className?: string;
+  fillClassName?: string;
+  /** For data colours that come from a token at runtime (category hues) rather than a class. */
+  fillStyle?: CSSProperties;
+  /**
+   * Grow from zero on mount instead of snapping. This is what the two expense charts each
+   * hand-rolled a copy of this component for — without it they could not animate, so they kept
+   * their own markup and their own (different) bar height.
+   */
+  animate?: boolean;
+  /** Floor in %, so a small-but-nonzero value still shows a sliver rather than nothing. */
+  minWidth?: number;
+}) {
+  const pct = Math.max(minWidth, Math.min(100, value));
+  const track = cn(size === 'sm' ? 'h-1.5' : 'h-2', 'overflow-hidden rounded-full bg-muted', className);
+  const fill = cn('h-full rounded-full', !animate && 'transition-[width]', fillClassName);
+
+  return (
+    <div className={track}>
+      {animate ? (
+        <motion.div className={fill} style={fillStyle} initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={springSoft} />
+      ) : (
+        <div className={fill} style={{ width: `${pct}%`, ...fillStyle }} />
+      )}
+    </div>
+  );
 }
 
 export function OverflowMenu({
@@ -364,42 +618,11 @@ export function Fab({ label, className, onClick, ...props }: Omit<ButtonHTMLAttr
   );
 }
 
-/**
- * A card with a stated depth and an optional colour identity.
- *
- * `tone` is what stops every screen being white-on-cream: it applies a ~12% wash of one of the six
- * theme tones plus a matching border, which is enough for two sections to read as different things
- * without any of them shouting. Leave it off for neutral content.
- */
-export function Card({
-  tone,
-  elevation = 1,
-  as = 'div',
-  className,
-  children,
-  ...props
-}: {
-  tone?: Tone;
-  elevation?: 0 | 1 | 2 | 3;
-  as?: 'div' | 'section' | 'article' | 'li';
-  className?: string;
-  children: ReactNode;
-} & Record<string, unknown>) {
-  const Tag = as;
-  return (
-    <Tag
-      className={cn(
-        'rounded-2xl border border-border p-4',
-        tone ? `tone-${tone} tone-wash tone-edge` : 'bg-card',
-        elevation > 0 && `elev-${elevation}`,
-        className,
-      )}
-      {...props}
-    >
-      {children}
-    </Tag>
-  );
-}
+/* There was a `Card` component here. It had zero call sites and its shape (rounded-2xl / p-4)
+   disagreed with the `.card` CSS class every page actually uses (--r-xl / 1rem / elev-1), so the app
+   carried two different definitions of "a card" — which is most of why card padding had drifted to
+   ten distinct values. `.card` plus its `.card-sm` / `.card-lg` / `.card-flush` steps in globals.css
+   is now the single source; use `tone-<t> tone-wash tone-edge` alongside it for a colour identity. */
 
 /**
  * A bottom sheet with its backdrop.
@@ -415,6 +638,9 @@ export function Sheet({
   title,
   children,
   footer,
+  placement = 'bottom',
+  size = 'xl',
+  hideClose = false,
   className,
 }: {
   open: boolean;
@@ -422,6 +648,15 @@ export function Sheet({
   title?: ReactNode;
   children: ReactNode;
   footer?: ReactNode;
+  /**
+   * 'bottom' is the default and what almost everything wants on a phone. 'center' is for the few
+   * short confirmations (delete a task, leave the household) that would read as a full task if they
+   * slid up from the bottom edge.
+   */
+  placement?: 'bottom' | 'center';
+  size?: 'sm' | 'md' | 'lg' | 'xl';
+  /** For panels that already draw their own dismiss control. Prefer letting this one render. */
+  hideClose?: boolean;
   className?: string;
 }) {
   useEffect(() => {
@@ -444,7 +679,10 @@ export function Sheet({
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 z-[60] flex items-end justify-center bg-black/45 px-2 pb-2 backdrop-blur-[2px]"
+          className={cn(
+            'fixed inset-0 z-[60] flex justify-center bg-black/45 backdrop-blur-[2px]',
+            placement === 'bottom' ? 'items-end px-2 pb-2' : 'items-center p-4',
+          )}
           variants={backdropVariants}
           initial="hidden"
           animate="show"
@@ -455,24 +693,31 @@ export function Sheet({
           <motion.div
             role="dialog"
             aria-modal="true"
-            variants={sheetVariants}
+            variants={placement === 'bottom' ? sheetVariants : dialogVariants}
             // Stop a click that started on the panel (a drag across a slider, a text selection that
             // ends outside) from being read as a backdrop dismissal.
             onClick={(event) => event.stopPropagation()}
             className={cn(
+              // The cap applies to both placements: it has to give safe-bottom's keyboard padding
+              // room, or a tall sheet would grow past the top of the screen instead of shrinking.
+              'elev-3 max-h-[calc(88dvh_-_var(--keyboard-inset,0px))] w-full overflow-y-auto overscroll-contain rounded-2xl border border-border bg-card p-4',
+              { sm: 'max-w-sm', md: 'max-w-md', lg: 'max-w-lg', xl: 'max-w-xl' }[size],
               // safe-bottom grows to the keyboard's height while it is up (see globals.css), which
-              // lifts the panel's content clear of it; the cap has to give that padding room or a
-              // tall sheet would grow past the top of the screen instead of shrinking.
-              'elev-3 max-h-[calc(88dvh_-_var(--keyboard-inset,0px))] w-full max-w-xl overflow-y-auto overscroll-contain rounded-2xl border border-border bg-card p-4 safe-bottom',
+              // lifts a bottom-docked panel's content clear of it. A centred dialog isn't docked to
+              // the bottom edge, so it takes the padding as dead space instead — the max-h cap above
+              // is what keeps it clear of the keyboard.
+              placement === 'bottom' && 'safe-bottom',
               className,
             )}
           >
-            {/* Always rendered: a sheet without a visible way out strands anyone who dismisses by
-                backdrop tap less readily than by button. Title is optional, the close button is not. */}
-            <div className="mb-3 flex items-center justify-between gap-3">
-              {typeof title === 'string' ? <p className="font-display text-lg font-extrabold">{title}</p> : title}
-              <CloseButton onClick={onClose} label={typeof title === 'string' ? title : 'Close'} className="ml-auto" />
-            </div>
+            {/* Rendered unless the caller draws its own: a sheet without a visible way out strands
+                anyone who dismisses by backdrop tap less readily than by button. Title is optional. */}
+            {(!hideClose || title) && (
+              <div className="mb-3 flex items-center justify-between gap-3">
+                {typeof title === 'string' ? <p className="font-display text-lg font-extrabold">{title}</p> : title}
+                {!hideClose && <CloseButton onClick={onClose} label={typeof title === 'string' ? title : 'Close'} className="ml-auto" />}
+              </div>
+            )}
             {children}
             {footer && <div className="mt-4">{footer}</div>}
           </motion.div>

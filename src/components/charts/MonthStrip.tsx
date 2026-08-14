@@ -58,7 +58,7 @@ export default function MonthStrip({
             className="group flex flex-1 flex-col items-center justify-end gap-1.5"
             style={{ minHeight: 'var(--ctl-md)' }}
           >
-            <span className={`text-[10px] font-bold tabular-nums ${isSelected ? 'text-foreground' : 'text-transparent'}`}>
+            <span className={`text-[11px] font-bold tabular-nums ${isSelected ? 'text-foreground' : 'text-transparent'}`}>
               {month.total > 0 ? formatCurrency(month.total) : ''}
             </span>
             <span className="flex w-full items-end" style={{ height: MAX_BAR }}>
@@ -70,7 +70,7 @@ export default function MonthStrip({
                 style={{ originY: 1 }}
               />
             </span>
-            <span className={`text-[10px] font-semibold ${isSelected ? 'text-foreground' : 'text-muted-foreground'}`}>
+            <span className={`text-xs font-semibold ${isSelected ? 'text-foreground' : 'text-muted-foreground'}`}>
               {label}
             </span>
           </button>

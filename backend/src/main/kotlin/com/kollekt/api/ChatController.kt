@@ -3,6 +3,7 @@
 package com.kollekt.api
 
 import com.kollekt.api.dto.AddReactionRequest
+import com.kollekt.api.dto.ChatBackgroundDto
 import com.kollekt.api.dto.ChatThreadSummaryDto
 import com.kollekt.api.dto.CreateDirectMessageRequest
 import com.kollekt.api.dto.CreateMessageRequest
@@ -11,6 +12,7 @@ import com.kollekt.api.dto.MessageDto
 import com.kollekt.api.dto.RemoveReactionRequest
 import com.kollekt.api.dto.UpdateMessageRequest
 import com.kollekt.api.dto.VotePollRequest
+import com.kollekt.service.ChatBackgroundService
 import com.kollekt.service.ChatOperations
 import com.kollekt.service.CurrentMemberContext
 import org.springframework.http.HttpStatus
@@ -23,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile
 @RequestMapping("/api/chat")
 class ChatController(
     private val chatOperations: ChatOperations,
+    private val chatBackgroundService: ChatBackgroundService,
     private val currentMemberContext: CurrentMemberContext,
 ) {
     @GetMapping("/messages")
@@ -74,6 +77,34 @@ class ChatController(
         @RequestParam("caption", required = false) caption: String?,
         @AuthenticationPrincipal jwt: Jwt,
     ): MessageDto = chatOperations.createImageMessage(image, caption, jwt.subject)
+
+    /**
+     * The thread's shared wallpaper. `otherName` selects a direct thread; omit it for the household
+     * thread. The actor is always taken from the token, so the pair is never someone else's.
+     */
+    @GetMapping("/background")
+    fun getBackground(
+        @RequestParam memberName: String,
+        @RequestParam(required = false) otherName: String?,
+        @AuthenticationPrincipal jwt: Jwt,
+    ): ChatBackgroundDto {
+        currentMemberContext.requireTokenSubject(jwt, memberName)
+        return chatBackgroundService.get(memberName, otherName)
+    }
+
+    @PostMapping("/background")
+    fun setBackground(
+        @RequestParam("image") image: MultipartFile,
+        @RequestParam("otherName", required = false) otherName: String?,
+        @AuthenticationPrincipal jwt: Jwt,
+    ): ChatBackgroundDto = chatBackgroundService.set(jwt.subject, otherName, image)
+
+    @DeleteMapping("/background")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun clearBackground(
+        @RequestParam(required = false) otherName: String?,
+        @AuthenticationPrincipal jwt: Jwt,
+    ) = chatBackgroundService.clear(jwt.subject, otherName)
 
     @PostMapping("/polls")
     @ResponseStatus(HttpStatus.CREATED)

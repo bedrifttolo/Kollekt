@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Play, Users, Clock, Info, X, Lock, Dices } from 'lucide-react';
+import { Play, Users, Clock, Info, Lock, Dices } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -24,7 +24,7 @@ import DiceGame from '../../games/DiceGame';
 import LiarsDiceGame from '../../games/LiarsDiceGame';
 import DeckGame from '../../games/DeckGame';
 import { toneByKey, toneClass } from '../../lib/tones';
-import { SegmentedControl } from '../../components/ui-kit';
+import { SegmentedControl, Sheet } from '../../components/ui-kit';
 
 export default function GamesPanel() {
   const { t } = useTranslation();
@@ -146,12 +146,12 @@ export default function GamesPanel() {
           return (
           <div
             key={game.id}
-            className={`group card !p-4 text-left flex flex-col gap-3 ${game.playable ? '' : 'opacity-70'}`}
+            className={`group card text-left flex flex-col gap-3 ${game.playable ? '' : 'opacity-70'}`}
           >
             <div className="flex min-w-0 items-start justify-end gap-2">
               <div className="flex shrink-0 items-center gap-1">
                 {locked && (
-                  <span className="inline-flex max-w-[5rem] items-center gap-1 rounded-full bg-secondary/20 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-secondary-foreground">
+                  <span className="inline-flex max-w-[5rem] items-center gap-1 rounded-full bg-secondary/20 px-2 py-1 text-[11px] font-bold uppercase tracking-wide text-secondary-foreground">
                     <Lock className="h-3 w-3 shrink-0" /> <span className="truncate">{t('social.games.premium')}</span>
                   </span>
                 )}
@@ -196,35 +196,39 @@ export default function GamesPanel() {
         })}
       </div>
 
-      {rulesGame && (
-        <div className="fixed inset-0 z-[60] flex items-end bg-black/35 p-4 pb-[calc(env(safe-area-inset-bottom)+1rem)]" onClick={() => setRulesGame(null)}>
-          <div className="w-full rounded-2xl border border-border bg-card p-4 shadow-xl" onClick={(event) => event.stopPropagation()}>
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">{t('social.games.howToPlay')}</p>
-                <h3 className="mt-1 flex items-center gap-2 font-display text-xl font-extrabold">
-                  <rulesGame.icon className="h-5 w-5 shrink-0 text-muted-foreground" />
-                  {t(`social.games.catalog.${rulesGame.titleKey}`)}
-                </h3>
-              </div>
-              <button onClick={() => setRulesGame(null)} className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-muted" aria-label={t('common.cancel')}>
-                <X className="h-4 w-4" />
-              </button>
+      <Sheet
+        open={Boolean(rulesGame)}
+        onClose={() => setRulesGame(null)}
+        title={
+          rulesGame ? (
+            <div className="min-w-0">
+              <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">{t('social.games.howToPlay')}</p>
+              <h3 className="mt-1 flex items-center gap-2 font-display text-xl font-extrabold">
+                <rulesGame.icon className="h-5 w-5 shrink-0 text-muted-foreground" />
+                {t(`social.games.catalog.${rulesGame.titleKey}`)}
+              </h3>
             </div>
-            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{t(`social.games.ruleText.${rulesGame.descriptionKey}`)}</p>
+          ) : undefined
+        }
+        footer={
+          rulesGame ? (
             <button
               onClick={() => {
                 const game = rulesGame;
                 setRulesGame(null);
                 launch(game);
               }}
-              className="mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 text-sm font-bold text-primary-foreground"
+              className="btn w-full bg-primary text-primary-foreground"
             >
               <Play className="h-4 w-4" /> {rulesGame.playable ? t('social.games.startGame') : t('social.games.soon')}
             </button>
-          </div>
-        </div>
-      )}
+          ) : undefined
+        }
+      >
+        <p className="text-sm leading-relaxed text-muted-foreground">
+          {rulesGame ? t(`social.games.ruleText.${rulesGame.descriptionKey}`) : null}
+        </p>
+      </Sheet>
 
       {showPaywall && <SubscriptionPaywall onClose={() => setShowPaywall(false)} />}
 

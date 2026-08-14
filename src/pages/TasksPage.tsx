@@ -37,8 +37,8 @@ import { useUser, useRealtimeEvent } from '../context/UserContext';
 import { tapFeedback } from '../lib/haptics';
 import { formatDate, formatDateTime, translateKey } from '../i18n/helpers';
 import { EXPENSE_CATEGORIES } from '../lib/expenseStats';
-import type { AppUser, Task, ShoppingItem, TaskCategory, TaskSwapRequest, MaintenanceTicket, MaintenancePriority, MaintenanceStatus } from '../lib/types';
-import { AddSheet, Avatar, Chip, Eyebrow, Fab, OverflowMenu, ProgressBar, XpBurst } from '../components/ui-kit';
+import type { AppUser, Fairness, Task, ShoppingItem, TaskCategory, TaskSwapRequest, MaintenanceTicket, MaintenancePriority, MaintenanceStatus } from '../lib/types';
+import { AddSheet, Avatar, Chip, Eyebrow, Fab, OverflowMenu, ProgressBar, Sheet, XpBurst } from '../components/ui-kit';
 import { PAGE_ACCENTS } from '../lib/pageAccent';
 import { pressable, springPop } from '../lib/motion';
 import { celebrate } from '../lib/celebrate';
@@ -70,7 +70,7 @@ function TaskEditor({
   onClose,
   onSave,
   saveLabel,
-  suggestedAssignee,
+  suggestion,
 }: {
   title: string;
   newTitle: string;
@@ -90,7 +90,8 @@ function TaskEditor({
   onClose: () => void;
   onSave: () => void;
   saveLabel: string;
-  suggestedAssignee?: string | null;
+  /** Who the fair-share nudge points at, with the reason already resolved to a sentence. */
+  suggestion?: { name: string; label: string } | null;
 }) {
   const { t } = useTranslation();
   const xp = Number(newXp);
@@ -104,7 +105,7 @@ function TaskEditor({
           value={newTitle}
           onChange={(event) => setNewTitle(event.target.value)}
           placeholder={t('tasks.taskTitlePlaceholder')}
-          className="w-full min-h-[var(--ctl-lg)] bg-muted/50 rounded-lg px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+          className="input"
           onKeyDown={(event) => event.key === 'Enter' && canSave && onSave()}
           autoFocus
         />
@@ -129,14 +130,14 @@ function TaskEditor({
             </button>
           ))}
         </div>
-        {suggestedAssignee && suggestedAssignee !== newAssignee && (
+        {suggestion && suggestion.name !== newAssignee && (
           <button
             type="button"
-            onClick={() => setNewAssignee(suggestedAssignee)}
+            onClick={() => setNewAssignee(suggestion.name)}
             className="flex items-center gap-1 pt-0.5 text-left text-[11px] font-medium text-primary"
           >
             <Lightbulb className="h-3.5 w-3.5 shrink-0" />
-            {t('tasks.fairSuggestion', { name: suggestedAssignee })}
+            {suggestion.label}
           </button>
         )}
       </div>
@@ -147,7 +148,7 @@ function TaskEditor({
           type="date"
           value={newDue}
           onChange={(event) => setNewDue(event.target.value)}
-          className="w-full min-h-[var(--ctl-lg)] bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+          className="input"
         />
       </label>
 
@@ -177,7 +178,7 @@ function TaskEditor({
 
       <label className="space-y-1 block">
         <span className="text-xs font-semibold text-muted-foreground">{t('tasks.recurrenceLabel')}</span>
-        <select value={newRecurrence} onChange={(event) => setNewRecurrence(event.target.value)} className="w-full min-h-[var(--ctl-lg)] bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary">
+        <select value={newRecurrence} onChange={(event) => setNewRecurrence(event.target.value)} className="input">
           {RECURRENCE_OPTIONS.map((recurrence) => <option key={recurrence} value={recurrence}>{translateKey('common.recurrence', recurrence)}</option>)}
         </select>
       </label>
@@ -189,7 +190,7 @@ function TaskEditor({
           max={1000}
           value={newXp}
           onChange={(event) => setNewXp(event.target.value)}
-          className="w-20 bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+          className="input w-20"
         />
         <span className="text-xs text-muted-foreground">{t('tasks.xpReward')}</span>
       </div>
@@ -298,18 +299,55 @@ function TasksMain() {
   const members = collectiveMembers.map((member) => member.name);
   const memberOptions = members.length > 0 ? members : [name];
 
-  // Fairness nudge: suggest the housemate with the fewest open tasks when creating a task.
+  /**
+   * The fair-share nudge reads the same source the leaderboard's balance meter is drawn from:
+   * `GET /fairness`, i.e. completed tasks per member over the last 30 days. Suggesting from the same
+   * numbers the meter shows is the point — a tip derived from anything else would contradict the
+   * ring a tab away, and "who has actually carried the load lately" is the question the meter asks.
+   * Open-task count stays as the fallback: it is all there is to go on before the window has any
+   * completed tasks in it, or when the window ends in a tie.
+   */
+  const { data: fairness } = useQuery({
+    queryKey: ['fairness', name],
+    enabled: !!name,
+    queryFn: () => api.get<Fairness>(`/fairness?memberName=${encodeURIComponent(name)}`),
+  });
+
   const openTaskCounts = new Map(memberOptions.map((member) => [member, 0]));
   for (const task of tasks) {
     if (!task.completed && openTaskCounts.has(task.assignee)) {
       openTaskCounts.set(task.assignee, (openTaskCounts.get(task.assignee) ?? 0) + 1);
     }
   }
-  const suggestedAssignee = memberOptions.length > 1
-    ? memberOptions.reduce((best, member) =>
-        (openTaskCounts.get(member) ?? 0) < (openTaskCounts.get(best) ?? 0) ? member : best,
-      )
-    : null;
+
+  /**
+   * Only nudge when one housemate is *strictly* the lowest on whichever signal is in play. A
+   * `reduce` over `<` would silently break ties by roster order, so an even house would keep
+   * pointing at whoever the API happened to list first — a fairness tip that is both untrue and
+   * always the same person. No unique minimum means no signal, so say nothing.
+   */
+  const uniqueLowest = (candidates: string[], score: (member: string) => number) => {
+    if (candidates.length < 2) return null;
+    const lowest = Math.min(...candidates.map(score));
+    const atLowest = candidates.filter((member) => score(member) === lowest);
+    return atLowest.length === 1 ? atLowest[0] : null;
+  };
+
+  // Restricted to members the fairness window actually scores: it counts active members only, and
+  // someone it never mentions has no share to compare against.
+  const completedByMember = new Map((fairness?.shares ?? []).map((share) => [share.name, share.completedTasks]));
+  const scoredMembers = memberOptions.filter((member) => completedByMember.has(member));
+  const doneLeast =
+    fairness && fairness.totalTasks > 0
+      ? uniqueLowest(scoredMembers, (member) => completedByMember.get(member) ?? 0)
+      : null;
+  const leastLoaded = uniqueLowest(memberOptions, (member) => openTaskCounts.get(member) ?? 0);
+
+  const suggestion = doneLeast
+    ? { name: doneLeast, label: t('tasks.fairSuggestionShare', { name: doneLeast, days: fairness?.windowDays ?? 30 }) }
+    : leastLoaded
+      ? { name: leastLoaded, label: t('tasks.fairSuggestion', { name: leastLoaded }) }
+      : null;
 
   const setTasksState = (updater: SetStateAction<Task[]>) => {
     setTasks((prev) => {
@@ -950,16 +988,16 @@ function TasksMain() {
   if (loading) {
     wasLoadingRef.current = true;
     return (
-      <div className="space-y-4 pt-4">
+      <div className="space-y-4 pt-3">
         <div className="space-y-2">
-          <div className="h-3 w-20 animate-pulse rounded-full bg-muted/30" />
-          <div className="h-7 w-40 animate-pulse rounded-lg bg-muted/30" />
+          <div className="h-3 w-20 skeleton animate-pulse rounded-full" />
+          <div className="h-7 w-40 skeleton animate-pulse rounded-lg" />
         </div>
-        <div className="h-12 animate-pulse rounded-[--r-lg] bg-muted/20" />
-        <div className="h-32 animate-pulse rounded-[--r-xl] bg-muted/20" />
+        <div className="h-12 skeleton animate-pulse rounded-lg" />
+        <div className="h-32 skeleton animate-pulse rounded-xl" />
         <div className="space-y-3">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-16 animate-pulse rounded-[--r-lg] bg-muted/20" />
+            <div key={i} className="h-16 skeleton animate-pulse rounded-lg" />
           ))}
         </div>
       </div>
@@ -988,7 +1026,7 @@ function TasksMain() {
     <motion.div
       initial={justFinishedLoading ? { opacity: 0 } : false}
       animate={{ opacity: 1 }}
-      className="space-y-4 pt-4"
+      className="space-y-4 pt-3"
     >
       <div>
         <Eyebrow accent={PAGE_ACCENTS['/tasks']}>{t('tasks.eyebrow')}</Eyebrow>
@@ -1048,7 +1086,7 @@ function TasksMain() {
                 value={newShoppingName}
                 onChange={(e) => setNewShoppingName(e.target.value)}
                 placeholder={t('tasks.supplyNamePlaceholder')}
-                className="w-full min-h-[var(--ctl-lg)] bg-muted/50 rounded-lg px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                className="input"
                 onKeyDown={(e) => e.key === 'Enter' && void handleShoppingAdd()}
                 autoFocus
               />
@@ -1060,7 +1098,7 @@ function TasksMain() {
                       key={suggestion}
                       type="button"
                       onClick={() => setNewShoppingName(t(`tasks.shoppingTemplates.${suggestion}`))}
-                      className="rounded-full border border-border bg-card px-3 py-1.5 text-xs font-semibold text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                      className="btn-sm border border-border bg-card font-semibold text-muted-foreground hover:border-primary/40 hover:text-foreground"
                     >
                       {t(`tasks.shoppingTemplates.${suggestion}`)}
                     </button>
@@ -1085,18 +1123,18 @@ function TasksMain() {
             <AddSheet title={t('tasks.maintenance.newTicket')} onClose={() => setShowMaintenanceAdd(false)}>
               <label className="block space-y-1">
                 <span className="text-xs font-semibold text-muted-foreground">{t('tasks.maintenance.titleLabel')}</span>
-                <input value={newMaintenanceTitle} onChange={(event) => setNewMaintenanceTitle(event.target.value)} placeholder={t('tasks.maintenance.titlePlaceholder')} autoFocus className="w-full min-h-[var(--ctl-lg)] rounded-lg bg-muted/50 px-3 py-2 text-sm" />
+                <input value={newMaintenanceTitle} onChange={(event) => setNewMaintenanceTitle(event.target.value)} placeholder={t('tasks.maintenance.titlePlaceholder')} autoFocus className="input" />
               </label>
               <label className="block space-y-1">
                 <span className="text-xs font-semibold text-muted-foreground">{t('tasks.maintenance.descriptionLabel')}</span>
-                <textarea value={newMaintenanceDescription} onChange={(event) => setNewMaintenanceDescription(event.target.value)} placeholder={t('tasks.maintenance.descriptionPlaceholder')} rows={3} className="w-full resize-none rounded-lg bg-muted/50 px-3 py-2 text-sm" />
+                <textarea value={newMaintenanceDescription} onChange={(event) => setNewMaintenanceDescription(event.target.value)} placeholder={t('tasks.maintenance.descriptionPlaceholder')} rows={3} className="input resize-none" />
               </label>
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                <label className="min-w-0 space-y-1"><span className="text-xs font-semibold text-muted-foreground">{t('tasks.maintenance.priorityLabel')}</span><select value={newMaintenancePriority} onChange={(event) => setNewMaintenancePriority(event.target.value as MaintenancePriority)} className="w-full min-w-0 min-h-[var(--ctl-lg)] rounded-lg bg-muted/50 px-3 py-2 text-sm">{(['LOW', 'MEDIUM', 'HIGH', 'URGENT'] as const).map((priority) => <option key={priority} value={priority}>{t(`tasks.maintenance.priorities.${priority}`)}</option>)}</select></label>
-                <label className="min-w-0 space-y-1"><span className="text-xs font-semibold text-muted-foreground">{t('tasks.maintenance.assigneeLabel')}</span><select value={newMaintenanceAssignee} onChange={(event) => setNewMaintenanceAssignee(event.target.value)} className="w-full min-w-0 min-h-[var(--ctl-lg)] rounded-lg bg-muted/50 px-3 py-2 text-sm"><option value="">{t('tasks.maintenance.unassigned')}</option>{memberOptions.map((member) => <option key={member} value={member}>{member}</option>)}</select></label>
-                <label className="min-w-0 space-y-1"><span className="text-xs font-semibold text-muted-foreground">{t('tasks.maintenance.dueDateLabel')}</span><input type="date" value={newMaintenanceDue} onChange={(event) => setNewMaintenanceDue(event.target.value)} className="w-full min-w-0 rounded-lg bg-muted/50 px-3 py-2 text-sm" /></label>
+                <label className="min-w-0 space-y-1"><span className="text-xs font-semibold text-muted-foreground">{t('tasks.maintenance.priorityLabel')}</span><select value={newMaintenancePriority} onChange={(event) => setNewMaintenancePriority(event.target.value as MaintenancePriority)} className="input min-w-0">{(['LOW', 'MEDIUM', 'HIGH', 'URGENT'] as const).map((priority) => <option key={priority} value={priority}>{t(`tasks.maintenance.priorities.${priority}`)}</option>)}</select></label>
+                <label className="min-w-0 space-y-1"><span className="text-xs font-semibold text-muted-foreground">{t('tasks.maintenance.assigneeLabel')}</span><select value={newMaintenanceAssignee} onChange={(event) => setNewMaintenanceAssignee(event.target.value)} className="input min-w-0"><option value="">{t('tasks.maintenance.unassigned')}</option>{memberOptions.map((member) => <option key={member} value={member}>{member}</option>)}</select></label>
+                <label className="min-w-0 space-y-1"><span className="text-xs font-semibold text-muted-foreground">{t('tasks.maintenance.dueDateLabel')}</span><input type="date" value={newMaintenanceDue} onChange={(event) => setNewMaintenanceDue(event.target.value)} className="input min-w-0" /></label>
               </div>
-              <p className="text-[10px] text-muted-foreground">{t('tasks.maintenance.costLaterHint')}</p>
+              <p className="text-[11px] text-muted-foreground">{t('tasks.maintenance.costLaterHint')}</p>
               <button onClick={() => void handleMaintenanceAdd()} disabled={!newMaintenanceTitle.trim()} className="w-full rounded-lg bg-ink py-2 text-sm font-semibold text-ink-foreground disabled:opacity-50">{t('tasks.maintenance.addTicket')}</button>
             </AddSheet>
           </motion.div>
@@ -1106,7 +1144,7 @@ function TasksMain() {
       {tab === 'tasks' ? (
         <>
           {swapRequests.some((request) => request.status === 'PENDING') && (
-            <section className="rounded-[1.35rem] border border-primary/25 bg-primary/5 p-4">
+            <section className="rounded-lg border border-primary/25 bg-primary/5 p-4">
               <div className="mb-3 flex items-center gap-2">
                 <Repeat2 className="h-4 w-4 text-primary" />
                 <h3 className="text-sm font-bold">{t('tasks.swap.inboxTitle')}</h3>
@@ -1177,7 +1215,7 @@ function TasksMain() {
                   onClose={resetForm}
                   onSave={handleSave}
                   saveLabel={t('tasks.addTask')}
-                  suggestedAssignee={suggestedAssignee}
+                  suggestion={suggestion}
                 />
               </motion.div>
             )}
@@ -1199,7 +1237,7 @@ function TasksMain() {
                     initial={justFinishedLoading ? { opacity: 0, y: 10 } : false}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: justFinishedLoading ? index * 0.04 : 0 }}
-                    className={`task !rounded-[1.35rem] !p-4 ${task.completed ? 'opacity-60' : ''}`}
+                    className={`task ${task.completed ? 'opacity-60' : ''}`}
                   >
                     <div className="flex items-center gap-4">
                       <div className="relative shrink-0">
@@ -1254,12 +1292,12 @@ function TasksMain() {
                           )}
                           <span className="text-sm font-bold text-destructive">+{task.xp} XP</span>
                           {isPenalized && (
-                            <span className="rounded-full bg-secondary/20 px-2 py-1 text-[10px] font-medium text-secondary-foreground">
+                            <span className="rounded-full bg-secondary/20 px-2 py-1 text-[11px] font-medium text-secondary-foreground">
                               {t('tasks.penaltyApplied')}
                             </span>
                           )}
                           {task.assignmentReason === 'LATE' && (
-                            <span className="rounded-full bg-secondary/20 px-2 py-1 text-[10px] font-medium text-secondary-foreground">
+                            <span className="rounded-full bg-secondary/20 px-2 py-1 text-[11px] font-medium text-secondary-foreground">
                               {translateKey(
                                 'common.taskAssignmentReasons',
                                 task.assignmentReason,
@@ -1270,7 +1308,7 @@ function TasksMain() {
                       </div>
                       <div className="w-14 shrink-0 text-center">
                         <Avatar name={task.assignee} className="mx-auto h-12 w-12 text-lg" />
-                        <span className="mt-1 block truncate text-[10px] font-semibold text-muted-foreground">
+                        <span className="mt-1 block truncate text-[11px] font-semibold text-muted-foreground">
                           {task.assignee}
                         </span>
                       </div>
@@ -1283,7 +1321,7 @@ function TasksMain() {
                             void markLate(task);
                           }}
                           disabled={taskIsPending}
-                          className="flex h-9 items-center gap-1 rounded-full border border-border bg-card px-3 text-[10px] font-medium text-destructive disabled:opacity-60"
+                          className="btn-sm border border-border bg-card font-medium text-destructive disabled:opacity-60"
                         >
                           <Clock className="h-3 w-3" />
                           {t('tasks.completeLate')}
@@ -1295,7 +1333,7 @@ function TasksMain() {
                             void completeMissedTask(task);
                           }}
                           disabled={taskIsPending}
-                          className="flex h-9 items-center gap-1 rounded-full border border-border bg-card px-3 text-[10px] font-medium text-destructive disabled:opacity-60"
+                          className="btn-sm border border-border bg-card font-medium text-destructive disabled:opacity-60"
                         >
                           <Clock className="h-3 w-3" />
                           {t('tasks.regretMissed')}
@@ -1341,7 +1379,7 @@ function TasksMain() {
                         <select
                           value={swapRecipient}
                           onChange={(event) => setSwapRecipient(event.target.value)}
-                          className="min-w-0 flex-1 rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                          className="input min-w-0 flex-1 border-border bg-card"
                         >
                           <option value="">{t('tasks.swap.chooseRoommate')}</option>
                           {memberOptions
@@ -1376,7 +1414,7 @@ function TasksMain() {
                                   className="bg-muted/30 rounded-lg px-2.5 py-2 space-y-1"
                                 >
                                   <div className="flex items-center gap-1.5">
-                                    <span className="text-[10px] font-semibold text-foreground">
+                                    <span className="text-[11px] font-semibold text-foreground">
                                       {feedback.anonymous
                                         ? t('tasks.feedbackAnonymousAuthor')
                                         : (feedback.author ??
@@ -1385,7 +1423,7 @@ function TasksMain() {
                                     {feedback.anonymous && (
                                       <EyeOff className="h-2.5 w-2.5 text-muted-foreground" />
                                     )}
-                                    <span className="text-[9px] text-muted-foreground ml-auto">
+                                    <span className="text-[11px] text-muted-foreground ml-auto">
                                       {formatDateTime(feedback.createdAt)}
                                     </span>
                                   </div>
@@ -1411,7 +1449,7 @@ function TasksMain() {
                               value={commentText}
                               onChange={(event) => setCommentText(event.target.value)}
                               placeholder={t('tasks.feedbackPlaceholder')}
-                              className="flex-1 bg-muted/50 rounded-lg px-2 py-1.5 text-[11px] placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                              className="input input-sm flex-1"
                               onKeyDown={(event) =>
                                 event.key === 'Enter' && void addFeedback(task.id)
                               }
@@ -1420,7 +1458,7 @@ function TasksMain() {
                               onClick={() => {
                                 void addFeedback(task.id);
                               }}
-                              className="px-2 rounded-lg gradient-primary text-[10px] font-medium text-ink-foreground"
+                              className="btn-sm !rounded-lg gradient-primary font-medium text-ink-foreground"
                             >
                               {t('common.send')}
                             </button>
@@ -1429,7 +1467,7 @@ function TasksMain() {
                           <div className="flex items-center gap-3">
                             <button
                               onClick={() => setFeedbackAnonymous((value) => !value)}
-                              className={`flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-medium transition-colors ${
+                              className={`btn-sm !rounded-lg font-medium transition-colors ${
                                 feedbackAnonymous
                                   ? 'bg-primary/20 text-primary'
                                   : 'glass text-muted-foreground'
@@ -1442,7 +1480,7 @@ function TasksMain() {
                             </button>
                             <button
                               onClick={() => void pickFeedbackImage()}
-                              className={`flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-medium transition-colors ${
+                              className={`btn-sm !rounded-lg font-medium transition-colors ${
                                 feedbackImage
                                   ? 'bg-primary/20 text-primary'
                                   : 'glass text-muted-foreground'
@@ -1456,7 +1494,7 @@ function TasksMain() {
                             {feedbackImage && (
                               <button
                                 onClick={removeFeedbackImage}
-                                className="text-[10px] text-destructive"
+                                className="pressable-tight text-xs text-destructive"
                               >
                                 {t('tasks.feedbackRemoveImage')}
                               </button>
@@ -1547,7 +1585,7 @@ function TasksMain() {
                 initial={justFinishedLoading ? { opacity: 0, y: 8 } : false}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: justFinishedLoading ? index * 0.04 : 0 }}
-                className={`glass rounded-2xl p-4 ${item.completed ? 'opacity-50' : ''}`}
+                className={`glass rounded-xl p-4 ${item.completed ? 'opacity-50' : ''}`}
               >
                 <div className="flex items-center gap-3">
                   <div className="h-11 w-11 rounded-xl bg-muted flex items-center justify-center shrink-0">
@@ -1616,12 +1654,12 @@ function TasksMain() {
                           value={buyAmount}
                           onChange={(event) => setBuyAmount(event.target.value)}
                           placeholder={t('tasks.shopping.amountPlaceholder')}
-                          className="bg-muted/50 rounded-lg px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                          className="input"
                         />
                         <select
                           value={buyPaidBy}
                           onChange={(event) => setBuyPaidBy(event.target.value)}
-                          className="bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                          className="input"
                         >
                           {memberOptions.map((member) => (
                             <option key={member} value={member}>
@@ -1632,11 +1670,11 @@ function TasksMain() {
                       </div>
 
                       <label className="block space-y-1">
-                        <span className="text-[10px] text-muted-foreground">{t('economy.categoryLabel')}</span>
+                        <span className="text-[11px] text-muted-foreground">{t('economy.categoryLabel')}</span>
                         <select
                           value={buyCategory}
                           onChange={(event) => setBuyCategory(event.target.value)}
-                          className="w-full min-h-[var(--ctl-lg)] bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                          className="input"
                         >
                           {EXPENSE_CATEGORIES.map((c) => (
                             <option key={c} value={c}>
@@ -1646,7 +1684,7 @@ function TasksMain() {
                         </select>
                       </label>
 
-                      <p className="text-[10px] text-muted-foreground">
+                      <p className="text-[11px] text-muted-foreground">
                         {t('tasks.shopping.splitWith')}
                       </p>
                       <div className="flex flex-wrap gap-1.5">
@@ -1654,7 +1692,7 @@ function TasksMain() {
                           <button
                             key={member}
                             onClick={() => toggleBuyParticipant(member)}
-                            className={`px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors ${
+                            className={`btn-sm font-medium transition-colors ${
                               buyParticipants.includes(member)
                                 ? 'gradient-primary text-ink-foreground'
                                 : 'glass text-muted-foreground'
@@ -1670,14 +1708,14 @@ function TasksMain() {
                           type="date"
                           value={buyDate}
                           onChange={(event) => setBuyDate(event.target.value)}
-                          className="bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                          className="input"
                           aria-label={t('tasks.shopping.purchaseDate')}
                         />
                         <input
                           type="date"
                           value={buyDeadline}
                           onChange={(event) => setBuyDeadline(event.target.value)}
-                          className="bg-muted/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                          className="input"
                           aria-label={t('economy.deadlineDateLabel')}
                         />
                       </div>
@@ -1713,7 +1751,7 @@ function TasksMain() {
                         <input
                           value={editShopText}
                           onChange={(event) => setEditShopText(event.target.value)}
-                          className="flex-1 bg-muted/50 rounded-lg px-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                          className="input input-sm flex-1"
                           onKeyDown={(event) => {
                             if (event.key === 'Enter') void saveEditShop(item.id);
                             if (event.key === 'Escape') setEditingShopId(null);
@@ -1753,7 +1791,7 @@ function TasksMain() {
 
           <div className="flex flex-wrap gap-2">
             {(['ALL', 'OPEN', 'IN_PROGRESS', 'BLOCKED', 'DONE'] as const).map((status) => (
-              <button key={status} onClick={() => setMaintenanceFilter(status)} className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${maintenanceFilter === status ? 'gradient-primary text-ink-foreground' : 'glass text-muted-foreground'}`}>
+              <button key={status} onClick={() => setMaintenanceFilter(status)} className={`btn-sm font-medium transition-colors ${maintenanceFilter === status ? 'gradient-primary text-ink-foreground' : 'glass text-muted-foreground'}`}>
                 {status === 'ALL' ? t('tasks.maintenance.all') : t(`tasks.maintenance.statuses.${status}`)}
               </button>
             ))}
@@ -1766,7 +1804,7 @@ function TasksMain() {
           {maintenanceTickets
             .filter((ticket) => maintenanceFilter === 'ALL' || ticket.status === maintenanceFilter)
             .map((ticket) => (
-              <div key={ticket.id} className={`rounded-[1.2rem] border bg-card p-4 ${ticket.overdue ? 'border-destructive/60' : 'border-border'}`}>
+              <div key={ticket.id} className={`rounded-lg border bg-card p-4 ${ticket.overdue ? 'border-destructive/60' : 'border-border'}`}>
                 <div className="flex items-start gap-3">
                   <div className={`grid h-9 w-9 shrink-0 place-items-center rounded-lg ${ticket.overdue ? 'bg-destructive/15' : 'bg-muted'}`}>
                     {ticket.overdue ? <AlertTriangle className="h-4 w-4 text-destructive" /> : <Wrench className="h-4 w-4 text-muted-foreground" />}
@@ -1774,14 +1812,14 @@ function TasksMain() {
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <p className="font-bold">{ticket.title}</p>
-                      <span className={`rounded-full px-2 py-0.5 text-[9px] font-bold ${ticket.priority === 'URGENT' ? 'bg-destructive/15 text-destructive' : ticket.priority === 'HIGH' ? 'bg-secondary/30' : 'bg-muted text-muted-foreground'}`}>{t(`tasks.maintenance.priorities.${ticket.priority}`)}</span>
+                      <span className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${ticket.priority === 'URGENT' ? 'bg-destructive/15 text-destructive' : ticket.priority === 'HIGH' ? 'bg-secondary/30' : 'bg-muted text-muted-foreground'}`}>{t(`tasks.maintenance.priorities.${ticket.priority}`)}</span>
                     </div>
                     {ticket.description && <p className="mt-1 text-xs text-muted-foreground">{ticket.description}</p>}
-                    <p className="mt-2 text-[10px] text-muted-foreground">
+                    <p className="mt-2 text-[11px] text-muted-foreground">
                       {ticket.dueDate ? `${t('tasks.maintenance.due')} ${formatDate(ticket.dueDate)}` : t('tasks.maintenance.noDueDate')}
                       {ticket.status === 'DONE' && ticket.costEstimate != null && ticket.costEstimate > 0 ? ` · ${ticket.costEstimate} kr` : ''}
                     </p>
-                    {ticket.overdue && <p className="mt-1 text-[10px] font-bold text-destructive">{t('tasks.maintenance.overdue')}</p>}
+                    {ticket.overdue && <p className="mt-1 text-[11px] font-bold text-destructive">{t('tasks.maintenance.overdue')}</p>}
                   </div>
 	                  <OverflowMenu
 	                    label={t('common.actions')}
@@ -1830,9 +1868,9 @@ function TasksMain() {
                 </div>
                 {editingTicketId === ticket.id && (
                   <div className="mt-3 space-y-2 rounded-xl border border-border bg-background/40 p-3">
-                    <input value={editTicketTitle} onChange={(event) => setEditTicketTitle(event.target.value)} placeholder={t('tasks.maintenance.titlePlaceholder')} className="w-full rounded-lg bg-muted/50 px-3 py-2 text-sm" />
-                    <textarea value={editTicketDescription} onChange={(event) => setEditTicketDescription(event.target.value)} placeholder={t('tasks.maintenance.descriptionPlaceholder')} rows={2} className="w-full resize-none rounded-lg bg-muted/50 px-3 py-2 text-sm" />
-                    <input type="date" value={editTicketDue} onChange={(event) => setEditTicketDue(event.target.value)} className="w-full rounded-lg bg-muted/50 px-3 py-2 text-sm" />
+                    <input value={editTicketTitle} onChange={(event) => setEditTicketTitle(event.target.value)} placeholder={t('tasks.maintenance.titlePlaceholder')} className="input" />
+                    <textarea value={editTicketDescription} onChange={(event) => setEditTicketDescription(event.target.value)} placeholder={t('tasks.maintenance.descriptionPlaceholder')} rows={2} className="input resize-none" />
+                    <input type="date" value={editTicketDue} onChange={(event) => setEditTicketDue(event.target.value)} className="input" />
                     <div className="flex gap-2">
                       <button onClick={() => void saveEditTicket()} disabled={!editTicketTitle.trim()} className="flex-1 rounded-lg bg-ink py-2 text-xs font-bold text-ink-foreground disabled:opacity-50">{t('tasks.maintenance.saveEdit')}</button>
                       <button onClick={() => setEditingTicketId(null)} className="flex-1 rounded-lg glass py-2 text-xs font-medium">{t('common.cancel')}</button>
@@ -1840,7 +1878,7 @@ function TasksMain() {
                   </div>
                 )}
                 {ticket.statusHistory.length > 1 && (
-                  <p className="mt-3 text-[9px] text-muted-foreground">
+                  <p className="mt-3 text-[11px] text-muted-foreground">
                     {ticket.statusHistory.map((entry) => `${t(`tasks.maintenance.statuses.${entry.status}`)} · ${entry.changedBy}`).join(' → ')}
                   </p>
                 )}
@@ -1849,22 +1887,26 @@ function TasksMain() {
         </div>
       )}
 
-      <AnimatePresence>
-        {completingTicket && (
-          <motion.div
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4"
-            onClick={() => setCompletingTicket(null)}
+      {/* A short confirmation, so it sits centred rather than sliding up from the bottom edge the
+          way a full task would. */}
+      <Sheet
+        open={Boolean(completingTicket)}
+        onClose={() => setCompletingTicket(null)}
+        placement="center"
+        size="md"
+        title={t('tasks.maintenance.completeTitle')}
+        footer={
+          <button
+            onClick={() => void confirmCompleteTicket()}
+            disabled={Number(completeCost) > 0 && completeSplit.length === 0}
+            className="btn-pine w-full disabled:opacity-50"
           >
-            <motion.div
-              initial={{ y: 24 }} animate={{ y: 0 }} exit={{ y: 24 }}
-              className="w-full max-w-md max-h-[85vh] overflow-y-auto rounded-[1.5rem] bg-background p-5 space-y-3"
-              onClick={(event) => event.stopPropagation()}
-            >
-              <div className="flex items-center justify-between">
-                <h3 className="font-display text-lg font-bold">{t('tasks.maintenance.completeTitle')}</h3>
-                <button onClick={() => setCompletingTicket(null)} aria-label={t('common.cancel')} className="grid h-11 w-11 place-items-center rounded-full bg-muted"><X className="h-4 w-4" /></button>
-              </div>
+            {t('tasks.maintenance.completeConfirm')}
+          </button>
+        }
+      >
+        {completingTicket && (
+          <div className="space-y-3">
               <p className="text-sm text-muted-foreground">{t('tasks.maintenance.completeSubtitle', { title: completingTicket.title })}</p>
               <label className="block space-y-1">
                 <span className="text-xs font-semibold text-muted-foreground">{t('tasks.maintenance.actualCostLabel')}</span>
@@ -1875,7 +1917,7 @@ function TasksMain() {
                   value={completeCost}
                   onChange={(event) => setCompleteCost(event.target.value)}
                   placeholder={t('tasks.maintenance.costPlaceholder')}
-                  className="w-full min-h-[var(--ctl-lg)] rounded-lg bg-muted/50 px-3 py-2 text-sm"
+                  className="input"
                 />
               </label>
               <label className="block space-y-1">
@@ -1883,7 +1925,7 @@ function TasksMain() {
                 <select
                   value={completeCategory}
                   onChange={(event) => setCompleteCategory(event.target.value)}
-                  className="w-full min-h-[var(--ctl-lg)] rounded-lg bg-muted/50 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                  className="input"
                 >
                   {EXPENSE_CATEGORIES.map((c) => (
                     <option key={c} value={c}>
@@ -1895,34 +1937,26 @@ function TasksMain() {
               {Number(completeCost) > 0 && (
                 <div>
                   <p className="mb-1.5 text-[11px] font-semibold text-muted-foreground">{t('tasks.maintenance.splitLabel')}</p>
-                  <div className="flex flex-wrap gap-1.5">
+                  <div className="flex flex-wrap gap-3">
                     {memberOptions.map((member) => {
                       const selected = completeSplit.includes(member);
                       return (
                         <button
                           key={member}
                           onClick={() => setCompleteSplit((prev) => selected ? prev.filter((m) => m !== member) : [...prev, member])}
-                          className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${selected ? 'bg-ink text-ink-foreground' : 'bg-muted/60 text-muted-foreground'}`}
+                          className={`btn-sm font-medium transition-colors ${selected ? 'bg-ink text-ink-foreground' : 'bg-muted/60 text-muted-foreground'}`}
                         >
                           {member}
                         </button>
                       );
                     })}
                   </div>
-                  <p className="mt-1 text-[10px] text-muted-foreground">{t('tasks.maintenance.splitHint')}</p>
+                  <p className="mt-1 text-[11px] text-muted-foreground">{t('tasks.maintenance.splitHint')}</p>
                 </div>
               )}
-              <button
-                onClick={() => void confirmCompleteTicket()}
-                disabled={Number(completeCost) > 0 && completeSplit.length === 0}
-                className="w-full rounded-xl bg-ink py-2.5 text-sm font-bold text-ink-foreground disabled:opacity-50"
-              >
-                {t('tasks.maintenance.completeConfirm')}
-              </button>
-            </motion.div>
-          </motion.div>
+          </div>
         )}
-      </AnimatePresence>
+      </Sheet>
     </motion.div>
   );
 }

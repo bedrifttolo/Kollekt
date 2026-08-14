@@ -40,7 +40,6 @@
   --sidebar-accent-foreground: #121416;
   --sidebar-border: #dde1e4;
   --sidebar-ring: #48b4a2;
-  --radius: 1.25rem;
   --shadow: 0 8px 28px rgba(20, 20, 22, 0.09);
   /* Elevation scale. One --shadow for every surface is what made the app read flat: a resting list
      row, a hero and a modal all sat at the same depth. --elev-1/2/3 are resting / raised / floating.
@@ -106,6 +105,16 @@
   --app-nav-h: 5.75rem;
   --app-main-pt: 0.5rem;
 
+  /* Stacking order, for reference — z-index is written per call site as a Tailwind class, since a
+     custom property can't be consumed by `z-*` without an arbitrary value at every site anyway:
+       40   AppHeader (sticky)
+       50   BottomNav
+       55   celebrate.ts confetti (above the nav, below sheets — see lib/celebrate.ts)
+       60   sheets, dialogs, full-screen game shells
+       70   a modal opened from inside a game shell
+       999  TourOverlay      } app-level interrupts, deliberately above everything
+       1000 UpdateOverlay    } including sheets */
+
   /* On-screen keyboard geometry, written to <html> by src/lib/keyboardInsets.ts the instant the
      keyboard starts animating (the native webview no longer resizes itself — see the Keyboard
      block in capacitor.config.ts). Every bottom-docked surface reads these instead of guessing,
@@ -117,6 +126,10 @@
 
   /* Radius scale. Component classes below pick from these instead of each declaring its own
      value — that drift is what forced the `card !rounded-2xl` style overrides across the pages. */
+  /* --r-xs is the step the ladder was missing: --r-sm (14px) is already generous on a 44px control
+     and absurd on a 24px one, which is why small elements kept reaching for `rounded-md` (a 24px
+     thumbnail at 18px radius is nearly a circle) or inventing their own value. */
+  --r-xs: 0.5rem;
   --r-sm: 0.875rem;
   --r-md: 1.125rem;
   --r-lg: 1.3125rem;
@@ -254,8 +267,13 @@
   /* Derived from the --r-* scale rather than --radius. These two used to be independent ladders:
      `rounded-xl` in a TSX file and `.card`'s radius resolved to different numbers, which is what
      forced the `card !rounded-2xl` overrides across the pages. One scale now, two spellings. */
-  --radius-sm: var(--r-sm); --radius-md: var(--r-md);
+  --radius-xs: var(--r-xs); --radius-sm: var(--r-sm); --radius-md: var(--r-md);
   --radius-lg: var(--r-lg); --radius-xl: var(--r-xl); --radius-2xl: var(--r-2xl);
+  /* Deliberately NOT extended past 2xl. Tailwind's stock --radius-3xl is 1.5rem, which is identical
+     to our --r-xl and *smaller* than --r-2xl (1.875rem) — so `rounded-3xl` reads bigger than
+     `rounded-2xl` at a call site while rendering smaller, and grepping for arbitrary radius values
+     never surfaces it. Rather than paper over that with a --radius-3xl mapping, the ladder stops at
+     2xl and `rounded-3xl` is not used in this codebase. Corner-specific cases use .podium-bar. */
   --shadow-elev-1: var(--elev-1); --shadow-elev-2: var(--elev-2); --shadow-elev-3: var(--elev-3);
   --font-sans: 'Schibsted Grotesk', system-ui, sans-serif;
   /* One typeface everywhere — headings/buttons/body all read as the same app. Kept as a
@@ -430,6 +448,14 @@
 @layer components {
   .page-enter { animation: page-enter 260ms ease-out; }
   .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--r-xl); padding: 1rem; box-shadow: var(--elev-1); }
+  /* Size steps for .card. These exist so the ~12 sites that were writing `card p-3`, `card p-2.5`,
+     `card px-3 py-2`, `card px-5 py-3`, `card !p-0` have somewhere legal to land — each of those was
+     a fresh guess at a padding, and together they were most of defect "cards use 10 paddings". Pick
+     the step by content weight, not by taste: -sm for a dense row, default for a normal panel, -lg
+     for a hero-adjacent block, -flush when the child owns its own inset (a list, an image). */
+  .card-sm { border-radius: var(--r-lg); padding: .75rem; }
+  .card-lg { border-radius: var(--r-2xl); padding: 1.25rem; }
+  .card-flush { padding: 0; }
   /* A row nested inside a .card. Previously these borrowed --muted, which is also the segmented
      control's fill, so a list row and a tab strip were the same colour on the same screen. */
   .card-inset { background: var(--surface-3); border-radius: var(--r-md); padding: .75rem; }
@@ -448,7 +474,28 @@
     height: 1.75rem; width: 1.75rem; border-radius: 50%; border: 3px solid var(--card);
     background: var(--primary); box-shadow: var(--elev-1);
   }
-  .btn-pine, .btn-lemon, .btn-ghost { min-height: var(--ctl-lg); border-radius: var(--r-md); padding: .75rem 1rem; font-weight: 750; display: inline-flex; align-items: center; justify-content: center; gap: .5rem; }
+  /* .btn is the shape with no fill, for the few buttons that carry their own (a teal paywall CTA, a
+     dashed "add another" row). Everything else should use one of the three fills below rather than
+     inventing a fourth. */
+  .btn, .btn-pine, .btn-lemon, .btn-ghost { min-height: var(--ctl-lg); border-radius: var(--r-md); padding: .75rem 1rem; font-weight: 750; display: inline-flex; align-items: center; justify-content: center; gap: .5rem; }
+  /* Two smaller steps off the same base. The default (above) is --ctl-lg / 56px, which is the size a
+     full-width primary action wants; these are for the actions that sit *inside* a row or a toolbar,
+     where 56px would blow the density apart.
+       .btn-md  44px — a normal, non-hero action. Still meets the touch floor on its own.
+       .btn-sm  32px visually, 44px to a thumb. Same trick as .pressable-tight: the glyph stays
+                small and an invisible ::after grows the hit area, because a 44px pill inside a
+                48px list row looks broken. Adjacent .btn-sm targets need >=12px between them or
+                their hit areas overlap and the later one in DOM order swallows the tap. */
+  .btn-md { min-height: var(--ctl-md); padding: .5rem .875rem; font-size: .875rem; }
+  .btn-sm {
+    position: relative; min-height: 2rem; border-radius: 999px; padding: .25rem .75rem;
+    font-size: .75rem; font-weight: 700;
+    display: inline-flex; align-items: center; justify-content: center; gap: .375rem;
+  }
+  .btn-sm::after {
+    content: ''; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+    width: max(100%, var(--ctl-md)); height: var(--ctl-md);
+  }
   /* The main CTA reads from --ink, not --primary: --primary is the brand teal, reserved for
      icons/rings/progress/tags, and is too loud as a full-width button fill in either theme.
      --ink flips matte-black/white per theme (see :root/.dark), matching the FAB and the
@@ -457,7 +504,28 @@
   .btn-lemon { background: var(--secondary); color: var(--secondary-foreground); }
   .btn-ghost { background: var(--card); color: var(--foreground); border: 1px solid var(--border); }
   .seg { display: flex; gap: .25rem; padding: .3rem; background: var(--muted); border-radius: var(--r-lg); }
-  .field { background: var(--card); border: 1px solid var(--border); border-radius: var(--r-lg); min-height: 4.1rem; padding: .75rem 1rem; }
+  /* A labelled input (the 11px caps label sits above the field inside the same box). 4.1rem made it
+     a full 10px taller than any other control on the same form for no reason — --ctl-lg lines it up
+     with .input and with a primary CTA, and the label + 16px input still fit at .5rem padding. */
+  .field { background: var(--card); border: 1px solid var(--border); border-radius: var(--r-lg); min-height: var(--ctl-lg); padding: .5rem .875rem; }
+  /* The one text-input surface. Every value here is the *existing majority*, so adopting this class
+     is a no-op at most call sites and only pulls the outliers in:
+       fill    bg-muted/50   (49 of 84 inputs)
+       radius  rounded-lg    (51 of 84)
+       height  --ctl-lg      (27 of 84 — and the same 56px as a primary CTA)
+     The remaining 47 had no height at all and rendered ~36px. .input-sm is the one legitimate
+     exception: inline controls in a popover or the chat composer, floored at 44px rather than 56. */
+  .input {
+    width: 100%; min-height: var(--ctl-lg); border-radius: var(--r-lg);
+    background: color-mix(in srgb, var(--muted) 50%, transparent);
+    border: 1px solid transparent; padding: .625rem .875rem; font-size: .875rem;
+  }
+  .input::placeholder { color: var(--muted-foreground); }
+  .input:focus { outline: none; border-color: var(--ring); }
+  .input:disabled { opacity: .5; }
+  .input-invalid, .input[aria-invalid="true"] { border-color: var(--destructive); }
+  .input-sm { min-height: var(--ctl-md); border-radius: var(--r-md); padding: .5rem .75rem; }
+  textarea.input { padding-top: .625rem; padding-bottom: .625rem; }
   .househero, .wallet, .gamehero { background: var(--hero); color: var(--hero-foreground); border-radius: var(--r-2xl); padding: 1.25rem; box-shadow: var(--elev-2); }
   /* The "spotlight" hero cards (household summary, task/shopping/maintenance overview, wallet
      balance, tonight's game pick) are always matte black with white text/icons, in both themes —
@@ -506,6 +574,16 @@
      resolves to San Francisco in an iOS WKWebView/Safari; other platforms fall through the stack. */
   .font-ios { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif; }
   .stat-tile { border-radius: var(--r-md); padding: .8rem; background: color-mix(in srgb, var(--ink-foreground) 12%, transparent); }
+  /* One loading surface. Every skeleton was a fresh guess (`glass rounded-2xl h-20`,
+     `h-16 animate-pulse rounded-2xl bg-muted/20`, `h-20 …`, a LoadingDot copy at a different size),
+     so a page's loading frame rarely matched the layout it resolved into. Pair with animate-pulse
+     via the Skeleton primitive; the caller still supplies its own height and width so the
+     placeholder can be sized to the real content and the load doesn't jump. */
+  .skeleton { background: color-mix(in srgb, var(--muted) 55%, transparent); border-radius: var(--r-lg); }
+  /* RanksPanel's podium columns. Tailwind has no per-corner token spelling, and `rounded-t-3xl`
+     resolves to 1.5rem — smaller than rounded-2xl, which is not what "3xl" implies (see the note on
+     --radius-3xl in @theme inline). This states the intent once instead of at five call sites. */
+  .podium-bar { border-top-left-radius: var(--r-2xl); border-top-right-radius: var(--r-2xl); }
   .pill { border-radius: 999px; padding: .3rem .65rem; font-size: .72rem; font-weight: 700; }
   .pill-pine { background: color-mix(in srgb, var(--primary) 15%, transparent); color: var(--primary); }
   /* --accent-foreground is dark in every theme, which vanished against this wash once the wash
@@ -532,10 +610,19 @@ select {
 /* Mobile touch targets. --ctl-md (44px) is the floor for anything a thumb aims at. Inline chips and
    compact icon buttons opt into .pressable-tight instead, which grows an invisible hit area rather
    than inflating the glyph — that is why this rule can now be broad where it used to be scoped to
-   full-width CTAs and segmented toggles only. */
-.seg button { min-height: var(--ctl-md); display: inline-flex; align-items: center; justify-content: center; }
-button.w-full { min-height: var(--ctl-md); }
-button.w-full:not(.flex):not(.grid):not(.inline-flex) { display: flex; align-items: center; justify-content: center; }
+   full-width CTAs and segmented toggles only.
+
+   These live in @layer base on purpose. Unlayered declarations outrank *any* @layer regardless of
+   specificity, so while this block sat outside a layer it beat .btn-pine's `min-height: var(--ctl-lg)`
+   from @layer components and silently clamped all 25 `btn-* w-full` CTAs to 44px instead of the 56px
+   the button base asks for. As a base rule it is what it was always meant to be: a floor that any
+   component class can raise. Do not move it back out. */
+@layer base {
+  .seg button { min-height: var(--ctl-md); display: inline-flex; align-items: center; justify-content: center; }
+  button.w-full { min-height: var(--ctl-md); }
+  button.w-full:not(.flex):not(.grid):not(.inline-flex) { display: flex; align-items: center; justify-content: center; }
+}
+/* Behavioural, not sizing — nothing needs to override these, so they stay unlayered. */
 button:not(:disabled) { cursor: pointer; transition: filter var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out); }
 @media (hover: hover) and (pointer: fine) { button:not(:disabled):hover { filter: brightness(1.04); transform: translateY(-1px); } }
 /* Fallback press feedback. Components using the shared `pressable` motion preset from

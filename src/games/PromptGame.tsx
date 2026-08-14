@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowRight, CheckCircle2, Hash, PartyPopper, RotateCcw, Users, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { IconButton } from '../components/ui-kit';
 import {
   getDrinkingGame,
   type DrinkingGameId,
@@ -97,9 +98,7 @@ export default function PromptGame({
             </button>
           )}
         </div>
-        <button onClick={onClose} className="grid h-11 w-11 place-items-center rounded-full border border-border bg-card" aria-label={t('common.cancel')}>
-          <X className="h-4 w-4" />
-        </button>
+        <IconButton onClick={onClose} label={t('common.cancel')} icon={<X className="h-4 w-4" />} />
       </div>
 
       <div className="flex-1 overflow-y-auto px-5 py-5">
@@ -111,7 +110,7 @@ export default function PromptGame({
                 <button
                   key={tier}
                   onClick={() => { setSpice(tier); setPhase('rules'); }}
-                  className="card !p-4 w-full text-left"
+                  className="card w-full text-left"
                 >
                   <p className="font-display text-lg font-extrabold">{t(`games.spice.${tier}`)}</p>
                   <p className="mt-1 text-sm text-muted-foreground">{t(`games.spice.${tier}Hint`)}</p>
@@ -151,7 +150,7 @@ export default function PromptGame({
                   initial={{ opacity: 0, scale: .96 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: .96 }}
-                  className={`flex min-h-64 flex-col justify-between rounded-[1.6rem] border p-6 ${promptStyles[activePrompt.kind]}`}
+                  className={`flex min-h-64 flex-col justify-between rounded-xl border p-6 ${promptStyles[activePrompt.kind]}`}
                 >
                   <div className="flex items-center justify-between text-xs font-bold uppercase tracking-[.1em]">
                     <span>{t(`games.promptKinds.${activePrompt.kind}`)}</span><span>#{activePrompt.id}</span>
@@ -173,7 +172,7 @@ export default function PromptGame({
                 {t('games.nextQuestion')}
               </button>
             ) : (
-              <div className="card !p-3">
+              <div className="card card-sm">
                 <div className="grid grid-cols-7 gap-1.5">
                   {deck.map((promptId) => (
                     <button

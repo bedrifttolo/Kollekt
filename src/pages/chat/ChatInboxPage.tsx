@@ -8,9 +8,26 @@ import { useUser, useRealtimeEvent } from '../../context/UserContext';
 import { getLastSeenMessageId } from '../../lib/chatSeen';
 import { patchThreadsOnDirectMessage, patchThreadsOnHouseholdMessage, patchThreadsOnMessageUpdate } from '../../lib/chatThreadSummary';
 import { formatDate, formatTime } from '../../i18n/helpers';
-import { Avatar, AvatarStack, Eyebrow } from '../../components/ui-kit';
+import { Avatar, Eyebrow } from '../../components/ui-kit';
 import { PAGE_ACCENTS } from '../../lib/pageAccent';
 import type { AppUser, ChatMessage, ChatThreadSummary } from '../../lib/types';
+
+/**
+ * The household thread's avatar, drawn as two offset circles *inside* one 48px slot rather than as a
+ * row of them beside each other. A side-by-side stack is wider than a single avatar, which pushed
+ * the group row's name and preview further right than every DM row below it; the platform pattern
+ * keeps every row's text on the same left edge no matter how many people are in the conversation.
+ */
+function GroupAvatar({ members }: { members: AppUser[] }) {
+  const [first, second] = members;
+  if (!second) return <Avatar name={first.name} color={first.color} size="lg" />;
+  return (
+    <span className="relative h-12 w-12 shrink-0">
+      <Avatar name={first.name} color={first.color} className="absolute left-0 top-0 h-8 w-8 border-2 border-card text-xs" />
+      <Avatar name={second.name} color={second.color} className="absolute bottom-0 right-0 h-9 w-9 border-2 border-card text-sm" />
+    </span>
+  );
+}
 
 /** "13:50" for something said today, "10 Aug" further back — same rule as the in-thread bubble
  *  timestamps (ChatThreadPage's formatMessageTimestamp), just date-only once it's not today. */
@@ -77,54 +94,62 @@ export default function ChatInboxPage() {
 
   if (isLoading) {
     return (
-      <div className="space-y-2 pt-3 pb-6">
+      <div className="space-y-2 pt-3">
         {[0, 1, 2].map((i) => (
-          <div key={i} className="h-16 animate-pulse rounded-2xl bg-muted/20" />
+          <div key={i} className="h-[72px] skeleton animate-pulse rounded-2xl" />
         ))}
       </div>
     );
   }
 
   return (
-    <div className="space-y-1 pt-3 pb-6">
+    <div className="space-y-1 pt-3">
       <Eyebrow accent={PAGE_ACCENTS['/chat']}>{t('chat.inbox.eyebrow')}</Eyebrow>
-      <h1 className="mb-2 font-display text-2xl font-extrabold">{t('chat.inbox.title')}</h1>
+      <h1 className="mb-2 display-md">{t('chat.inbox.title')}</h1>
       <div>
         {threads.map((thread) => {
           const unread = thread.lastMessageId != null && (getLastSeenMessageId(name, thread.thread) ?? -1) < thread.lastMessageId;
           return (
+            /* Sized to the platform conversation list, not to a dense settings row: a 48px avatar
+               with 12px of padding above and below sets a ~72px row, and the type scale (17px name /
+               15px preview) is the one every other messages app on the phone uses. The separator
+               hangs off the text column rather than the button, so it stays inset under the avatar
+               the way a native list does. */
             <button
               key={thread.thread ?? '__household__'}
               onClick={() => openThread(thread)}
-              className="flex w-full items-center gap-3 border-b border-border px-2 py-3.5 text-left transition-colors hover:bg-muted/40"
+              className="flex w-full items-stretch gap-3 px-2 text-left transition-colors hover:bg-muted/40 active:bg-muted/60"
             >
-              <span className="flex shrink-0 items-center gap-1.5">
-                <span className="flex w-2 justify-center">
-                  {unread && <span className="h-2 w-2 rounded-full bg-primary" aria-hidden="true" />}
+              <span className="flex shrink-0 items-center gap-2 py-3">
+                <span className="flex w-2.5 justify-center">
+                  {unread && <span className="h-2.5 w-2.5 rounded-full bg-primary" aria-hidden="true" />}
                 </span>
                 {thread.thread === null ? (
-                  <AvatarStack members={members.length > 0 ? members : [{ name: thread.displayName }]} max={1} />
+                  <GroupAvatar members={members.length > 0 ? members : [{ name: thread.displayName } as AppUser]} />
                 ) : thread.isSystem ? (
-                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-muted text-muted-foreground">
-                    <Bot className="h-4 w-4" />
+                  <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-muted text-muted-foreground">
+                    <Bot className="h-5 w-5" />
                   </span>
                 ) : (
-                  <Avatar name={thread.displayName} color={members.find((m) => m.name === thread.thread)?.color} />
+                  <Avatar name={thread.displayName} color={members.find((m) => m.name === thread.thread)?.color} size="lg" />
                 )}
               </span>
-              <span className="min-w-0 flex-1">
-                <span className="flex items-center gap-1.5">
-                  <span className={`truncate font-display text-sm ${unread ? 'font-extrabold' : 'font-bold'}`}>{thread.displayName}</span>
+              <span className="flex min-w-0 flex-1 items-center gap-2 border-b border-border py-3">
+                <span className="min-w-0 flex-1">
+                  <span className={`block truncate font-display text-[17px] leading-tight ${unread ? 'font-extrabold' : 'font-bold'}`}>
+                    {thread.displayName}
+                  </span>
+                  {/* No `block` here: `line-clamp-2` sets its own display and the two would race. */}
+                  <span className={`mt-1 line-clamp-2 text-[15px] leading-snug ${unread ? 'font-semibold text-foreground' : 'text-muted-foreground'}`}>
+                    {thread.lastMessageDeleted
+                      ? t('chat.inbox.messageDeleted')
+                      : thread.lastMessagePreview || t('chat.inbox.noMessages')}
+                  </span>
                 </span>
-                <span className={`block truncate text-xs ${unread ? 'font-semibold text-foreground' : 'text-muted-foreground'}`}>
-                  {thread.lastMessageDeleted
-                    ? t('chat.inbox.messageDeleted')
-                    : thread.lastMessagePreview || t('chat.inbox.noMessages')}
-                </span>
+                {thread.lastMessageTimestamp && (
+                  <span className="shrink-0 self-start pt-0.5 text-[13px] text-muted-foreground">{formatRowTimestamp(thread.lastMessageTimestamp)}</span>
+                )}
               </span>
-              {thread.lastMessageTimestamp && (
-                <span className="shrink-0 self-start pt-0.5 text-[10px] text-muted-foreground">{formatRowTimestamp(thread.lastMessageTimestamp)}</span>
-              )}
             </button>
           );
         })}

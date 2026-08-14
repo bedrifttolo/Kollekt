@@ -1,44 +1,67 @@
 import { Capacitor } from '@capacitor/core';
+import { api } from './api';
+import type { ChatBackground } from './types';
 
 /**
- * Per-member chat wallpaper, stored on the device only.
+ * The wallpaper behind a chat thread — one picture per thread, the same for everyone in it.
  *
- * A wallpaper is a personal cosmetic choice, so it deliberately does not round-trip through the
- * API: keeping it local avoids putting a multi-hundred-kilobyte base64 image on the session
- * restore path, and needs no table, migration or RLS policy. The trade-off is that it does not
- * follow the member to a second device and is lost if the app is reinstalled.
+ * It used to be a per-device cosmetic stored in localStorage, which meant changing it changed it for
+ * exactly one person. It is a property of the conversation now: the server owns it, a realtime
+ * event tells the other participants' open threads to refetch, and localStorage is demoted to a
+ * paint cache so reopening a thread doesn't flash a blank background while the fetch lands.
  */
 
-const KEY_PREFIX = 'kollekt-chat-bg';
+const CACHE_PREFIX = 'kollekt-chat-bg';
 
-// Big enough to stay sharp on a 3x phone screen, small enough that the encoded string is a few
-// hundred kB rather than the several MB a raw camera capture would be.
+// Big enough to stay sharp on a 3x phone screen, small enough that the upload is a few hundred kB
+// rather than the several MB a raw camera capture would be. The backend re-checks and can downscale
+// further; this only keeps the request small.
 const MAX_EDGE = 1080;
 const JPEG_QUALITY = 0.72;
 
-function storageKey(memberName: string): string {
-  return `${KEY_PREFIX}-${memberName}`;
+/** Cache key. `otherName` is null for the household thread, the other participant for a DM. */
+function cacheKey(memberName: string, otherName: string | null): string {
+  return `${CACHE_PREFIX}-${memberName}-${otherName ?? 'household'}`;
 }
 
-export function getChatBackground(memberName: string): string | null {
+function threadQuery(memberName: string, otherName: string | null): string {
+  const params = new URLSearchParams({ memberName });
+  if (otherName) params.set('otherName', otherName);
+  return params.toString();
+}
+
+/**
+ * Last-seen wallpaper for this thread on this device. Only a paint cache — the server is the
+ * source of truth, and [fetchChatBackground] overwrites whatever this returned.
+ */
+export function getCachedChatBackground(memberName: string, otherName: string | null): string | null {
   if (!memberName) return null;
   try {
-    return localStorage.getItem(storageKey(memberName));
+    return localStorage.getItem(cacheKey(memberName, otherName));
   } catch {
     return null;
   }
 }
 
-export function clearChatBackground(memberName: string): void {
+function writeCache(memberName: string, otherName: string | null, imageUrl: string | null): void {
   try {
-    localStorage.removeItem(storageKey(memberName));
+    if (imageUrl) localStorage.setItem(cacheKey(memberName, otherName), imageUrl);
+    else localStorage.removeItem(cacheKey(memberName, otherName));
   } catch {
-    // Storage disabled — nothing to clear.
+    // Storage disabled or over quota. The wallpaper still renders this session; it just won't
+    // paint instantly on the next open.
   }
 }
 
-/** Draws the image onto a canvas capped at MAX_EDGE and re-encodes it as a JPEG data URL. */
-function downscaleToDataUrl(file: File): Promise<string> {
+export async function fetchChatBackground(memberName: string, otherName: string | null): Promise<string | null> {
+  if (!memberName) return null;
+  const result = await api.get<ChatBackground>(`/chat/background?${threadQuery(memberName, otherName)}`);
+  writeCache(memberName, otherName, result.imageUrl ?? null);
+  return result.imageUrl ?? null;
+}
+
+/** Draws the image onto a canvas capped at MAX_EDGE and re-encodes it as a JPEG blob. */
+function downscaleToBlob(file: File): Promise<Blob> {
   return new Promise((resolve, reject) => {
     const objectUrl = URL.createObjectURL(file);
     const image = new Image();
@@ -54,7 +77,11 @@ function downscaleToDataUrl(file: File): Promise<string> {
         return;
       }
       context.drawImage(image, 0, 0, canvas.width, canvas.height);
-      resolve(canvas.toDataURL('image/jpeg', JPEG_QUALITY));
+      canvas.toBlob(
+        (blob) => (blob ? resolve(blob) : reject(new Error('encode failed'))),
+        'image/jpeg',
+        JPEG_QUALITY,
+      );
     };
     image.onerror = () => {
       URL.revokeObjectURL(objectUrl);
@@ -65,18 +92,37 @@ function downscaleToDataUrl(file: File): Promise<string> {
 }
 
 /**
- * Downscales and stores `file` as the member's wallpaper, returning the data URL to render.
- * Returns null when the image can't be decoded or the result doesn't fit in storage.
+ * Downscales `file` and sets it as the thread's wallpaper for everyone in it, returning the URL to
+ * render. Returns null when the image can't be decoded or the server rejects it (moderation, an
+ * unsupported format), leaving whatever wallpaper the thread already had in place.
  */
-export async function saveChatBackground(memberName: string, file: File): Promise<string | null> {
+export async function saveChatBackground(
+  memberName: string,
+  otherName: string | null,
+  file: File,
+): Promise<string | null> {
   if (!memberName) return null;
   try {
-    const dataUrl = await downscaleToDataUrl(file);
-    localStorage.setItem(storageKey(memberName), dataUrl);
-    return dataUrl;
+    const blob = await downscaleToBlob(file);
+    const form = new FormData();
+    form.append('image', blob, 'wallpaper.jpg');
+    if (otherName) form.append('otherName', otherName);
+    const saved = await api.postForm<ChatBackground>('/chat/background', form);
+    writeCache(memberName, otherName, saved.imageUrl ?? null);
+    return saved.imageUrl ?? null;
   } catch {
-    // Decode failure, or the quota rejected the write — leave any existing wallpaper in place.
     return null;
+  }
+}
+
+/** Removes the thread's wallpaper for everyone in it. */
+export async function clearChatBackground(memberName: string, otherName: string | null): Promise<void> {
+  writeCache(memberName, otherName, null);
+  const params = otherName ? `?otherName=${encodeURIComponent(otherName)}` : '';
+  try {
+    await api.delete(`/chat/background${params}`);
+  } catch {
+    // Already gone, or offline — the next fetch reconciles.
   }
 }
 

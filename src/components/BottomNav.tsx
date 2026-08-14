@@ -102,13 +102,18 @@ export default function BottomNav() {
                 void selectionFeedback();
                 navigate(tab.path);
               }}
-              className="relative flex flex-1 items-center justify-center self-stretch"
+              // min-w-0 is the structural guard. `flex-1` alone still resolves min-width to `auto`
+              // (i.e. the content's own width), so a label wider than its 1/6 share pushed the tab
+              // out and the last one spilled past the dock's rounded edge instead of shrinking.
+              // With min-w-0 each tab takes exactly its share at any width or locale, and the worst
+              // case degrades to an ellipsis inside the dock rather than a broken nav.
+              className="relative flex min-w-0 flex-1 items-center justify-center self-stretch"
               aria-label={t(tab.labelKey)}
             >
               {/* This inner span is what layoutId measures: sized to hug the icon+label, not the
                   full-height button, so the filled pill reads as a capsule around the tab's
                   content rather than a floor-to-ceiling highlight. */}
-              <span className="relative flex flex-col items-center gap-1 rounded-full px-3 py-1.5">
+              <span className="relative flex min-w-0 max-w-full flex-col items-center gap-1 rounded-full px-2 py-1.5">
                 {isActive && (
                   <motion.span
                     layoutId="nav-active-pill"
@@ -139,8 +144,15 @@ export default function BottomNav() {
                     />
                   )}
                 </span>
+                {/* Stays at 10px. The rest of the app raised its micro-labels to 11px, but this
+                    nav carries six tabs and the Nordic labels are compounds ("Oppgaver",
+                    "Kalender"): at 11px the six tabs need 375px of a 369px dock on a 393pt phone,
+                    and the last one ("Sosialt") spills past the rounded edge. 10px fits with ~10px
+                    to spare. The 11-13px guidance for bottom navigation assumes 3-5 destinations;
+                    with six it does not fit, and a nav that renders correctly beats one that meets
+                    the number. Verified by the overflow check in src/harness/audit.ts. */}
                 <span
-                  className={`relative z-10 text-[10px] font-medium transition-colors duration-300 ${
+                  className={`relative z-10 max-w-full truncate text-[10px] font-medium transition-colors duration-300 ${
                     isActive ? 'text-sidebar-primary-foreground' : 'text-sidebar-foreground/60'
                   }`}
                 >

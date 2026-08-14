@@ -262,33 +262,13 @@ class EconomyOperations(
             }
         val members = memberEntities.map { it.name }
         val memberSet = members.toSet()
-        val payerCheckpoint = checkpoints[memberName] ?: 0L
 
         return members
             .asSequence()
             .filter { it != memberName }
             .mapNotNull { creditorName ->
-                val creditorCheckpoint = checkpoints[creditorName] ?: 0L
-                val bilateralDebt =
-                    calculateBilateralDebt(
-                        allExpenses,
-                        memberName,
-                        creditorName,
-                        memberSet,
-                        payerCheckpoint,
-                        creditorCheckpoint,
-                    )
-                val alreadyPaidByPayer =
-                    personalSettlements
-                        .asSequence()
-                        .filter { it.paidBy == memberName && it.paidTo == creditorName }
-                        .sumOf { it.amount }
-                val alreadyPaidByCreditor =
-                    personalSettlements
-                        .asSequence()
-                        .filter { it.paidBy == creditorName && it.paidTo == memberName }
-                        .sumOf { it.amount }
-                val netOwed = (bilateralDebt - alreadyPaidByPayer + alreadyPaidByCreditor).coerceAtLeast(0)
+                val netOwed =
+                    netBilateralOwed(allExpenses, memberName, creditorName, memberSet, checkpoints, personalSettlements)
 
                 if (netOwed > 0) {
                     PayOptionDto(
@@ -301,6 +281,66 @@ class EconomyOperations(
                 }
             }.sortedByDescending { it.amount }
             .toList()
+    }
+
+    /** The mirror of [buildPayOptions]: who still owes [memberName], and how much. Same pairwise
+     *  model, read from the creditor's side, so the two lists can never disagree about a pair.
+     *  Payment handles are deliberately absent — the debtor pays, so it is their creditor's handles
+     *  that matter, and this side of the breakdown is informational only. */
+    private fun buildOwedToMember(
+        memberName: String,
+        allExpenses: List<Expense>,
+        members: List<String>,
+        checkpoints: Map<String, Long>,
+        personalSettlements: List<PersonalSettlement>,
+    ): List<BalanceDto> {
+        if (allExpenses.isEmpty()) return emptyList()
+        val memberSet = members.toSet()
+
+        return members
+            .asSequence()
+            .filter { it != memberName }
+            .mapNotNull { debtorName ->
+                val netOwed =
+                    netBilateralOwed(allExpenses, debtorName, memberName, memberSet, checkpoints, personalSettlements)
+                if (netOwed > 0) BalanceDto(name = debtorName, amount = netOwed) else null
+            }.sortedByDescending { it.amount }
+            .toList()
+    }
+
+    /** What [debtor] still owes [creditor] once both settlement models are applied: the collective-wide
+     *  checkpoints (inside [calculateBilateralDebt]) and the per-pair [PersonalSettlement] rows.
+     *
+     *  Zero is the floor, and it is applied *once*, here: everything above it is signed, so the two
+     *  directions of a pair are exact mirrors and can never both report a debt. */
+    private fun netBilateralOwed(
+        allExpenses: List<Expense>,
+        debtor: String,
+        creditor: String,
+        memberSet: Set<String>,
+        checkpoints: Map<String, Long>,
+        personalSettlements: List<PersonalSettlement>,
+    ): Int {
+        val bilateralDebt =
+            calculateBilateralDebt(
+                allExpenses,
+                debtor,
+                creditor,
+                memberSet,
+                checkpoints[debtor] ?: 0L,
+                checkpoints[creditor] ?: 0L,
+            )
+        val alreadyPaidByDebtor =
+            personalSettlements
+                .asSequence()
+                .filter { it.paidBy == debtor && it.paidTo == creditor }
+                .sumOf { it.amount }
+        val alreadyPaidByCreditor =
+            personalSettlements
+                .asSequence()
+                .filter { it.paidBy == creditor && it.paidTo == debtor }
+                .sumOf { it.amount }
+        return (bilateralDebt - alreadyPaidByDebtor + alreadyPaidByCreditor).coerceAtLeast(0)
     }
 
     @Transactional
@@ -398,6 +438,7 @@ class EconomyOperations(
                     entries = pantEntries,
                 ),
             payOptions = buildPayOptions(memberName, expenses, memberEntities, checkpoints, personalSettlements),
+            owedToYou = buildOwedToMember(memberName, expenses, members, checkpoints, personalSettlements),
         )
     }
 
@@ -649,6 +690,17 @@ class EconomyOperations(
             .sortedByDescending { it.amount }
     }
 
+    /**
+     * The pair's expense-side standing, **signed**: positive means [debtor] owes [creditor], negative
+     * means the reverse. Deliberately not clamped at zero — callers add the per-pair settlement
+     * corrections on top and clamp once at the end.
+     *
+     * Clamping here used to break the identity `debt(a, b) == -debt(b, a)`, and the `+ paidByCreditor`
+     * correction in [netBilateralOwed] then had nothing to cancel against: settling a debt of X wrote
+     * a settlement row that the *opposite* direction read as X of fresh debt. The pair ping-ponged a
+     * phantom X between them forever, which is how the balance card ended up showing a settled 0 kr
+     * next to a live "settle up with N" button for the same amount.
+     */
     private fun calculateBilateralDebt(
         expenses: List<Expense>,
         debtor: String,
@@ -677,7 +729,7 @@ class EconomyOperations(
             }
         }
 
-        return (debtorOwesCreditor - creditorOwesDebtor).roundToInt().coerceAtLeast(0)
+        return (debtorOwesCreditor - creditorOwesDebtor).roundToInt()
     }
 
     private fun Expense.toDto() =

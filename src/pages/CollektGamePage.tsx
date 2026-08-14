@@ -327,10 +327,10 @@ export default function CollektGamePage() {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -10 }}
-        className="space-y-5"
+        className="space-y-4"
       >
         {loadErrorKey && (
-          <div className="glass rounded-2xl p-4 border border-destructive/30 text-sm text-destructive">
+          <div className="glass rounded-xl p-4 border border-destructive/30 text-sm text-destructive">
             {t(loadErrorKey)}
           </div>
         )}
@@ -374,8 +374,8 @@ export default function CollektGamePage() {
                   <div className="h-7 w-7 rounded-full bg-accent/20 flex items-center justify-center text-[10px] font-bold text-accent shrink-0">
                     {guest.name[0].toUpperCase()}
                   </div>
-                  <span className="text-sm flex-1">{guest.name}</span>
-                  <span className="text-[10px] text-muted-foreground font-medium">
+                  <span className="min-w-0 text-sm flex-1">{guest.name}</span>
+                  <span className="text-[11px] text-muted-foreground font-medium">
                     {t('kollektGame.setup.guest')}
                   </span>
                   <button
@@ -441,7 +441,7 @@ export default function CollektGamePage() {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
-      className="space-y-5"
+      className="space-y-4"
     >
       <div className="glass rounded-2xl p-5 space-y-4">
         <p className="text-sm font-semibold">{t('kollektGame.config.gameMode')}</p>
@@ -463,7 +463,7 @@ export default function CollektGamePage() {
                 <p className="text-[11px] text-muted-foreground mt-1 leading-tight">
                   {t(kg(`presets.${key}.description`))}
                 </p>
-                <p className="text-[10px] font-semibold mt-2 opacity-70">
+                <p className="text-[11px] font-semibold mt-2 text-muted-foreground">
                   {config.maxRounds}{t('kollektGame.config.rounds_suffix')}
                   {config.drinkMultiplier !== 1
                     ? t(kg('config.drinks_multiplier'), { m: config.drinkMultiplier })
@@ -511,7 +511,7 @@ export default function CollektGamePage() {
               </div>
               <span>{p.name}</span>
               {p.isGuest && (
-                <span className="text-[9px] text-muted-foreground">{t('kollektGame.setup.guest')}</span>
+                <span className="text-[11px] text-muted-foreground">{t('kollektGame.setup.guest')}</span>
               )}
             </div>
           ))}
@@ -523,7 +523,7 @@ export default function CollektGamePage() {
             { labelKey: 'kollektGame.config.statWeight', value: `${Math.round(presets[selectedPreset].config.statInfluence * 100)}%` },
           ].map((stat) => (
             <div key={stat.labelKey} className="rounded-xl bg-background/40 p-2.5 text-center">
-              <p className="text-[10px] text-muted-foreground uppercase tracking-widest">{t(stat.labelKey)}</p>
+              <p className="text-[11px] text-muted-foreground uppercase tracking-widest">{t(stat.labelKey)}</p>
               <p className="font-display font-bold text-base mt-0.5">{stat.value}</p>
             </div>
           ))}
@@ -540,7 +540,7 @@ export default function CollektGamePage() {
         </button>
         <button
           onClick={handleStartGame}
-          className="gradient-primary rounded-2xl py-4 font-display font-bold text-ink-foreground flex items-center justify-center gap-2"
+          className="btn-pine font-display"
         >
           <PartyPopper className="h-5 w-5" />
           {t('kollektGame.config.startGame')}
@@ -571,7 +571,7 @@ export default function CollektGamePage() {
         className="space-y-4"
       >
         {/* Progress bar */}
-        <div className="glass rounded-2xl p-4">
+        <div className="glass rounded-xl p-4">
           <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
             <span>
               {t('kollektGame.playing.roundOf', { current: roundIndex + 1, total: maxRounds })}
@@ -607,7 +607,7 @@ export default function CollektGamePage() {
               </span>
             </div>
             <h3 className="font-display text-xl font-bold leading-tight">{eventText.title}</h3>
-            <p className="text-sm leading-relaxed flex-1">{eventText.description}</p>
+            <p className="min-w-0 text-sm leading-relaxed flex-1">{eventText.description}</p>
             {(ev.drinks > 0 || ev.distributeCount) && (
               <div className="flex items-center gap-2">
                 <Zap className="h-4 w-4 text-muted-foreground" />
@@ -627,7 +627,7 @@ export default function CollektGamePage() {
         <div className="grid grid-cols-[1fr_auto] gap-2">
           <button
             onClick={handleResolve}
-            className="gradient-primary rounded-2xl py-4 font-display font-bold text-ink-foreground flex items-center justify-center gap-2"
+            className="btn-pine font-display"
           >
             <ArrowRight className="h-5 w-5" />
             {t('kollektGame.playing.done')}
@@ -657,7 +657,7 @@ export default function CollektGamePage() {
         key="summary"
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="space-y-5"
+        className="space-y-4"
       >
         <div className="glass rounded-2xl p-5 text-center">
           <Trophy className="h-12 w-12 text-secondary mx-auto mb-3" />
@@ -671,7 +671,7 @@ export default function CollektGamePage() {
           <div className="flex items-center gap-2 mb-1">
             <Zap className="h-4 w-4 text-secondary" />
             <p className="text-sm font-semibold">{t('kollektGame.summary.performance')}</p>
-            <span className="text-[10px] text-muted-foreground ml-1">
+            <span className="text-[11px] text-muted-foreground ml-1">
               {t('kollektGame.summary.performanceHint')}
             </span>
           </div>
@@ -683,7 +683,7 @@ export default function CollektGamePage() {
                 <div className="h-6 w-6 rounded-full bg-gradient-to-br from-primary/40 to-accent/40 flex items-center justify-center text-[9px] font-bold shrink-0">
                   {s.name[0].toUpperCase()}
                 </div>
-                <span className="text-sm flex-1">{s.name}</span>
+                <span className="min-w-0 text-sm flex-1">{s.name}</span>
                 <div className="flex items-center gap-2">
                   <div className="w-20 h-1.5 bg-muted rounded-full overflow-hidden">
                     <div className="h-full gradient-primary rounded-full" style={{ width: `${s.performanceScore}%` }} />
@@ -706,7 +706,7 @@ export default function CollektGamePage() {
           </button>
           <button
             onClick={() => navigate(-1)}
-            className="gradient-primary rounded-2xl py-4 font-display font-bold text-ink-foreground flex items-center justify-center gap-2 text-sm"
+            className="btn-pine font-display text-sm"
           >
             <CheckCircle2 className="h-4 w-4" />
             {t('kollektGame.summary.backToGames')}
@@ -729,7 +729,7 @@ export default function CollektGamePage() {
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      className="space-y-5 pt-4"
+      className="space-y-4 pt-3"
     >
       <div className="flex items-center gap-3">
         {phase !== 'playing' && phase !== 'summary' && (
@@ -791,15 +791,15 @@ function PlayerRow({
       <div className="flex-1 text-left min-w-0">
         <div className="flex items-center gap-1.5">
           <span className="text-sm font-medium truncate">{player.name}</span>
-          {isSelf && <span className="text-[9px] text-primary font-bold">{youLabel}</span>}
+          {isSelf && <span className="text-[11px] text-primary font-bold">{youLabel}</span>}
         </div>
         <div className="flex items-center gap-2 mt-0.5">
-          <span className="text-[10px] text-muted-foreground">
+          <span className="text-[11px] text-muted-foreground">
             {levelLabel} {player.stats.level}
           </span>
-          <span className="text-[10px] text-muted-foreground">{player.stats.tasksCompleted}</span>
+          <span className="text-[11px] text-muted-foreground">{player.stats.tasksCompleted}</span>
           {player.stats.streak > 0 && (
-            <span className="text-[10px] text-orange-400 flex items-center gap-0.5">
+            <span className="text-[11px] text-orange-400 flex items-center gap-0.5">
               <Flame className="h-2.5 w-2.5" />
               {player.stats.streak}
             </span>

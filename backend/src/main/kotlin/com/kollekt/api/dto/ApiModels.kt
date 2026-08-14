@@ -400,6 +400,19 @@ data class ChatThreadSummaryDto(
     val lastMessageDeleted: Boolean = false,
 )
 
+/**
+ * The wallpaper behind one chat thread, shared by everyone in it. All fields are null when the
+ * thread has no wallpaper set — the absence is a normal state, not an error.
+ */
+data class ChatBackgroundDto(
+    /** A ready-to-render `data:` URL, or null when the thread has no wallpaper. */
+    val imageUrl: String?,
+    val setBy: String?,
+    val updatedAt: Instant?,
+    /** null for the household thread; the other participant for a direct thread. */
+    val otherName: String?,
+)
+
 data class UserDto(
     val id: Long,
     val name: String,
@@ -698,6 +711,8 @@ data class EconomySummaryDto(
     val balances: List<BalanceDto>,
     val pantSummary: PantSummaryDto,
     val payOptions: List<PayOptionDto> = emptyList(),
+    /** The creditor-side mirror of [payOptions]: housemates who still owe *you*. */
+    val owedToYou: List<BalanceDto> = emptyList(),
 )
 
 data class BudgetDto(

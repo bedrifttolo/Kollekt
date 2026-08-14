@@ -68,7 +68,7 @@ export default function LoginPage() {
   const busy = socialLoading !== null;
 
   return (
-    <div className="app-viewport bg-background flex flex-col px-6 safe-top safe-bottom">
+    <div className="app-viewport bg-background flex flex-col px-4 safe-top safe-bottom">
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}

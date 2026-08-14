@@ -38,7 +38,7 @@ export default function DiceGame({ onClose }: { onClose: () => void }) {
           disabled={rolling}
           animate={{ rotateX: rotation, rotateY: rotation, scale: rolling ? [1, 1.15, 0.95, 1] : 1 }}
           transition={{ duration: 0.85, ease: [0.2, 0.8, 0.2, 1] }}
-          className="grid h-44 w-44 place-items-center rounded-[2.25rem] border-4 border-primary/20 bg-card text-primary shadow-[0_24px_60px_rgba(16,32,25,.22)] disabled:cursor-wait"
+          className="grid h-44 w-44 place-items-center rounded-2xl border-4 border-primary/20 bg-card text-primary shadow-[0_24px_60px_rgba(16,32,25,.22)] disabled:cursor-wait"
           aria-label={t('social.games.dice.roll')}
         >
           {(() => {

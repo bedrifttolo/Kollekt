@@ -105,7 +105,7 @@ export default function LiarsDiceGame({ onClose }: { onClose: () => void }) {
         {confirmRemove && (
           <div className="fixed inset-0 z-[70] grid place-items-center px-6">
             <motion.button initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setConfirmRemove(false)} className="absolute inset-0 bg-black/50" aria-label={t('common.cancel')} />
-            <motion.div initial={{ opacity: 0, scale: 0.9, y: 16 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }} className="relative w-full max-w-sm rounded-3xl bg-card p-6 shadow-2xl">
+            <motion.div initial={{ opacity: 0, scale: 0.9, y: 16 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }} className="relative w-full max-w-sm rounded-2xl bg-card p-6 shadow-2xl">
               <ShieldAlert className="h-10 w-10 text-destructive" /><h3 className="mt-4 font-display text-2xl font-extrabold">{t('social.games.liarsDice.confirmTitle')}</h3><p className="mt-2 text-sm text-muted-foreground">{t('social.games.liarsDice.confirmDescription')}</p>
               <div className="mt-6 grid grid-cols-2 gap-3"><button onClick={() => setConfirmRemove(false)} className="btn-ghost">{t('common.cancel')}</button><button onClick={removeDie} className="btn-pine !bg-destructive !text-destructive-foreground">{t('social.games.liarsDice.confirm')}</button></div>
             </motion.div>
