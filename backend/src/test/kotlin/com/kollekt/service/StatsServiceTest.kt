@@ -617,6 +617,7 @@ class StatsServiceTest {
                 member("Noah", "noah@example.com", id = 4),
             ),
         )
+
         fun tasksFor(vararg perMember: Pair<String, Int>) =
             perMember
                 .flatMap { (who, count) -> List(count) { who } }

@@ -512,7 +512,10 @@
     "averageMood": "Mood {{mood}}/5",
     "anonymousAuthor": "Anonymous",
     "issueLabel": "Issue",
-    "improvementLabel": "Improvement"
+    "improvementLabel": "Improvement",
+    "discussHint": "Tap an issue to bring it into the chat.",
+    "discussIssue": "Discuss this issue in the chat",
+    "discussMessage": "🗓️ From the house check-in ({{author}}): {{issue}}"
   },
   "kudos": {
     "typeLabel": "What for?",

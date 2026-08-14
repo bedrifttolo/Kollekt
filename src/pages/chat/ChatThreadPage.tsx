@@ -2,7 +2,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
-import { ArrowLeft, ArrowUp, Image as ImageIcon, BarChart3, Check, Copy, Download, X, Reply, HeartHandshake, ChevronDown, WashingMachine, Film, Lock, Plus, Smile, MessageCircleHeart, Wallpaper, Pin, PinOff, Pencil, Trash2 } from 'lucide-react';
+import { ArrowLeft, ArrowUp, Image as ImageIcon, BarChart3, Check, Copy, Download, X, Reply, HeartHandshake, ChevronDown, WashingMachine, Film, Lock, Plus, Send, Smile, MessageCircleHeart, Wallpaper, Pin, PinOff, Pencil, Trash2 } from 'lucide-react';
 
 type LaundryType = 'WHITES' | 'COLORS' | 'DELICATES' | 'WOOL' | 'SPORTS' | 'TOWELS';
 const LAUNDRY_TYPES: LaundryType[] = ['WHITES', 'COLORS', 'DELICATES', 'WOOL', 'SPORTS', 'TOWELS'];
@@ -26,7 +26,7 @@ import { formatDate, formatDateTime, formatTime } from '../../i18n/helpers';
 import { tapFeedback } from '../../lib/haptics';
 import { usePremiumEntitlement } from '../../lib/purchases';
 import SubscriptionPaywall from '../../components/SubscriptionPaywall';
-import type { AppUser, ChatMessage, CheckinSummary, HouseCheckin, Kudo, KudoType, Task } from '../../lib/types';
+import type { AppUser, ChatMessage, CheckinResponse, CheckinSummary, HouseCheckin, Kudo, KudoType, Task } from '../../lib/types';
 import MeetingTopicMenu from './MeetingTopicMenu';
 import MessageBubble from './MessageBubble';
 /** Local-only send state layered onto a message while it's in flight; never sent to the server.
@@ -697,7 +697,8 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
   };
 
   /** Posts a formatted string straight to the household thread, bypassing the composer's own
-   *  input state — used by the meeting-topic menu's "post to chat" action. */
+   *  input state — used by the meeting-topic menu's "post to chat" action and by the check-in
+   *  summary's "discuss this issue" rows. */
   const postFormattedMessage = (text: string) => {
     const tempId = -Date.now();
     const optimistic: LocalChatMessage = {
@@ -712,6 +713,20 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
     };
     setMessages((prev) => [...prev, optimistic]);
     void deliverMessage(tempId, text, null);
+  };
+
+  /** Picks one issue out of the weekly check-in and drops it into the thread as a discussion
+   *  starter — the same shape MeetingTopicMenu posts, so the ordinary reply affordance carries the
+   *  conversation from there. The summary collapses on the way out so the new message is in view. */
+  const discussCheckinIssue = (response: CheckinResponse) => {
+    const issue = response.issue?.trim();
+    if (!issue) return;
+    tapFeedback();
+    postFormattedMessage(
+      t('checkin.discussMessage', { author: response.author ?? t('checkin.anonymousAuthor'), issue }),
+    );
+    setCheckinExpanded(false);
+    setHeaderExpanded(false);
   };
 
   const retryMessage = (message: LocalChatMessage) => {
@@ -1263,10 +1278,29 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
                 {checkinExpanded && (
                   <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
                     <div className="space-y-2 px-3 pb-3">
+                      <p className="text-[11px] text-muted-foreground">{t('checkin.discussHint')}</p>
                       {checkinSummary.responses.map((response) => (
                         <div key={response.id} className="rounded-xl bg-card p-3 text-xs">
                           <p className="font-bold">{response.author ?? t('checkin.anonymousAuthor')} · {response.mood}/5</p>
-                          <p className="mt-1"><span className="text-muted-foreground">{t('checkin.issueLabel')}:</span> {response.issue}</p>
+                          {/* The issue is the one line people act on, so it is a 44px-tall button that
+                              posts it into the thread; the improvement stays plain text. */}
+                          {response.issue?.trim() ? (
+                            <button
+                              type="button"
+                              onClick={() => discussCheckinIssue(response)}
+                              aria-label={t('checkin.discussIssue')}
+                              className="pressable-tight mt-1 flex min-h-[44px] w-full items-center gap-2 rounded-lg bg-muted/40 px-2.5 py-2 text-left"
+                            >
+                              <span className="min-w-0 flex-1">
+                                <span className="text-muted-foreground">{t('checkin.issueLabel')}:</span> {response.issue}
+                              </span>
+                              <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-ink text-ink-foreground">
+                                <Send className="h-3.5 w-3.5" />
+                              </span>
+                            </button>
+                          ) : (
+                            <p className="mt-1"><span className="text-muted-foreground">{t('checkin.issueLabel')}:</span> {response.issue}</p>
+                          )}
                           <p className="mt-1"><span className="text-muted-foreground">{t('checkin.improvementLabel')}:</span> {response.improvement}</p>
                         </div>
                       ))}

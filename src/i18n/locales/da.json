@@ -512,7 +512,10 @@
     "averageMood": "Humør {{mood}}/5",
     "anonymousAuthor": "Anonym",
     "issueLabel": "Emne",
-    "improvementLabel": "Forbedring"
+    "improvementLabel": "Forbedring",
+    "discussHint": "Tryk på et emne for at tage det op i chatten.",
+    "discussIssue": "Diskuter emnet i chatten",
+    "discussMessage": "🗓️ Emne fra hustjekket ({{author}}): {{issue}}"
   },
   "kudos": {
     "typeLabel": "For hvad?",

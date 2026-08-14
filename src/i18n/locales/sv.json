@@ -512,7 +512,10 @@
     "averageMood": "Humör {{mood}}/5",
     "anonymousAuthor": "Anonym",
     "issueLabel": "Fråga",
-    "improvementLabel": "Förbättring"
+    "improvementLabel": "Förbättring",
+    "discussHint": "Tryck på en fråga för att ta upp den i chatten.",
+    "discussIssue": "Diskutera frågan i chatten",
+    "discussMessage": "🗓️ Fråga från husavstämningen ({{author}}): {{issue}}"
   },
   "kudos": {
     "typeLabel": "För vad?",

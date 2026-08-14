@@ -512,7 +512,10 @@
     "averageMood": "Humør {{mood}}/5",
     "anonymousAuthor": "Anonym",
     "issueLabel": "Sak",
-    "improvementLabel": "Forbedring"
+    "improvementLabel": "Forbedring",
+    "discussHint": "Trykk på en sak for å ta den opp i chatten.",
+    "discussIssue": "Diskuter saken i chatten",
+    "discussMessage": "🗓️ Sak fra husmøtet ({{author}}): {{issue}}"
   },
   "kudos": {
     "typeLabel": "For hva?",
