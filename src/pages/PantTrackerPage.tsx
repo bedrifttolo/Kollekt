@@ -14,9 +14,11 @@ import { CountUp, Eyebrow, OverflowMenu, ProgressBar, ProgressRing } from "../co
 import { PAGE_ACCENTS } from "../lib/pageAccent";
 import { celebrate } from "../lib/celebrate";
 import { useReducedMotion } from "../lib/motion";
+import { useSwipeBack } from "../lib/swipeBack";
 
 export default function PantTrackerPage() {
   const navigate = useNavigate();
+  useSwipeBack(() => navigate("/economy"));
   const { t } = useTranslation();
   const { currentUser } = useUser();
   // Seed from the warm React Query cache so re-entering the tab renders instantly instead

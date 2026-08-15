@@ -578,9 +578,6 @@
     "subscribeTitle": "Lägg till i telefonens kalender",
     "subscribeSubtitle": "Prenumerera med iPhone- eller Android-kalendern på hushållets flöde",
     "subscribeButton": "Prenumerera",
-    "subscribeCopy": "Kopiera",
-    "subscribeManualHint": "Om Prenumerera säger att valideringen misslyckades, kopiera länken och klistra in den i Kalender > Lägg till prenumererad kalender.",
-    "subscribeUrlLabel": "Länk för kalenderprenumeration",
     "newEvent": "Ny händelse",
     "addModes": {
       "event": "Händelse",

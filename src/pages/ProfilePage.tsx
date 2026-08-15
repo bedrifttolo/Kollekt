@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useReducedMotion } from "../lib/motion";
+import { useSwipeBack } from "../lib/swipeBack";
 import {
   Mail,
   LogOut,
@@ -104,6 +105,9 @@ const NOTIFICATION_TYPES = [
 
 export default function ProfilePage() {
   const navigate = useNavigate();
+  // Same action as the back button in the header below — swiping in from the left edge is just
+  // another way to press it.
+  useSwipeBack(() => navigate(-1));
   const { t } = useTranslation();
   const { theme, setTheme, resolvedTheme, accent, setAccent } = useTheme();
   const {

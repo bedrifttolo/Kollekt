@@ -679,6 +679,9 @@ export function Sheet({
     <AnimatePresence>
       {open && (
         <motion.div
+          /* An open sheet owns the screen — the edge-swipe back gesture stands down until it is
+             dismissed (see lib/swipeBack.tsx). */
+          data-swipe-block
           className={cn(
             'fixed inset-0 z-[60] flex justify-center bg-black/45 backdrop-blur-[2px]',
             placement === 'bottom' ? 'items-end px-2 pb-2' : 'items-center p-4',

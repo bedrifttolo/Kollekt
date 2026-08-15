@@ -31,7 +31,8 @@ export default function AppLayout() {
 
   return (
     <AuthGate>
-      <div className="app-viewport bg-background max-w-xl mx-auto relative overflow-x-hidden">
+      {/* data-swipe-surface: what the edge-swipe back gesture slides (see lib/swipeBack.tsx). */}
+      <div data-swipe-surface className="app-viewport bg-background max-w-xl mx-auto relative overflow-x-hidden">
         <AppHeader />
         <main className="safe-content-bottom px-4 sm:px-6 pt-2">
           {/* Keeps header + bottom nav visible while a lazily loaded tab's chunk downloads. No

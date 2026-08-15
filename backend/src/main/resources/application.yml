@@ -77,7 +77,7 @@ app:
     # it's live, to trigger the "update available" overlay on older installs. Bumping it early
     # (while the new build is still in review) would send users to an App Store page that
     # doesn't have it yet.
-    latest-ios: ${APP_VERSION_LATEST_IOS:1.1}
+    latest-ios: ${APP_VERSION_LATEST_IOS:1.2}
     ios-store-url: ${APP_VERSION_IOS_STORE_URL:https://apps.apple.com/no/app/kollekt/id6788522377?l=nb}
     # Hard floor: below this, the overlay drops its "Wait" button and the app can't be used until
     # the user updates. `0` is inert — nothing is ever forced until this is deliberately raised.

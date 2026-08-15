@@ -578,9 +578,6 @@
     "subscribeTitle": "Add to your phone's calendar",
     "subscribeSubtitle": "Subscribe your iPhone or Android calendar to the household feed",
     "subscribeButton": "Subscribe",
-    "subscribeCopy": "Copy",
-    "subscribeManualHint": "If Subscribe says validation failed, copy this link and paste it into Calendar > Add Subscribed Calendar.",
-    "subscribeUrlLabel": "Calendar subscription link",
     "newEvent": "New Event",
     "addModes": {
       "event": "Event",

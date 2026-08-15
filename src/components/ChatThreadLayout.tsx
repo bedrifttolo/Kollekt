@@ -10,7 +10,7 @@ import AuthGate from './AuthGate';
 export default function ChatThreadLayout() {
   return (
     <AuthGate>
-      <div className="app-viewport bg-background max-w-xl mx-auto relative overflow-x-hidden">
+      <div data-swipe-surface className="app-viewport bg-background max-w-xl mx-auto relative overflow-x-hidden">
         <Outlet />
       </div>
     </AuthGate>

@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useSwipeBack } from '../lib/swipeBack';
 
 /**
  * Full-screen shell for an in-app game.
@@ -30,6 +31,8 @@ export function GameHeader({
   onClose: () => void;
 }) {
   const { t } = useTranslation();
+  // Leaving a game with a left-edge swipe closes it exactly like the button does.
+  useSwipeBack(onClose);
   return (
     <div className="flex items-center gap-3">
       <button onClick={onClose} className="btn-ghost !p-3" aria-label={t('common.back')}>

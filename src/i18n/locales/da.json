@@ -578,9 +578,6 @@
     "subscribeTitle": "Føj til telefonens kalender",
     "subscribeSubtitle": "Abonnér med iPhone- eller Android-kalenderen på husstandens feed",
     "subscribeButton": "Abonnér",
-    "subscribeCopy": "Kopiér",
-    "subscribeManualHint": "Hvis Abonnér siger at valideringen mislykkedes, kopiér linket og indsæt det i Kalender > Tilføj abonnementskalender.",
-    "subscribeUrlLabel": "Link til kalenderabonnement",
     "newEvent": "Ny begivenhed",
     "addModes": {
       "event": "Begivenhed",

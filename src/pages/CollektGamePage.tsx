@@ -24,6 +24,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { api } from '../lib/api';
 import { tapFeedback } from '../lib/haptics';
+import { useSwipeBack } from '../lib/swipeBack';
 import { useUser } from '../context/UserContext';
 import {
   ALCOHOL_MODE_AVAILABLE,
@@ -105,6 +106,13 @@ export default function CollektGamePage() {
 
   // ── Data / setup state ─────────────────────────────────────────────────────
   const [phase, setPhase] = useState<Phase>('loading');
+  // Mirrors whichever back affordance is on screen: the config step steps back to setup, the
+  // earlier phases leave the game, and mid-round there is no back button — so no swipe either,
+  // rather than dropping someone out of a running game by accident.
+  useSwipeBack(
+    () => (phase === 'config' ? setPhase('setup') : navigate(-1)),
+    phase !== 'playing' && phase !== 'summary',
+  );
   // Store the i18n key, not the translated string — translating happens at render
   // time so switching language always shows the current translation.
   const [loadErrorKey, setLoadErrorKey] = useState<string | null>(null);

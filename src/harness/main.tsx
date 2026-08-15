@@ -31,6 +31,7 @@ import { ThemeProvider } from '../context/ThemeContext';
 import { queryClient } from '../lib/queryClient';
 import AppHeader from '../components/AppHeader';
 import BottomNav from '../components/BottomNav';
+import { SwipeBackGesture } from '../lib/swipeBack';
 import { mountAudit } from './audit';
 import { OVERLAY_NAMES, OverlayStage } from './overlays';
 
@@ -117,6 +118,8 @@ function Harness() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <MemoryRouter initialEntries={[route]}>
+          {/* Same single mount App.tsx does, so the edge-swipe gesture can be exercised here. */}
+          <SwipeBackGesture />
           {/*
             `transform` is load-bearing, not decoration. A transformed ancestor becomes the
             containing block for `position: fixed` descendants, so the bottom nav, the FAB and every
@@ -135,7 +138,7 @@ function Harness() {
           <div style={{ width, maxWidth: width, transform: 'translate(0)', outline: '1px solid rgba(255,0,0,.35)' }}>
             <OverlayStage name={overlay ?? ''}>
             {wantsChrome ? (
-              <div className="app-viewport bg-background relative overflow-x-hidden">
+              <div data-swipe-surface className="app-viewport bg-background relative overflow-x-hidden">
                 <AppHeader />
                 <main className="safe-content-bottom px-4 pt-2">
                   <Component />
@@ -143,7 +146,11 @@ function Harness() {
                 <BottomNav />
               </div>
             ) : (
-              <Component />
+              // Mirrors ChatThreadLayout, which is what wraps the chrome-less routes in the real
+              // app — including the surface the edge-swipe back gesture slides.
+              <div data-swipe-surface>
+                <Component />
+              </div>
             )}
             </OverlayStage>
           </div>

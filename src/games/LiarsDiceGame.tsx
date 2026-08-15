@@ -3,12 +3,15 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowLeft, RotateCcw, ShieldAlert, Trash2, Dice1, Dice2, Dice3, Dice4, Dice5, Dice6 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { tapFeedback } from '../lib/haptics';
+import { useSwipeBack } from '../lib/swipeBack';
 
 const DIE_FACE_ICONS = [Dice1, Dice2, Dice3, Dice4, Dice5, Dice6];
 const STARTING_COUNTS = Array.from({ length: 10 }, (_, index) => index + 1);
 
 export default function LiarsDiceGame({ onClose }: { onClose: () => void }) {
   const { t } = useTranslation();
+  // Own shell rather than GameScreen's, so the edge-swipe is registered here.
+  useSwipeBack(onClose);
   const [selectedCount, setSelectedCount] = useState(5);
   const [diceCount, setDiceCount] = useState(5);
   const [started, setStarted] = useState(false);

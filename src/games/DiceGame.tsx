@@ -3,11 +3,14 @@ import { motion } from 'framer-motion';
 import { ArrowLeft, Dice1, Dice2, Dice3, Dice4, Dice5, Dice6 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { tapFeedback } from '../lib/haptics';
+import { useSwipeBack } from '../lib/swipeBack';
 
 const DIE_FACE_ICONS = [Dice1, Dice2, Dice3, Dice4, Dice5, Dice6];
 
 export default function DiceGame({ onClose }: { onClose: () => void }) {
   const { t } = useTranslation();
+  // This game draws its own shell instead of GameScreen's, so it registers the edge-swipe itself.
+  useSwipeBack(onClose);
   const [value, setValue] = useState(1);
   const [rotation, setRotation] = useState(0);
   const [rolling, setRolling] = useState(false);

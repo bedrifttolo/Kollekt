@@ -147,12 +147,21 @@ export default function CalendarPage() {
     },
   });
 
-  const [feedCopied, setFeedCopied] = useState(false);
-  const copyFeedUrl = async () => {
+  // Subscribing hands off to the OS calendar, which never reports back — so "did this member
+  // already subscribe?" is only ever a local guess, remembered per member so the card stops
+  // taking up room on the calendar tab once they've used it.
+  const subscribedKey = `kollekt-calendar-subscribed-${name}`;
+  const [feedSubscribed, setFeedSubscribed] = useState(() => {
     try {
-      await navigator.clipboard.writeText(feedUrl);
-      setFeedCopied(true);
-      setTimeout(() => setFeedCopied(false), 1500);
+      return localStorage.getItem(subscribedKey) === "1";
+    } catch {
+      return false;
+    }
+  });
+  const markFeedSubscribed = () => {
+    setFeedSubscribed(true);
+    try {
+      localStorage.setItem(subscribedKey, "1");
     } catch {}
   };
 
@@ -450,11 +459,14 @@ export default function CalendarPage() {
         </div>
       </div>
 
-      {/* One tap subscribes the phone's own calendar (iOS/Android) to the household feed, read-only. */}
-      {feedUrl && (
+      {/* One tap subscribes the phone's own calendar (iOS/Android) to the household feed, read-only.
+          Once used, the whole card goes away — it is a one-time setup step, not something the
+          calendar tab should keep advertising. */}
+      {feedUrl && !feedSubscribed && (
         <div className="rounded-md border border-border bg-card">
           <a
             href={feedUrl.replace(/^https?:\/\//, "webcal://")}
+            onClick={markFeedSubscribed}
             className="flex items-center gap-3 p-2.5 transition-colors hover:bg-muted/30"
           >
             <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-primary/15">
@@ -468,26 +480,6 @@ export default function CalendarPage() {
               {t("calendar.subscribeButton")}
             </span>
           </a>
-          {/* `webcal://` resolves to plain http, which our host 301s to https — and Apple's
-              subscription check does not always survive that hop. The https URL always works when
-              pasted into Calendar > Add Subscribed Calendar, so keep it one tap away. */}
-          <div className="border-t border-border p-2.5">
-            <button
-              type="button"
-              onClick={() => void copyFeedUrl()}
-              className="flex min-h-11 w-full items-center gap-2 text-left"
-            >
-              <code className="min-w-0 flex-1 truncate rounded-lg bg-muted/50 px-2 py-1.5 text-[11px] text-muted-foreground">
-                {feedUrl}
-              </code>
-              <span className="shrink-0 rounded-lg border border-border px-2.5 py-1.5 text-xs font-semibold">
-                {feedCopied ? <Check className="h-3.5 w-3.5 text-primary" /> : t("calendar.subscribeCopy")}
-              </span>
-            </button>
-            <p className="mt-1.5 text-[11px] leading-snug text-muted-foreground">
-              {t("calendar.subscribeManualHint")}
-            </p>
-          </div>
         </div>
       )}
 

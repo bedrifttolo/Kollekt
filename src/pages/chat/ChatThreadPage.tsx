@@ -18,6 +18,7 @@ import { queryClient as sharedQueryClient } from '../../lib/queryClient';
 import { capturePhotoFile, nativeCameraAvailable } from '../../lib/camera';
 import { clearChatBackground, fetchChatBackground, getCachedChatBackground, pickChatBackgroundFile, saveChatBackground } from '../../lib/chatBackground';
 import { getLastSeenMessageId, setLastSeenMessageId } from '../../lib/chatSeen';
+import { useSwipeBack } from '../../lib/swipeBack';
 import { keyboardHeight, onKeyboardInset } from '../../lib/keyboardInsets';
 import { decorateMessages, newestMessageId } from '../../lib/chatThread';
 import { CHAT_SYSTEM_SENDER } from '../../lib/chatThreadSummary';
@@ -271,6 +272,10 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
   useEffect(() => {
     expandedImageDragY.set(0);
   }, [expandedImage?.src, expandedImageDragY]);
+  // Leaving a thread with a left-edge swipe, the way Messages and Snapchat do — same destination
+  // as the header's back button. Suspended while a full-screen layer (photo viewer, message
+  // popover, paywall) is up, since those own the whole screen and dismiss themselves.
+  useSwipeBack(() => navigate('/chat'), !expandedImage && popoverMessageId === null && !showPaywall);
   const [loading, setLoading] = useState(
     () => !sharedQueryClient.getQueryData(threadCacheKey(currentUser?.name ?? '')),
   );
@@ -1807,6 +1812,7 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
               initial="hidden"
               animate="show"
               exit="exit"
+              data-swipe-block
               className="fixed inset-0 z-40 bg-black/40 backdrop-blur-md"
               onClick={closePopover}
             >
@@ -1963,6 +1969,7 @@ export default function ChatThreadPage({ thread: fixedThread }: ChatThreadPagePr
                the whole screen and capped it at a guessed 90dvh — which left ~42pt of slack against
                a 47-59pt notch inset, so the top of a portrait photo sat under the status bar with
                the buttons floating on top of the picture. */
+            data-swipe-block
             className="absolute inset-0 z-50 flex flex-col overflow-hidden"
             style={{
               backgroundColor: expandedImageBackdrop,

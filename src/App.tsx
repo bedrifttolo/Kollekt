@@ -6,6 +6,7 @@ import AppLayout from './components/AppLayout';
 import ChatThreadLayout from './components/ChatThreadLayout';
 import UpdateOverlay from './components/UpdateOverlay';
 import { LoadingDot } from './components/ui-kit';
+import { SwipeBackGesture } from './lib/swipeBack';
 
 // Route-level code splitting: each page loads as its own chunk so the initial
 // download stays small (the games engine alone is a large chunk that only
@@ -112,6 +113,8 @@ export default function App() {
       <BrowserRouter>
         <UserProvider>
           <AppRoutes />
+          {/* Mounted once for the app's lifetime; screens opt in with useSwipeBack(). */}
+          <SwipeBackGesture />
           <UpdateOverlay />
         </UserProvider>
       </BrowserRouter>
