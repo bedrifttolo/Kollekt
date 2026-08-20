@@ -9,8 +9,8 @@
  * single place to change the default. They are deliberately absolute: the links open in the
  * in-app browser on native, where a relative path would resolve against the capacitor:// origin.
  */
-const DEFAULT_TERMS_URL = 'https://kollekt.no/terms';
-const DEFAULT_PRIVACY_URL = 'https://kollekt.no/privacy';
+const DEFAULT_TERMS_URL = 'https://www.tolojensentech.no/kollekt/terms';
+const DEFAULT_PRIVACY_URL = 'https://www.tolojensentech.no/kollekt/privacy';
 
 export const TERMS_URL = import.meta.env.VITE_TERMS_URL?.trim() || DEFAULT_TERMS_URL;
 export const PRIVACY_URL = import.meta.env.VITE_PRIVACY_URL?.trim() || DEFAULT_PRIVACY_URL;
